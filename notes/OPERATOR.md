@@ -3,20 +3,24 @@
 Newest information first under each heading. Layout defined in MASTER.md §8.8.
 
 ## Now
-- Time (ET): 2026-10-05 17:35
+- Time (ET): 2026-10-05 18:45
 - Sprint day: Day 1 of 8 (Mon Oct 5)
-- Next gate: Gate 1 (engine), due 11 pm ET. **At risk:** B2 code and env are ready (vLLM 0.31.0 env `.venv-atlas-031-clean`, 13 unit tests pass) but `blocked` on the pause marker, because its acceptance needs GPU cells. Same for B3.
-- Pause marker: PRESENT.
-- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; rebase on main, then `git -C ../SpecTLM merge --ff-only claude/ops`; primary tree stays on clean main; Codex uses `.worktrees/<ID>`). Commit as claude-ops with `git -c user.name=... -c user.email=...`; never `git config`.
-- Owner decision pending from B6: centering of the delta term (see §1).
+- Gate 1: report ready (`reports/GATE-1.md`, 18:32), recommends PASS; waiting on owner D-08 plus compile-cache/noise-floor decisions.
+- Next gate: Gate 2 (Wed noon). Next deliverable: `reports/2026-10-06.md` by 7:00 am.
+- Pause marker: lifted 17:32 (§13 D-12).
+- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; run `git rebase main` as its own step, then `git -C ../SpecTLM merge --ff-only claude/ops`). Commit with `git -c user.name=claude-ops -c user.email=claude-ops@localhost`; never `git config`. Run worktrees: `/home/heck2/sbhansali8/SpecTLM-runs/<run-tag>`.
+- Launch with `ops/launch.py` (setsid-based) and wave scripts in `ops/waves/`; cells use `HF_HUB_OFFLINE=1`, plus `VLLM_CACHE_ROOT={out_dir}/vllm_cache` for fresh compile.
 
 ## Active jobs
 | Run ID | Task | Cluster | Started (ET) | ETA | Status |
 | --- | --- | --- | --- | --- | --- |
-| (none) | | | | | |
+| B1 curators (codex-1) | B1 | heck-srv2 CPU / HF | 17:07 | Llama inspection ~19:25 | Qwen3 inspected 4876/4877, 105 downloads; Llama 5301/7209 |
+| A1 waves 1–3 (74 runs) | A1 | A40 heck-srv1–5 | 17:56 | — | finished 18:29; 71 included |
 
 ## Queue (ready to launch next)
-- A1 (Gate 1): waits on B2 → review, and the pause being lifted.
+- A2 pool-freeze proposal: when B1 → review (prepare the proposal for the owner).
+- A4/A7 atlas sweeps: need A3 (B4 + A2), the owner's compile-cache decision, and D-05 predictions recorded.
+- A5 ledger children: deps met (A1 done), but it needs the update-library list of ~50 Llama configs; to prepare.
 
 ## Open incidents
 - INC-1 (16:48; updated 17:05): HF token at `$HF_HOME/token` is **write**-scoped (`role: write`, display name `spectlm`). At 16:48 codex-1 changed AGENTS.md rule 9 (commit ff2ef3c) to say the owner authorized the write-capable token for reads and downloads on 2026-10-05. There is no §13 row and no journal citation. Treated as owner-authorized; asking the owner to confirm and record it in §13.
@@ -27,6 +31,8 @@ Newest information first under each heading. Layout defined in MASTER.md §8.8.
 - INC-4 (16:48; updated ~17:00; first written as 17:25, a mis-stamp): home `/nethome/sbhansali8` is **over** its soft quota (15.76 of 15.36 GB; 6-day grace). Causes: `~/.local/state/tmux-persistent/exit.log` is 553 MB because user service `tmux-persistent.service` (`tmux -D`) has crash-looped every ~2 s since Aug, appending one line per exit; `~/.local/lib/python3.9` user site-packages is 7.0 GB (torch 1.7 G, nvidia 4.1 G); `~/.cache/copilot.premigration-20260728` is 764 MB. The operator's offload (move to `/home/heck2` and symlink back) was denied by the permission classifier; the commands were handed to the owner at ~17:00.
 
 ## Recently verified
+- 18:32 A1 done (71 cells validated; GATE-1 written). O1 done (8 tests).
+- 17:54 B2 → done (fresh checkout: 14 tests pass; checker re-run; all six cells recomputed from raw counters; configs matched).
 - 17:14 W1 → done (fresh checkout; 2 passed; method 2 pp, atlas 1 pp; no warnings). Non-blocking: build relies on TEXINPUTS=paper/style.
 
 ## Inventory (2026-10-05 16:41–16:48 ET)
