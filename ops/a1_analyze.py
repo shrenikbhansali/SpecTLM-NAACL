@@ -42,6 +42,8 @@ def validate(cell: Path, gold_ids, gold_sha):
             probs.append(f"{r['prompt_id']}: AL {al} outside [1, K+1]")
         als.append(al)
     macro = st.mean(als)
+    res = dict(res, completion_tokens_total=sum(len(r["completion_token_ids"]) for r in recs),
+               max_new_tokens=cfg.get("max_new_tokens"))
     if abs(macro - res["macro_acceptance_length"]) > 1e-9:
         probs.append("macro recompute mismatch")
     return cfg, res, macro, probs
@@ -71,10 +73,27 @@ def main():
                              method=cfg["method"], node=lcfg["launch"]["node"], gpu=lcfg["launch"]["gpus"],
                              gen_s=res["generation_wall_s"], startup_s=res["startup_s"], cell_s=res["cell_wall_s"],
                              ci=res.get("prompt_bootstrap_95_ci"), dflash_block=res.get("dflash_block_size"),
-                             gpu_type=res.get("gpu_type"), engine=res.get("engine_version"))
+                             gpu_type=res.get("gpu_type"), engine=res.get("engine_version"),
+                             tok=res["completion_tokens_total"], tok_s=res["completion_tokens_total"] / res["generation_wall_s"],
+                             mnt=res["max_new_tokens"])
+    out = {"n_cells": len(cells), "excluded": excluded, "cells": cells}
+    groups = {"shared_compile": None, "fresh_compile": "freshcompile", "fresh_compile_mnt512": "freshcompile-mnt512"}
+    for gname, gtag in groups.items():
+        g = {k: v for k, v in cells.items() if v["rep"] is not None and v["method"] == "eagle3" and v["tag"] == gtag}
+        if gname == "fresh_compile":
+            out["noise_dflash_fresh_compile_values"] = sorted(round(v["macro"], 6) for v in cells.values()
+                                                              if v["method"] == "dflash" and v["tag"] == "freshcompile")
+        gv = [v["macro"] for v in g.values()]
+        if len(gv) < 2:
+            continue
+        pair = sorted(abs(x - y) for x, y in itertools.combinations(gv, 2))
+        out[f"noise_{gname}"] = dict(n=len(gv), mean=st.mean(gv), sd=st.stdev(gv), min=min(gv), max=max(gv),
+                                     range=max(gv) - min(gv), distinct_values=len(set(round(x, 12) for x in gv)),
+                                     pairwise_abs_diff_median=st.median(pair),
+                                     pairwise_abs_diff_p95=pair[int(0.95 * (len(pair) - 1))],
+                                     values=sorted(round(x, 6) for x in gv))
     reps = {k: v for k, v in cells.items() if v["rep"] is not None and v["method"] == "eagle3" and not v["tag"]}
     rv = [v["macro"] for v in reps.values()]
-    out = {"n_cells": len(cells), "excluded": excluded, "cells": cells}
     if len(rv) >= 2:
         pair = sorted(abs(x - y) for x, y in itertools.combinations(rv, 2))
         out["noise"] = dict(n=len(rv), mean=st.mean(rv), sd=st.stdev(rv), min=min(rv), max=max(rv), range=max(rv) - min(rv),
@@ -99,10 +118,10 @@ def main():
     if a.out:
         Path(a.out).write_text(json.dumps(out, indent=1))
     print(json.dumps({k: v for k, v in out.items() if k != "cells"}, indent=1))
-    print("\n| run | method | tag/rep | node:gpu | macro AL | gen s | startup s | cell s | problems |\n|---|---|---|---|---|---|---|---|---|")
+    print("\n| run | method | tag/rep | node:gpu | max tok | macro AL | gen s | out tok/s | startup s | cell s | problems |\n|---|---|---|---|---|---|---|---|---|---|---|")
     for k, v in sorted(cells.items()):
-        print(f"| {k} | {v['method']} | {v['tag'] or v['rep'] or ''} | {v['node']}:{v['gpu']} | {v['macro']:.4f} | "
-              f"{v['gen_s']:.0f} | {v['startup_s']:.0f} | {v['cell_s']:.0f} | {'; '.join(v['problems'][:3]) or 'none'} |")
+        print(f"| {k} | {v['method']} | {v['tag'] or ''}{('-r' + str(v['rep'])) if v['rep'] else ''} | {v['node']}:{v['gpu']} | {v['mnt']} | {v['macro']:.4f} | "
+              f"{v['gen_s']:.0f} | {v['tok_s']:.1f} | {v['startup_s']:.0f} | {v['cell_s']:.0f} | {'; '.join(v['problems'][:3]) or 'none'} |")
 
 
 if __name__ == "__main__":

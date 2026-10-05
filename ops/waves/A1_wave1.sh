@@ -18,7 +18,7 @@ cell() { # node gpu drafter-label tgt trev dmodel drev method [extra launcher ar
   local la=() ra=(); while [[ $# -gt 0 && $1 != -- ]]; do la+=("$1"); shift; done; [[ ${1:-} == -- ]] && shift; ra=("$@")
   $L --drafter "$dl" --node "$node" --gpus "$gpu" --target "$tgt" --target-rev "$trev" --drafter-model "$dm" --drafter-rev "$dr" "${la[@]}" -- \
     "$PY" -u -m atlas.run_cell --target "$tgt" --target-revision "$trev" --drafter "$dm" --drafter-revision "$dr" --method "$meth" \
-    --K 4 --prompts "$P" --seed 0 --max-new-tokens 128 --gpu-memory-utilization .70 --output "{out_dir}/cell" "${ra[@]}"
+    --K 4 --prompts "$P" --seed 0 --max-new-tokens ${MAXTOK:-128} --gpu-memory-utilization .70 --output "{out_dir}/cell" "${ra[@]}"
 }
 # r01/r02 were started at 17:56/17:58 by the first (hanging-ssh) attempt and are registered by hand; start at r03.
 r=2
