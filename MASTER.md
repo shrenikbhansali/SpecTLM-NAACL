@@ -172,7 +172,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:42:06-04:00 | [journal](notes/B1.md) |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:46:43-04:00 | [journal](notes/B2.md); GPU acceptance paused |
-| B3 | LoRA-mixture builder | P0 | codex | — | Mon | todo | | |
+| B3 | LoRA-mixture builder | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:51:41-04:00 | [journal](notes/B3.md) |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | todo | | |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | todo | | |
