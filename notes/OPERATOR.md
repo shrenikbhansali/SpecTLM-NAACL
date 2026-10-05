@@ -3,11 +3,12 @@
 Newest information first under each heading. Layout defined in MASTER.md §8.8.
 
 ## Now
-- Time (ET): 2026-10-05 16:50
+- Time (ET): 2026-10-05 17:15
 - Sprint day: Day 1 of 8 (Mon Oct 5)
-- Next gate: Gate 1 (engine), due Mon Oct 5, 11 pm ET. Needs B2 in review **and** the pause marker lifted.
-- Pause marker: PRESENT (`tlm-spec-maintenance/EXPERIMENTS_PAUSED.json`).
-- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; rebase on main, then update main with `git -C ../SpecTLM merge --ff-only claude/ops` (primary tree stays on clean main; Codex uses `.worktrees/<ID>`)).
+- Next gate: Gate 1 (engine), due 11 pm ET. **At risk:** B2 code and env are ready (vLLM 0.31.0 env `.venv-atlas-031-clean`, 13 unit tests pass) but `blocked` on the pause marker, because its acceptance needs GPU cells. Same for B3.
+- Pause marker: PRESENT.
+- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; rebase on main, then `git -C ../SpecTLM merge --ff-only claude/ops`; primary tree stays on clean main; Codex uses `.worktrees/<ID>`). Commit as claude-ops with `git -c user.name=... -c user.email=...`; never `git config`.
+- Owner decision pending from B6: centering of the delta term (see §1).
 
 ## Active jobs
 | Run ID | Task | Cluster | Started (ET) | ETA | Status |
@@ -19,12 +20,12 @@ Newest information first under each heading. Layout defined in MASTER.md §8.8.
 
 ## Open incidents
 - INC-1 (16:48; updated 17:05): HF token at `$HF_HOME/token` is **write**-scoped (`role: write`, display name `spectlm`). At 16:48 codex-1 changed AGENTS.md rule 9 (commit ff2ef3c) to say the owner authorized the write-capable token for reads and downloads on 2026-10-05. There is no §13 row and no journal citation. Treated as owner-authorized; asking the owner to confirm and record it in §13.
-- INC-2 (16:48): `/home/heck2` (heck-nfs1, 77 T) is 97% full with 2.5 TB free and shared with other users. B1 downloads of full fine-tunes (~16 GB each) for ~100 candidates per base plus B5 feature capture will not fit. Owner action listed in §1; B1 must check capacity before staging full fine-tunes. **Update 17:25:** B1's Qwen3 draft sample (100 models) totals 1.18 TB (full_finetune 28 × 18.7 GB, rl_tuned 26 × 17.7 GB, lora 28 × 0.5 GB). Llama is likely similar, so both pools need ≈2.3 TB of the 2.5 TB free, before any B5 feature capture. Owner is freeing a few TB (17:25). Owner asked whether the atlas needs full fine-tunes: per §5.7 the atlas is stratified across types and the method bank is LoRA-only; scope is the owner's call.
+- INC-2 (16:48): `/home/heck2` (heck-nfs1, 77 T) is 97% full with 2.5 TB free and shared with other users. B1 downloads of full fine-tunes (~16 GB each) for ~100 candidates per base plus B5 feature capture will not fit. Owner action listed in §1; B1 must check capacity before staging full fine-tunes. **Update ~17:00 (mis-stamped 17:25 in an earlier commit):** B1's Qwen3 draft sample (100 models) totals 1.18 TB (full_finetune 28 × 18.7 GB, rl_tuned 26 × 17.7 GB, lora 28 × 0.5 GB). Llama is likely similar, so both pools need ≈2.3 TB of the 2.5 TB free, before any B5 feature capture. Owner is freeing a few TB (~17:00). **Caveat (17:15):** that sample came from a rate-limited inspection, with 4,131 of 4,876 Qwen3 candidates failing on HF 429; codex-1 restarted with throttling (`B1_*_throttled_20261005`), so pool composition and size will change. Owner asked whether the atlas needs full fine-tunes: per §5.7 the atlas is stratified across types and the method bank is LoRA-only; scope is the owner's call.
 - INC-3 (16:48): shared H100/H200 cluster access is unknown. On heck-srv2, `sinfo`/`squeue`/`sacctmgr` fail parsing `/etc/slurm/slurm.conf` (lines 18–19, `AutoDetect=nvml`, `Name=gpu`), which suggests a client/config version mismatch. No ssh config entries or docs name the cluster. This blocks M2/M3 placement (Tue).
-- INC-4 (16:48; updated 17:25): home `/nethome/sbhansali8` is **over** its soft quota (15.76 of 15.36 GB; 6-day grace). Causes: `~/.local/state/tmux-persistent/exit.log` is 553 MB because user service `tmux-persistent.service` (`tmux -D`) has crash-looped every ~2 s since Aug, appending one line per exit; `~/.local/lib/python3.9` user site-packages is 7.0 GB (torch 1.7 G, nvidia 4.1 G); `~/.cache/copilot.premigration-20260728` is 764 MB. The operator's offload (move to `/home/heck2` and symlink back) was denied by the permission classifier; the commands were handed to the owner at 17:25.
+- INC-4 (16:48; updated ~17:00; first written as 17:25, a mis-stamp): home `/nethome/sbhansali8` is **over** its soft quota (15.76 of 15.36 GB; 6-day grace). Causes: `~/.local/state/tmux-persistent/exit.log` is 553 MB because user service `tmux-persistent.service` (`tmux -D`) has crash-looped every ~2 s since Aug, appending one line per exit; `~/.local/lib/python3.9` user site-packages is 7.0 GB (torch 1.7 G, nvidia 4.1 G); `~/.cache/copilot.premigration-20260728` is 764 MB. The operator's offload (move to `/home/heck2` and symlink back) was denied by the permission classifier; the commands were handed to the owner at ~17:00.
 
 ## Recently verified
-- (none yet)
+- 17:14 W1 → done (fresh checkout; 2 passed; method 2 pp, atlas 1 pp; no warnings). Non-blocking: build relies on TEXINPUTS=paper/style.
 
 ## Inventory (2026-10-05 16:41–16:48 ET)
 

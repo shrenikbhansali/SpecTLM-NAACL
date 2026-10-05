@@ -82,14 +82,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 16:50 ET (claude-ops) |
+| Last updated | 2026-10-05 17:15 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
 | Next gate | Gate 1 (engine), due Mon Oct 5, 11 pm ET |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **PRESENT**: `tlm-spec-maintenance/EXPERIMENTS_PAUSED.json` (status `paused`, set 2026-09-11). Code, tests, downloads and dry runs only; A1 smoke cells cannot run until it is lifted |
 | Jobs running | none (B1 downloads by codex-1 starting) |
-| Blockers | Pause marker blocks A1/Gate 1 GPU cells. Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue) |
-| Owner action needed | (1) **Lift pause marker** (needed for Gate 1 by 11 pm). (2) Confirm the write-scoped HF token authorization that codex-1 recorded in AGENTS.md rule 9 (commit ff2ef3c) and add it to §13. (3) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (4) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (5) Home quota `/nethome/sbhansali8` at 15.26 of 15.36 GB soft limit. (6) ARR registrations. (7) Confirm §13 D-04 cutoffs |
+| Blockers | Pause marker blocks GPU acceptance for B2 (Gate 1) and B3, and A1 itself; B2 code + vLLM 0.31.0 env are otherwise ready. B6 delta-loss code waits on an owner decision (item 0 below). Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue) |
+| Owner action needed | (0) **B6 decision (codex-1, notes/B6.md):** §5.4's centered delta term weights by unnormalized p_c over the top-k set V_k, so it is not invariant to an additive log constant unless Σ_{V_k} p_c = 1, which conflicts with §7 B6 test (b). Codex proposes renormalizing p_c within V_k; the operator checked the algebra and agrees there is a conflict. Pick one (renormalize, or drop test (b)) and record it in §13. (1) **Lift pause marker** (needed for Gate 1 by 11 pm). (2) Confirm the write-scoped HF token authorization that codex-1 recorded in AGENTS.md rule 9 (commit ff2ef3c) and add it to §13. (3) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (4) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (5) Home quota `/nethome/sbhansali8` at 15.26 of 15.36 GB soft limit. (6) ARR registrations. (7) Confirm §13 D-04 cutoffs |
 
 ---
 
