@@ -183,7 +183,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | todo | | |
 | B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | todo | | |
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
-| W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | todo | | |
+| W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:03:22-04:00 | [journal](notes/W1.md) |
 | O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | in progress | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md) |
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | todo | | |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | todo | | |
