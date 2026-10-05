@@ -36,12 +36,13 @@
   "generation_max_tokens": 512,
   "generation_temperature": 0.6,
   "generation_top_p": 0.95,
-  "status": "draft_pending_D06_and_resolved_data_budget",
+  "status": "draft_pending_resolved_data_budget_and_real_acceptance",
   "arm": "FS",
   "targets": "bank_and_mixtures",
   "responses": "child",
   "features": "child",
   "labels": "child",
   "delta_lambda": 0.1,
-  "mixtures": true
+  "mixtures": true,
+  "delta_centering": "child_probabilities_normalized_within_topk"
 }
