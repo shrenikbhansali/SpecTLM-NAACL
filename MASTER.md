@@ -175,7 +175,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B3.md); real-logit/vLLM acceptance paused; 7 algebra tests pass |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B4.md) |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
-| B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | todo | | |
+| B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T16:57:48-04:00 | [journal](notes/B6.md); top-k centering clarification pending |
 | B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | todo | | |
 | B8 | Covariates pipeline | P0 | codex | B1 | Tue | todo | | |
 | B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
