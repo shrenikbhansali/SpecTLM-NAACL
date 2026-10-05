@@ -170,7 +170,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | todo | | |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:42:06-04:00 | [journal](notes/B1.md) |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | todo | | |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | todo | | |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | todo | | |
