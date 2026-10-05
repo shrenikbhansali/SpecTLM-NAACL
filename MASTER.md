@@ -82,14 +82,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 (initial) |
+| Last updated | 2026-10-05 16:50 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
 | Next gate | Gate 1 (engine), due Mon Oct 5, 11 pm ET |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
-| Experiment pause marker | Present until the owner removes it |
-| Jobs running | none |
-| Blockers | none recorded |
-| Owner action needed | Lift pause; ARR registrations; book cluster allocation; confirm §13 D-04 cutoffs |
+| Experiment pause marker | **PRESENT**: `tlm-spec-maintenance/EXPERIMENTS_PAUSED.json` (status `paused`, set 2026-09-11). Code, tests, downloads and dry runs only; A1 smoke cells cannot run until it is lifted |
+| Jobs running | none (B1 downloads by codex-1 starting) |
+| Blockers | Pause marker blocks A1/Gate 1 GPU cells. Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue) |
+| Owner action needed | (1) **Lift pause marker** (needed for Gate 1 by 11 pm). (2) **Hugging Face token is write-scoped** (`role: write`, name `spectlm`); AGENTS rule 9 requires read-only: create a read-only token. (3) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (4) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (5) Home quota `/nethome/sbhansali8` at 15.26 of 15.36 GB soft limit. (6) ARR registrations. (7) Confirm §13 D-04 cutoffs |
 
 ---
 
@@ -184,7 +184,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | todo | | |
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | todo | | |
-| O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | todo | | |
+| O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | in progress | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md) |
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | todo | | |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | todo | | |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | todo | | |
