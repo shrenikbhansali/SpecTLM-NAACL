@@ -58,3 +58,10 @@ def test_revision_and_download_presence(tmp_path):
     (root/"adapter_model.safetensors").write_bytes(b"short")
     with pytest.raises(ValueError,match="size"):
         verify_downloads([r],log)
+
+
+def test_download_completion_event_can_record_snapshot_path(tmp_path):
+    from atlas.curate_pool import event
+    log=tmp_path/'log.jsonl'
+    event(log,status='complete',path='/cache/snapshot')
+    assert json.loads(log.read_text())['path']=='/cache/snapshot'

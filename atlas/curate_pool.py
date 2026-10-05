@@ -40,8 +40,8 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def event(path, **kwargs):
-    with Path(path).open('a') as f:
+def event(log_path, **kwargs):
+    with Path(log_path).open('a') as f:
         f.write(json.dumps({'time': utc(), **kwargs}, sort_keys=True) + '\n')
     print(json.dumps(kwargs, sort_keys=True), flush=True)
 
@@ -269,6 +269,8 @@ def inspect_candidate(hub, model_id, relations, base_id, base_revision, base_met
     r['files'] = [s for s in files if '/' not in s['path'] and
                   (s['path'].endswith(('.safetensors', '.json', '.jinja', '.model', '.txt', '.md'))
                    or s['path'].startswith('LICENSE'))]
+    if ac:
+        r['files'] = [s for s in r['files'] if not s['path'].endswith(('.safetensors', '.bin')) or s['path'].startswith('adapter_model.')]
     if not any(s['path'].endswith('.safetensors') for s in r['files']):
         r['files'] += [s for s in weights if '/' not in s['path']]
     if not any(s['path'].endswith(('.bin', '.safetensors')) for s in r['files']):
