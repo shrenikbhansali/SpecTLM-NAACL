@@ -173,7 +173,7 @@ def cmd_run(a) -> int:
     if a.python:
         env += f"export PATH={shlex.quote(str(Path(a.python).parent))}:$PATH\n"
     for kv in a.env:
-        k, _, v = kv.partition("=")
+        k, _, v = kv.format(run_id=run_id, out_dir=str(out_dir)).partition("=")
         env += f"export {k}={shlex.quote(v)}\n"
     # The job script records its own PID and exit code. It is started with `setsid -f`
     # because ssh otherwise waits for nohup'd children (observed 2026-10-05, notes/O1.md).

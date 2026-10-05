@@ -82,12 +82,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 17:45 ET (claude-ops) |
+| Last updated | 2026-10-05 18:15 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
 | Next gate | Gate 1 (engine), due Mon Oct 5, 11 pm ET |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | B2/B3 GPU acceptance (codex-1, small); B1 downloads |
+| Jobs running | A1 Gate 1 cells on A40s (claude-ops; ~46 single-GPU cells, 18:00–18:30); B1 downloads; codex-1 small acceptance runs |
 | Blockers | Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue). B11 blocked on EAGLE 3.1 recipe/data gaps (notes/B11.md) |
 | Owner action needed | (1) Confirm the write-scoped HF token authorization that codex-1 recorded in AGENTS.md rule 9 (commit ff2ef3c) and add it to §13. (2) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: owner is freeing a few TB (~17:00); too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (3) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
 
