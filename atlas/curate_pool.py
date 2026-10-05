@@ -15,6 +15,7 @@ from pathlib import Path
 import random
 import re
 import shutil
+import time
 
 BASES = {'llama': ('meta-llama/Llama-3.1-8B-Instruct', '2025-07-01'),
          'qwen3': ('Qwen/Qwen3-8B', '2026-01-01')}
@@ -171,7 +172,13 @@ class Hub:
             return None
 
     def meta(self, model, revision=None):
-        return self.api.model_info(model, revision=revision, files_metadata=True)
+        for attempt in range(6):
+            try:
+                return self.api.model_info(model, revision=revision, files_metadata=True)
+            except Exception as e:
+                status = getattr(getattr(e, 'response', None), 'status_code', None)
+                if status not in (429, 500, 502, 503, 504) or attempt == 5: raise
+                time.sleep(min(120, 5 * 2**attempt))
 
 
 def metadata(hub, model, revision):
@@ -289,10 +296,16 @@ def curate(args):
         for m in hub.api.list_models(filter=f'base_model:{relation}:{base_id}', sort='downloads', direction=-1):
             candidates[m.id].add(relation)
         event(out/'progress.jsonl', stage='listed', relation=relation, count=len(candidates))
+    prior = {}
+    if args.resume_metadata:
+        for line in Path(args.resume_metadata).read_text().splitlines():
+            r = json.loads(line); r.pop('time', None); prior[r['model_id']] = r
     rows = []
     for i, (model, relations) in enumerate(sorted(candidates.items())):
         try:
-            row = inspect_candidate(hub, model, relations, base_id, info.sha, bm)
+            row = prior.get(model)
+            if row is None or row['base_revision'] != info.sha:
+                row = inspect_candidate(hub, model, relations, base_id, info.sha, bm)
             rows.append(row)
             event(out/'metadata.jsonl', **row)
         except Exception as e:
@@ -352,7 +365,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     sub=p.add_subparsers(dest='command', required=True)
     c=sub.add_parser('curate'); c.add_argument('--base',choices=BASES,required=True)
-    c.add_argument('--output',required=True); c.add_argument('--count',type=int,default=100)
+    c.add_argument('--resume-metadata'); c.add_argument('--output',required=True); c.add_argument('--count',type=int,default=100)
     c.add_argument('--existing-token', action='store_true', help='Owner authorized existing credential for reads only'); c.add_argument('--download',action='store_true'); c.add_argument('--read-token',action='store_true')
     d=sub.add_parser('download'); d.add_argument('--pool',required=True)
     d.add_argument('--cache',required=True); d.add_argument('--log',required=True)
