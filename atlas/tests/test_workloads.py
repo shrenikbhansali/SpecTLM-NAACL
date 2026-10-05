@@ -43,3 +43,8 @@ def test_prefix_uses_exact_derivative_template():
             assert kwargs['enable_thinking'] is False
             return 'custom-user:'+messages[0]['content']+'<end>'
     assert magpie_prefix(Tokenizer(),'qwen3')=='custom-user:'
+
+
+def test_unresolved_benchmark_placeholders_are_rejected():
+    rows=[dict(prompt_id=str(i),prompt='FULL BENCHMARK DATA SHOULD BE FETCHED FROM THE SOURCE USING SPECDEC_BENCH',category='math') for i in range(128)]
+    with pytest.raises(ValueError,match='placeholder'):stratified_sample(rows,128,42)

@@ -64,6 +64,8 @@ def filter_prompts(rows,forbidden=(),near_threshold=.9):
 
 
 def stratified_sample(rows,count,seed):
+    if any('FULL BENCHMARK DATA SHOULD BE FETCHED' in r['prompt'] for r in rows):
+        raise ValueError('unresolved SPEED-Bench placeholder; reconstruct official sources first')
     if count>len(rows) or count<=0:raise ValueError('invalid sample count')
     groups=defaultdict(list)
     for r in sorted(rows,key=lambda r:r['prompt_id']):groups[r['category']].append(r)
