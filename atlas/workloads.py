@@ -108,6 +108,9 @@ def write_jsonl(path,rows):
 
 def public(args):
     import pyarrow.parquet as pq
+    provenance=json.loads(Path(args.speed_provenance).read_text()) if args.speed_provenance else None
+    if provenance and (provenance['speed_revision']!=SPEED['revision'] or provenance['resolved_parquet_sha256']!=file_hash(args.speed_parquet)):
+        raise ValueError('reconstructed SPEED provenance/hash mismatch')
     speed_raw=pq.read_table(args.speed_parquet).to_pylist()
     speed=[dict(prompt_id='speed-'+r['question_id'],prompt=r['turns'][0],category=r['category'],
                 source=r['source'],original_turns=r['turns'],split='evaluation') for r in speed_raw]
@@ -125,6 +128,8 @@ def public(args):
     write_jsonl(out/'speed128.jsonl',fixed);write_jsonl(out/'general20000.jsonl',general)
     write_jsonl(out/'all_speed_forbidden.jsonl',all_speed)
     config=dict(speed=SPEED|dict(sha256=file_hash(args.speed_parquet)),general=GENERAL|dict(sha256=file_hash(args.general_parquet)),
+                speed_reconstruction=provenance,
+                speed_duplicate_rate=1-len({prompt_hash(r['prompt']) for r in fixed})/len(fixed),
                 seed=args.seed,general_seed=args.seed+1,near_threshold=args.near_threshold,
                 minhash=dict(permutations=64,bands=16,rows_per_band=4,word_shingle_size=5,seed=20261005),
                 language_detector='langdetect==1.0.9',speed_turn_policy='first user turn, original turns retained',
@@ -141,7 +146,7 @@ def audit(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='command',required=True)
     b=sub.add_parser('build-public');b.add_argument('--speed-parquet',required=True);b.add_argument('--general-parquet',required=True)
-    b.add_argument('--seed',type=int,default=20261005);b.add_argument('--near-threshold',type=float,default=.9);b.add_argument('--output',required=True)
+    b.add_argument('--speed-provenance');b.add_argument('--seed',type=int,default=20261005);b.add_argument('--near-threshold',type=float,default=.9);b.add_argument('--output',required=True)
     a=sub.add_parser('audit');a.add_argument('--training',nargs='+',required=True);a.add_argument('--evaluation',nargs='+',required=True)
     args=p.parse_args();public(args) if args.command=='build-public' else audit(args)
 
