@@ -173,6 +173,7 @@ class Hub:
 
     def meta(self, model, revision=None):
         for attempt in range(6):
+            time.sleep(0.8)  # two curators stay below the shared API request budget
             try:
                 return self.api.model_info(model, revision=revision, files_metadata=True)
             except Exception as e:
@@ -283,7 +284,7 @@ def inspect_candidate(hub, model_id, relations, base_id, base_revision, base_met
 
 def curate(args):
     out = Path(args.output); out.mkdir(parents=True, exist_ok=False)
-    hub = Hub(out/'hub', safe_token(args.read_token, args.existing_token))
+    hub = Hub(Path(args.cache_dir) if args.cache_dir else out/'hub', safe_token(args.read_token, args.existing_token))
     base_id, cutoff = BASES[args.base]
     info = hub.meta(base_id)
     bm = metadata(hub, base_id, info.sha)
@@ -308,6 +309,9 @@ def curate(args):
             row = prior.get(model)
             if row is None or row['base_revision'] != info.sha:
                 row = inspect_candidate(hub, model, relations, base_id, info.sha, bm)
+            if row['type'] == 'lora_adapter':
+                row['files'] = [f for f in row['files'] if not f['path'].endswith(('.safetensors', '.bin')) or f['path'].startswith('adapter_model.')]
+                row['size_bytes'] = sum(f['size'] or 0 for f in row['files'])
             rows.append(row)
             event(out/'metadata.jsonl', **row)
         except Exception as e:
@@ -325,7 +329,7 @@ def curate(args):
     spots = random.Random(20261005).sample(selected,min(10,len(selected)))
     (out/'spot_checks.md').write_text('\n'.join(f'- https://huggingface.co/{r["model_id"]}/tree/{r["revision"]} — {r["type"]}, {r["pool"]}, {r["license"]}' for r in spots)+'\n')
     if args.download:
-        stage(selected, out/'hub', out/'downloads.jsonl', hub.token)
+        stage(selected, Path(hub.cache), out/'downloads.jsonl', hub.token)
 
 
 def stage(rows, cache, log, token=False):
@@ -367,7 +371,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     sub=p.add_subparsers(dest='command', required=True)
     c=sub.add_parser('curate'); c.add_argument('--base',choices=BASES,required=True)
-    c.add_argument('--resume-metadata'); c.add_argument('--output',required=True); c.add_argument('--count',type=int,default=100)
+    c.add_argument('--cache-dir'); c.add_argument('--resume-metadata'); c.add_argument('--output',required=True); c.add_argument('--count',type=int,default=100)
     c.add_argument('--existing-token', action='store_true', help='Owner authorized existing credential for reads only'); c.add_argument('--download',action='store_true'); c.add_argument('--read-token',action='store_true')
     d=sub.add_parser('download'); d.add_argument('--pool',required=True)
     d.add_argument('--cache',required=True); d.add_argument('--log',required=True)
