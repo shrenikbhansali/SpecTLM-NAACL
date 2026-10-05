@@ -99,6 +99,16 @@ def local_files(path):
     return {str(p.relative_to(root)):sha256(p) for p in sorted(root.rglob('*')) if p.is_file() and '.cache' not in p.parts}
 
 
+def read_drafter_config(model,revision):
+    # Speculators checkpoints have speculators_model_type, not HF model_type.
+    # Reading metadata must not instantiate AutoConfig or execute remote code.
+    if Path(model).is_dir():path=Path(model)/'config.json'
+    else:
+        from huggingface_hub import hf_hub_download
+        path=Path(hf_hub_download(model,'config.json',revision=revision))
+    return json.loads(path.read_text())
+
+
 def parser():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--target',required=True);p.add_argument('--target-revision',required=True)
@@ -145,8 +155,7 @@ def main():
     try:
         from vllm import LLM,SamplingParams
         import torch
-        from transformers import AutoConfig
-        dcfg=AutoConfig.from_pretrained(a.drafter,revision=a.drafter_revision,trust_remote_code=False).to_dict()
+        dcfg=read_drafter_config(a.drafter,a.drafter_revision)
         write_new(out/'drafter_config.json',dcfg)
         block=dcfg.get('block_size',dcfg.get('dflash_config',{}).get('block_size'))
         cfg['dflash_block_size']=block if a.method=='dflash' else None

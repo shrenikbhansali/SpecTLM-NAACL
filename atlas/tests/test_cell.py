@@ -64,3 +64,10 @@ def test_dry_run_is_print_only_under_pause(tmp_path):
     assert result.returncode==0,result.stderr
     assert json.loads(result.stdout)['dry_run'] is True
     assert not out.exists()
+
+
+def test_speculators_config_metadata_does_not_require_hf_model_type(tmp_path):
+    from atlas.run_cell import read_drafter_config
+    config={'architectures':['Eagle3Speculator'],'speculators_model_type':'eagle3','draft_vocab_size':32000}
+    (tmp_path/'config.json').write_text(json.dumps(config))
+    assert read_drafter_config(str(tmp_path),'a'*40)==config
