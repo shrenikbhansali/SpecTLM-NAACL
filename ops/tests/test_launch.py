@@ -94,3 +94,14 @@ def test_real_run_requires_clean_main(L):
 def test_unresolved_local_path_needs_revision(L):
     with pytest.raises(L.LaunchError):
         L.resolve_revision(str(L._tmp), None)
+
+
+def test_detached_run_tag_on_main_allowed(L):
+    subprocess.run(["git", "tag", "run-test"], cwd=L._repo, check=True)
+    subprocess.run(["git", "checkout", "-q", "--detach", "run-test"], cwd=L._repo, check=True)
+    ns = L.main.__globals__["argparse"].Namespace(node="heck-srv3", task="A1", dry_run=False, code_repo=str(L._repo),
+                                                  allow_branch=False, engine_lock="x", prompts="y")
+    L.check_guards(ns)  # no raise
+    subprocess.run(["git", "tag", "-d", "run-test"], cwd=L._repo, check=True, capture_output=True)
+    with pytest.raises(L.LaunchError, match="run-\\* tag"):
+        L.check_guards(ns)

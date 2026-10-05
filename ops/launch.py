@@ -138,8 +138,10 @@ def check_guards(a):
         st = code_state(Path(a.code_repo))
         if st["dirty"]:
             raise LaunchError("code checkout is dirty; real runs need a clean main commit")
-        if st["branch"] != "main" and not a.allow_branch:
-            raise LaunchError(f"checkout is on {st['branch']}; real runs run from main (MASTER §2.2)")
+        on_tag = st["branch"] == "HEAD" and any(t.startswith("run-") for t in st["tags"]) and subprocess.run(
+            ["git", "merge-base", "--is-ancestor", "HEAD", "main"], cwd=a.code_repo).returncode == 0
+        if st["branch"] != "main" and not on_tag and not a.allow_branch:
+            raise LaunchError(f"checkout is on {st['branch']}; real runs run from main or a run-* tag on main (MASTER §2.2)")
         if not a.engine_lock:
             raise LaunchError("--engine-lock is required for real runs (AGENTS rule 2)")
         if not a.prompts:

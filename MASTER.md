@@ -185,7 +185,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages); operator re-run PASS ([W1 journal](notes/W1.md)) |
 | O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | in progress | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md) |
-| A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | in progress | claude-ops / 2026-10-05T18:05-04:00 | [journal](notes/A1.md) |
+| A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | in progress | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md) |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | todo | | |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | todo | | |
 | A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | todo | | |
