@@ -171,9 +171,9 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:15:31-04:00 | [journal](notes/B1.md); 16 provisional adapters staged; full curation PIDs 199072/199073 |
-| B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:00:12-04:00 | [journal](notes/B2.md); 13 checks pass; golden GPU cells paused |
-| B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B3.md); real-logit/vLLM acceptance paused; 7 algebra tests pass |
-| B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:25:13-04:00 | [journal](notes/B4.md); SPEED128/general20k audited; derivative Magpie acceptance paused |
+| B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:32:09-04:00 | [journal](notes/B2.md); owner authorized pause lift; preparing GPU acceptance |
+| B3 | LoRA-mixture builder | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:32:09-04:00 | [journal](notes/B3.md); owner authorized pause lift; preparing GPU acceptance |
+| B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:32:09-04:00 | [journal](notes/B4.md); owner authorized pause lift; preparing GPU acceptance |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T17:18:21-04:00 | [journal](notes/B6.md); owner approved normalized top-k weights; implementing loss |
 | B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | todo | | |

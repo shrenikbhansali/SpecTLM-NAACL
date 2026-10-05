@@ -1,0 +1,23 @@
+{
+  "authorized_at": "2026-10-05T17:32:09-04:00",
+  "agent": "codex-1",
+  "authority": "Owner message in current chat: Check on pause markers - if there are pause markers we can lift, lift them so we can begin running GPU jobs and so on if the relevant code and so forth has been built",
+  "active_marker": "/home/heck2/sbhansali8/SpecTLM/tlm-spec-maintenance/EXPERIMENTS_PAUSED.json",
+  "original_marker_sha256": "71fb5ca3f842640b017f5cd9a2f9be2f4cb04e1a1834291502dd2de481ec14db",
+  "original_marker": {
+    "status": "paused",
+    "requested_at": "2026-09-11T17:27:36.488-04:00",
+    "reason": "User requested stopping all SpecTLM jobs and documenting the complete research record in depth.",
+    "scope": "SpecTLM experiment submission, not unrelated projects or read-only documentation work.",
+    "resume_requires": "Explicit user authorization. Record the decision before removing this marker.",
+    "presence_is_the_gate": true,
+    "documentation_entry": "docs/research/README.md"
+  },
+  "action": "Archive then remove the active September 11 user-requested pause marker",
+  "scope": "NAACL sprint tasks under MASTER; small builder acceptance runs and operator jobs only when task dependencies/preflight pass. No automatic historical campaign restart.",
+  "archives_unchanged": [
+    "old_handoff/spectlm_review_2026-09-30/snapshot/project/EXPERIMENTS_PAUSED.json",
+    "old_handoff/spectlm_research_record_2026-09-11/snapshot/project/EXPERIMENTS_PAUSED.json"
+  ],
+  "archive_destination": "artifacts/pause_archive/20261005/EXPERIMENTS_PAUSED.json"
+}
