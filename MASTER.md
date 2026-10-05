@@ -82,14 +82,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 18:30 ET (claude-ops) |
+| Last updated | 2026-10-05 18:50 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
-| Next gate | Gate 1 (engine), due Mon Oct 5, 11 pm ET |
+| Next gate | Gate 1 (engine): **report ready 18:50**, `reports/GATE-1.md`, recommends PASS (vLLM 0.31.0); owner records D-08. Then Gate 2 (Wed noon) |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | A1 Gate 1 cells on A40s (claude-ops; ~46 single-GPU cells, 18:00–18:30); B1 downloads; codex-1 small acceptance runs |
+| Jobs running | none from claude-ops (A1 finished 18:29, 71 cells); B1 downloads; codex-1 small runs |
 | Blockers | Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue). B11 blocked on EAGLE 3.1 recipe/data gaps (notes/B11.md) |
-| Owner action needed | (0) **B3 bf16 tolerance (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.31–0.375 in logits, failing codex-1's pre-set atol 0.125. In fp32 they match within 9.1e-5 (algebra correct). A single real adapter vs its own bf16 dense merge already differs by 0.28 (codex-1 control), so bf16 merge rounding sets the scale. §7 B3 does not define the tolerance numerically. Operator-recommended default: accept if mixture-vs-merged max-abs error ≤ the single-adapter LoRA-vs-bf16-merge control error on the same 16 prompts, and fp32 ≤ 1e-4. Supporting evidence: A1's real child LoRA vs merged acceptance differs by 0.0026, within noise. Evidence: notes/B3.md, `artifacts/B3_acceptance_20261005/`. Record the choice in §13. (1) Confirm the write-scoped HF token authorization that codex-1 recorded in AGENTS.md rule 9 (commit ff2ef3c) and add it to §13. (2) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: owner is freeing a few TB (~17:00); too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (3) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
+| Owner action needed | (G1) **Gate 1** (reports/GATE-1.md): record D-08 (recommended pass, lock vLLM 0.31.0); choose the compile-cache policy for atlas cells (recommended: fresh compile per cell) and the atlas noise floor (recommended: 512-tok fresh-compile SD 0.0029 / range 0.0086, n=20); DFlash replicates per cell in A7. (0) **B3 bf16 tolerance (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.31–0.375 in logits, failing codex-1's pre-set atol 0.125. In fp32 they match within 9.1e-5 (algebra correct). A single real adapter vs its own bf16 dense merge already differs by 0.28 (codex-1 control), so bf16 merge rounding sets the scale. §7 B3 does not define the tolerance numerically. Operator-recommended default: accept if mixture-vs-merged max-abs error ≤ the single-adapter LoRA-vs-bf16-merge control error on the same 16 prompts, and fp32 ≤ 1e-4. Supporting evidence: A1's real child LoRA vs merged acceptance differs by 0.0026, within noise. Evidence: notes/B3.md, `artifacts/B3_acceptance_20261005/`. Record the choice in §13. (1) Confirm the write-scoped HF token authorization that codex-1 recorded in AGENTS.md rule 9 (commit ff2ef3c) and add it to §13. (2) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: owner is freeing a few TB (~17:00); too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (3) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
 
 ---
 
@@ -184,8 +184,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | todo | | |
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages); operator re-run PASS ([W1 journal](notes/W1.md)) |
-| O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | in progress | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md) |
-| A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | in progress | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md) |
+| O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | done | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md); `ops/` (status.sh, launch.py, 8 tests pass); lock = atlas/env/requirements.lock |
+| A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | todo | | |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | todo | | |
 | A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | todo | | |
@@ -202,7 +202,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
 | M8 | Delta-KD objective; online adaptation curves | P2 | claude-ops | Gate 3 | Fri | todo | | |
-| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | todo | | |
+| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | in progress | claude-ops / 2026-10-05T18:50-04:00 | G1: [reports/GATE-1.md](reports/GATE-1.md) (ready 18:50, owner decision D-08) |
 | R1 | Daily reports (`reports/YYYY-MM-DD.md`) | P0 | claude-ops | — | daily 7 am | todo | | |
 
 *Add `FIX-n` rows below as needed (Agent `codex`, Depends on the failing run).*
