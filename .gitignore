@@ -4,6 +4,7 @@ tlm-spec-maintenance/
 .agents/
 .codex/
 .venv*/
+.worktrees/
 __pycache__/
 .pytest_cache/
 artifacts/
