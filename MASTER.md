@@ -170,7 +170,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:42:06-04:00 | [journal](notes/B1.md) |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:15:31-04:00 | [journal](notes/B1.md); 16 provisional adapters staged; full curation PIDs 199072/199073 |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:00:12-04:00 | [journal](notes/B2.md); 13 checks pass; golden GPU cells paused |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B3.md); real-logit/vLLM acceptance paused; 7 algebra tests pass |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B4.md) |
@@ -180,7 +180,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B8 | Covariates pipeline | P0 | codex | B1 | Tue | todo | | |
 | B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
-| B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | in progress | codex-1 / 2026-10-05T17:09:09-04:00 | [journal](notes/B11.md) |
+| B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | blocked | codex-1 / 2026-10-05T17:15:31-04:00 | [journal](notes/B11.md); recipe/license gaps and training pause; 8 checker tests pass |
 | B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | todo | | |
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages); operator re-run PASS ([W1 journal](notes/W1.md)) |
