@@ -1,0 +1,10 @@
+old_handoff/
+tlm-spec-maintenance/
+*.zip
+.agents/
+.codex/
+.venv*/
+__pycache__/
+.pytest_cache/
+artifacts/
+*.egg-info/
