@@ -1,6 +1,8 @@
 # Pinned atlas harness (B2)
 
 Use the isolated environment built by `python atlas/env/build.py --prefix <new-path> --lock-output <new-path>`.
+Activate that environment, or prepend its `bin` directory to `PATH` as well as invoking its Python: vLLM compilation needs the installed `ninja` executable. An absolute Python path alone does not provide it.
+
 The source pin is `atlas/env/engine.json`; the resolved freeze is committed only after installation and dependency checks pass. Never run in the historical vLLM 0.17.1 environment.
 
 `python -m atlas.run_cell --target MODEL --target-revision SHA --drafter MODEL --drafter-revision SHA --method eagle3 --K 4 --prompts prompts.jsonl --output /absolute/WS/artifacts/UNIQUE_RUN --dry-run` prints the configuration without creating artifacts. Remove `--dry-run` only after the owner removes the experiment pause marker. Existing output directories are refused.
