@@ -6,6 +6,7 @@ The template is always the selected derivative's; Qwen rendering disables thinki
 """
 import argparse
 import csv
+import hashlib
 import importlib.metadata
 import json
 from pathlib import Path
@@ -19,6 +20,10 @@ def unpaused():
     for root in roots:
         for rel in ['EXPERIMENTS_PAUSED.json','tlm-spec-maintenance/EXPERIMENTS_PAUSED.json']:
             if (root/rel).exists():raise RuntimeError(f'Experiments paused: {root/rel}')
+
+
+def request_seeds(seed,iteration,count):
+    return [int.from_bytes(hashlib.sha256(f'{seed}/{iteration}/{i}'.encode()).digest()[:8],'big') & ((1<<63)-1) for i in range(count)]
 
 
 def main():
@@ -83,15 +88,16 @@ def main():
     with (out/'raw_queries.jsonl').open('x') as f:
         for iteration in range(20):
             unpaused()
-            sampling=SamplingParams(temperature=config['temperature'],top_p=1.,max_tokens=1024,
-                stop_token_ids=[stop_id],seed=args.seed+iteration)
-            outputs=llm.generate([prefix]*min(64,count*2),sampling,use_tqdm=False,**kwargs)
-            for o in outputs:
+            seeds=request_seeds(args.seed,iteration,min(64,count*2))
+            sampling=[SamplingParams(temperature=config['temperature'],top_p=1.,max_tokens=1024,
+                stop_token_ids=[stop_id],seed=seed) for seed in seeds]
+            outputs=llm.generate([prefix]*len(seeds),sampling,use_tqdm=False,**kwargs)
+            for o,sampling_seed in zip(outputs,seeds,strict=True):
                 completion=o.outputs[0]
                 if completion.finish_reason=='length':continue
                 r=dict(prompt_id=f'{args.derivative_id}-{args.split}-{len(candidates)}',prompt=completion.text,
                        derivative_id=args.derivative_id,revision=row['revision'],split=args.split,seed=args.seed,
-                       token_ids=list(completion.token_ids))
+                       sampling_seed=sampling_seed,token_ids=list(completion.token_ids))
                 f.write(json.dumps(r)+'\n');f.flush();candidates.append(r)
             kept,report=filter_prompts(candidates,forbidden,args.near_threshold)
             if len(kept)>=count:break

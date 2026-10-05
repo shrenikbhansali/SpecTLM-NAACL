@@ -48,3 +48,11 @@ def test_prefix_uses_exact_derivative_template():
 def test_unresolved_benchmark_placeholders_are_rejected():
     rows=[dict(prompt_id=str(i),prompt='FULL BENCHMARK DATA SHOULD BE FETCHED FROM THE SOURCE USING SPECDEC_BENCH',category='math') for i in range(128)]
     with pytest.raises(ValueError,match='placeholder'):stratified_sample(rows,128,42)
+
+
+def test_magpie_identical_prefixes_receive_distinct_reproducible_seeds():
+    from atlas.generate_magpie import request_seeds
+    first=request_seeds(42,0,64)
+    assert len(set(first))==64 and first==request_seeds(42,0,64)
+    assert not set(first)&set(request_seeds(42,1,64))
+    assert not set(first)&set(request_seeds(43,0,64))
