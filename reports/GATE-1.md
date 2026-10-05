@@ -1,6 +1,6 @@
 # Gate 1 — Engine (due Mon Oct 5, 11 pm ET)
 
-Prepared by claude-ops, 2026-10-05 18:40 ET. Evidence: `notes/A1.md`, `notes/B2.md`,
+Prepared by claude-ops, 2026-10-05 18:32 ET. Evidence: `notes/A1.md`, `notes/B2.md`,
 `$WS/artifacts/A1_gate1_analysis_20261005.json` (every cell, recomputed from raw per-prompt counters),
 ledger drafts `ledger/EXP-ATL-001.md` (B2 golden cells) and `ledger/EXP-ATL-002.md` (A1).
 `$WS = /home/heck2/sbhansali8/SpecTLM`.

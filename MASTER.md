@@ -82,9 +82,9 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 18:50 ET (claude-ops) |
+| Last updated | 2026-10-05 18:32 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
-| Next gate | Gate 1 (engine): **report ready 18:50**, `reports/GATE-1.md`, recommends PASS (vLLM 0.31.0); owner records D-08. Then Gate 2 (Wed noon) |
+| Next gate | Gate 1 (engine): **report ready 18:32**, `reports/GATE-1.md`, recommends PASS (vLLM 0.31.0); owner records D-08. Then Gate 2 (Wed noon) |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
 | Jobs running | none from claude-ops (A1 finished 18:29, 71 cells); B1 downloads; codex-1 small runs |
@@ -202,7 +202,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
 | M8 | Delta-KD objective; online adaptation curves | P2 | claude-ops | Gate 3 | Fri | todo | | |
-| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | in progress | claude-ops / 2026-10-05T18:50-04:00 | G1: [reports/GATE-1.md](reports/GATE-1.md) (ready 18:50, owner decision D-08) |
+| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | in progress | claude-ops / 2026-10-05T18:32-04:00 | G1: [reports/GATE-1.md](reports/GATE-1.md) (ready 18:32, owner decision D-08) |
 | R1 | Daily reports (`reports/YYYY-MM-DD.md`) | P0 | claude-ops | — | daily 7 am | todo | | |
 
 *Add `FIX-n` rows below as needed (Agent `codex`, Depends on the failing run).*

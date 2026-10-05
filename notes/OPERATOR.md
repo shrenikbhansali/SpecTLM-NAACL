@@ -61,3 +61,4 @@ Total 40 A40s (heck-srv1–5); 33 free at 16:42. Local root disks: 400–735 GB 
 
 ## Handoff
 - 16:50: O1 claimed, inventory done. Next: ops tooling (`ops/status.sh`, `ops/launch.py`), then the operator loop. Gate 1 needs B2 plus the pause lift.
+- 18:43 correction: Gate 1 report header, ledger path-verification times, §1 "Last updated", and the G1 row were stamped 18:40–18:50 from an estimate. The actual commit time was 18:32. Corrected. Operator timestamps now always come from `date`.

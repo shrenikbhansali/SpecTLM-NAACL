@@ -13,7 +13,7 @@ same-engine DFlash cell (EXP-MTH-022 used SGLang).
 
 **Artifacts.** `/home/heck2/sbhansali8/SpecTLM/artifacts/B2_acceptance_20261005/{base_retry2,repeat,lora_retry2,merged,eagle_retry1,dflash_retry1}/`
 (config.json, per_prompt.jsonl, results.json); checker report `…/acceptance_report.json`; merge provenance
-`/home/heck2/sbhansali8/SpecTLM/artifacts/B2_merge_20261005/`. Paths verified to resolve 2026-10-05 18:45 ET.
+`/home/heck2/sbhansali8/SpecTLM/artifacts/B2_merge_20261005/`. Paths verified to resolve 2026-10-05 18:31 ET.
 
 **Config.**
 

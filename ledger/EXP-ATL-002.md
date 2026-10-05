@@ -15,7 +15,7 @@ First 3-seed child drift on the new engine; first DFlash replicates on the same 
 `launch_script.sh`, `launch.log`, `exit_code`, and harness output in `cell/`: config.json, per_prompt.jsonl, results.json).
 Aggregated: `/home/heck2/sbhansali8/SpecTLM/artifacts/A1_gate1_analysis_20261005.json` (produced by `ops/a1_analyze.py`).
 Wave definitions: `ops/waves/A1_wave1.sh`, `A1_retry1.sh`, `A1_retry2_eaglev1.sh`, `A1_wave2_freshcompile.sh`, `A1_wave3.sh`.
-Paths verified to resolve 2026-10-05 18:45 ET.
+Paths verified to resolve 2026-10-05 18:31 ET.
 
 **Config.**
 
