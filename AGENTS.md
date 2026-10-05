@@ -93,7 +93,9 @@ present, limit work to code, tests and dry runs, and say so in your journal.
    provable from logged configs.
 9. **Models and licenses.** Pin revisions; record licenses; skip gated models
    without access, unknown licenses and non-standard formats; never upload or
-   redistribute weights; use a read-only Hugging Face token.
+   redistribute weights. A read-only Hugging Face token is preferred; the
+   owner authorized using the existing write-capable token for read/download
+   operations on 2026-10-05. Never use it to upload or mutate Hub resources.
 10. **Compute.** A40s for atlas inference and covariates; the H100/H200
     cluster for data generation, training and evaluation of trained drafters;
     the 4 dedicated H200s for wall-clock timing only.
