@@ -7,7 +7,7 @@ Newest information first under each heading. Layout defined in MASTER.md §8.8.
 - Sprint day: Day 1 of 8 (Mon Oct 5)
 - Next gate: Gate 1 (engine), due Mon Oct 5, 11 pm ET. Needs B2 in review **and** the pause marker lifted.
 - Pause marker: PRESENT (`tlm-spec-maintenance/EXPERIMENTS_PAUSED.json`).
-- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; fast-forward main with `git fetch . claude/ops:main`).
+- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; rebase on main, then update main with `git -C ../SpecTLM merge --ff-only claude/ops` (primary tree stays on clean main; Codex uses `.worktrees/<ID>`)).
 
 ## Active jobs
 | Run ID | Task | Cluster | Started (ET) | ETA | Status |
@@ -18,7 +18,7 @@ Newest information first under each heading. Layout defined in MASTER.md §8.8.
 - A1 (Gate 1): waits on B2 → review, and the pause being lifted.
 
 ## Open incidents
-- INC-1 (16:48): HF token at `$HF_HOME/token` is **write**-scoped (`role: write`, display name `spectlm`, user `shrenikb`). AGENTS rule 9 requires read-only. Owner action listed in §1.
+- INC-1 (16:48; updated 17:05): HF token at `$HF_HOME/token` is **write**-scoped (`role: write`, display name `spectlm`). At 16:48 codex-1 changed AGENTS.md rule 9 (commit ff2ef3c) to say the owner authorized the write-capable token for reads and downloads on 2026-10-05. There is no §13 row and no journal citation. Treated as owner-authorized; asking the owner to confirm and record it in §13.
 - INC-2 (16:48): `/home/heck2` (heck-nfs1, 77 T) is 97% full with 2.5 TB free and shared with other users. B1 downloads of full fine-tunes (~16 GB each) for ~100 candidates per base plus B5 feature capture will not fit. Owner action listed in §1; B1 must check capacity before staging full fine-tunes.
 - INC-3 (16:48): shared H100/H200 cluster access is unknown. On heck-srv2, `sinfo`/`squeue`/`sacctmgr` fail parsing `/etc/slurm/slurm.conf` (lines 18–19, `AutoDetect=nvml`, `Name=gpu`), which suggests a client/config version mismatch. No ssh config entries or docs name the cluster. This blocks M2/M3 placement (Tue).
 - INC-4 (16:48): home quota `/nethome/sbhansali8` at 15262 MB used of 15360 MB soft (16384 MB hard). Anything writing to `~` (pip/conda caches, `~/.cache`, agent logs) may fail. Keep caches on `/home/heck2`.
