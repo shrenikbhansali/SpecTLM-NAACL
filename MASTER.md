@@ -175,12 +175,12 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B3.md); real-logit/vLLM acceptance paused; 7 algebra tests pass |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B4.md) |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
-| B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T16:57:48-04:00 | [journal](notes/B6.md); top-k centering clarification pending |
+| B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | blocked | codex-1 / 2026-10-05T17:09:09-04:00 | [journal](notes/B6.md); owner top-k centering decision pending; training paused |
 | B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | todo | | |
 | B8 | Covariates pipeline | P0 | codex | B1 | Tue | todo | | |
 | B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
-| B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | todo | | |
+| B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | in progress | codex-1 / 2026-10-05T17:09:09-04:00 | [journal](notes/B11.md) |
 | B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | todo | | |
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | review | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages) |
