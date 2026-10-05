@@ -11,6 +11,7 @@ import math
 import types
 import torch
 from followspec.delta import centered_delta,objective
+from followspec.paired_data import validate_packed
 
 
 def install_follow_spec(model,*,beta=1.,delta_lambda=.1,top_k=32,shared_verifier_head=False):
@@ -30,6 +31,7 @@ def install_follow_spec(model,*,beta=1.,delta_lambda=.1,top_k=32,shared_verifier
         if loss_mask.dtype!=torch.bool or loss_mask.shape!=input_ids.shape or input_ids.shape!=document_ids.shape:
             raise ValueError('aligned input IDs, document IDs and boolean assistant mask required')
         if not 0<ttt_steps<=input_ids.shape[1]:raise ValueError('unroll exceeds available sequence length')
+        validate_packed(dict(input_ids=input_ids,document_ids=document_ids,loss_mask=loss_mask),ttt_steps)
         if not shared_verifier_head and (child_target_logits is None or base_target_logits is None):
             raise ValueError('explicit projected target logits required when verifier heads differ')
         if (child_target_logits is None)!=(base_target_logits is None):raise ValueError('supply both projected target tensors')
