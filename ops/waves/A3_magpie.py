@@ -6,7 +6,8 @@ Seeds: evaluation 2026100600+i, training 2026100700+i (distinct per derivative a
 import csv, json, sys
 from pathlib import Path
 csv.field_size_limit(10**9)
-WS = "/home/heck2/sbhansali8/SpecTLM"; RUN = "/home/heck2/sbhansali8/SpecTLM-runs/run-A3-20261006"
+WS = "/home/heck2/sbhansali8/SpecTLM"; import os
+RUN = os.environ.get("A3_RUN","/home/heck2/sbhansali8/SpecTLM-runs/run-A3-20261006")
 PY = f"{WS}/.venv-magpie/bin/python"
 FORB = [f"{WS}/artifacts/B4_public_resolved_20261005/all_speed_forbidden.jsonl"]
 GEN = f"{WS}/artifacts/B4_public_resolved_20261005/general20000.jsonl"
@@ -26,7 +27,7 @@ def job(b, r, i, split, seed, forbidden):
     slug = "".join(c if c.isalnum() else "-" for c in r["model_id"].lower())[:50] + f"-{split[:4]}"
     cmd = [PY, "-u", "-m", "atlas.generate_magpie", "--derivative-id", r["model_id"], "--pool-manifest", staging,
            "--target", target, "--revision", rev, "--tokenizer", tok, "--tokenizer-revision", tokrev, "--family", b,
-           "--split", split, "--seed", str(seed), "--allow-a40-production", "--forbidden-files", *forbidden, "--output", "{out_dir}/cell"]
+           "--split", split, "--seed", str(seed), "--allow-a40-production", *(["--d23-oversampling"] if os.environ.get("A3_D23") else []), "--forbidden-files", *forbidden, "--output", "{out_dir}/cell"]
     if is_ad: cmd[cmd.index("--tokenizer"):cmd.index("--tokenizer")] = ["--adapter", snap]
     args = ["--task", "A3", "--base", b, "--drafter", "magpie", "--k", "0", "--seed", str(seed), "--no-resolve", "--tag", slug,
             "--prompts", FORB[0], "--engine-lock", f"{RUN}/atlas/env/requirements.lock", "--python", PY, "--code-repo", RUN,
