@@ -1,6 +1,7 @@
-# B10 implementation status
+# B10 DFlash and Qwen3 training paths
 
-The DFlash extension is under acceptance and is not a production training path.
+B10 builder acceptance passes for DFlash and Qwen3 EAGLE-3. Independent
+operator verification is still required before marking the task done.
 `install_follow_spec_dflash` wraps the pinned native forward and backbone. The
 base pass replays the child's random anchor draw, then restores the RNG state
 after that draw. Both passes must return identical indices and masks. Native
@@ -25,15 +26,17 @@ All four arms retain the same AdamW/LR/8192-token batch/seed controls. The commo
 `train_eagle3` entry point dispatches from the explicit config algorithm; it
 refuses DFlash with EAGLE-layout or offline manifests. `overfit_acceptance
 --algorithm dflash` uses exactly64 bounded responses and the same native
-defaults; its before/after probes replay identical anchor RNG draws. Production
-remains blocked until the overfit and native export acceptance checks pass.
+defaults; its before/after probes replay identical anchor RNG draws. The bounded overfit and native export checks pass. Production M6 still needs
+verified full corpora and training capacity on its chosen hardware.
 
 `load_presets(family='qwen3')` selects the released Qwen3 EAGLE-3 initialization
 and retains every other starting setting. The bounded overfit entry point
 accepts `--family qwen3` and checks the target and verifier architecture family.
 Qwen3 response inputs must use non-thinking rendering; the B10 bounded input
 bundle explicitly verifies the empty `<think>…</think>` prefix on all64 queries.
-Neither family presets nor CPU plumbing tests establish B10(a)–(g) GPU acceptance.
+The real fixed-batch, overfit and export evidence is indexed in
+`artifacts/B10_acceptance_20261006/acceptance.json`; CPU tests alone are not GPU
+acceptance.
 
 Teacher top-k extraction now selects in the original bf16/fp16 representation
 before casting the selected values to float32; base values are gathered before
@@ -57,3 +60,23 @@ parameter groups are restored after each step, including on errors. Learning rat
 weight decay and state precision remain unchanged; the explicit option is
 checked against foreach on pinned A40 Torch for exact weights/states. It does
 not disable a fused optimizer or support a different optimizer type.
+
+
+## Bounded training evidence and hardware
+
+The native DFlash overfit check uses the original 8192-token batch and 512
+anchors. The successful H200 run consumes exactly 64 acceptance-only responses
+and three optimizer steps, with the native optimizer and memory defaults.
+`overfit_acceptance --allow-h200-training-smoke` explicitly applies D-26 to a
+free local H200. The default still requires A40, and H200 cannot satisfy the
+separate A40 capacity check. Checkpoint evaluation remains on A40 with pinned
+vLLM 0.31.0 and a fresh compile cache.
+
+The attempted A40 full-batch runs exhausted memory despite the optional memory
+flags. They remain failed evidence; the H200 result makes no A40 capacity claim.
+The Qwen3 EAGLE-3 64-response overfit and export checks use A40. Full production
+corpora and long-response capacity for M6 require their own operator checks.
+
+The pinned DFlash converter emits warnings about inherited BOS/EOS IDs outside
+the Llama vocabulary. These warnings are retained in the training and export
+logs; this implementation does not modify the converter or checkpoint metadata.
