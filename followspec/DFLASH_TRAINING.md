@@ -15,9 +15,18 @@ to EAGLE-3 only. `prepare_block_sample` therefore preserves each raw token,
 feature, label and mask. With `sample_from_anchor=False`, target logits at an
 anchored block index come from the previous sequence position; the anchor
 itself has zero loss. Explicit child/base projections follow that same rule.
-Do not feed the current EAGLE online dataset's shifted-length budget directly
-to DFlash: a raw-layout manifest, sampler accounting, trainer configuration and
-released-checkpoint acceptance are still required.
+Use `build_manifest(..., sequence_layout='dflash_raw')` for DFlash. It counts
+raw sequence tokens; the dataset rejects a transform that shifts them. Legacy
+EAGLE manifests keep shifted accounting. Never mix these units in a comparison.
+
+`load_presets(algorithm='dflash')` selects the released Llama DFlash checkpoint,
+its block size10, native512 anchors, gamma4 and native fixed exponential decay.
+All four arms retain the same AdamW/LR/8192-token batch/seed controls. The common
+`train_eagle3` entry point dispatches from the explicit config algorithm; it
+refuses DFlash with EAGLE-layout or offline manifests. `overfit_acceptance
+--algorithm dflash` uses exactly64 bounded responses and the same native
+defaults; its before/after probes replay identical anchor RNG draws. Production
+remains blocked until the overfit and native export acceptance checks pass.
 
 `load_presets(family='qwen3')` selects the released Qwen3 EAGLE-3 initialization
 and retains every other starting setting. The bounded overfit entry point

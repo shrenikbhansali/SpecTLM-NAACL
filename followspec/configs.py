@@ -12,11 +12,17 @@ EXPECTED={
 ALLOWED={'arm',*next(iter(EXPECTED.values())).keys()}
 
 
-def load_presets(*,family='llama'):
+def load_presets(*,family='llama',algorithm='eagle3'):
     if family not in {'llama','qwen3'}:raise ValueError('unsupported EAGLE family')
+    if algorithm not in {'eagle3','dflash'} or (algorithm=='dflash' and family!='llama'):raise ValueError('unsupported training algorithm/family')
     arms={name:json.loads((Path(__file__).with_name('configs')/(name+'.json')).read_text()) for name in EXPECTED}
     if family=='qwen3':
         for cfg in arms.values():cfg['initialization']='RedHatAI/Qwen3-8B-speculator.eagle3'
+    if algorithm=='dflash':
+        for cfg in arms.values():
+            cfg.update(algorithm='dflash',initialization='z-lab/LLaMA3.1-8B-Instruct-DFlash-UltraChat',
+                       block_size=10,max_anchors=512,gamma=4.,per_position_loss_weight='fixed-exp-decay')
+            del cfg['ttt_steps'];del cfg['ttt_step_loss_decay']
     return arms
 
 
@@ -48,7 +54,8 @@ def check_matched(arms):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--configs',nargs=4)
     p.add_argument('--family',choices=['llama','qwen3'],default='llama')
-    a=p.parse_args();arms=load_presets(family=a.family) if not a.configs else {c['arm']:c for c in [json.loads(Path(p).read_text()) for p in a.configs]}
+    p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3')
+    a=p.parse_args();arms=load_presets(family=a.family,algorithm=a.algorithm) if not a.configs else {c['arm']:c for c in [json.loads(Path(p).read_text()) for p in a.configs]}
     print(json.dumps(check_matched(arms),indent=2))
 
 if __name__=='__main__':main()

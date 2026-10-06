@@ -24,6 +24,15 @@ def ensure_unpaused(start=ROOT):
             if (root/relative).exists():raise RuntimeError(f'Experiments paused: {root/relative}')
 
 
+def validate_training_layout(config,manifest):
+    algorithm=config.get('algorithm','eagle3')
+    if algorithm not in {'eagle3','dflash'}:raise ValueError('unsupported training algorithm')
+    if algorithm=='dflash' and manifest.get('schema')!='followspec_online_tokens_v1':raise ValueError('DFlash requires audited online raw data')
+    layout,unit=('dflash_raw','raw sequence tokens') if algorithm=='dflash' else ('eagle_shift','shifted sequence tokens')
+    if manifest.get('sequence_layout','eagle_shift')!=layout or manifest.get('token_budget_unit','shifted sequence tokens')!=unit:
+        raise ValueError('training algorithm and data layout differ')
+
+
 def resolve_plan(config,manifest,seed):
     if config.get('backend_revision')!=BACKEND:raise ValueError('wrong backend revision')
     for key in ('initialization_revision','token_budget','optimizer_steps'):
@@ -34,6 +43,7 @@ def resolve_plan(config,manifest,seed):
         raise ValueError('wrong data schema or arm')
     for key in ('token_budget','optimizer_steps','initialization_revision'):
         if manifest.get(key)!=config[key]:raise ValueError(f'data/config {key} mismatch')
+    validate_training_layout(config,manifest)
     return dict(training_config=config,seed=seed,backend_revision=BACKEND,
                 evaluation_engine_version='0.31.0',dry_run=True,
                 feature_capture='online' if manifest['schema']=='followspec_online_tokens_v1' else 'offline')
@@ -75,6 +85,7 @@ def run(a,plan,manifest):
     from followspec.paired_data import PairedFeatureDataset,PairedCollator,shift_paired
     from atlas.generate_magpie import validate_hardware
     cfg=plan['training_config']
+    algorithm=cfg.get('algorithm','eagle3')
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip():
         raise RuntimeError('commit tracked source before launching')
     if not manifest.get('data_acceptance_passed') or not manifest.get('sample_mask_audit'):
@@ -103,14 +114,25 @@ def run(a,plan,manifest):
             ensure_unpaused()
             initialization=a.drafter_snapshot or cfg['initialization']
             if a.drafter_snapshot and Path(a.drafter_snapshot).name!=cfg['initialization_revision']:raise ValueError('drafter snapshot pin mismatch')
-            model_cfg=SpeculatorModelConfig.from_pretrained(initialization,revision=cfg['initialization_revision'])
-            model_cfg.speculators_config.verifier.name_or_path=str(Path(a.base_snapshot).resolve())
             from atlas.run_cell import read_drafter_config
             from atlas.covariates import tap_layers
             base_config=json.loads((Path(a.base_snapshot)/'config.json').read_text())
-            model_cfg.eagle_aux_hidden_state_layer_ids=tap_layers(read_drafter_config(initialization,cfg['initialization_revision']),base_config['num_hidden_layers'])
-            model=SpeculatorModel.from_pretrained(initialization,revision=cfg['initialization_revision'],config=model_cfg,torch_dtype=torch.float32)
-            install_follow_spec(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],
+            if algorithm=='dflash':
+                from followspec.dflash_loader import load_released_dflash
+                from followspec.dflash_extension import install_follow_spec_dflash,prepare_block_sample
+                if not a.drafter_snapshot:raise ValueError('DFlash requires a pinned local released snapshot')
+                model=load_released_dflash(initialization,a.base_snapshot,device='cpu')
+                if model.block_size!=cfg['block_size']:raise ValueError('released DFlash block size differs from config')
+                model_cfg=model.config;taps=list(model.target_layer_ids);shift=prepare_block_sample;span=model.block_size
+                install=install_follow_spec_dflash
+            else:
+                model_cfg=SpeculatorModelConfig.from_pretrained(initialization,revision=cfg['initialization_revision'])
+                model_cfg.speculators_config.verifier.name_or_path=str(Path(a.base_snapshot).resolve())
+                taps=tap_layers(read_drafter_config(initialization,cfg['initialization_revision']),base_config['num_hidden_layers'])
+                model_cfg.eagle_aux_hidden_state_layer_ids=taps
+                model=SpeculatorModel.from_pretrained(initialization,revision=cfg['initialization_revision'],config=model_cfg,torch_dtype=torch.float32)
+                shift=shift_paired;span=cfg['ttt_steps'];install=install_follow_spec
+            install(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],
                 shared_verifier_head=manifest.get('shared_verifier_head',False))
             model.register_forward_pre_hook(lambda *_:ensure_unpaused())
             def record_metrics(module,args,result):
@@ -124,19 +146,19 @@ def run(a,plan,manifest):
                 from followspec.token_data import OnlineResponseDataset
                 target=AutoModelForCausalLM.from_pretrained(a.base_snapshot,local_files_only=True,trust_remote_code=False,
                     torch_dtype=torch.bfloat16,attn_implementation='eager').to(get_local_rank())
-                bank=FrozenAdapterBank(target,manifest['registry'],model_cfg.eagle_aux_hidden_state_layer_ids,
-                    torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused)
+                tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(base_config['vocab_size'])
+                bank=FrozenAdapterBank(target,manifest['registry'],taps,tokens,pause_check=ensure_unpaused)
             loaders={}
             for split in ('train','val'):
                 if bank is not None:
-                    ds=OnlineResponseDataset(manifest,split=split,bank=bank,shift=shift_paired,noise_std=cfg['noise_std'] if split=='train' else 0.)
+                    ds=OnlineResponseDataset(manifest,split=split,bank=bank,shift=shift,noise_std=cfg['noise_std'] if split=='train' else 0.)
                 else:
                     ds=PairedFeatureDataset(a.manifest,split=split,allowed_targets=manifest['allowed_targets'],
                         forbidden_hashes=set(manifest['forbidden_prompt_hashes']),noise_std=cfg['noise_std'] if split=='train' else 0.)
                 sampler=MultipackDistributedBatchSamplerV2(batch_max_length=cfg['total_seq_len'],lengths=ds.approx_lengths,
                     num_replicas=get_dp_size(),rank=get_dp_rank(),seed=a.seed)
                 collate=PairedCollator(cfg['total_seq_len'],model.config.transformer_layer_config.hidden_size,
-                    len(model.config.eagle_aux_hidden_state_layer_ids),cfg['ttt_steps'])
+                    len(taps),span)
                 loaders[split]=DataLoader(ds,batch_sampler=sampler,collate_fn=collate,num_workers=0)
                 if split=='train':
                     if sum(ds.approx_lengths)!=cfg['token_budget']:raise ValueError('actual training token count mismatch')
@@ -144,7 +166,9 @@ def run(a,plan,manifest):
                     if rank==0:
                         with (out/'per_prompt.jsonl').open('x') as f:
                             for row in ds.rows:f.write(json.dumps(row)+'\n')
-            call=dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay'],loss_config=resolve_loss_config('kl_div','fused'))
+            call=(dict(max_anchors=cfg['max_anchors'],gamma=cfg['gamma'],per_position_loss_weight=cfg['per_position_loss_weight'])
+                  if algorithm=='dflash' else dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay']))
+            call['loss_config']=resolve_loss_config('kl_div','fused')
             trainer_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=cfg['epochs'],save_path=str(out/'checkpoints'),
                 optimizer=cfg['optimizer'],weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],
                 scheduler_warmup_ratio=cfg['warmup_ratio'],scheduler_total_steps=cfg['optimizer_steps'],
