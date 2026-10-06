@@ -19,9 +19,20 @@ def test_expansion_uses_offsets_and_preserves_zero_support():
     logits=torch.tensor([[1.,2.]])
     result=expanded_logprobs(logits,torch.tensor([0,2]),vocab_size=4)
     assert torch.isneginf(result[0,1]) and torch.isneginf(result[0,2])
-    assert torch.equal(result[:,[0,3]],logits.log_softmax(-1))
+    assert torch.equal(result[:,[0,3]],logits.double().log_softmax(-1))
     assert result.exp().sum()==pytest.approx(1)
     with pytest.raises(ValueError):expanded_logprobs(logits,torch.tensor([0,-1]),4)
+
+
+def test_full_vocabulary_probabilities_preserve_normalization_in_float64():
+    from atlas.transport import score_distribution
+    # Float32 log-softmax on a large, nearly flat vocabulary can miss 1e-6.
+    logits=torch.zeros((2,128256),dtype=torch.float32)
+    result=expanded_logprobs(logits,torch.zeros(128256,dtype=torch.long),128256)
+    assert result.dtype==torch.float64
+    score=score_distribution(result.numpy(),result.numpy(),[True,True])
+    assert score['overlap']==pytest.approx(1.,abs=1e-12)
+    assert score['forward_kl']==0
 
 
 def test_capture_observes_native_heads_and_removes_hook_after_error():

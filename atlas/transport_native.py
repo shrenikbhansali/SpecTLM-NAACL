@@ -46,6 +46,8 @@ def expanded_logprobs(logits,d2t,vocab_size):
     mapped=torch.arange(len(d2t),device=d2t.device)+d2t
     if len(mapped.unique())!=len(mapped) or (mapped<0).any() or (mapped>=vocab_size).any():raise ValueError('invalid draft-vocabulary offsets')
     if not torch.isfinite(logits).all():raise ValueError('nonfinite draft logits')
-    result=torch.full((len(logits),vocab_size),-torch.inf,device=logits.device,dtype=torch.float32)
-    result[:,mapped.to(logits.device)]=logits.float().log_softmax(-1)
+    # Score in float64: large-vocabulary float32 reductions can violate the
+    # scorer's normalization contract. This preserves the raw model logits.
+    result=torch.full((len(logits),vocab_size),-torch.inf,device=logits.device,dtype=torch.float64)
+    result[:,mapped.to(logits.device)]=logits.double().log_softmax(-1)
     return result

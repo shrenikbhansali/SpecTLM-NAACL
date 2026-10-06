@@ -125,7 +125,7 @@ def main():
                         for label,logits in [('base',bp),('child',cp)]:
                             pl,ql,anchors=align_eagle_step(logits,draft_logits,row['response_start'],depth)
                             q=expanded_logprobs(ql,drafter.d2t.cpu(),bp.shape[-1]).numpy()
-                            metrics=score_distribution(pl.float().log_softmax(-1).numpy(),q,np.ones(len(pl),dtype=bool))
+                            metrics=score_distribution(pl.double().log_softmax(-1).numpy(),q,np.ones(len(pl),dtype=bool))
                             scored=dict(prompt_id=row['prompt_id'],feature_source=feature,label_source=label,head='frozen_drafter',
                                 unroll_position=depth,first_anchor=int(anchors[0]),last_anchor=int(anchors[-1]),**metrics)
                             f.write(json.dumps(scored,allow_nan=False)+'\n');f.flush();prompt_rows.append(scored)
