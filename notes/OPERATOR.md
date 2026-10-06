@@ -3,7 +3,7 @@
 Newest information first under each heading. Layout defined in MASTER.md §8.8.
 
 ## Now
-- Time (ET): 2026-10-05 18:45
+- Time (ET): 2026-10-05 20:48
 - Sprint day: Day 1 of 8 (Mon Oct 5)
 - Gate 1: report ready (`reports/GATE-1.md`, 18:32), recommends PASS; waiting on owner D-08 plus compile-cache/noise-floor decisions.
 - Next gate: Gate 2 (Wed noon). Next deliverable: `reports/2026-10-06.md` by 7:00 am.
@@ -14,7 +14,7 @@ Newest information first under each heading. Layout defined in MASTER.md §8.8.
 ## Active jobs
 | Run ID | Task | Cluster | Started (ET) | ETA | Status |
 | --- | --- | --- | --- | --- | --- |
-| B1 curators (codex-1) | B1 | heck-srv2 CPU / HF | 17:07 | Llama inspection ~19:25 | Qwen3 inspected 4876/4877, 105 downloads; Llama 5301/7209 |
+| B1 curators (codex-1) | B1 | heck-srv2 CPU / HF | 17:07 | — | **finished ~20:40**: both pools inspected; sampled 100/100 staged per base (download logs: 100 started, 100 complete each); /home/heck2 1.5 TB free. Bank adapters outside the sample are not staged |
 | A1 waves 1–3 (74 runs) | A1 | A40 heck-srv1–5 | 17:56 | — | finished 18:29; 71 included |
 
 ## Queue (ready to launch next)
