@@ -1,6 +1,7 @@
 """Bounded real-target FIX-3 acceptance; no drafter checkpoint is trained."""
 import argparse
 from contextlib import nullcontext
+import importlib.metadata
 import json
 from pathlib import Path
 import subprocess
@@ -12,6 +13,7 @@ from peft import PeftModel
 from atlas.run_cell import sha256,write_new
 from atlas.generate_magpie import unpaused,validate_hardware
 from followspec.online_capture import OnlinePairCapture,route_arm
+from atlas.covariates import tap_layers
 
 
 def read(path):return [json.loads(s) for s in Path(path).read_text().splitlines() if s.strip()]
@@ -39,7 +41,10 @@ def main():
         source_configs_sha256={s:sha256(Path(s)/'config.json') for s in [a.base_cell,a.child_cell]},
         source_records_sha256={s:sha256(Path(s)/'per_prompt.jsonl') for s in [a.base_cell,a.child_cell]},
         prompt_sha256=cc['prompt_sha256'],seed=101,K=None,engine_version='0.31.0 generation; offline Transformers target',
-        gpu_type=torch.cuda.get_device_name(0),dtype='bfloat16',taps=[2,16,29],feature_tolerance=dict(atol=0,rtol=0),
+        gpu_type=torch.cuda.get_device_name(0),dtype='bfloat16',
+        taps=tap_layers(json.loads((Path(a.drafter)/'config.json').read_text()),json.loads((Path(bc['target'])/'config.json').read_text())['num_hidden_layers']),
+        versions={name:importlib.metadata.version(name) for name in ['torch','transformers','peft']},
+        feature_tolerance=dict(atol=0,rtol=0),
         scope='FIX-3 feature-provider acceptance, not B6 overfit or final B5 arm budgets')
     write_new(out/'config.json',cfg);start=time.perf_counter();torch.manual_seed(101)
     try:

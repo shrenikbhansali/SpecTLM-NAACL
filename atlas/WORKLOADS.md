@@ -47,7 +47,10 @@ cells. Use `--family qwen3` for Qwen3. Generation prompts disable thinking.
 Do not render twice or send training queries through this command: B5
 constructs the full training conversation and assistant-only mask.
 
-Run production Magpie on H100/H200 through the operator. The explicit
+Run production Magpie through the operator. Owner decision D-19 authorizes
+the explicit `--allow-a40-production` flag on heck A40s while ICE is down;
+it keeps full 500/64 query counts and records the policy in config. The
+H100/H200 production default remains available. The explicit
 `--acceptance-smoke` allows A40 builder checks only: at most 10 queries and
 240 candidates per invocation, marked `acceptance_only=true` in rows and
 config. Never feed these smoke files to training. The builder's ten
