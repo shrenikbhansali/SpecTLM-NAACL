@@ -31,7 +31,11 @@ your journal.
 - **Codex is the builder.** Write code and tests, download models and data,
   build pipelines, training code, analysis scripts and LaTeX tables, and fix
   `FIX-n` tasks. Work on branch `codex/<TASK-ID>`; merge to main only after
-  every acceptance test passes. Do not launch large sweeps or training runs.
+  every acceptance test passes. Under the owner's 2026-10-06 authorization,
+  also integrate and publish verified changes, repair operational failures, and
+  launch/monitor the approved method data, training and evaluation jobs.
+  Continue through ready stages without waiting for another user prompt.
+  Check existing queues and journals first to prevent duplicate launches.
 - **Claude Code is the operator.** Verify Codex's acceptance tests, launch and
   monitor jobs, triage crashes (MASTER §8.3), make small operational fixes on
   `claude/fix-<id>`, analyze outputs, draft ledger entries, keep MASTER §1 and
@@ -101,7 +105,9 @@ present, limit work to code, tests and dry runs, and say so in your journal.
    operations on 2026-10-05. Never use it to upload or mutate Hub resources.
 10. **Compute.** A40s for atlas inference and covariates; the H100/H200
     cluster for data generation, training and evaluation of trained drafters;
-    the 4 dedicated H200s for wall-clock timing only.
+    the 4 dedicated H200s may also run M3 training when free (MASTER D-26).
+    All acceptance comparisons remain on A40s; reserve H200 timing runs when
+    required by A9. Method jobs take priority over atlas jobs.
 11. **Honest reporting.** Report numbers with n and uncertainty. Flag
     anomalies; never explain them away or tune until a result looks right.
 

@@ -124,6 +124,14 @@ dependencies and correctness, not GPUs.
 | **Codex** (builder) | Writes code and tests; downloads models and datasets; builds pipelines, training code, analysis scripts, LaTeX tables; fixes bugs filed as FIX tasks | Launches large sweeps or training jobs; changes gates, predictions or framing; edits evaluation code after the freeze without a §13 decision |
 | **Claude Code** (operator) | Verifies Codex's acceptance tests; launches and monitors jobs; triages crashes; makes small operational fixes; analyzes outputs; drafts ledger entries; maintains §1, §4 and `notes/OPERATOR.md`; writes daily and gate reports; regenerates figures; helps draft paper text when asked | Rewrites core logic (files a FIX task for Codex instead); makes research decisions; interprets beyond what the numbers show |
 
+**Owner operational authorization (2026-10-06, direct):** Codex also owns
+necessary integration, publication, recovery and launch/monitoring of approved
+method jobs. It continues through stages as their prerequisite checks pass,
+without waiting for another user prompt or a calendar gate date. This overrides
+the builder-only job restriction in the role table. Coordinate task/queue
+ownership in journals, avoid duplicate submissions, and preserve the existing
+research decisions, gate criteria, data checks and pause contract.
+
 **Handoffs between agents** happen only through §4 and the journals: the
 operator files `FIX-n` rows assigned to `codex` with a link to the failing
 run; Codex claims them like any task. Codex works on branches
