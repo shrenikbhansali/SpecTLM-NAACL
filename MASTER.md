@@ -210,7 +210,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | done | codex-1 / 2026-10-05T22:41:55-04:00 | [journal](notes/FIX-1.md); [acceptance](artifacts/FIX-1_acceptance_20261005/acceptance.json); approved50% criterion, base/child/broken pass;19 tests; merged880e68e; operator re-run PASS (48 tests) ([FIX-1 journal](notes/FIX-1.md)) |
-| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | in progress | codex-1 / 2026-10-05T23:34:24-04:00 | [spec/journal](notes/FIX-2.md); duplicateBOS observed in B8 capture; opt-in flags preserve historical defaults |
+| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | in progress | codex-1 / 2026-10-05T23:38:45-04:00 | [spec/journal](notes/FIX-2.md);21 tests pass; paired5-prompt native smoke running on heck-srv3:5/6; branch06022d0 |
 
 ---
 

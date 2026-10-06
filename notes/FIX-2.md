@@ -12,3 +12,9 @@ Acceptance tests, written before implementation:
 5. Pause/dry-run/B2 existing tests pass. Tests and command logs retained; no rerun of historical campaign. Operator later reruns affected production cells if any exist (A4 not launched currently).
 
 Work on codex/FIX-2. No remote available for pull/rebase. B9 P1 pauses while this fix proceeds.
+
+## 2026-10-05T23:38:45-04:00 — codex-1 — Tests pass, paired GPU acceptance running
+
+Tests first missing-function error saved FIX-2_before_20261005.log;21 input-control/B2 tests pass (FIX-2_after_20261005.log). Branch06022d0 records requested/effectiveLoRA separately, forwards exact validated token IDs under newflag, and checks returnedIDs for unexpected engine changes. Docs include B4/A4/A6 integration. Historical text/adapter-dependent defaults unchanged.
+
+Started bounded paired5-prompt checks on free heck-srv3 GPUs5/6: PIDs1065578/1065586, base/child at artifacts/FIX-2_acceptance_20261005. Both enableLoRA rank128 and explicit token inputs, same prompt file/engine/drafter/K4/seed0/maxnew64; each fresh compile cache. No other process touched. Verify actual capturedIDs singleBOS and raw metric rederivation, then merge/review. Main source unchanged until checks pass.
