@@ -178,7 +178,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B6.md); 19 CPU tests and native loss composition pass; real overfit/export pending B5 |
 | B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | done | codex-1 / 2026-10-05T22:38:52-04:00 | [journal](notes/B7.md); [synthetic acceptance](artifacts/B7_acceptance_20261005/acceptance.json); 9 tests, 94% coverage across200 trials; merged ec802a4; operator re-run PASS (9 tests; coverage 0.967, noisy-twice 0.953) ([B7 journal](notes/B7.md)) |
 | B8 | Covariates pipeline | P0 | codex | B1 | Tue | review | codex-1 / 2026-10-05T23:34:01-04:00 | [journal](notes/B8.md); [acceptance](artifacts/B8_acceptance_final_20261005/acceptance.json);22 CPU tests; native dense/LoRA/AWQ/CT/GPTQ checks pass; code1ab1661 merged; FIX-2 token-input integration before production |
-| B9 | Transport-cell scorer | P1 | codex | B2 | Wed | in progress | codex-1 / 2026-10-05T23:19:53-04:00 | [journal](notes/B9.md); 4 CPU scorer tests pass; owner approved decomposition/R; native unroll and n≥10 validation pending |
+| B9 | Transport-cell scorer | P1 | codex | B2 | Wed | in progress | codex-1 / 2026-10-05T23:45:33-04:00 | [journal](notes/B9.md);8 tests + tiny native Eagle3CPU unroll pass; owner-approved R implemented; full producer/DFlash/n≥10 validation pending |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
 | B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B11.md); recipe/license gaps remain; pause lifted; 8 checker tests pass |
 | B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | done | codex-1 / 2026-10-05T22:50:05-04:00 | [journal](notes/B12.md); [acceptance](artifacts/B12_acceptance_20261005/acceptance.json); 6 tests,18 exhibit families byte-identical twice; merged054561a; operator re-run PASS (8 tests; 86 files byte-identical; cross-session identical except code_commit) ([B12 journal](notes/B12.md)) |
@@ -210,7 +210,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | done | codex-1 / 2026-10-05T22:41:55-04:00 | [journal](notes/FIX-1.md); [acceptance](artifacts/FIX-1_acceptance_20261005/acceptance.json); approved50% criterion, base/child/broken pass;19 tests; merged880e68e; operator re-run PASS (48 tests) ([FIX-1 journal](notes/FIX-1.md)) |
-| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | in progress | codex-1 / 2026-10-05T23:38:45-04:00 | [spec/journal](notes/FIX-2.md);21 tests pass; paired5-prompt native smoke running on heck-srv3:5/6; branch06022d0 |
+| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | in progress | codex-1 / 2026-10-05T23:45:33-04:00 | [spec/journal](notes/FIX-2.md);34 tests pass; raw/rendered distinction corrected; new paired GPU check; branch898f0c7 |
 
 ---
 
