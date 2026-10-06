@@ -52,3 +52,13 @@ def test_preparation_requires_actual_engine_prompt_tokens_and_preserves_response
     rows,config=from_cell(tmp_path,True,5)
     assert rows[0]['input_ids']==[1,2,3,4] and rows[0]['response_start']==2
     assert rows[0]['assistant_mask']==[0,0,1,1] and config['acceptance_only']
+
+
+def test_template_identity_is_measured_from_snapshot_and_adapter_inheritance(tmp_path):
+    import json
+    from atlas.covariates import template_identity
+    base=tmp_path/'base';base.mkdir();child=tmp_path/'child';child.mkdir()
+    (base/'tokenizer_config.json').write_text(json.dumps({'chat_template':'template-A'}))
+    assert template_identity(base,child,adapter=True)['changed'] is False
+    (child/'chat_template.jinja').write_text('template-B')
+    assert template_identity(base,child,adapter=True)['changed'] is True

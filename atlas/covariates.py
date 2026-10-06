@@ -7,6 +7,7 @@ import argparse
 from collections import defaultdict
 from datetime import date
 import importlib.metadata
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -73,6 +74,19 @@ def norm_groups(base,delta_squares):
 def relative_weight_groups(base,updates):return norm_groups(base,{k:square_norm(v) for k,v in updates.items()})
 
 
+def template_identity(base,child=None,adapter=False):
+    def template(path):
+        root=Path(path)
+        if (root/'chat_template.jinja').is_file():return (root/'chat_template.jinja').read_text()
+        if (root/'tokenizer_config.json').is_file():return json.loads((root/'tokenizer_config.json').read_text()).get('chat_template')
+        return None
+    b=template(base);c=template(child) if child else b
+    inherited=bool(adapter and child and not any((Path(child)/name).exists() for name in ('chat_template.jinja','tokenizer_config.json')))
+    if inherited:c=b
+    digest=lambda value:hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest()
+    return dict(changed=b!=c,base_sha256=digest(b),child_sha256=digest(c),child_inherits_base=inherited)
+
+
 def adapter_norms(base,adapter):
     from atlas.adapter_similarity import load_factors,inner
     factors=load_factors(adapter);squares={}
@@ -113,7 +127,8 @@ def main():
     bc=json.loads((Path(a.base)/'config.json').read_text());dc=json.loads((Path(a.drafter)/'config.json').read_text());taps=tap_layers(dc,bc['num_hidden_layers'])
     if a.child and json.loads((Path(a.child)/'config.json').read_text()).get('quantization_config'):
         raise ValueError('packed/quantized target requires a validated native dequantizer; never measure packed codes as weights')
-    config=vars(a)|dict(source=source,tap_indices=taps,tap_semantics='HF hidden_states indices (embedding-inclusive), pre-final-norm',
+    template=template_identity(a.base,a.child or a.adapter,adapter=bool(a.adapter))
+    config=vars(a)|dict(source=source,template=template,tap_indices=taps,tap_semantics='HF hidden_states indices (embedding-inclusive), pre-final-norm',
         tap_default_source='vLLM0.31.0 SupportsEagle3.get_eagle3_default_aux_hidden_state_layers: (2,n//2,n-3)',
         offline_backend={k:importlib.metadata.version(k) for k in ('torch','transformers','peft')},
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),source_sha256=sha256(__file__),
@@ -172,7 +187,7 @@ def main():
         result={k:mean(k) for k in ('kl_child_base','outside_vocab_mass_base','outside_vocab_mass_child','outside_vocab_mass_shift')}
         result['features']={str(i):{key:sum(r['features'][str(i)][key]*r['n_tokens'] for r in records)/n for key in ('relative_l2','cosine_displacement')} for i in taps}
         result.update(n_prompts=len(records),n_tokens=n,weight_covariates=weight_result,lm_head_relative_change=weight_result['lm_head']['relative_norm'],
-            chat_template_changed=source.get('template_changed'),wall_s=time.perf_counter()-started,
+            chat_template_changed=template['changed'],wall_s=time.perf_counter()-started,
             uncertainty='per-prompt records retained; this single bounded diagnostic does not estimate run-to-run noise')
         write_new(out/'results.json',result)
         write_new(out/'ledger_draft.json',dict(id='EXP-ATL-UNASSIGNED',title=out.name,landed=str(date.today()),status='pilot',

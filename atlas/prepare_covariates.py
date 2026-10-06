@@ -35,12 +35,13 @@ def from_cell(root,smoke,count):
 
 def from_filter(root,count):
     root=Path(root);cfg=json.loads((root/'config.json').read_text());ref=Path(cfg['reference'])
+    target=json.loads((root/'target_provenance.json').read_text())
     if cfg['engine_version']!='0.31.0' or sha256(ref)!=cfg['reference_sha256']:raise ValueError('filter provenance mismatch')
     refs={r['prompt_id']:r for r in read(ref)};samples=read(root/'samples.jsonl')[:count]
     result=[sequence(r['prompt_id'],refs[r['prompt_id']]['generation_input_ids'],r['token_ids']) for r in samples]
     config=dict(generation_engine=cfg['engine_version'],K=cfg['K'],prompt_sha256=cfg['reference_config']['prompt_sha256'],
         source_run_id=root.name,source_config_sha256=sha256(root/'config.json'),source_records_sha256=sha256(root/'samples.jsonl'),
-        derivative_id=cfg['derivative_id'],derivative_revision=cfg.get('adapter_revision') or cfg['base_revision'],
+        derivative_id=cfg['derivative_id'],derivative_revision=target['revision'],
         workload='general acceptance only',acceptance_only=True,template_changed=False)
     return result,config
 
