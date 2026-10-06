@@ -13,3 +13,9 @@ def release_grad_before_forward(trainer):
         if module.training and torch.is_grad_enabled():
             trainer._optimizers_zero_grad()
     return trainer.model.register_forward_pre_hook(clear_previous_step)
+
+
+def saved_tensor_context(enabled=False):
+    """Move autograd's saved tensors to pinned CPU storage without arithmetic changes."""
+    from contextlib import nullcontext
+    return torch.autograd.graph.save_on_cpu(pin_memory=True) if enabled else nullcontext()

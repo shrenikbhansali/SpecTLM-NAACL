@@ -32,9 +32,18 @@ def validate_capacity(rows, source):
         raise ValueError('capacity smoke exceeds bounded64k total sequence tokens')
 
 
+def validate_acceptance_registry(registry, rows, *, capacity=False):
+    # Permitting an unadmitted mixture is local to this bounded diagnostic.
+    # Production retains the strict FrozenAdapterBank default.
+    from followspec.mixture_targets import validate_registry
+    validate_corpus(rows,capacity=capacity)
+    validate_registry(registry,allow_acceptance=True)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--offload-saved-tensors',action='store_true',help='store autograd saved tensors on CPU; no recomputation, precision or recipe change')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
     p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
@@ -83,6 +92,7 @@ def main():
     write_new(out/'config.json',config)
     try:
         registry=json.loads(Path(a.registry).read_text())
+        validate_acceptance_registry(registry,rows,capacity=a.capacity_smoke)
         refs=[dict(run=a.responses,record_index=i,child_id=r['generation_target'],pair_id=r['sample_id'],split='train') for i,r in enumerate(rows)]
         manifest=build_manifest('FS',refs,registry=registry,base_revision=Path(a.base).name,
             initialization_revision=Path(a.drafter).name,allow_acceptance=True,
@@ -104,8 +114,9 @@ def main():
             model=SpeculatorModel.from_pretrained(a.drafter,config=model_cfg,local_files_only=True,torch_dtype=torch.float32)
             shift=shift_paired;span=cfg['ttt_steps'];install=install_follow_spec
         tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(target.config.vocab_size)
-        bank=FrozenAdapterBank(target,registry,taps,tokens,pause_check=ensure_unpaused)
+        bank=FrozenAdapterBank(target,registry,taps,tokens,pause_check=ensure_unpaused,allow_acceptance=True)
         install(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],shared_verifier_head=False)
+
         keys=set(model.state_dict());initial_fc=model.fc.weight.detach().clone()
         def capture_metrics(module,args,result):
             if not torch.isfinite(result[1]):raise ValueError('nonfinite native loss')
@@ -149,7 +160,8 @@ def main():
                     values.append(float(loss))
             return dict(mean_batch_loss=sum(values)/len(values),batch_losses=values)
         before=evaluate();write_new(out/'before.json',before)
-        trainer.run_training()
+        from followspec.training_memory import saved_tensor_context
+        with saved_tensor_context(a.offload_saved_tensors):trainer.run_training()
         after=evaluate();write_new(out/'after.json',after)
         assert after['mean_batch_loss']<before['mean_batch_loss'],'loss did not fall on the fixed64 training probe'
         assert trainer.global_step==steps
