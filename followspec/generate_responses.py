@@ -32,6 +32,12 @@ def validate_queries(rows,forbidden,smoke,*,prompt_target=None,acceptance_limit=
     return audit_disjoint({'training':rows},{'forbidden':forbidden})
 
 
+def response_limit(smoke, acceptance_limit, capacity_smoke):
+    if capacity_smoke and (not smoke or acceptance_limit != 64):
+        raise ValueError('capacity check requires --acceptance-smoke --acceptance-limit 64')
+    return 512 if capacity_smoke or not smoke else 64
+
+
 def make_sample(row,context,answer,*,target_id,revision,acceptance_only):
     if not context or not answer or any(type(i) is not int or i<0 for i in context+answer):raise ValueError('nonempty exact token sequence required')
     return dict(sample_id=row['prompt_id'],prompt_id=row['prompt_id'],raw_prompt=row['prompt'],
@@ -51,11 +57,13 @@ def main():
     p.add_argument('--prompt-filter-run',help='A2 proof for a bank prompt origin when the generation target is base')
     p.add_argument('--forbidden-files',nargs='+',required=True);p.add_argument('--seed',type=int,required=True)
     p.add_argument('--allow-a40-production',action='store_true');p.add_argument('--acceptance-smoke',action='store_true');p.add_argument('--dry-run',action='store_true')
+    p.add_argument('--capacity-smoke',action='store_true',help='bounded64-query capacity inputs at production512 response limit; remain acceptance-only')
     p.add_argument('--acceptance-limit',type=int,choices=[5,64],default=5,help='64 only for B6 bounded overfit acceptance; still max64 response tokens')
     p.add_argument('--batch-size',type=int,default=32);p.add_argument('--max-model-len',type=int,default=4096)
     p.add_argument('--max-lora-rank',type=int,help='explicit matched rank capacity across response controls')
     p.add_argument('--gpu-memory-utilization',type=float,default=.7)
     a=p.parse_args();a.adapter=None;a.adapter_revision=None
+    max_response_tokens=response_limit(a.acceptance_smoke,a.acceptance_limit,a.capacity_smoke)
     if not re.fullmatch('[a-f0-9]{40}',a.base_revision) or Path(a.base_snapshot).name!=a.base_revision:raise ValueError('pin local base snapshot')
     if not re.fullmatch('[a-f0-9]{40}',a.tokenizer_revision) or Path(a.tokenizer).name!=a.tokenizer_revision:raise ValueError('pin local tokenizer snapshot')
     if a.target_registry and a.derivative_id!='base':
@@ -76,6 +84,7 @@ def main():
         hashes={}
     rows=read(a.prompts);forbidden=[r for path in a.forbidden_files for r in read(path)]
     audit=validate_queries(rows,forbidden,a.acceptance_smoke,prompt_target=a.prompt_target,acceptance_limit=a.acceptance_limit)
+    if a.capacity_smoke and len(rows)!=64:raise ValueError('capacity generation requires exactly64 distinct queries')
     inputs=None;rendering=None
     if a.rendered_inputs:
         from followspec.render_inputs import load_bundle
@@ -102,7 +111,7 @@ def main():
         cap=a.max_lora_rank
     if cap is None or a.batch_size<=0:raise ValueError('unsupported adapter rank or batch size')
     cfg=vars(a)|dict(schema='followspec_response_tokens_v1',engine_version='0.31.0',K=None,drafter=None,
-        temperature=.6,top_p=.95,max_new_tokens=64 if a.acceptance_smoke else 512,
+        temperature=.6,top_p=.95,max_new_tokens=max_response_tokens,
         n=len(rows),target=target,adapter=adapter,derivative_revision=row['revision'],adapter_files_sha256=hashes,
         max_lora_rank=cap,prompt_sha256=sha256(a.prompts),forbidden_sha256={f:sha256(f) for f in a.forbidden_files},
         tokenizer_sha256=sha256(Path(a.tokenizer)/'tokenizer.json'),acceptance_only=a.acceptance_smoke,disjointness=audit,

@@ -26,3 +26,13 @@ def test_overfit64_is_an_explicit_bounded_acceptance_mode():
     validate_queries(rows,[],True,acceptance_limit=64)
     with pytest.raises(ValueError):validate_queries(rows,[],False,acceptance_limit=64)
     with pytest.raises(ValueError):validate_queries(rows+[rows[0]|dict(prompt_id='65')],[],True,acceptance_limit=64)
+
+
+def test_capacity_generation_is_explicit_bounded_and_stays_acceptance_only():
+    from followspec.generate_responses import response_limit
+    assert response_limit(False,5,False)==512
+    assert response_limit(True,5,False)==64
+    assert response_limit(True,64,False)==64
+    assert response_limit(True,64,True)==512
+    for smoke,limit in [(False,64),(False,5),(True,5)]:
+        with pytest.raises(ValueError,match='capacity'):response_limit(smoke,limit,True)
