@@ -95,3 +95,13 @@ D-28 branch e1e70fd remains unmerged pending the mixture-source decision asked i
 ## 2026-10-06T05:04:29-04:00 — codex-1 — Independent M2 launch preparation
 
 Before stopping on the pending policy, build the remaining independent job-planning change: optional clean execution-checkout override and explicit D23 oversampling in mixture prompt jobs. Both preserve historical defaults and immutable stages; no GPU submission or mixture decision. This prevents future jobs inheriting the older M1 checkout without FIX-5. Tests first on codex/FIX-4.
+
+## 2026-10-06T05:09:17-04:00 — codex-1 — Handoff: independent preparation complete, policy blocked
+
+Branch f4a8d53 is pushed and clean, still unmerged. It includes current main/B10 plus D-28 eligibility/count helpers and optional fresh execution checkout/D23 flags. Merging main conflicted only in this append-only journal: preserved main verbatim, then appended both branch-only entries without deleting either history.168 combined tests PASS (`python3 -m pytest followspec/tests atlas/tests/test_magpie_recovery.py atlas/tests/test_workloads.py -q`; FIX4_D28_final_sync_20261006.log).
+
+Actual pinned admitted mixture m1-r1-00 CLI dry run exited0 with count500, candidate_budget6400, d23_oversamplingtrue, engine0.31.0. Exact argv/cwd/config in artifacts/FIX4_execution_dryrun_20261006; no cell directory or GPU job created. New execution checkout must be clean with the same engine lock; original M1 spec and source stages remain unchanged. Partial preparation summary and pilot ledger: artifacts/FIX4_D28_preparation_20261006. It explicitly reports full_D28_integration_passed=false.
+
+Method prompt status last checked:28/33 complete,5 retries active, no completed retry shortfall yet. Full33 run map remains artifacts/FIX4_D28_bank_runs_20261006/bank_runs.json. No builder GPU process remains; operator queues continue. B6 and B10 are review on main; B10 merge9a9e1d7,155 tests and both native overfit/export paths pass.
+
+Next step requires the pending protocol clarification: retain the existing admitted mixtures and original source/admission universe after dropping bank training targets, or rebuild/exclude mixtures from remaining sources. MASTER2.2 reserves that choice for the owner; D28 specifies bank exclusions/counts but not this consequence. Do not silently redraw candidates, relax admission, use partial prompt sets, or treat elapsed time as approval. After the decision, finish the corresponding registry/admission/response integration, audit all33 final workloads once complete, rerun tests, merge, and mark review. Gate2 still needs the full M2 corpus and its checks; no calendar wait. B9/B11 remain blocked as documented, and no other unclaimed Codex task is ready.
