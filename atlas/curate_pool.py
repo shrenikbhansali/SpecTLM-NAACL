@@ -204,13 +204,29 @@ def metadata(hub, model, revision):
     return cfg, tok, template
 
 
+def layout_exclusion(cfg, paths):
+    """Classify the actual on-disk format, never just the repository's name."""
+    names = {Path(p).name for p in paths}
+    if 'hybrid_config.json' in names:
+        return 'different_architecture'
+    if cfg.get('quantization') and not cfg.get('quantization_config'):
+        return 'mlx_quantization'
+    standard = any(re.fullmatch(r'(?:model|pytorch_model)(?:-\d+-of-\d+)?\.(?:safetensors|bin)', p)
+                   or re.fullmatch(r'adapter_model\.(?:safetensors|bin)', p) for p in paths)
+    return '' if standard else 'nonstandard_weight_layout'
+
+
 def classify(relations, cfg, card, model_id):
     if 'adapter' in relations:
         return 'lora_adapter'
     quant = cfg.get('quantization_config', {})
     method = str(quant.get('quant_method', '')).lower()
-    if method in {'fp8', 'fbgemm_fp8'} or (method == 'compressed-tensors' and
-                                         'float' in json.dumps(quant).lower()):
+    groups = quant.get('config_groups', {}).values()
+    fp8_weights = any(g.get('weights', {}).get('type') == 'float' and
+                      g.get('weights', {}).get('num_bits') == 8 for g in groups)
+    if (method in {'fp8', 'fbgemm_fp8'} or
+        (method == 'modelopt' and str(quant.get('quant_algo', '')).upper() == 'FP8') or
+        (method == 'compressed-tensors' and fp8_weights)):
         return 'quantized_fp8'
     if method in {'awq', 'gptq'}:
         return 'quantized_' + method
@@ -225,8 +241,8 @@ def classify(relations, cfg, card, model_id):
     return 'other'
 
 
-def inspect_candidate(hub, model_id, relations, base_id, base_revision, base_meta):
-    info = hub.meta(model_id)
+def inspect_candidate(hub, model_id, relations, base_id, base_revision, base_meta, revision=None):
+    info = hub.meta(model_id, revision=revision)
     files = [{'path': s.rfilename, 'size': s.size, 'blob_id': s.blob_id,
               'sha256': s.lfs.sha256 if s.lfs else None} for s in info.siblings]
     card_data = info.card_data.to_dict() if info.card_data else {}
@@ -246,8 +262,19 @@ def inspect_candidate(hub, model_id, relations, base_id, base_revision, base_met
     weights = [s for s in files if s['path'].endswith(('.safetensors', '.bin'))]
     if not weights:
         r['exclusion'] = 'no_standard_weights'; return r
-    cfg, tok, template = metadata(hub, model_id, info.sha)
-    ac_raw = hub.file(model_id, info.sha, 'adapter_config.json')
+    try:
+        cfg, tok, template = metadata(hub, model_id, info.sha)
+        ac_raw = hub.file(model_id, info.sha, 'adapter_config.json')
+    except Exception as e:
+        from huggingface_hub.errors import GatedRepoError
+        if isinstance(e, GatedRepoError):
+            r['exclusion'] = 'gated_without_access'
+            return r
+        raise
+    layout = layout_exclusion(cfg, [f['path'] for f in files])
+    if layout:
+        r['exclusion'] = layout
+        return r
     ac = json.loads(ac_raw) if ac_raw else {}
     if ac:
         if ac.get('peft_type') != 'LORA' or ac.get('base_model_name_or_path') != base_id:

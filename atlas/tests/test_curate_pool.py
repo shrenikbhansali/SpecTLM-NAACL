@@ -90,3 +90,22 @@ def test_read_legacy_string_csv_and_reject_malformed_json(tmp_path):
     assert actual['target_modules']=='all-linear' and actual['gated']=='manual'
     records[0]['files']='[invalid';save()
     with pytest.raises(json.JSONDecodeError):read_csv(path)
+
+
+def test_reject_nonstandard_layout_but_not_repository_names():
+    from atlas.curate_pool import layout_exclusion
+    cfg={'model_type':'llama','architectures':['LlamaForCausalLM']}
+    assert layout_exclusion(cfg,['openvino_model.bin','openvino_config.json'])=='nonstandard_weight_layout'
+    assert layout_exclusion(cfg,['model.safetensors','hybrid_config.json'])=='different_architecture'
+    assert layout_exclusion(cfg|{'quantization':{'bits':4,'group_size':64}},['model.safetensors'])=='mlx_quantization'
+    assert layout_exclusion(cfg,['pytorch_model-00001-of-00003.bin'])==''
+    assert layout_exclusion(cfg,['model-00001-of-00004.safetensors'])==''
+    assert layout_exclusion(cfg,['weights/0.pth','config.ini'])=='nonstandard_weight_layout'
+
+
+def test_modelopt_fp8_is_typed_but_other_precision_is_not_fp8():
+    from atlas.curate_pool import classify
+    cfg={'quantization_config':{'quant_method':'modelopt','quant_algo':'FP8'}}
+    assert classify(['quantized'],cfg,'','org/model')=='quantized_fp8'
+    cfg={'quantization_config':{'quant_method':'compressed-tensors','config_groups':{'g':{'weights':{'type':'float','num_bits':4}}}}}
+    assert classify(['quantized'],cfg,'','org/model')=='other'
