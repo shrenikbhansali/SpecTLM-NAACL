@@ -48,7 +48,7 @@ def main():
     prior=json.loads((old/'provenance.json').read_text());base_id,cutoff=BASES[a.base]
     hub=CachedHub(a.cache,safe_token(use_existing_token=a.existing_token));bm=metadata(hub,base_id,prior['revision'])
     rows=read_csv(old/f'candidates_{a.base}.csv')
-    errors=[json.loads(x) for x in (old/'errors.jsonl').read_text().splitlines()]
+    errors=[json.loads(x) for x in (old/'errors.jsonl').read_text().splitlines()] if (old/'errors.jsonl').exists() else []
     discovered={r['model_id'] for r in rows}|{r['model_id'] for r in errors}
     provenance=prior|dict(previous=str(old.resolve()),code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),created_at=utc(),repair='standard layout/architecture, discovery reconciliation, all-bank staging')
     (out/'provenance.json').write_text(json.dumps(provenance,indent=2)+'\n')
@@ -69,7 +69,7 @@ def main():
         if before!=r:event(out/'changes.jsonl',model_id=r['model_id'],previous_type=before['type'],type=r['type'],previous_exclusion=before['exclusion'],exclusion=r['exclusion'])
     # Relations are public metadata; restrict added rows to original discovered IDs.
     relations=defaultdict(set)
-    for rel in RELATIONS:
+    for rel in (RELATIONS if errors else ()):
         for m in hub.api.list_models(filter=f'base_model:{rel}:{base_id}'):
             if m.id in discovered:relations[m.id].add(rel)
     unresolved=[]

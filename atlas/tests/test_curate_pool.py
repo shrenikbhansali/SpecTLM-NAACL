@@ -109,3 +109,9 @@ def test_modelopt_fp8_is_typed_but_other_precision_is_not_fp8():
     assert classify(['quantized'],cfg,'','org/model')=='quantized_fp8'
     cfg={'quantization_config':{'quant_method':'compressed-tensors','config_groups':{'g':{'weights':{'type':'float','num_bits':4}}}}}
     assert classify(['quantized'],cfg,'','org/model')=='other'
+
+
+def test_exllama_quantization_is_nonstandard_even_with_hf_filenames():
+    from atlas.curate_pool import layout_exclusion
+    for method in ('exl2','exl3'):
+        assert layout_exclusion({'quantization_config':{'quant_method':method}},['model.safetensors'])=='nonstandard_quantization'

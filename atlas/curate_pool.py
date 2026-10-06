@@ -209,6 +209,8 @@ def layout_exclusion(cfg, paths):
     names = {Path(p).name for p in paths}
     if 'hybrid_config.json' in names:
         return 'different_architecture'
+    if str((cfg.get('quantization_config') or {}).get('quant_method','')).lower() in {'exl2','exl3'}:
+        return 'nonstandard_quantization'
     if cfg.get('quantization') and not cfg.get('quantization_config'):
         return 'mlx_quantization'
     standard = any(re.fullmatch(r'(?:model|pytorch_model)(?:-\d+-of-\d+)?\.(?:safetensors|bin)', p)
