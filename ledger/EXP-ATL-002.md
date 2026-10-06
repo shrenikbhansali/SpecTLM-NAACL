@@ -74,3 +74,7 @@ mean: −0.1902; LoRA − merged (fresh means): −0.0045. Aggregate: `$WS/artif
 (81 included cells). **Caveat added:** LoRA-target cells vary more across compiles than the base (SD 0.0080 vs 0.0046), so
 the base floor understates single-cell A10 noise for adapters. The B2 s0 LoRA value (2.8747) is 0.0024 above the
 5-repeat range. The original entry's run total ("74") should read 75 for waves 1–3.
+
+**Erratum (2026-10-05T23:21 ET, claude-ops).** As in EXP-ATL-001: base A00 replicates, EAGLE-v1, DFlash and merged-child cells ran without
+LoRA enabled; only the child-LoRA cells did (`enable_lora=bool(adapter)`). A00 and LoRA A10 therefore differ in this engine
+setting; the LoRA-vs-merged comparison (−0.0045 fresh means) is consistent with a small effect but does not isolate it.

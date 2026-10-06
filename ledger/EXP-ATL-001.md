@@ -47,3 +47,7 @@ Derived: repeat diff 0.0083; child drift −0.1748 (ledger seed 0: −0.1998); L
 shows base A00 takes values 3.0495–3.0618 across fresh compiles, and 3.0495 is the lowest of them. This pair's drift
 (−0.175) is therefore a single-draw estimate; EXP-ATL-002's seed-0 drift against the 20-replicate A00 is −0.199 to −0.206). Several earlier attempts failed on an AutoConfig incompatibility and a missing `ninja` on PATH; they are
 preserved as `*_retry*`/failed directories and excluded. Timing on a shared node.
+
+**Erratum (2026-10-05T23:21 ET, claude-ops).** The Config row "LoRA enabled (max rank 64) in every cell" is incorrect: the harness sets
+`enable_lora=bool(adapter)`, so only the child-LoRA cell ran with LoRA enabled. `max_lora_rank` is recorded in every config
+but is inert without an adapter. Values and artifacts are unchanged. (Found by codex-1, notes/B8.md 23:11.)
