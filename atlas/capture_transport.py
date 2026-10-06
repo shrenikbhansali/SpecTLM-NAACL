@@ -1,4 +1,4 @@
-"""Paired native EAGLE3 offline diagnostics on exact child-generated sequences."""
+"""Paired native EAGLE3/DFlash diagnostics on exact child-generated sequences."""
 import argparse
 from collections import defaultdict
 from datetime import date
@@ -49,17 +49,50 @@ def load_drafter(path,base,taps):
     return model
 
 
-def target_pass(model,row,taps):
+def target_pass(model,row,taps,*,capture_last=False):
     import torch
     core=model.get_base_model() if hasattr(model,'get_base_model') else model
     ids=torch.tensor([row['input_ids']],device='cuda')
-    with torch.inference_mode():
-        output=core.model(input_ids=ids,output_hidden_states=True,use_cache=False)
-        features=torch.cat([output.hidden_states[i] for i in taps],dim=-1).detach()
-        # Transfer bounded chunks so a long response does not allocate full-vocab
-        # float32 logits for the whole sequence on the GPU at once.
-        logits=torch.cat([core.lm_head(chunk)[0].float().cpu() for chunk in output.last_hidden_state.split(64,dim=1)])
-    return features,logits
+    last=[]
+    hook=core.model.norm.register_forward_pre_hook(lambda m,args:last.append(args[0].detach())) if capture_last else None
+    try:
+        with torch.inference_mode():
+            output=core.model(input_ids=ids,output_hidden_states=True,use_cache=False)
+            features=torch.cat([output.hidden_states[i] for i in taps],dim=-1).detach()
+            # Transfer bounded chunks so a long response does not allocate full-vocab
+            # float32 logits for the whole sequence on the GPU at once.
+            logits=torch.cat([core.lm_head(chunk)[0].float().cpu() for chunk in output.last_hidden_state.split(64,dim=1)])
+        if capture_last:
+            if len(last)!=1:raise ValueError('one native pre-final-norm target output required')
+            return features,logits,last[0]
+        return features,logits
+    finally:
+        if hook is not None:hook.remove()
+
+
+def dflash_rows(drafter,base,child,row,taps,steps,adapter):
+    from contextlib import nullcontext
+    import torch
+    from atlas.transport_dflash import capture_dflash_hidden,align_dflash_step,project_head
+    base_context=lambda:child.disable_adapter() if adapter else nullcontext()
+    with base_context():bf,bp,bl=target_pass(child if adapter else base,row,taps,capture_last=True)
+    cf,cp,cl=target_pass(child,row,taps,capture_last=True)
+    base_core=(child.get_base_model() if adapter else base)
+    child_core=child.get_base_model() if hasattr(child,'get_base_model') else child
+    ids=torch.tensor([row['input_ids']],device='cuda')
+    for feature,features,last in [('base',bf,bl),('child',cf,cl)]:
+        captured=capture_dflash_hidden(drafter,features,ids,last,row['response_start'])
+        for depth in range(steps):
+            _,hidden,anchors=align_dflash_step(bp,captured,depth)
+            with base_context():base_q=project_head(base_core.lm_head,hidden)
+            child_q=project_head(child_core.lm_head,hidden)
+            for head,logits in [('base',base_q),('child',child_q)]:
+                q=logits.double().log_softmax(-1).numpy()
+                for label,labels in [('base',bp),('child',cp)]:
+                    pl,_,_=align_dflash_step(labels,captured,depth)
+                    metrics=score_distribution(pl.double().log_softmax(-1).numpy(),q,np.ones(len(pl),dtype=bool))
+                    yield dict(prompt_id=row['prompt_id'],feature_source=feature,label_source=label,head=head,
+                        unroll_position=depth,first_anchor=int(anchors[0]),last_anchor=int(anchors[-1]),**metrics)
 
 
 def main():
@@ -68,6 +101,7 @@ def main():
         p.add_argument('--'+key,required=True)
     g=p.add_mutually_exclusive_group();g.add_argument('--adapter');g.add_argument('--child')
     p.add_argument('--steps',type=int,required=True);p.add_argument('--seed',type=int,default=0)
+    p.add_argument('--method',choices=['eagle3','dflash'],default='eagle3')
     p.add_argument('--acceptance-smoke',action='store_true');p.add_argument('--dry-run',action='store_true');a=p.parse_args()
     from atlas.covariates import load_sequences,tap_layers
     for name in ('base','drafter'):
@@ -84,12 +118,19 @@ def main():
     record_name='samples.jsonl' if source['workload']=='general acceptance only' else 'per_prompt.jsonl'
     if sha256(source_cell/record_name)!=source['source_records_sha256']:raise ValueError('source generation changed')
     bc=json.loads((Path(a.base)/'config.json').read_text());dc=json.loads((Path(a.drafter)/'config.json').read_text())
-    taps=tap_layers(dc,bc['num_hidden_layers'])
+    if a.method=='dflash':
+        from speculators.convert.dflash.converter import DFlashConverter
+        dflash_cfg=DFlashConverter()._build_config(dc,a.base,None)
+        taps=dflash_cfg.aux_hidden_state_layer_ids
+        if a.steps>=dflash_cfg.block_size:raise ValueError('requested positions exceed native DFlash non-anchor slots')
+    else:taps=tap_layers(dc,bc['num_hidden_layers'])
     cfg=vars(a)|dict(scope='offline diagnostic',diagnostic=True,source=source,source_cell=str(source_cell),
         sequences_sha256=sha256(a.sequences),prompt_sha256=source['prompt_sha256'],K=source.get('K'),
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),backend_commit=BACKEND,
         source_sha256=sha256(__file__),tap_indices=taps,dtype='bfloat16',attention='eager',compile=False,
         primary_validation_metric=PRIMARY,averaging='token-weighted over generated bonus-token anchors; no predictions beyond saved response',
+        anchor_policy='all native full-block eligible response anchors; slot0 excluded' if a.method=='dflash' else 'every eligible response bonus-token anchor',
+        block_size=dflash_cfg.block_size if a.method=='dflash' else None,
         backend={name:importlib.metadata.version(name) for name in ('torch','transformers','speculators','numpy','scipy')})
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     ensure_unpaused();ensure_unpaused(Path.cwd())
@@ -109,10 +150,18 @@ def main():
         elif a.child:
             child,quant=load_child(a.child);write_new(out/'child_backend.json',quant)
         else:child=base
-        drafter=load_drafter(a.drafter,a.base,taps);all_rows=[]
+        if a.method=='dflash':
+            from atlas.transport_dflash import load_dflash
+            drafter=load_dflash(a.drafter,a.base)
+        else:drafter=load_drafter(a.drafter,a.base,taps)
+        all_rows=[]
         with (out/'per_prompt.jsonl').open('x') as f:
             for row in rows:
                 ensure_unpaused()
+                if a.method=='dflash':
+                    for scored in dflash_rows(drafter,base,child,row,taps,a.steps,a.adapter):
+                        f.write(json.dumps(scored,allow_nan=False)+'\n');f.flush();all_rows.append(scored)
+                    continue
                 if a.adapter:
                     with child.disable_adapter():bf,bp=target_pass(child,row,taps)
                 else:bf,bp=target_pass(base,row,taps)
@@ -137,7 +186,7 @@ def main():
             validation='requires matched native-vLLM diagonal checks on at least10 derivatives before use')
         write_new(out/'results.json',report)
         write_new(out/'ledger_draft.json',dict(id='EXP-ATL-UNASSIGNED',title=out.name,landed=str(date.today()),status='pilot',
-            what_why='Offline EAGLE3 feature/label transport diagnostics',new='Native pinned teacher-forced unroll; exact saved child sequences',
+            what_why=f'Offline {a.method} feature/label/head transport diagnostics',new='Native pinned unroll/blocks; exact saved child sequences',
             artifacts=str(out.resolve()),config_results=dict(config=cfg,results=report),caveats='Diagnostic, not native acceptance. Ten-derivative validation required.'))
     except Exception as exc:
         write_new(out/'failure.json',dict(error=str(exc),type=type(exc).__name__));raise
