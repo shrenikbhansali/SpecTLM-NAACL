@@ -32,6 +32,14 @@ def validate_capacity(rows, source):
         raise ValueError('capacity smoke exceeds bounded64k total sequence tokens')
 
 
+def validate_acceptance_registry(registry, rows, *, capacity=False):
+    # Permitting an unadmitted mixture is local to this bounded diagnostic.
+    # Production retains the strict FrozenAdapterBank default.
+    from followspec.mixture_targets import validate_registry
+    validate_corpus(rows,capacity=capacity)
+    validate_registry(registry,allow_acceptance=True)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
@@ -79,6 +87,7 @@ def main():
     write_new(out/'config.json',config)
     try:
         registry=json.loads(Path(a.registry).read_text())
+        validate_acceptance_registry(registry,rows,capacity=a.capacity_smoke)
         refs=[dict(run=a.responses,record_index=i,child_id=r['generation_target'],pair_id=r['sample_id'],split='train') for i,r in enumerate(rows)]
         manifest=build_manifest('FS',refs,registry=registry,base_revision=Path(a.base).name,
             initialization_revision=Path(a.drafter).name,allow_acceptance=True)
@@ -90,7 +99,7 @@ def main():
         model_cfg.transformer_layer_config._attn_implementation='simple_flex_attention'
         model=SpeculatorModel.from_pretrained(a.drafter,config=model_cfg,local_files_only=True,torch_dtype=torch.float32)
         bank=FrozenAdapterBank(target,registry,model_cfg.eagle_aux_hidden_state_layer_ids,
-            torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused)
+            torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused,allow_acceptance=True)
         install_follow_spec(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],shared_verifier_head=False)
         keys=set(model.state_dict());initial_fc=model.fc.weight.detach().clone()
         def capture_metrics(module,args,result):

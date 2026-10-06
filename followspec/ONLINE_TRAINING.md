@@ -189,3 +189,10 @@ accumulate gradients. This changes tensor lifetime only: native backward,
 clipping, optimizer and scheduler stay unchanged. Evaluation retains the final
 training gradients for acceptance inspection. Record the flag and use the same
 setting across all matched arms. Original default is unchanged.
+
+The bounded acceptance checker also accepts an explicit `acceptance_only`
+mixture registry after validating all64 acceptance responses and all pinned
+mixture/source hashes. This permits capacity checks before admission finishes.
+It does not confer production admission; the production trainer still rejects
+these registries and datasets. Report the tested actual adapter rank separately
+from vLLM's configured rank capacity.

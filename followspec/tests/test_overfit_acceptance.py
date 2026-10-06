@@ -24,3 +24,18 @@ def test_full_response_capacity_requires_explicit_source_scope_and_capped64_samp
     with pytest.raises(ValueError):validate_corpus(rows+[rows[0]],capacity=True)
     short=[r|dict(completion_token_ids=[1]*64,input_ids=[2,3]+[1]*64) for r in rows]
     with pytest.raises(ValueError,match='512'):validate_capacity(short,source)
+
+
+def test_acceptance_mixture_registry_requires_bounded_acceptance_rows(tmp_path):
+    from followspec.overfit_acceptance import validate_acceptance_registry
+    from followspec.tests.test_mixture_targets import registry_fixture
+    from followspec.mixture_targets import validate_registry
+    registry=registry_fixture(tmp_path)
+    rows=[dict(sample_id=str(i),prompt_sha256=str(i),acceptance_only=True,split='train',
+               generation_target='mixed',completion_token_ids=[1,2]) for i in range(64)]
+    with pytest.raises(ValueError,match='acceptance'):validate_registry(registry)
+    validate_acceptance_registry(registry,rows)
+    for bad in [rows[:5],rows[:-1]+[rows[-1]|dict(acceptance_only=False)]]:
+        with pytest.raises(ValueError):validate_acceptance_registry(registry,bad)
+    registry['mixed']['files_sha256']['adapter_config.json']='bad'
+    with pytest.raises(ValueError,match='hash'):validate_acceptance_registry(registry,rows)
