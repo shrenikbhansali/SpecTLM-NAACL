@@ -170,7 +170,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:08:27-04:00 | [journal](notes/B1.md); repairing format/architecture checks; corrected draft and all-bank staging next |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | review | codex-1 / 2026-10-05T22:42:51-04:00 | [journal](notes/B1.md); finaldraft_retry acceptance both bases;18 tests; 200 sampled + all64 bank adapters staged; full cosine matrices; merged556e955 |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B2.md); [six-cell acceptance](artifacts/B2_acceptance_20261005/acceptance_report.json); merged 8651954; 14 tests pass; operator re-run PASS with notes ([B2 journal](notes/B2.md)) |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B3.md); bf16 logit acceptance fails; fp32 diagnostics <1e-4; vLLM 16-prompt smoke passes |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T22:34:14-04:00 | [journal](notes/B4.md); [smoke acceptance](artifacts/B4_smoke_20261005/acceptance.json); 11 tests, five derivatives × two splits, zero leakage; merged 592c919; A3 production pending; operator re-run PASS (11 tests; leakage 0) with A3 flags ([B4 journal](notes/B4.md)) |
