@@ -256,6 +256,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-10 | Immutable M2 response retries preserving successful sources and exact generation controls | P0 | codex | M2 | Tue | review | codex-1 / 2026-10-06T17:53:40-04:00 | [journal](notes/FIX-10.md); immutable response retry + shared dispatcher owner lock;211 tests PASS; actual parent retry preflights PASS; [tests](artifacts/FIX7_integration_20261006/recovery_lock_final_tests.log); M2 queue continues |
 
+| FIX-11 | Parallelize the long M2 parent generation with unchanged global per-prompt seeds/batch boundaries and immutable shard join | P0 | codex | M2 | Tue | in progress | codex-1 / 2026-10-06T18:05:35-04:00 | [journal](notes/FIX-11.md); removes single10512-query response bottleneck; tests and bounded native check first |
+
 ---
 
 ## 5. Research context (what agents need to know)
