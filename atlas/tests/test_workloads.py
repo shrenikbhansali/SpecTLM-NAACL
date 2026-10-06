@@ -56,3 +56,28 @@ def test_magpie_identical_prefixes_receive_distinct_reproducible_seeds():
     assert len(set(first))==64 and first==request_seeds(42,0,64)
     assert not set(first)&set(request_seeds(42,1,64))
     assert not set(first)&set(request_seeds(43,0,64))
+
+
+def test_smoke_limit_and_production_counts():
+    from atlas.generate_magpie import generation_count, validate_hardware
+    assert generation_count('training',False)==500
+    assert generation_count('evaluation',False)==64
+    assert generation_count('training',True)==10
+    validate_hardware('NVIDIA A40',True)
+    with pytest.raises(ValueError):validate_hardware('NVIDIA A40',False)
+
+
+def test_adapter_and_tokenizer_provenance_is_verified(tmp_path):
+    import hashlib,json
+    from atlas.generate_magpie import verify_inputs
+    adapter=tmp_path/'adapter';adapter.mkdir();tokenizer=tmp_path/'tok';tokenizer.mkdir()
+    (adapter/'adapter_model.safetensors').write_bytes(b'weights')
+    (tokenizer/'tokenizer.json').write_bytes(b'tokens')
+    (tokenizer/'tokenizer_config.json').write_text(json.dumps({'chat_template':'template'}))
+    sha=lambda b:hashlib.sha256(b).hexdigest()
+    row={'revision':'b'*40,'base_revision':'a'*40,'tokenizer_source':'repository',
+         'tokenizer_sha256':sha(b'tokens'),'template_sha256':sha(json.dumps('template',sort_keys=True).encode()),
+         'files':json.dumps([{'path':'adapter_model.safetensors','size':7,'sha256':sha(b'weights')}])}
+    verify_inputs(row,str(adapter),str(tokenizer),'b'*40)
+    (adapter/'adapter_model.safetensors').write_bytes(b'changed')
+    with pytest.raises(ValueError,match='hash'):verify_inputs(row,str(adapter),str(tokenizer),'b'*40)
