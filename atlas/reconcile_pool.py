@@ -30,6 +30,11 @@ def account_discovery(discovered, rows):
     return len(ids)
 
 
+def reuse_entry(entry, previous_log):
+    return {k:v for k,v in entry.items() if k!='time'} | dict(
+        reused_from=str(previous_log),original_verified_at=entry.get('original_verified_at',entry.get('time')))
+
+
 class CachedHub(Hub):
     def file(self, model, revision, name, required=False):
         from huggingface_hub import try_to_load_from_cache, _CACHED_NO_EXIST
@@ -100,7 +105,7 @@ def main():
         except ValueError:missing.append(row)
         else:
             e=old_entries[row['model_id']]
-            event(out/'downloads.jsonl',**{k:v for k,v in e.items() if k!='time'},reused_from=str(old/'downloads.jsonl'),original_verified_at=e.get('time'))
+            event(out/'downloads.jsonl',**reuse_entry(e,old/'downloads.jsonl'))
     write_csv(out/f'download_pending_{a.base}.csv',missing)
     stage(missing,Path(a.cache),out/'downloads.jsonl',hub.token)
     verify_downloads(staging,out/'downloads.jsonl')

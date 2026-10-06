@@ -14,3 +14,12 @@ def test_discovery_errors_cannot_disappear():
     with pytest.raises(ValueError,match='missing'):
         account_discovery({'a','b'},[{'model_id':'a'}])
     assert account_discovery({'a','b'},[{'model_id':'a'},{'model_id':'b'}])==2
+
+
+def test_reused_download_event_can_be_reused_again():
+    from atlas.reconcile_pool import reuse_entry
+    first={'status':'complete','model_id':'a','time':'first'}
+    second=reuse_entry(first,'old')|{'time':'second'}
+    third=reuse_entry(second,'new')
+    assert third['reused_from']=='new' and third['original_verified_at']=='first'
+    assert 'time' not in third
