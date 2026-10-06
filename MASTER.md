@@ -213,7 +213,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | done | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md); `ops/` (status.sh, launch.py, 8 tests pass); lock = atlas/env/requirements.lock |
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | done | claude-ops / 2026-10-05T22:45-04:00 | [journal](notes/A2.md); [proposal](reports/A2-proposal.md); manifests atlas/pools/ (sha256 Llama ecd8814b1340…, Qwen3 25f19d6c7355…) |
-| A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | todo | | |
+| A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | in progress | claude-ops / 2026-10-06T01:36-04:00 | [journal](notes/A3.md); eval Magpie 174 jobs running |
 | A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | todo | | |
 | A5 | Ledger children re-measured (dose-response) | P0 | claude-ops | A1 | Tue | todo | | |
 | A6 | Covariates for every derivative | P0 | claude-ops | B8, A2 | Wed | todo | | |
