@@ -30,7 +30,7 @@ def job(b, r, i, split, seed, forbidden):
     if is_ad: cmd[cmd.index("--tokenizer"):cmd.index("--tokenizer")] = ["--adapter", snap]
     args = ["--task", "A3", "--base", b, "--drafter", "magpie", "--k", "0", "--seed", str(seed), "--no-resolve", "--tag", slug,
             "--prompts", FORB[0], "--engine-lock", f"{RUN}/atlas/env/requirements.lock", "--python", PY, "--code-repo", RUN,
-            "--env", "HF_HUB_OFFLINE=1", "--env", f"HF_HUB_CACHE={hub}", "--env", "VLLM_CACHE_ROOT={out_dir}/vllm_cache",
+            "--env", "HF_HUB_OFFLINE=1", "--env", "PATH=/home/heck2/sbhansali8/SpecTLM/.venv-magpie/bin:/home/heck2/sbhansali8/SpecTLM/.venv-atlas-031-clean/bin:/usr/local/bin:/usr/bin:/bin", "--env", f"HF_HUB_CACHE={hub}", "--env", "VLLM_CACHE_ROOT={out_dir}/vllm_cache",
             "--target", target, "--target-rev", rev, "--note", f"A3 Magpie {split}: {r['model_id']} ({r['type']}, {r['pool']})", "--", *cmd]
     if is_ad: args[args.index("--note"):args.index("--note")] = ["--adapter", snap, "--adapter-rev", r["revision"]]
     return {"name": f"{b}:{split}:{r['model_id']}", "args": args}
