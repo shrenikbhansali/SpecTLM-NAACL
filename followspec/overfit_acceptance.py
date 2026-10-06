@@ -15,23 +15,38 @@ from atlas.run_cell import sha256,write_new
 from followspec.train_eagle3 import BACKEND,ensure_unpaused
 
 
-def validate_corpus(rows):
+def validate_corpus(rows, *, capacity=False):
     if len(rows)!=64 or len({r['sample_id'] for r in rows})!=64 or len({r['prompt_sha256'] for r in rows})!=64:
         raise ValueError('exactly64 distinct training responses required')
-    if any(not r['acceptance_only'] or r['split']!='train' or not 1<=len(r['completion_token_ids'])<=64 for r in rows):
+    if any(not r['acceptance_only'] or r['split']!='train' or not 1<=len(r['completion_token_ids'])<=(512 if capacity else 64) for r in rows):
         raise ValueError('bounded acceptance-only training responses required')
+
+
+def validate_capacity(rows, source):
+    validate_corpus(rows,capacity=True)
+    if source.get('acceptance_only') is not True or source.get('capacity_smoke') is not True or source.get('max_new_tokens')!=512:
+        raise ValueError('explicit acceptance-only512-response capacity source required')
+    if max(len(r['completion_token_ids']) for r in rows)!=512:
+        raise ValueError('capacity evidence requires at least one full512 response')
+    if sum(len(r['input_ids'])-1 for r in rows)>65536:
+        raise ValueError('capacity smoke exceeds bounded64k total sequence tokens')
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
+    p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
     p.add_argument('--family',choices=['llama','qwen3'],default='llama',help='explicit Qwen3 EAGLE initialization; native recipe unchanged')
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3',help='DFlash uses native raw blocks, not EAGLE shifts')
     a=p.parse_args();ensure_unpaused();ensure_unpaused(Path.cwd())
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip():raise ValueError('commit first')
     from followspec.token_data import response_run,build_manifest,OnlineResponseDataset
-    rows,source,_=response_run(a.responses);validate_corpus(rows)
+    rows,source,_=response_run(a.responses);validate_corpus(rows,capacity=a.capacity_smoke)
+    if a.capacity_smoke:
+        validate_capacity(rows,source)
+        if a.epochs!=3:raise ValueError('capacity smoke is exactly one epoch; do not combine with D-26 epochs30')
     audit=json.loads(Path(a.sample_audit).read_text())
     if audit.get('responses_sha256')!=sha256(Path(a.responses)/'per_prompt.jsonl') or audit.get('sample_ids')!=[r['sample_id'] for r in rows[:5]] or not audit.get('decoded_and_masks_inspected'):
         raise ValueError('five decoded samples and masks must be inspected first')
@@ -51,7 +66,7 @@ def main():
     from followspec.eagle3_extension import install_follow_spec
     if git_commit!=BACKEND:raise ValueError('wrong native backend')
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('D-19 acceptance requires A40')
-    cfg=load_presets(family=a.family,algorithm=a.algorithm)['FS'];epochs=a.epochs;seed=0
+    cfg=load_presets(family=a.family,algorithm=a.algorithm)['FS'];epochs=1 if a.capacity_smoke else a.epochs;seed=0
     if a.algorithm=='eagle3':
         validate_eagle_family(a.family,json.loads((Path(a.base)/'config.json').read_text()),json.loads((Path(a.drafter)/'config.json').read_text()))
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);start=time.perf_counter();torch.manual_seed(seed)
@@ -109,11 +124,18 @@ def main():
               if a.algorithm=='dflash' else dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay']))
         call['loss_config']=resolve_loss_config('kl_div','fused')
         steps=epochs*len(train)
+        batch_tokens=[sum(train.dataset.approx_lengths[int(i)] for i in batch) for batch in train.batch_sampler]
+        write_new(out/'batch_capacity.json',dict(actual_tokens=batch_tokens,padded_tokens_per_batch=cfg['total_seq_len'],
+            response_max_tokens=max(len(r['completion_token_ids']) for r in rows),n_samples=64))
+        if a.capacity_smoke and steps>8:raise ValueError('capacity smoke exceeds8 native optimizer steps')
         if epochs==30 and len(train)!=1:raise ValueError('D-26 check requires a single64-example native batch')
         native_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=epochs,save_path=str(out/'checkpoints'),optimizer=cfg['optimizer'],
             weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],scheduler_warmup_ratio=cfg['warmup_ratio'],
             scheduler_total_steps=steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,resume_from_checkpoint=False)
         trainer=Trainer(model,native_cfg,train,None)
+        if a.release_grad_before_forward:
+            from followspec.training_memory import release_grad_before_forward
+            release_grad_before_forward(trainer)
         def evaluate():
             model.eval();values=[]
             # DFlash samples anchors. Its before/after probe must replay the
@@ -143,6 +165,9 @@ def main():
                 count={('raw_tokens' if a.algorithm=='dflash' else 'shifted_tokens'):len(r['input_ids'])-(a.algorithm!='dflash')}
                 f.write(json.dumps(dict(sample_id=r['sample_id'],prompt_sha256=r['prompt_sha256'],assistant_tokens=sum(r['loss_mask']),**count))+'\n')
         result=dict(passed=True,n=64,epochs=epochs,optimizer_steps=steps,**{('raw_tokens' if a.algorithm=='dflash' else 'shifted_tokens'):manifest['token_budget']},
+            capacity_smoke=a.capacity_smoke,total_seq_len=cfg['total_seq_len'],full_response=a.capacity_smoke,
+            actual_batch_tokens=batch_tokens,base_revision=Path(a.base).name,initialization_revision=Path(a.drafter).name,
+
             before=before,after=after,loss_decrease=before['mean_batch_loss']-after['mean_batch_loss'],
             frozen_teacher=True,finite_drafter_gradients=True,checkpoint=str(checkpoint.resolve()),
             checkpoint_sha256={p.name:sha256(p) for p in checkpoint.iterdir() if p.suffix in {'.safetensors','.json'}},
