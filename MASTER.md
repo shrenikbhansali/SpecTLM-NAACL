@@ -88,7 +88,7 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | Canonical M2 responses on available A40s, owned by codex-1. Use responses_parent_parallel overlay with strict parent join for assembly; original response_queue.log remains canonical. Do not start another dispatcher. M3 H200 bounded runtime check PASSED; production training awaits M2. |
+| Jobs running | M2 generation completed136/136; CPU matched assembly running, owned by codex-1. Use responses_parent_parallel overlay with strict parent join for assembly; original response_queue.log remains canonical. Do not start another dispatcher. M3 H200 bounded runtime check PASSED; production training awaits M2. |
 | Blockers | M3 needs completed M2 responses, matched assembly and decoded-mask review. Parent response retry recovers an operator duplicate-GPU launch; other responses continue. ICE unavailable; heck A40/H200 training authorized. B9 validation failed; B11/M7 deprioritized. |
 | Owner action needed | No operational approval needed to continue approved method stages. Gate 3 framing/primary-workload decision remains with owner when results are available; ARR registration/submission items remain. |
 
@@ -229,7 +229,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
-| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | in progress | codex-1 / 2026-10-06T18:29:10.071152-04:00 | [journal](notes/FIX-11.md); canonical responses_parent_parallel:16 parent partitions +120 existing sources;32 preflights PASS; strict join→CPU assembly automated; [queue](artifacts/M2_D28_20261006/response_queue.log); codex owns sole dispatcher |
+| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | in progress | codex-1 / 2026-10-06T18:29:10.071152-04:00 | [journal](notes/FIX-11.md); 136/136 generation jobs exit0; strict10512-parent join PASS; CPU matched assembly running; [queue](artifacts/M2_D28_20261006/response_queue.log); codex owns sole dispatcher |
 | M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T17:57:06-04:00 | [journal](notes/M3.md); H200 native runtime PASS64samples/3steps,129s;12-job emitter ready; production training awaits completed M2 assembly/masks |
 | M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
