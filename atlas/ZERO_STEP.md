@@ -43,3 +43,9 @@ Re-run failed A4/A7 cells into new paths from a fresh tagged main checkout.
 Preserve the original failures. Existing successful cells need no numerical
 rerun: the counter formulas and nonzero means are unchanged. The original B2
 golden checker still requires 128 valid observations; that gate is not relaxed.
+
+A6 token preparation uses `n_total` for source-record completeness and checks
+that the valid and zero-step counts sum to it. It retains generated tokens and
+assistant masks for all requests, including immediate EOS; acceptance exclusions
+do not remove covariate sequences. Source total/zero counts are recorded in its
+provenance. A truly empty generated sequence still fails the existing check.

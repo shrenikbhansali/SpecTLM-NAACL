@@ -82,3 +82,20 @@ def test_sequence_loader_rejects_wrong_assistant_mask(tmp_path):
     seq=tmp_path/'sequences.jsonl';seq.write_text(json.dumps(dict(prompt_id='p',input_ids=[1,2],response_start=1,assistant_mask=[1,1]))+'\n')
     (tmp_path/'config.json').write_text(json.dumps(dict(n=1,generation_engine='0.31.0',sequences_sha256=sha256(seq))))
     with pytest.raises(ValueError,match='mask'):load_sequences(seq,True)
+
+
+def test_covariate_preparation_retains_zero_step_eos_and_checks_total_counts(tmp_path):
+    import json
+    from atlas.prepare_covariates import from_cell
+    from atlas.run_cell import sha256
+    prompts=tmp_path/'prompts.jsonl';prompts.write_text(''.join(json.dumps(dict(prompt_id=f'p{i}',prompt='question',derivative_id='child',revision='a'*40,split='evaluation'))+'\n' for i in range(64)))
+    cfg=dict(engine_version='0.31.0',prompts=str(prompts),prompt_sha256=sha256(prompts),K=4,target_revision='a'*40)
+    (tmp_path/'config.json').write_text(json.dumps(cfg))
+    records=[dict(prompt_id=f'p{i}',prompt_token_ids=[1,2],completion_token_ids=[128009] if i==0 else [3,4],zero_step=i==0) for i in range(64)]
+    (tmp_path/'per_prompt.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in records))
+    result=dict(n=63,n_total=64,n_zero_step=1);(tmp_path/'results.json').write_text(json.dumps(result))
+    rows,config=from_cell(tmp_path,False,5)
+    assert len(rows)==64 and config['source_n_zero_step']==1
+    assert rows[0]['input_ids']==[1,2,128009] and rows[0]['assistant_mask']==[0,0,1]
+    (tmp_path/'results.json').write_text(json.dumps(result|dict(n_zero_step=0)))
+    with pytest.raises(ValueError,match='count'):from_cell(tmp_path,False,5)

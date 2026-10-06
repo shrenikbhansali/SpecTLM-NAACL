@@ -19,7 +19,11 @@ def from_cell(root,smoke,count):
     if cfg['engine_version']!='0.31.0':raise ValueError('generation engine differs from pin')
     if sha256(cfg['prompts'])!=cfg['prompt_sha256']:raise ValueError('prompt file changed')
     prompts={r['prompt_id']:r for r in read(cfg['prompts'])};records=read(root/'per_prompt.jsonl')
-    if len(records)!=json.loads((root/'results.json').read_text())['n'] or {r['prompt_id'] for r in records}!=set(prompts):raise ValueError('source prompt mismatch')
+    result=json.loads((root/'results.json').read_text())
+    if len(records)!=result.get('n_total',result['n']) or {r['prompt_id'] for r in records}!=set(prompts):raise ValueError('source prompt mismatch')
+    if any('zero_step' in r and type(r['zero_step']) is not bool for r in records):raise ValueError('invalid zero-step count flag')
+    n_zero=sum(r.get('zero_step',False) for r in records)
+    if n_zero!=result.get('n_zero_step',0) or result['n']+n_zero!=len(records):raise ValueError('source zero-step counts mismatch')
     if any('prompt_token_ids' not in r for r in records):raise ValueError('need B2 --capture-prompt-token-ids; never retokenize and guess prompt_token_ids')
     if not smoke and (len(records)!=64 or any(r.get('acceptance_only') or r.get('split')!='evaluation' or not r.get('derivative_id') for r in prompts.values())):
         raise ValueError('production needs64 derivative-own evaluation prompts')
@@ -30,6 +34,7 @@ def from_cell(root,smoke,count):
         raise ValueError('generation revision must match workload derivative revision; use A10, not A00')
     config=dict(generation_engine=cfg['engine_version'],K=cfg['K'],prompt_sha256=cfg['prompt_sha256'],
         source_run_id=root.name,source_config_sha256=sha256(root/'config.json'),source_records_sha256=sha256(root/'per_prompt.jsonl'),
+        source_n_total=len(records),source_n_zero_step=n_zero,
         derivative_id=next(iter(derivative_ids)),derivative_revision=revision,
         workload='own',acceptance_only=smoke,template_changed=None)
     selected=records[:count] if smoke else records
