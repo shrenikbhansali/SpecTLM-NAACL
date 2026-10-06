@@ -1,0 +1,9 @@
+# FIX-12 — Matched native step-count repair
+
+## 2026-10-06T18:46:38.819423-04:00 — codex-1 — Claim
+
+M2 generation and strict parent join passed (136jobs,10512parent rows); current assembly failed before training. Evidence artifacts/M2_D28_20261006/assembly/failure.json. Only two exact-token composition-preserving suffix cuts exist:10320835tokens with native1291–1294steps across arms/seeds;1991138tokens with249–250steps. No permitted suffix gives exact steps. Original failed assembly preserved; M3 blocked.
+
+Build a reversible explicit option, default unchanged: preserve the largest shared-token prefix and native per-seed sample ordering, split existing packed batches deterministically to reach the maximum native batch count across all arms/seeds. No response/token edits, duplicates, resampling, empty batches or capacity increase; fixed8192 maximum and unchanged optimizer/objectives. Split largest eligible packed batch near its token midpoint, deterministic tie-breaks; log every split and original step counts. Implement optional policy in assembler/native audit/trainer, matched configs equal; validation stays native. Tests first, native CPU verification on actual data, five decoded samples perarm, actual trainer dryruns. This changes native batch grouping and requires an owner research decision under MASTER §2.2 / D27 before M3 launches. Do all implementation and evidence first so decision is concrete.
+
+Handoff: main d937c05 includes operator EXP-ATL-005 complete716-pair census. No GPU jobs owned by M2 remain; serialparent cancelled with verified UID/PGID/cache and orphanworkers cleaned, GPU3memory0. All4H200s occupied by another user (owner notified); A40s available. Original controller session58648 exited on genuine assembly failure; no retry/resampling. Current canonical source plan artifacts/M2_D28_20261006/responses_parent_parallel, source code tag run-FIX11-parent-v2-20261006.

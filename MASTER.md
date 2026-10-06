@@ -229,8 +229,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
-| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | in progress | codex-1 / 2026-10-06T18:29:10.071152-04:00 | [journal](notes/FIX-11.md); 136/136 generation jobs exit0; strict10512-parent join PASS; CPU matched assembly running; [queue](artifacts/M2_D28_20261006/response_queue.log); codex owns sole dispatcher |
-| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T17:57:06-04:00 | [journal](notes/M3.md); H200 native runtime PASS64samples/3steps,129s;12-job emitter ready; production training awaits completed M2 assembly/masks |
+| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | blocked | codex-1 / 2026-10-06T18:46:38.819423-04:00 | All136 generation jobs pass; exact-token suffixes fail native equal-step requirement; [failure](artifacts/M2_D28_20261006/assembly/failure.json); FIX12 builds explicit repair; research decision before recipe change |
+| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | blocked | codex-1 / 2026-10-06T18:46:38.819423-04:00 | [journal](notes/M3.md);12-job emitter and H200 runtime ready; M2 native token/step matching failed; FIX12 pending; H200s occupied, A40 fallback available |
 | M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
@@ -257,6 +257,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | FIX-10 | Immutable M2 response retries preserving successful sources and exact generation controls | P0 | codex | M2 | Tue | review | codex-1 / 2026-10-06T17:53:40-04:00 | [journal](notes/FIX-10.md); immutable response retry + shared dispatcher owner lock;211 tests PASS; actual parent retry preflights PASS; [tests](artifacts/FIX7_integration_20261006/recovery_lock_final_tests.log); M2 queue continues |
 
 | FIX-11 | Parallelize the long M2 parent generation with unchanged global per-prompt seeds/batch boundaries and immutable shard join | P0 | codex | M2 | Tue | review | codex-1 / 2026-10-06T18:27:50.039037-04:00 | [journal](notes/FIX-11.md);225 CPU tests and native64-query join/pairing PASS; sampled bitwise replay not established even unsharded; [evidence](artifacts/FIX11_repeat_20261006/acceptance.json) |
+
+| FIX-12 | Explicit deterministic native-batch subdivision option for exact matched tokens/steps; preserve sample order/coverage and8192 cap; no production recipe change before owner decision | P0 | codex | M2 | now | in progress | codex-1 / 2026-10-06T18:46:38.819423-04:00 | [journal](notes/FIX-12.md); actual suffix matching has no feasible solution; tests first and native CPU proof before proposed adoption |
 
 ---
 
