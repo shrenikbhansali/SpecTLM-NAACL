@@ -43,6 +43,7 @@ def validate_acceptance_registry(registry, rows, *, capacity=False):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--offload-saved-tensors',action='store_true',help='store autograd saved tensors on CPU; no recomputation, precision or recipe change')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
     p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
@@ -138,7 +139,8 @@ def main():
                     values.append(float(loss))
             return dict(mean_batch_loss=sum(values)/len(values),batch_losses=values)
         before=evaluate();write_new(out/'before.json',before)
-        trainer.run_training()
+        from followspec.training_memory import saved_tensor_context
+        with saved_tensor_context(a.offload_saved_tensors):trainer.run_training()
         after=evaluate();write_new(out/'after.json',after)
         assert after['mean_batch_loss']<before['mean_batch_loss'],'loss did not fall on the fixed64 training probe'
         assert trainer.global_step==steps

@@ -196,3 +196,10 @@ mixture/source hashes. This permits capacity checks before admission finishes.
 It does not confer production admission; the production trainer still rejects
 these registries and datasets. Report the tested actual adapter rank separately
 from vLLM's configured rank capacity.
+
+`--offload-saved-tensors` wraps native training in PyTorch `save_on_cpu` with
+pinned storage. Autograd transfers saved tensors back to their original device
+for backward, retaining their original dtype and values. There is no activation
+recomputation or changed batch/optimizer/loss. It trades host memory and transfer
+time for A40 capacity. Both memory flags are explicit, logged per run, and must
+be applied consistently across matched arms. Neither is enabled by default.

@@ -96,7 +96,7 @@ def run(a,plan,manifest):
                 base_snapshot_files_sha256={str(p.relative_to(a.base_snapshot)):file_sha(p) for p in Path(a.base_snapshot).rglob('*') if p.is_file() and '.cache' not in p.parts},
                 versions={name:importlib.metadata.version(name) for name in ('speculators','torch','transformers','hs-connectors','peft')},
                 world_size=get_dp_size(),gpu_type=torch.cuda.get_device_name(get_local_rank()),
-                release_grad_before_forward=a.release_grad_before_forward,
+                release_grad_before_forward=a.release_grad_before_forward,offload_saved_tensors=a.offload_saved_tensors,
                 allow_a40_production=a.allow_a40_production,drafter_snapshot=a.drafter_snapshot,
                 target_attention='eager',torch_compile_disable=os.environ.get('TORCH_COMPILE_DISABLE'),
                 loss_implementation='fused',data_loader_workers=0)
@@ -154,7 +154,9 @@ def run(a,plan,manifest):
             if a.release_grad_before_forward:
                 from followspec.training_memory import release_grad_before_forward
                 release_grad_before_forward(trainer)
-            ensure_unpaused();trainer.run_training()
+            from followspec.training_memory import saved_tensor_context
+            ensure_unpaused()
+            with saved_tensor_context(a.offload_saved_tensors):trainer.run_training()
             if rank==0:
                 result=dict(status='trained_pending_vllm_acceptance',n=len(loaders['train'].dataset),token_budget=cfg['token_budget'],
                             optimizer_steps=trainer.global_step,checkpoints=str(out/'checkpoints'),B2_acceptance='pending')
@@ -171,6 +173,7 @@ def main():
     p.add_argument('--configs',nargs=4,required=True);p.add_argument('--arm',choices=['FS','MVD','PO-D','PO-T'],required=True)
     p.add_argument('--manifest',required=True);p.add_argument('--base-snapshot',required=True)
     p.add_argument('--drafter-snapshot',help='local snapshot matching the preset initialization revision')
+    p.add_argument('--offload-saved-tensors',action='store_true',help='CPU saved-tensor storage; use consistently across matched arms')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; use consistently across matched arms')
     p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19; retain matched training defaults')
     p.add_argument('--seed',type=int,required=True);p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
