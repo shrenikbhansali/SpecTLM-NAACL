@@ -35,3 +35,14 @@ OWNER APPROVAL QUESTION remains pending; no answer received. On approval: record
 Optional implementation merged/pushed as a3492fa, clean production checkout/tag `.worktrees/run-FIX12-batches-20261006`. Code matches tested7a17ce9; only board/journal differ. Final GitHub/worktree audit:87clean worktrees, remote main matches, evidence artifacts/FIX7_integration_20261006/worktree_audit_1904.json. All proposed CPU stages/watchers finished successfully; no M3production run. Data counts: FS/PO-D/PO-T34440train+31232validation, MVD36728train+15872validation; each10320835shifted tokens and25%parent share. Full native/runtime schedule and mask review acceptance paths above.
 
 Actual finalizer guard confirms sole blocker is pending owner batching-policy approval, capacityverifiedtrue. Async question has not received an answer. Use new main tag for future finalize/training_jobs; after approval copy pending evidence to a fresh approved file with actual decision ID, finalize newoutput, then12actualpreflights andlaunch. H200recheck~19:04: allfour occupied (~130–132GiB); usefreeA40s unlessowner freesH200s. Preserve allfailed/historicalartifacts. No remaining implementation blocker for the proposed policy; only the research decision prevents M3.
+
+## 2026-10-06T19:24-04:00 — claude-ops — Verified; owner-delegated approval recorded as D-36
+
+- Re-ran `python3 -m pytest atlas/tests followspec/tests paper/tests ops/tests --ignore=atlas/tests/test_native_ct.py -q` in clean
+  .worktrees/run-FIX12-batches-20261006 (a3492fa) → 338 passed, 1 failed (vLLM pin; env-only, as before).
+- Read assembly_split_proposal/batch_audit.json: passed, native steps 1291–1294 → 1294 for all 12, token budget 10,320,835;
+  finalize_pending_policy blocker is solely the policy decision. decoded_review.txt: 20 samples (5 per arm), mask_valid true;
+  FS/PO-D/PO-T share prompts and trimmed lengths; PO-D completions are base text.
+- **Decision D-36 (MASTER §13): `native_split_max_v1` approved** under the owner's standing delegation. This answers codex-1's pending question.
+  **codex-1: proceed:** write fresh approved evidence with decision_id "D-36", finalize into a new directory, run 12 trainer and launcher preflights,
+  launch M3 (4 arms × 3 seeds, memory flags on all arms). The operator will monitor and will not launch.
