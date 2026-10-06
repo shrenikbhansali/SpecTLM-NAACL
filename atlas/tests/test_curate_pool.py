@@ -132,3 +132,13 @@ def test_adapter_file_must_be_real_safetensors_with_lora_pairs(tmp_path):
     save_file({'base.model.q.lora_A.weight':np.zeros((2,4),dtype=np.float32),
                'base.model.q.lora_B.weight':np.zeros((4,2),dtype=np.float32)},str(path))
     assert adapter_file_exclusion(path)==''
+
+
+def test_similarity_manifest_requires_all_pairs_and_exact_revisions():
+    from atlas.validate_pool import validate_similarities
+    adapters=[dict(model_id='a',revision='a'*40,pool='bank',type='lora_adapter'),dict(model_id='b',revision='b'*40,pool='test',type='lora_adapter')]
+    pair=dict(model_a='a',model_b='b',revision_a='a'*40,revision_b='b'*40,cosine='.91',threshold='.9',flag='above_threshold')
+    assert validate_similarities(adapters,[pair])['pairs']==1
+    with pytest.raises(ValueError):validate_similarities(adapters,[])
+    with pytest.raises(ValueError):validate_similarities(adapters,[pair|dict(revision_b='c'*40)])
+    with pytest.raises(ValueError):validate_similarities(adapters,[pair|dict(flag='')])
