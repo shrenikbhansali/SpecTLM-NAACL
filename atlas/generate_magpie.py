@@ -5,6 +5,9 @@ settings. Qwen3 reuses the published Qwen-family settings, explicitly recorded.
 The template is always the selected derivative's; Qwen rendering disables thinking.
 """
 import argparse
+from contextlib import contextmanager
+import sys
+import warnings
 import csv
 import hashlib
 import importlib.metadata
@@ -62,6 +65,75 @@ def verify_inputs(row, adapter, tokenizer, tokenizer_revision):
     return hashes
 
 
+def candidate_budget(count, smoke, oversample):
+    """D-23: at most five times the original attempted-candidate budget."""
+    return (12 if smoke else 20)*min(64,count*2)*(5 if oversample else 1)
+
+
+@contextmanager
+def managed_engine(factory):
+    llm=factory()
+    try:
+        yield llm
+    finally:
+        pending=sys.exc_info()[0] is not None
+        try:
+            # Pinned vLLM0.31.0 LLM has no public shutdown method. Its core
+            # client terminates worker processes with this bounded timeout.
+            llm.llm_engine.engine_core.shutdown(timeout=10.)
+        except BaseException as error:
+            if not pending:raise
+            warnings.warn(f'Engine cleanup also failed: {error}',RuntimeWarning)
+
+
+def collect_queries(generate,config,out,forbidden,pause_check):
+    count=config['count'];smoke=config['acceptance_smoke']
+    budget=candidate_budget(count,smoke,config['d23_oversampling'])
+    candidates=[];kept=[];attempted=0;iteration=0;length_terminated=0
+    with (out/'raw_queries.jsonl').open('x') as f:
+        while attempted<budget and len(kept)<count:
+            pause_check()
+            seeds=request_seeds(config['seed'],iteration,min(64,count*2,budget-attempted))
+            outputs=generate(seeds)
+            for output,sampling_seed in zip(outputs,seeds,strict=True):
+                completion=output.outputs[0]
+                finished=completion.finish_reason!='length'
+                r=dict(prompt_id=f"{config['derivative_id']}-{config['split']}-{len(candidates)}",
+                       prompt=completion.text,derivative_id=config['derivative_id'],revision=config['revision'],
+                       split=config['split'],seed=config['seed'],sampling_seed=sampling_seed,
+                       acceptance_only=smoke,token_ids=list(completion.token_ids))
+                f.write(json.dumps(r|dict(attempt_index=attempted,finish_reason=completion.finish_reason))+'\n');f.flush()
+                attempted+=1
+                if finished:candidates.append(r)
+                else:length_terminated+=1
+            kept,report=filter_prompts(candidates,forbidden,config['near_threshold'])
+            iteration+=1
+            progress=report|dict(attempted=attempted,budget=budget,rounds=iteration,length_terminated=length_terminated)
+            with (out/'rounds.jsonl').open('a') as log:log.write(json.dumps(progress)+'\n')
+    return kept,progress
+
+
+def finish_generation(out,config,kept,report):
+    count=config['count'];complete=len(kept)>=count
+    selected=kept[:count]
+    for r in selected:r['language']=language(r['prompt'])
+    write_jsonl(out/('prompts.jsonl' if complete else 'partial_queries.jsonl'),selected)
+    result=dict(status='complete' if complete else 'shortfall',requested=count,n=len(selected),
+        valid_before_truncation=len(kept),attempted=report['attempted'],candidate_budget=report['budget'],
+        own_domain=('available' if complete else 'unavailable') if config['split']=='evaluation' else None,
+        training_ready=complete and config['split']=='training' and not config['acceptance_smoke'],
+        acceptance_only=config['acceptance_smoke'],engine_version=config['engine_version'])
+    (out/'filter_report.json').write_text(json.dumps(report,indent=2)+'\n')
+    (out/'results.json').write_text(json.dumps(result,indent=2)+'\n')
+    (out/'ledger_draft.json').write_text(json.dumps(dict(id='EXP-ATL-UNASSIGNED',title=out.name,
+        status='pilot',landed=__import__('datetime').date.today().isoformat(),what_why='Derivative Magpie query generation',
+        new='Pinned derivative-specific workloads',artifacts=str(out.resolve()),config_results={'config':config,'filters':report,'results':result},
+        caveats='Operator must audit global train/evaluation hashes before use. Shortfalls are diagnostic only; no partial production workload. Counts from one deterministic seed, no inferential interval.'),indent=2)+'\n')
+    if not complete and not config['d23_oversampling']:
+        raise RuntimeError(f'Only {len(kept)} valid queries; require {count}. Raw output preserved.')
+    return result
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--derivative-id',required=True)
@@ -71,6 +143,7 @@ def main():
     p.add_argument('--family',choices=['llama','qwen3'],required=True)
     p.add_argument('--split',choices=['training','evaluation'],required=True);p.add_argument('--seed',required=True,type=int)
     p.add_argument('--forbidden-files',nargs='+',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--d23-oversampling',action='store_true',help='up to5 times original candidate budget; shortfall exits0 with unavailable workload and no prompts.jsonl')
     p.add_argument('--near-threshold',type=float,default=.9);p.add_argument('--dry-run',action='store_true')
     p.add_argument('--acceptance-smoke',action='store_true',help='10 queries only, diagnostic output; permits owner-authorized A40')
     p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19 permits full counts on A40s while ICE is unavailable')
@@ -106,6 +179,7 @@ def main():
         deviations=['Derivative template replaces hard-coded upstream prefix','No optional de-markdown logits processor; length/exact/MinHash filtering applied'],
         pool_sha256=file_hash(args.pool_manifest or args.target_registry),forbidden_sha256={p:file_hash(p) for p in args.forbidden_files},
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
+    config['candidate_budget']=candidate_budget(count,args.acceptance_smoke,args.d23_oversampling)
     if args.target_registry:config['mixture_registry']=row['mixture_registry']
     if args.dry_run:print(json.dumps(config,indent=2));return
     unpaused()
@@ -131,38 +205,25 @@ def main():
     config.update(prefix=prefix,prefix_sha256=__import__('hashlib').sha256(prefix.encode()).hexdigest(),stop_token_id=stop_id,gpu_type=torch.cuda.get_device_name(0))
     (out/'config.json').write_text(json.dumps(config,indent=2)+'\n')
     unpaused()
-    llm=LLM(model=args.target,revision=args.revision,tokenizer=args.tokenizer,tokenizer_revision=args.tokenizer_revision,
-        dtype='bfloat16',enable_lora=bool(args.adapter),max_lora_rank=max_rank,seed=args.seed,enable_prefix_caching=False,
-        max_model_len=args.max_model_len,gpu_memory_utilization=args.gpu_memory_utilization)
-    kwargs={}
-    if args.adapter:
-        from vllm.lora.request import LoRARequest
-        kwargs['lora_request']=LoRARequest(args.derivative_id,1,args.adapter)
-    candidates=[];kept=[]
-    with (out/'raw_queries.jsonl').open('x') as f:
-        for iteration in range(12 if args.acceptance_smoke else 20):
-            unpaused()
-            seeds=request_seeds(args.seed,iteration,min(64,count*2))
-            sampling=[SamplingParams(temperature=config['temperature'],top_p=1.,max_tokens=1024,
-                stop_token_ids=[stop_id],seed=seed) for seed in seeds]
-            outputs=llm.generate([prefix]*len(seeds),sampling,use_tqdm=False,**kwargs)
-            for o,sampling_seed in zip(outputs,seeds,strict=True):
-                completion=o.outputs[0]
-                if completion.finish_reason=='length':continue
-                r=dict(prompt_id=f'{args.derivative_id}-{args.split}-{len(candidates)}',prompt=completion.text,
-                       derivative_id=args.derivative_id,revision=row['revision'],split=args.split,seed=args.seed,
-                       sampling_seed=sampling_seed,acceptance_only=args.acceptance_smoke,token_ids=list(completion.token_ids))
-                f.write(json.dumps(r)+'\n');f.flush();candidates.append(r)
-            kept,report=filter_prompts(candidates,forbidden,args.near_threshold)
-            if len(kept)>=count:break
-    if len(kept)<count:raise RuntimeError(f'Only {len(kept)} valid queries; require {count}. Raw output preserved.')
-    kept=kept[:count]
-    for r in kept:r['language']=language(r['prompt'])
-    write_jsonl(out/'prompts.jsonl',kept)
-    (out/'filter_report.json').write_text(json.dumps(report,indent=2)+'\n')
-    (out/'ledger_draft.json').write_text(json.dumps(dict(id='EXP-ATL-UNASSIGNED',title=out.name,
-        status='pilot',landed=__import__('datetime').date.today().isoformat(),what_why='Derivative Magpie query generation',
-        new='Pinned derivative-specific workloads',artifacts=str(out.resolve()),config_results={'config':config,'filters':report},
-        caveats='Operator must audit global train/evaluation hashes before use.'),indent=2)+'\n')
+    def create_engine():
+        return LLM(model=args.target,revision=args.revision,tokenizer=args.tokenizer,tokenizer_revision=args.tokenizer_revision,
+            dtype='bfloat16',enable_lora=bool(args.adapter),max_lora_rank=max_rank,seed=args.seed,enable_prefix_caching=False,
+            max_model_len=args.max_model_len,gpu_memory_utilization=args.gpu_memory_utilization)
+    try:
+        with managed_engine(create_engine) as llm:
+            kwargs={}
+            if args.adapter:
+                from vllm.lora.request import LoRARequest
+                kwargs['lora_request']=LoRARequest(args.derivative_id,1,args.adapter)
+            def generate(seeds):
+                sampling=[SamplingParams(temperature=config['temperature'],top_p=1.,max_tokens=1024,
+                    stop_token_ids=[stop_id],seed=seed) for seed in seeds]
+                return llm.generate([prefix]*len(seeds),sampling,use_tqdm=False,**kwargs)
+            kept,report=collect_queries(generate,config|dict(revision=row['revision']),out,forbidden,unpaused)
+            result=finish_generation(out,config,kept,report)
+        print(json.dumps(result))
+    except BaseException as error:
+        with (out/'failure.json').open('x') as f:json.dump(dict(type=type(error).__name__,error=str(error)),f,indent=2)
+        raise
 
 if __name__=='__main__':main()

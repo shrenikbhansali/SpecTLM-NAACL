@@ -70,3 +70,27 @@ rendering new B4 evaluation files. This adds a distinct `rendered_token_ids`
 field using `add_special_tokens=False`; the original `token_ids` still denotes
 the raw query. Exact B2 input mode refuses raw query IDs. Older rendered files
 must be regenerated from their original raw queries into a new output directory.
+
+## D-23 oversampling and shortfalls (FIX-5)
+
+Pass `--d23-oversampling` to `atlas.generate_magpie` for new jobs. The original
+candidate budget is20 rounds × min(64,2×requested prompts) for production
+(12 rounds for acceptance smoke). The flag permits at most5 times that
+attempted-candidate budget, stopping as soon as enough prompts pass the existing
+filters. Production64/500-query jobs therefore cap at6400 attempts. Length-stop
+outputs count against the budget and are now retained in raw_queries.jsonl.
+Sampling settings and the seed sequence for the original rounds are unchanged.
+
+A flagged shortfall exits0, writes results.json with status=shortfall, and writes
+partial_queries.jsonl for diagnosis. It does **not** write prompts.jsonl.
+Evaluation shortfalls set own_domain=unavailable per D-23; use the general set
+only. Training shortfalls set training_ready=false and block corpus assembly;
+they do not authorize replacing missing training queries. Read results.json,
+not exit code alone. Existing unflagged jobs retain their original budget and
+raise on shortfall. All paths explicitly shut down the pinned vLLM engine core
+in finally, with a10-second worker shutdown timeout. Engine initialization uses
+vLLM's own cleanup; this fix covers every path after construction.
+
+Regenerate jobs on a tagged merged commit or add the flag to new job commands;
+old queued immutable checkouts will not acquire this fix. The operator's A3
+wave generator and existing artifacts remain unchanged.
