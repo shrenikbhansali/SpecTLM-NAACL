@@ -55,3 +55,9 @@ acceptance paths live in `artifacts/B4_smoke_20261005`; production pool
 generation and frozen manifests remain A2/A3 work. Active pause markers
 block GPU generation; dry runs remain available. Every real cell needs a
 fresh `VLLM_CACHE_ROOT` and a new output directory.
+
+For B2/A4 generation of rendered workloads, pass `--use-prompt-token-ids` so
+the engine receives the saved rendered IDs exactly (text retokenization adds
+a second BOS for Llama). Add `--capture-prompt-token-ids` for B8/A6. Both
+paired cells use the same prompt file and input mode. For LoRA A10, enable
+LoRA support on A00 too with `--enable-lora` and the same max rank.

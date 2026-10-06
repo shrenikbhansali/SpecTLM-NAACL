@@ -1,7 +1,7 @@
 # B8 paired covariates
 
 Use the pinned vLLM0.31.0 A10 cell on the derivative's own64 B4 evaluation
-prompts as the generation source. Add `--capture-prompt-token-ids` to B2
+prompts as the generation source. Add `--use-prompt-token-ids --capture-prompt-token-ids` to B2
 `atlas.run_cell`. This optional flag saves the actual engine context tokens;
 all historical defaults and metrics are unchanged. Keep the same rendered
 prompt file for matched A00/A10. A6 preparation checks the prompt hash and
