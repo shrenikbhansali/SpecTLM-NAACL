@@ -121,3 +121,14 @@ def test_mlx_quantization_with_duplicate_config_fields_is_rejected():
     from atlas.curate_pool import layout_exclusion
     q={'bits':6,'group_size':64}
     assert layout_exclusion({'quantization':q,'quantization_config':q},['model.safetensors'])=='mlx_quantization'
+
+
+def test_adapter_file_must_be_real_safetensors_with_lora_pairs(tmp_path):
+    from atlas.curate_pool import adapter_file_exclusion
+    from safetensors.numpy import save_file
+    import numpy as np
+    path=tmp_path/'adapter_model.safetensors';path.write_text('# not model weights')
+    assert adapter_file_exclusion(path)=='invalid_adapter_weights'
+    save_file({'base.model.q.lora_A.weight':np.zeros((2,4),dtype=np.float32),
+               'base.model.q.lora_B.weight':np.zeros((4,2),dtype=np.float32)},str(path))
+    assert adapter_file_exclusion(path)==''

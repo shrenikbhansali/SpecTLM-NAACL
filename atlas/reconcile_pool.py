@@ -13,7 +13,7 @@ import re
 import subprocess
 from atlas.curate_pool import (BASES, RELATIONS, Hub, safe_token, read_csv, write_csv,
     validate, verify_downloads, inspect_candidate, metadata, layout_exclusion,
-    classify, assign_pools, stratify, stage, event, utc)
+    classify, assign_pools, stratify, stage, event, utc, adapter_file_exclusion)
 
 
 def staging_union(rows, selected):
@@ -62,6 +62,9 @@ def main():
             if not reason and r['type']!='lora_adapter':
                 fields=('model_type','hidden_size','num_hidden_layers','vocab_size','num_attention_heads','num_key_value_heads','intermediate_size')
                 if any(cfg.get(k)!=bm[0].get(k) for k in fields):reason='different_architecture'
+            if not reason and r['type']=='lora_adapter':
+                path=Path(a.cache)/('models--'+r['model_id'].replace('/','--'))/'snapshots'/r['revision']/'adapter_model.safetensors'
+                if path.exists():reason=adapter_file_exclusion(path)
             if reason:r['exclusion']=reason
             else:
                 card=hub.file(r['model_id'],r['revision'],'README.md') or b''

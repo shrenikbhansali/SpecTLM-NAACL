@@ -204,6 +204,19 @@ def metadata(hub, model, revision):
     return cfg, tok, template
 
 
+def adapter_file_exclusion(path):
+    from safetensors import safe_open
+    try:
+        with safe_open(str(path),framework='np') as f:
+            keys=set(f.keys())
+            akeys={k for k in keys if k.endswith('.lora_A.weight')}
+            if not akeys or any(k.replace('.lora_A.weight','.lora_B.weight') not in keys for k in akeys):
+                return 'invalid_adapter_weights'
+    except Exception:
+        return 'invalid_adapter_weights'
+    return ''
+
+
 def layout_exclusion(cfg, paths):
     """Classify the actual on-disk format, never just the repository's name."""
     names = {Path(p).name for p in paths}
