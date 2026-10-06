@@ -67,6 +67,15 @@ def test_smoke_limit_and_production_counts():
     with pytest.raises(ValueError):validate_hardware('NVIDIA A40',False)
 
 
+def test_owner_a40_production_flag_retains_full_counts_and_old_default():
+    from atlas.generate_magpie import generation_count,validate_hardware
+    validate_hardware('NVIDIA A40',False,allow_a40_production=True)
+    assert generation_count('training',False)==500
+    assert generation_count('evaluation',False)==64
+    with pytest.raises(ValueError):validate_hardware('NVIDIA RTX 4090',False,allow_a40_production=True)
+    with pytest.raises(ValueError):validate_hardware('NVIDIA A40',False)
+
+
 def test_adapter_and_tokenizer_provenance_is_verified(tmp_path):
     import hashlib,json
     from atlas.generate_magpie import verify_inputs

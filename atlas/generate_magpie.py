@@ -30,9 +30,9 @@ def generation_count(split, smoke):
     return 10 if smoke else 500 if split=='training' else 64
 
 
-def validate_hardware(name, smoke):
-    if not any(x in name for x in ('H100','H200')) and not (smoke and 'A40' in name):
-        raise ValueError('Production Magpie generation requires H100/H200; bounded acceptance smoke permits A40')
+def validate_hardware(name, smoke, allow_a40_production=False):
+    if not any(x in name for x in ('H100','H200')) and not ((smoke or allow_a40_production) and 'A40' in name):
+        raise ValueError('Production generation requires H100/H200 or explicit --allow-a40-production (D-19); bounded acceptance smoke permits A40')
 
 
 def verify_inputs(row, adapter, tokenizer, tokenizer_revision):
@@ -72,6 +72,7 @@ def main():
     p.add_argument('--forbidden-files',nargs='+',required=True);p.add_argument('--output',required=True)
     p.add_argument('--near-threshold',type=float,default=.9);p.add_argument('--dry-run',action='store_true')
     p.add_argument('--acceptance-smoke',action='store_true',help='10 queries only, diagnostic output; permits owner-authorized A40')
+    p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19 permits full counts on A40s while ICE is unavailable')
     p.add_argument('--max-model-len',type=int,default=4096);p.add_argument('--gpu-memory-utilization',type=float,default=.70)
     args=p.parse_args()
     for value in (args.revision,args.tokenizer_revision):
@@ -94,6 +95,7 @@ def main():
     if max_rank is None:raise ValueError('adapter exceeds engine rank cap')
     config=vars(args)|dict(count=count,acceptance_only=args.acceptance_smoke,adapter_sha256=adapter_hashes,max_lora_rank=max_rank,temperature=.8 if args.family=='llama' else 1.,top_p=1.,max_tokens=1024,
         engine_version='0.31.0',enable_thinking=False,
+        hardware_policy='D-19 A40 production opt-in' if args.allow_a40_production else 'original H100/H200 production; bounded A40 smoke',
         magpie_revision=MAGPIE_REV,recipe='magpie-llama3.1-8b.sh' if args.family=='llama' else 'magpie-qwen2-7b.sh',
         deviations=['Derivative template replaces hard-coded upstream prefix','No optional de-markdown logits processor; length/exact/MinHash filtering applied'],
         pool_sha256=file_hash(args.pool_manifest),forbidden_sha256={p:file_hash(p) for p in args.forbidden_files},
@@ -104,7 +106,7 @@ def main():
     from transformers import AutoTokenizer
     from vllm import LLM,SamplingParams
     import torch
-    validate_hardware(torch.cuda.get_device_name(0),args.acceptance_smoke)
+    validate_hardware(torch.cuda.get_device_name(0),args.acceptance_smoke,args.allow_a40_production)
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip():raise ValueError('commit tracked code before generation')
     tokenizer=AutoTokenizer.from_pretrained(args.tokenizer,revision=args.tokenizer_revision,trust_remote_code=False)
     prefix=magpie_prefix(tokenizer,args.family)
