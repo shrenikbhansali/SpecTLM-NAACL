@@ -53,7 +53,10 @@ config, source sample records, metrics, results/failures and a ledger draft.
 Use torchrun for distributed execution only after the single-process acceptance
 path is validated. No large training run has been launched by this builder.
 
-**B6 acceptance passed; operator review required.** The core has42 tests.
+**B6 native acceptance passed and was independently reproduced by the operator.**
+The core plus artifact ownership regressions has46 tests. A refused retry into
+an existing output directory leaves every artifact unchanged; new-run errors
+are recorded only after that launch acquires its output directory.
 Native fixed-batch λ0 composition has absolute error0.0. The released drafter
 overfit64 real bank responses in three native optimizer steps: loss12.5937 to
 9.7890, frozen teacher and finite drafter gradients, unchanged state keys.
