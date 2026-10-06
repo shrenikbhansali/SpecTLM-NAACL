@@ -29,12 +29,13 @@ def resolve_plan(config,manifest,seed):
         if not config.get(key):raise ValueError(f'resolved {key} required; no inferred research settings')
     if not re.fullmatch('[a-f0-9]{40}',config['initialization_revision']):raise ValueError('initialization must be pinned')
     if seed not in config['seeds']:raise ValueError('seed not in matched preset')
-    if manifest.get('schema')!='followspec_paired_features_v1' or manifest.get('arm')!=config['arm']:
+    if manifest.get('schema') not in {'followspec_paired_features_v1','followspec_online_tokens_v1'} or manifest.get('arm')!=config['arm']:
         raise ValueError('wrong data schema or arm')
     for key in ('token_budget','optimizer_steps','initialization_revision'):
         if manifest.get(key)!=config[key]:raise ValueError(f'data/config {key} mismatch')
     return dict(training_config=config,seed=seed,backend_revision=BACKEND,
-                evaluation_engine_version='0.31.0',dry_run=True)
+                evaluation_engine_version='0.31.0',dry_run=True,
+                feature_capture='online' if manifest['schema']=='followspec_online_tokens_v1' else 'offline')
 
 
 def write(path,data):
@@ -47,36 +48,49 @@ def run(a,plan,manifest):
     if git_commit!=BACKEND:raise RuntimeError('installed speculators source differs from lock')
     import torch
     from torch.utils.data import DataLoader
-    from speculators import SpeculatorModel
+    from speculators import SpeculatorModel,SpeculatorModelConfig
     from speculators.losses import resolve_loss_config
-    from speculators.train.distributed import maybe_setup_distributed,maybe_destroy_distributed,get_dp_rank,get_dp_size,get_rank
+    from speculators.train.distributed import maybe_setup_distributed,maybe_destroy_distributed,get_dp_rank,get_dp_size,get_rank,get_local_rank
     from speculators.train.distributed_batch_sampler import MultipackDistributedBatchSamplerV2
     from speculators.train.trainer import Trainer,TrainerConfig
     from followspec.eagle3_extension import install_follow_spec
-    from followspec.paired_data import PairedFeatureDataset,PairedCollator
+    from followspec.paired_data import PairedFeatureDataset,PairedCollator,shift_paired
+    from atlas.generate_magpie import validate_hardware
     cfg=plan['training_config']
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip():
         raise RuntimeError('commit tracked source before launching')
     if not manifest.get('data_acceptance_passed') or not manifest.get('sample_mask_audit'):
         raise ValueError('B5 feature and decoded mask acceptance required')
-    if not Path(a.base_snapshot).is_dir() or not re.fullmatch('[a-f0-9]{40}',manifest.get('base_revision','')):
+    if manifest.get('acceptance_only'):raise ValueError('production trainer refuses acceptance-only corpora')
+    if not Path(a.base_snapshot).is_dir() or not re.fullmatch('[a-f0-9]{40}',manifest.get('base_revision','')) or Path(a.base_snapshot).name!=manifest['base_revision']:
         raise ValueError('pinned local base snapshot required')
     out=Path(a.output).resolve()
     maybe_setup_distributed()
     rank=get_rank()
-    if rank==0:out.mkdir(parents=True,exist_ok=False)
-    if torch.distributed.is_initialized():torch.distributed.barrier()
     try:
+        validate_hardware(torch.cuda.get_device_name(get_local_rank()),False,a.allow_a40_production)
+        if rank==0:out.mkdir(parents=True,exist_ok=False)
+        if torch.distributed.is_initialized():torch.distributed.barrier()
         torch.manual_seed(a.seed)
         plan.update(dry_run=False,code_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
             data_manifest_sha256=file_sha(a.manifest),base_revision=manifest['base_revision'],
             base_snapshot_files_sha256={str(p.relative_to(a.base_snapshot)):file_sha(p) for p in Path(a.base_snapshot).rglob('*') if p.is_file() and '.cache' not in p.parts},
-            versions={name:importlib.metadata.version(name) for name in ('speculators','torch','transformers','hs-connectors')},
-            world_size=get_dp_size(),gpu_type=torch.cuda.get_device_name())
+            versions={name:importlib.metadata.version(name) for name in ('speculators','torch','transformers','hs-connectors','peft')},
+            world_size=get_dp_size(),gpu_type=torch.cuda.get_device_name(get_local_rank()),
+            allow_a40_production=a.allow_a40_production,drafter_snapshot=a.drafter_snapshot,
+            target_attention='eager',torch_compile_disable=os.environ.get('TORCH_COMPILE_DISABLE'),
+            loss_implementation='fused',data_loader_workers=0)
         if rank==0:write(out/'config.json',plan)
         ensure_unpaused()
-        model=SpeculatorModel.from_pretrained(cfg['initialization'],revision=cfg['initialization_revision'],
-            verifier=str(Path(a.base_snapshot).resolve()),torch_dtype=torch.float32)
+        initialization=a.drafter_snapshot or cfg['initialization']
+        if a.drafter_snapshot and Path(a.drafter_snapshot).name!=cfg['initialization_revision']:raise ValueError('drafter snapshot pin mismatch')
+        model_cfg=SpeculatorModelConfig.from_pretrained(initialization,revision=cfg['initialization_revision'])
+        model_cfg.speculators_config.verifier.name_or_path=str(Path(a.base_snapshot).resolve())
+        from atlas.run_cell import read_drafter_config
+        from atlas.covariates import tap_layers
+        base_config=json.loads((Path(a.base_snapshot)/'config.json').read_text())
+        model_cfg.eagle_aux_hidden_state_layer_ids=tap_layers(read_drafter_config(initialization,cfg['initialization_revision']),base_config['num_hidden_layers'])
+        model=SpeculatorModel.from_pretrained(initialization,revision=cfg['initialization_revision'],config=model_cfg,torch_dtype=torch.float32)
         install_follow_spec(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],
             shared_verifier_head=manifest.get('shared_verifier_head',False))
         model.register_forward_pre_hook(lambda *_:ensure_unpaused())
@@ -84,10 +98,22 @@ def run(a,plan,manifest):
             metrics={k:float(v.detach().cpu()) for k,v in result[2].items() if getattr(v,'numel',lambda:0)()==1}
             with (out/f'training_metrics.rank{rank}.jsonl').open('a') as f:f.write(json.dumps(metrics,allow_nan=False)+'\n')
         model.register_forward_hook(record_metrics)
+        bank=None
+        if plan['feature_capture']=='online':
+            from transformers import AutoModelForCausalLM
+            from followspec.online_bank import FrozenAdapterBank
+            from followspec.token_data import OnlineResponseDataset
+            target=AutoModelForCausalLM.from_pretrained(a.base_snapshot,local_files_only=True,trust_remote_code=False,
+                torch_dtype=torch.bfloat16,attn_implementation='eager').to(get_local_rank())
+            bank=FrozenAdapterBank(target,manifest['registry'],model_cfg.eagle_aux_hidden_state_layer_ids,
+                torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused)
         loaders={}
         for split in ('train','val'):
-            ds=PairedFeatureDataset(a.manifest,split=split,allowed_targets=manifest['allowed_targets'],
-                forbidden_hashes=set(manifest['forbidden_prompt_hashes']),noise_std=cfg['noise_std'] if split=='train' else 0.)
+            if bank is not None:
+                ds=OnlineResponseDataset(manifest,split=split,bank=bank,shift=shift_paired,noise_std=cfg['noise_std'] if split=='train' else 0.)
+            else:
+                ds=PairedFeatureDataset(a.manifest,split=split,allowed_targets=manifest['allowed_targets'],
+                    forbidden_hashes=set(manifest['forbidden_prompt_hashes']),noise_std=cfg['noise_std'] if split=='train' else 0.)
             sampler=MultipackDistributedBatchSamplerV2(batch_max_length=cfg['total_seq_len'],lengths=ds.approx_lengths,
                 num_replicas=get_dp_size(),rank=get_dp_rank(),seed=a.seed)
             collate=PairedCollator(cfg['total_seq_len'],model.config.transformer_layer_config.hidden_size,
@@ -115,7 +141,9 @@ def run(a,plan,manifest):
                 new='Paired native distillation and normalized centered delta',artifacts=str(out),config_results=result,
                 caveats='Operator must validate exported checkpoint and held-out cells; no research conclusion'))
     except BaseException as e:
-        write(out/f'failure.rank{rank}.json',dict(error_type=type(e).__name__,error=str(e)));raise
+        if out.is_dir() and not (out/f'failure.rank{rank}.json').exists():
+            write(out/f'failure.rank{rank}.json',dict(error_type=type(e).__name__,error=str(e)))
+        raise
     finally:maybe_destroy_distributed()
 
 
@@ -123,6 +151,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--configs',nargs=4,required=True);p.add_argument('--arm',choices=['FS','MVD','PO-D','PO-T'],required=True)
     p.add_argument('--manifest',required=True);p.add_argument('--base-snapshot',required=True)
+    p.add_argument('--drafter-snapshot',help='local snapshot matching the preset initialization revision')
+    p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19; retain matched training defaults')
     p.add_argument('--seed',type=int,required=True);p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
     a=p.parse_args();arms={c['arm']:c for c in [json.loads(Path(path).read_text()) for path in a.configs]}
     check_matched(arms);manifest=json.loads(Path(a.manifest).read_text())
