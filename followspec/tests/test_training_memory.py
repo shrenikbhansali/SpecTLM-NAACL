@@ -41,3 +41,22 @@ def test_eval_or_no_grad_probe_keeps_last_training_gradients():
     with torch.no_grad(): model(torch.ones(1,2))
     assert all(torch.equal(p.grad,g) for p,g in zip(model.parameters(),saved))
     handle.remove()
+
+
+def test_saved_tensor_offload_preserves_multistep_loss_gradients_and_adam_state():
+    from followspec.training_memory import saved_tensor_context
+    torch.manual_seed(7)
+    original=torch.nn.Sequential(torch.nn.Linear(4,8),torch.nn.GELU(),torch.nn.Linear(8,2))
+    copy_model=copy.deepcopy(original)
+    opts=[torch.optim.AdamW(m.parameters(),lr=.001) for m in (original,copy_model)]
+    for _ in range(3):
+        x=torch.randn(7,4);losses=[]
+        for flag,model,opt in zip((False,True),(original,copy_model),opts):
+            opt.zero_grad()
+            with saved_tensor_context(flag):loss=model(x).square().sum()
+            loss.backward();losses.append(loss.detach());opt.step()
+        assert torch.equal(*losses)
+        for p,q in zip(original.parameters(),copy_model.parameters()):
+            assert torch.equal(p,q) and torch.equal(p.grad,q.grad)
+        for p,q in zip(opts[0].state.values(),opts[1].state.values()):
+            for key in p:assert torch.equal(p[key],q[key])
