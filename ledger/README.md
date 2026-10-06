@@ -7,6 +7,7 @@ owner decides whether to merge these into a master ledger.
 
 | ID | Title | Landed | Status |
 | --- | --- | --- | --- |
+| [EXP-ATL-000](EXP-ATL-000-predictions.md) | Preregistered predictions (§6.3) | 2026-10-06 | preregistration |
 | [EXP-ATL-001](EXP-ATL-001.md) | B2 golden acceptance cells on pinned vLLM 0.31.0 | 2026-10-05 | pilot |
 | [EXP-ATL-002](EXP-ATL-002.md) | Gate 1: engine smoke cells, compile-dependent noise floor, known-child drift | 2026-10-05 | pilot |
 | [EXP-ATL-003](EXP-ATL-003.md) | DFlash K probe on vLLM 0.31.0 (A7 prep) | 2026-10-05 | pilot |
