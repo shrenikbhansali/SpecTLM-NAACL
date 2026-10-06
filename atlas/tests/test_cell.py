@@ -19,7 +19,7 @@ def test_macro_bonus_and_conditional_metrics():
     assert result['macro_acceptance_length'] != 1+7/4
 
 
-@pytest.mark.parametrize('accepted,drafted', [([],[]),([2],[1]),([-1],[4]),([1],[5]),([1,2],[4])])
+@pytest.mark.parametrize('accepted,drafted', [([],None),(None,[]),([2],[1]),([-1],[4]),([1],[5]),([1,2],[4])])
 def test_invalid_counters_fail(accepted,drafted):
     with pytest.raises(ValueError): metrics(accepted,drafted,4)
 
