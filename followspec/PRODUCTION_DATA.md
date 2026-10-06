@@ -106,3 +106,15 @@ original files untouched. The registry uses these views for mixtures and
 online PEFT capture; vLLM response/filter jobs can still use the original
 pinned Hub adapter. Unknown extra weights are refused. Ordinary adapters and
 B3's default strict tensor handling are unchanged.
+
+### Retrying failed filter cells without overwriting artifacts
+
+`python -m followspec.production retry-filters --round-dir ROUND --targets ID1 ID2
+--output NEW_ROUND` creates an immutable overlay and jobs for explicitly failed
+cells only. Each target must have failure.json. Successful and active cells are
+refused. The original registry, plan, reference, baseline, seeds and thresholds
+stay fixed; untouched target paths are reused. Original failures remain intact.
+Run NEW_ROUND/filter_jobs.jsonl, then `admit --round-dir NEW_ROUND --output NEW_ADMISSION`.
+Every referenced cell must still complete successfully; this does not discard
+candidates or grant admission. Later retries can use the preceding overlay.
+A failed baseline needs separate recovery; this command retries target filters.
