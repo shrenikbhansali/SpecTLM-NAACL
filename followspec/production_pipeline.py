@@ -54,6 +54,18 @@ def base_args(spec):
     return ['--base-snapshot',spec['base_snapshot'],'--base-id',spec['base_id'],'--base-revision',spec['base_revision']]
 
 
+def execution_spec(spec,code_repo):
+    """Rebind future commands only; preserve data paths, seeds and engine pin."""
+    if code_repo is None:return dict(spec)
+    repo=Path(code_repo).resolve()
+    dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain'],text=True)
+    if dirty:raise ValueError('new execution checkout must be clean')
+    if sha256(repo/'atlas/env/requirements.lock')!=sha256(Path(spec['code_repo'])/'atlas/env/requirements.lock'):
+        raise ValueError('execution engine pin differs')
+    commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    return spec|dict(code_repo=str(repo),execution_code_commit=commit)
+
+
 def load_bank(spec):
     """Frozen A2 identities, staging sizes/hashes and accepted A2 proofs."""
     from argparse import Namespace
@@ -258,9 +270,9 @@ def admit(round_dir, output):
     return out
 
 
-def mixture_prompts(admission, output, forbidden_files):
+def mixture_prompts(admission, output, forbidden_files,*,code_repo=None,d23_oversampling=False):
     from followspec.mixture_targets import validate_registry
-    root,cfg=checked_stage(admission);spec=cfg['spec'];registry=read(root/'registry.json');validate_registry(registry)
+    root,cfg=checked_stage(admission);spec=execution_spec(cfg['spec'],code_repo);registry=read(root/'registry.json');validate_registry(registry)
     if not read(root/'results.json')['ready']:raise ValueError('mixture admission not ready')
     forbidden=sorted(set(spec['forbidden_files']+forbidden_files+[spec['general_prompts']]))
     for p in forbidden:lines(p)
@@ -273,16 +285,17 @@ def mixture_prompts(admission, output, forbidden_files):
             '--tokenizer',spec['base_snapshot'],'--tokenizer-revision',spec['base_revision'],'--family','llama',
             '--split','training','--seed',str(spec['seed']+1000+i),'--allow-a40-production','--output',str(dest),
             '--forbidden-files',*forbidden]
+        if d23_oversampling:command+=['--d23-oversampling']
         jobs.append(launcher_job(spec,f'{out.name}-magpie-{i:03}','M2',spec['general_prompts'],command))
     jsonl(out/'jobs.jsonl',jobs);write_new(out/'prompt_paths.json',paths)
-    finish(out,dict(stage='mixture-prompts',admission=str(root),spec=spec,forbidden_sha256={p:sha256(p) for p in forbidden}),
+    finish(out,dict(stage='mixture-prompts',admission=str(root),spec=spec,d23_oversampling=d23_oversampling,forbidden_sha256={p:sha256(p) for p in forbidden}),
            dict(n_jobs=len(jobs),production_ready=False))
     return out
 
 
-def responses(admission, prompt_paths, validation_prompts, output, forbidden_files):
+def responses(admission, prompt_paths, validation_prompts, output, forbidden_files,*,code_repo=None):
     from followspec.mixture_targets import validate_registry
-    root,cfg=checked_stage(admission);spec=cfg['spec'];registry=read(root/'registry.json');validate_registry(registry)
+    root,cfg=checked_stage(admission);spec=execution_spec(cfg['spec'],code_repo);registry=read(root/'registry.json');validate_registry(registry)
     if not read(root/'results.json')['ready']:raise ValueError('mixture admission not ready')
     plan,pc=checked_stage(cfg['plan']);metadata=read(plan/'bank_metadata.json')
     paths=read(prompt_paths);magpie={k:lines(p) for k,p in paths.items()}
@@ -359,9 +372,11 @@ def main():
     a=sub.add_parser('retry-filters');a.add_argument('--round-dir',required=True);a.add_argument('--targets',nargs='+',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('admit');a.add_argument('--round-dir',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('mixture-prompts');a.add_argument('--admission',required=True);a.add_argument('--output',required=True);a.add_argument('--forbidden-files',nargs='*',default=[])
+    a.add_argument('--code-repo');a.add_argument('--d23-oversampling',action='store_true')
     a=sub.add_parser('responses')
     for key in ('admission','prompt-paths','validation-prompts','output'):a.add_argument('--'+key,required=True)
     a.add_argument('--forbidden-files',nargs='*',default=[])
+    a.add_argument('--code-repo')
     a=sub.add_parser('render-local');a.add_argument('--plan',required=True)
     a=sub.add_parser('assemble');a.add_argument('--plan',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('finalize');a.add_argument('--assembly',required=True);a.add_argument('--evidence',required=True);a.add_argument('--output',required=True)

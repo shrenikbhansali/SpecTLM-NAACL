@@ -134,3 +134,14 @@ Run NEW_ROUND/filter_jobs.jsonl, then `admit --round-dir NEW_ROUND --output NEW_
 Every referenced cell must still complete successfully; this does not discard
 candidates or grant admission. Later retries can use the preceding overlay.
 A failed baseline needs separate recovery; this command retries target filters.
+
+
+For new M2 jobs, `mixture-prompts` and `responses` accept `--code-repo` pointing
+to a clean execution checkout. It must retain the original engine lock hash;
+the new commit is recorded in the new stage. The operator should use a tagged
+main checkout as required by the launcher. This changes future command paths
+without editing the original M1 spec or existing jobs. Use
+`mixture-prompts ... --code-repo NEW_CHECKOUT --d23-oversampling` to enable
+FIX-5's complete candidate budget and clean shortfall handling. Without the
+explicit options, old command behavior is preserved. Mixture shortfalls still
+block full response planning; D-28 only specifies bank-child exclusions.
