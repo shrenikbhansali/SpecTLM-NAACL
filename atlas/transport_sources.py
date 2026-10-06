@@ -2,6 +2,7 @@
 import argparse
 import json
 from pathlib import Path
+import subprocess
 from atlas.run_cell import sha256,write_new
 from atlas.prepare_covariates import sequence,read
 
@@ -41,7 +42,9 @@ def prepare_pair(root,pair):
     cfg=dict(generation_engine=c['engine_version'],K=c['K'],prompt_sha256=c['prompt_sha256'],
         source_run_id=str((root/'child').resolve()),source_config_sha256=sha256(root/'child/config.json'),
         source_records_sha256=sha256(root/'child/per_prompt.jsonl'),derivative_id=pair['derivative_id'],
-        derivative_revision=pair['revision'],workload='fixed general acceptance reference',acceptance_only=True,
+        derivative_revision=pair['revision'],workload='fixed shared acceptance reference',acceptance_only=True,
+        reference_origin_ids=sorted({r['derivative_id'] for r in prompts.values() if r.get('derivative_id')}),
+        reference_prompt_ids=list(prompts),reference_source_file=c['prompts'],
         template_changed=None,base_cell=str((root/'base').resolve()),base_config_sha256=sha256(root/'base/config.json'),
         filter_results_sha256=sha256(proof/'results.json'))
     return rows,cfg
@@ -55,7 +58,8 @@ def main():
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
     with (out/'sequences.jsonl').open('x') as f:
         for r in rows:f.write(json.dumps(r)+'\n')
-    write_new(out/'config.json',cfg|dict(n=len(rows),sequences_sha256=sha256(out/'sequences.jsonl'),acceptance_plan_sha256=sha256(plan_path)))
+    write_new(out/'config.json',cfg|dict(n=len(rows),sequences_sha256=sha256(out/'sequences.jsonl'),acceptance_plan_sha256=sha256(plan_path),
+        code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),producer_sha256=sha256(__file__)))
 
 
 if __name__=='__main__':main()

@@ -21,7 +21,8 @@ def test_pair_preparation_uses_actual_target_pin_and_exact_saved_contexts(tmp_pa
     pair=dict(derivative_id='c',revision='c'*40,adapter=str(adapter),filter_run=str(proof))
     rows,meta=prepare_pair(tmp_path,pair)
     assert rows[0]['input_ids']==[1,2,3,4] and rows[0]['assistant_mask']==[0,0,1,1]
-    assert meta['derivative_id']=='c' and meta['workload']=='fixed general acceptance reference'
+    assert meta['derivative_id']=='c' and meta['workload']=='fixed shared acceptance reference'
+    assert meta['reference_origin_ids']==['reference-origin']
     with pytest.raises(ValueError):prepare_pair(tmp_path,pair|dict(revision='x'*40))
     (tmp_path/'base/per_prompt.jsonl').write_text(json.dumps(record|dict(prompt_token_ids=[2,1]))+'\n')
     with pytest.raises(ValueError):prepare_pair(tmp_path,pair)
