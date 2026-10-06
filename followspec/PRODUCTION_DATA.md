@@ -200,3 +200,21 @@ H200 guard and requiring A40s for acceptance evaluation. Check live GPU usage
 before dispatch. The owner's October 6 authorization allows Codex to execute
 this continuation as well as the operator; journal queue ownership to prevent
 duplicate launches. A pause marker still blocks real jobs.
+
+## Retrying response failures without losing completed work
+
+```bash
+python -m followspec.response_recovery --plan RESPONSE_STAGE \
+  --failed-runs FAILED_RESPONSE_DIRECTORY --output NEW_RESPONSE_OVERLAY
+```
+
+Each requested source must belong to the plan, have failure/config evidence and
+have no completed results. The overlay preserves assignments and every original
+control/seed/prompt argument, changing only the failed output path and launcher
+name. It keeps successful/active sources in `response_runs.json`, emits only the
+retry commands in `jobs.jsonl`, and records all effective commands separately in
+`effective_jobs.jsonl`. Original failures are retained and hashed. Preflight the
+retry, run it on a free GPU, then assemble the overlay after all its sources
+complete. Do not launch the entire effective job list as a new independent queue;
+that would duplicate already running or completed sources. For a dispatcher
+restart, retain its existing launch log so recorded jobs are skipped.
