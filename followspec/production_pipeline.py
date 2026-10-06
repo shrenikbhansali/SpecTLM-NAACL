@@ -105,6 +105,8 @@ def prepare(spec_path, output):
 
 def materialize(plan, output, *, previous=None):
     from followspec.mixture import mix
+    from followspec.mixture_targets import checked_files
+    from followspec.train_eagle3 import ensure_unpaused
     from atlas.filter_pool import prepare_reference
     from transformers import AutoTokenizer
     import torch
@@ -116,9 +118,17 @@ def materialize(plan, output, *, previous=None):
         old,oc=checked_stage(previous);res=read(old/'results.json')
         if Path(oc['plan'])!=plan or res.get('next_round')!=2:raise ValueError('round2 requires complete round1 admission with fewer than30 passes')
         round_number=2
+    for entry in registry.values():checked_files(entry['path'],entry['files_sha256'])
+    ensure_unpaused()
     candidates=read(plan/'candidates.json'); out=new_output(output)
+    from followspec.adapter_views import canonical_bank
+    if round_number==1:
+        registry=canonical_bank(registry,out/'bank_views')
+    else:
+        registry={k:v for k,v in read(old/'registry.json').items() if v['kind']=='bank'}
     for candidate in candidates:
         if candidate['round']!=round_number:continue
+        ensure_unpaused()
         name=candidate['id'];dest=out/'mixtures'/name
         mix([registry[k]['path'] for k in candidate['source_ids']],candidate['weights'],candidate['scale'],dest,
             max_lora_rank=spec['max_lora_rank'],dtype=torch.bfloat16)

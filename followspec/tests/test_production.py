@@ -120,3 +120,14 @@ def test_readiness_requires_actual_mask_review_and_rejects_short_capacity_check(
     assert r['data_ready'] and not r['training_capacity_verified']
     masks.write_text('{"changed":true}\n')
     assert not readiness(evidence,{'FS':masks})['data_ready']
+
+
+def test_parent_prefix_stays_matched_when_arms_have_different_child_counts():
+    from followspec.production_assembly import balanced_order
+    child=[dict(pair_id=f'c{i}',data_kind='magpie' if i%2==0 else 'general') for i in range(24)]
+    parents=[dict(pair_id=f'p{i}',data_kind='general') for i in range(8)]
+    a,_=balanced_order(child,parents,seed=1)
+    b,_=balanced_order(child[:12],parents[:4],seed=1)
+    ap=[r['pair_id'] for r in a if r['data_role']=='parent']
+    bp=[r['pair_id'] for r in b if r['data_role']=='parent']
+    assert ap[:len(bp)]==bp

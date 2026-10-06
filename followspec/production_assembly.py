@@ -21,7 +21,9 @@ def balanced_order(child, parent, *, seed):
     if sum(map(len,kinds.values()))!=len(child):raise ValueError('unknown child prompt kind')
     rng=random.Random(seed)
     for rows in kinds.values():rng.shuffle(rows)
-    parents=[r|dict(data_role='parent') for r in parent];rng.shuffle(parents)
+    # The parent's general list is already seeded and shared across arms.
+    # Keep its prefix stable when FS and MVD have different child quotas.
+    parents=[r|dict(data_role='parent') for r in parent]
     n=min(len(kinds['magpie'])//3,len(kinds['general'])//3,len(parents)//2)
     result=[]
     for i in range(n):

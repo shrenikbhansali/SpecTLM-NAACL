@@ -93,3 +93,16 @@ preserves `failure.json` and the pretrim counts and refuses readiness. It does
 not relax the recipe, choose a new ordering after seeing lengths, or call
 unequal native step counts matched. The operator must resolve that data
 blocker under the decision process in MASTER.
+
+## Saved embedding copies in bank adapters
+
+Two frozen bank adapters also save `lm_head.base_layer.weight`. The pinned
+vLLM loader explicitly ignores saved input/output embedding base weights,
+whereas PEFT would load them into the shared base. `materialize` therefore
+creates new factor-only views for precisely the two suffixes ignored by vLLM
+0.31.0. It preserves every LoRA tensor bit-for-bit and the entire adapter
+configuration, records original hashes and skipped keys, and leaves the
+original files untouched. The registry uses these views for mixtures and
+online PEFT capture; vLLM response/filter jobs can still use the original
+pinned Hub adapter. Unknown extra weights are refused. Ordinary adapters and
+B3's default strict tensor handling are unchanged.
