@@ -33,3 +33,14 @@ def test_dflash_rejects_native_anchor_or_mask_mismatch():
         def _backbone_forward(self,**kw):
             return torch.zeros(1,9,2),None,None,torch.ones(1,9,dtype=torch.bool),torch.arange(9)
     with pytest.raises(ValueError):capture_dflash_hidden(Native(),torch.zeros(1,8,4),torch.zeros(1,8,dtype=torch.long),torch.zeros(1,8,2),2)
+
+
+def test_head_factor_changes_only_requested_projection_without_mutating_hidden():
+    from atlas.transport_dflash import project_head
+    base=torch.nn.Linear(2,3,bias=False);child=torch.nn.Linear(2,3,bias=False)
+    with torch.no_grad():
+        base.weight.copy_(torch.tensor([[1.,0.],[0.,1.],[0.,0.]]));child.weight.copy_(base.weight.flip(0))
+    hidden=torch.tensor([[2.,1.],[1.,3.]]);saved=hidden.clone()
+    b=project_head(base,hidden);c=project_head(child,hidden)
+    assert b.argmax(-1).tolist()==[0,1] and c.argmax(-1).tolist()==[2,1]
+    assert torch.equal(hidden,saved) and not b.requires_grad and not c.requires_grad
