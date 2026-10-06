@@ -40,7 +40,10 @@ def shift_paired(raw):
 
 
 def validate_packed(batch,ttt_steps):
-    docs=batch['document_ids'];mask=batch['loss_mask']
+    mask=batch['loss_mask']
+    # The native collator constructs document IDs on CPU even when online
+    # captured tensors are already on CUDA. Validate on the mask's device.
+    docs=batch['document_ids'].to(mask.device)
     if mask.shape!=docs.shape or docs.shape!=batch['input_ids'].shape:raise ValueError('packed shapes mismatch')
     if (mask & (docs<0)).any():raise ValueError('padding must be masked')
     for step in range(1,ttt_steps):
