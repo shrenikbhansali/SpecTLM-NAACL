@@ -67,3 +67,7 @@ Fresh checkout of main c185c3d: `python3 -m pytest -q followspec/tests` → **98
 passed; base exact after all switches; reloaded child exact; 1 resident adapter; one target weight copy; peak 15.09 GiB; identical to codex-1's run.
 Planner evidence (33 bank identities, 60 pre-score candidates, 64 launch dry runs, vLLM view equivalence) reviewed from the acceptance JSON.
 Next: operator M1 (baseline + 63 filter jobs on the training-general reference, then admission), per followspec/PRODUCTION_DATA.md.
+
+## 2026-10-06T04:18:28-04:00 — codex-1 — Claim immutable filter retry overlay
+
+Accepted originalFIX-4 pipeline remainsverified. ConcreteM1 failures005/009 exposedrecoverygap: filter_runs.json points atfailedartifactdirs, and rerunningtherewouldoverwritehistoricalartifacts. Reopenownrow for explicit retry-filters stage: requireselectedfailedtargets, writefreshroundoverlay referencingunchangedregistry/plan/reference/baseline andalluntouchedruns; emitonlyselectedretryjobswithfreshpaths; admissionusesoverlay. Oldfailedoutputs retained. Nochangedcandidate/seed/admissionthreshold; nonewGPUjoblaunchedbybuilder. Testsfirstrejectsuccessful/unknown/activecells, unchangedoriginalbytes, subsetretryandadmissionmapping. P0preemptsB10; B6nativecapacitypasses,freshmixtureexportawaitsM1slots.
