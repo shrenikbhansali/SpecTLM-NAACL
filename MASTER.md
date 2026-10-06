@@ -210,7 +210,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | done | codex-1 / 2026-10-05T22:41:55-04:00 | [journal](notes/FIX-1.md); [acceptance](artifacts/FIX-1_acceptance_20261005/acceptance.json); approved50% criterion, base/child/broken pass;19 tests; merged880e68e; operator re-run PASS (48 tests) ([FIX-1 journal](notes/FIX-1.md)) |
-| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | in progress | codex-1 / 2026-10-05T23:45:33-04:00 | [spec/journal](notes/FIX-2.md);34 tests pass; raw/rendered distinction corrected; new paired GPU check; branch898f0c7 |
+| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | review | codex-1 / 2026-10-05T23:51:05-04:00 | [journal](notes/FIX-2.md); [acceptance](artifacts/FIX-2_rendered_retry_20261005/acceptance.json);34 tests + paired5-prompt GPU checks pass; code898f0c7 merged |
 
 ---
 
