@@ -43,6 +43,7 @@ def validate_acceptance_registry(registry, rows, *, capacity=False):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--checkpoint-dflash-layers',action='store_true',help='native DFlash layer recomputation with kwargs-safe non-reentrant checkpointing')
     p.add_argument('--offload-saved-tensors',action='store_true',help='store autograd saved tensors on CPU; no recomputation, precision or recipe change')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
     p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
@@ -143,6 +144,9 @@ def main():
         native_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=epochs,save_path=str(out/'checkpoints'),optimizer=cfg['optimizer'],
             weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],scheduler_warmup_ratio=cfg['warmup_ratio'],
             scheduler_total_steps=steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,resume_from_checkpoint=False)
+        if a.checkpoint_dflash_layers:
+            from followspec.training_memory import checkpoint_dflash_layers
+            checkpoint_dflash_layers(model)
         trainer=Trainer(model,native_cfg,train,None)
         if a.release_grad_before_forward:
             from followspec.training_memory import release_grad_before_forward

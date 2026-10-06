@@ -41,3 +41,12 @@ casting too. Float64 inputs retain float32-before-top-k behavior. This removes
 a5120×128256 float32 temporary at the native512-anchor layout. The pinned A40
 check compared values and indices exactly on random bf16/fp16, tied and all-zero
 inputs; all passed. It changes no loss formula, anchor count or optimizer.
+
+An explicit `--checkpoint-dflash-layers` option uses native DFlash layer
+checkpointing with `use_reentrant=False`. Native DFlash passes hidden_states
+and target_hidden by keyword, so reentrant checkpointing would drop required
+gradient paths. The fixed5 checker compares every trainable gradient and the
+paired loss exactly against the unchecked native layers before a full retry.
+This flag changes recomputation only; model parameters, masks, anchors, loss
+and optimizer settings remain fixed. It is refused for Eagle3's mutable cache
+path. Use all memory flags consistently across comparison arms and record them.

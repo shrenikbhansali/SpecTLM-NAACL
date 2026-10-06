@@ -19,3 +19,13 @@ def saved_tensor_context(enabled=False):
     """Move autograd's saved tensors to pinned CPU storage without arithmetic changes."""
     from contextlib import nullcontext
     return torch.autograd.graph.save_on_cpu(pin_memory=True) if enabled else nullcontext()
+
+
+def checkpoint_dflash_layers(model):
+    """Use native cache-free DFlash layers with kwargs-safe checkpointing."""
+    if model.config.speculators_config.algorithm!='dflash':
+        raise ValueError('layer checkpointing is restricted to native DFlash; Eagle has mutable caches')
+    if not model.supports_gradient_checkpointing:raise ValueError('backend does not support checkpointing')
+    # Native DFlash passes both trainable hidden inputs by keyword. Reentrant
+    # checkpointing cannot track those inputs and would silently lose gradients.
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})

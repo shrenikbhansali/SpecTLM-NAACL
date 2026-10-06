@@ -108,6 +108,7 @@ def run(a,plan,manifest):
                 versions={name:importlib.metadata.version(name) for name in ('speculators','torch','transformers','hs-connectors','peft')},
                 world_size=get_dp_size(),gpu_type=torch.cuda.get_device_name(get_local_rank()),
                 release_grad_before_forward=a.release_grad_before_forward,offload_saved_tensors=a.offload_saved_tensors,
+                checkpoint_dflash_layers=a.checkpoint_dflash_layers,
                 allow_a40_production=a.allow_a40_production,drafter_snapshot=a.drafter_snapshot,
                 target_attention='eager',torch_compile_disable=os.environ.get('TORCH_COMPILE_DISABLE'),
                 loss_implementation='fused',data_loader_workers=0)
@@ -174,6 +175,9 @@ def run(a,plan,manifest):
                 optimizer=cfg['optimizer'],weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],
                 scheduler_warmup_ratio=cfg['warmup_ratio'],scheduler_total_steps=cfg['optimizer_steps'],
                 hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,val_call_kwargs=call,resume_from_checkpoint=False)
+            if a.checkpoint_dflash_layers:
+                from followspec.training_memory import checkpoint_dflash_layers
+                checkpoint_dflash_layers(model)
             trainer=Trainer(model,trainer_cfg,loaders['train'],loaders['val'])
             if a.release_grad_before_forward:
                 from followspec.training_memory import release_grad_before_forward
@@ -197,6 +201,7 @@ def main():
     p.add_argument('--configs',nargs=4,required=True);p.add_argument('--arm',choices=['FS','MVD','PO-D','PO-T'],required=True)
     p.add_argument('--manifest',required=True);p.add_argument('--base-snapshot',required=True)
     p.add_argument('--drafter-snapshot',help='local snapshot matching the preset initialization revision')
+    p.add_argument('--checkpoint-dflash-layers',action='store_true',help='native DFlash layer recomputation with kwargs-safe non-reentrant checkpointing')
     p.add_argument('--offload-saved-tensors',action='store_true',help='CPU saved-tensor storage; use consistently across matched arms')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; use consistently across matched arms')
     p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19; retain matched training defaults')

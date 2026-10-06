@@ -19,6 +19,7 @@ from followspec.dflash_extension import install_follow_spec_dflash,prepare_block
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--checkpoint-dflash-layers',action='store_true')
     a=p.parse_args();unpaused()
     if os.environ.get('TORCH_COMPILE_DISABLE')!='1':raise ValueError('bounded eager-backbone check requires compile disabled')
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('A40 required')
@@ -66,7 +67,20 @@ def main():
         with torch.autocast('cuda',dtype=torch.bfloat16):_,paired,_=draft(**batch,**call)
         error=float(abs(paired.detach()-(refs[0]+refs[1])));assert error<=1e-6,error
         paired.backward();assert all(torch.isfinite(p.grad).all() for p in draft.parameters() if p.grad is not None)
+        reference_grads={name:p.grad.detach().cpu().clone() for name,p in draft.named_parameters() if p.grad is not None} if a.checkpoint_dflash_layers else None
         draft.zero_grad(set_to_none=True)
+        if a.checkpoint_dflash_layers:
+            from followspec.training_memory import checkpoint_dflash_layers
+            checkpoint_dflash_layers(draft)
+            torch.set_rng_state(cpu_rng);torch.cuda.set_rng_state(cuda_rng)
+            with torch.autocast('cuda',dtype=torch.bfloat16):_,checkpointed,_=draft(**batch,**call)
+            assert torch.equal(checkpointed.detach(),paired.detach()),'checkpoint loss changed'
+            checkpointed.backward()
+            current={name:p.grad for name,p in draft.named_parameters() if p.grad is not None}
+            assert current.keys()==reference_grads.keys(),'checkpoint dropped gradient paths'
+            for name,grad in current.items():assert torch.equal(grad.cpu(),reference_grads[name]),f'checkpoint gradient changed: {name}'
+            assert draft.fc.weight.grad is not None,'target_hidden gradient was lost'
+            draft.zero_grad(set_to_none=True)
         # Restore the exact saved native method before installing the second
         # bounded loss setting. No weight or optimizer update occurs here.
         draft.forward=native;draft._followspec_installed=False
@@ -80,6 +94,7 @@ def main():
         positions={str(i):dict(delta=float(metrics[f'delta_position_{i}_sum']),scored=bool(metrics[f'delta_position_{i}_total'])) for i in range(draft.block_size)}
         assert not positions['0']['scored'] and all(positions[str(i)]['scored'] for i in range(1,draft.block_size))
         result=dict(passed=True,n=5,raw_tokens=actual,padded_tokens=length,block_size=draft.block_size,
+            checkpoint_gradient_equivalence=a.checkpoint_dflash_layers,
             lambda_zero_abs_error=error,delta_loss=float(metrics['delta_loss_sum']),positions=positions,
             finite_drafter_gradients=True,frozen_teacher=True,state_keys_unchanged=True,
             max_gpu_allocated_gb=torch.cuda.max_memory_allocated()/1024**3,wall_s=time.perf_counter()-start)
