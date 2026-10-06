@@ -103,6 +103,21 @@ def prepare(spec_path, output):
     return out
 
 
+def bank_eligibility(plan,bank_runs,output):
+    """Audit final bank workloads without choosing a mixture exclusion policy."""
+    from followspec.bank_eligibility import audit_bank_prompts
+    root,cfg=checked_stage(plan)
+    if cfg['stage']!='prepare':raise ValueError('original prepare plan required')
+    result=audit_bank_prompts(read(root/'bank_registry.json'),cfg['spec'],read(bank_runs))
+    out=new_output(output)
+    write_new(out/'eligibility.json',result)
+    write_new(out/'prompt_paths.json',result['prompt_paths'])
+    finish(out,dict(stage='bank-eligibility',plan=str(root),spec=cfg['spec'],bank_runs=str(Path(bank_runs).resolve()),
+        bank_runs_sha256=sha256(bank_runs)),dict(n_eligible_bank=result['n_eligible_bank'],
+        n_dropped_bank=len(result['dropped_bank']),production_ready=False,mixture_policy_applied=False))
+    return out
+
+
 def materialize(plan, output, *, previous=None):
     from followspec.mixture import mix
     from followspec.mixture_targets import checked_files
@@ -339,6 +354,7 @@ def render_local(stage):
 def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='stage',required=True)
     a=sub.add_parser('prepare');a.add_argument('--spec',required=True);a.add_argument('--output',required=True)
+    a=sub.add_parser('bank-eligibility');a.add_argument('--plan',required=True);a.add_argument('--bank-runs',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('materialize');a.add_argument('--plan',required=True);a.add_argument('--previous');a.add_argument('--output',required=True)
     a=sub.add_parser('retry-filters');a.add_argument('--round-dir',required=True);a.add_argument('--targets',nargs='+',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('admit');a.add_argument('--round-dir',required=True);a.add_argument('--output',required=True)

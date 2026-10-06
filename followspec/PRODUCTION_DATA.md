@@ -69,7 +69,7 @@ silently inferred.
 ## Exact matching and integer counts
 
 The planned MVD corpus uses 1000 queries/bank child. The FS per-target count
-starts at `round(33000 / n_targets)`; when odd, its last query is omitted so
+starts at `round(1000 * n_bank / n_targets)`; when odd, its last query is omitted so
 both halves are equal (recorded). General queries are shared across targets,
 as §5.4 specifies, with no repeated query within a target. A seeded partition
 keeps parent general queries disjoint from every child general query; validation
@@ -87,6 +87,22 @@ it never cuts a prompt, repeats a sample, or invents response tokens. Every
 retained prefix has 25% parent samples and 50:50 child composition. Final
 per-target counts and retained totals are reported, since suffix truncation
 can change the initially assigned quotas.
+
+## D-28 bank workload eligibility
+
+`bank-eligibility --plan ORIGINAL_PLAN --bank-runs RUNS.json --output NEW_AUDIT`
+audits one final Magpie cell directory per original bank adapter. The mapping
+must cover the complete original bank. Complete legacy workloads remain usable;
+each must contain exactly 500 unique training queries with matching model pins
+and adapter hashes. A dropped child needs a completed FIX-5 shortfall with all
+6400 raw attempts, matching round/filter summaries and no failure marker.
+Missing, still-running or crashed jobs do not justify exclusions. The stage
+writes eligible prompt paths, drop counts/reasons and hashes of all evidence.
+It changes no source artifact, pool, candidate plan or admission result.
+
+Mixture handling after a source-bank exclusion needs an explicit policy before
+response planning can consume this audit. The audit reports
+`mixture_policy_applied=false` and cannot authorize production on its own.
 
 A shared prefix may not exist for real response lengths. The assembler then
 preserves `failure.json` and the pretrim counts and refuses readiness. It does
