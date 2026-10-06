@@ -45,29 +45,37 @@ def load_bundle(path,rows,*,prompt_target,base_tokenizer_sha256,prompt_sha256):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base-snapshot','base-id','base-revision','tokenizer','tokenizer-revision','prompts','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--target-registry');p.add_argument('--acceptance-smoke',action='store_true')
     p.add_argument('--derivative-id',default='base');p.add_argument('--pool');p.add_argument('--downloads');p.add_argument('--filter-run')
     a=p.parse_args();a.adapter=None;a.adapter_revision=None
     for path,rev in [(a.base_snapshot,a.base_revision),(a.tokenizer,a.tokenizer_revision)]:
         if not re.fullmatch('[a-f0-9]{40}',rev) or Path(path).name!=rev:raise ValueError('pinned local snapshot required')
-    _,_,row=resolve_target(a);meta=dict(prompt_target_id=a.derivative_id,prompt_target_revision=row['revision'])
+    if a.target_registry:
+        from followspec.mixture_targets import registry_row
+        row=registry_row(a.target_registry,a.derivative_id,a.base_snapshot,a.base_id,a.base_revision,allow_acceptance=a.acceptance_smoke)
+    else:_,_,row=resolve_target(a)
+    meta=dict(prompt_target_id=a.derivative_id,prompt_target_revision=row['revision'])
+    if a.target_registry:meta['mixture_registry']=row['mixture_registry']
     if a.derivative_id!='base':
-        if row['pool']!='bank' or row['type']!='lora_adapter':raise ValueError('only accepted bank prompt origins allowed')
-        if not a.filter_run:raise ValueError('A2 proof required')
-        root=Path(a.filter_run);cfg=json.loads((root/'config.json').read_text());provenance=json.loads((root/'target_provenance.json').read_text())
-        if cfg['derivative_id']!=a.derivative_id or provenance['revision']!=row['revision'] or not json.loads((root/'results.json').read_text()).get('accepted'):
-            raise ValueError('wrong or rejected A2 prompt origin')
+        if row['pool'] not in {'bank','mixture'} or row['type']!='lora_adapter':raise ValueError('only accepted bank or mixture prompt origins allowed')
+        if row['pool']=='bank':
+            if not a.filter_run:raise ValueError('A2 proof required')
+            root=Path(a.filter_run);cfg=json.loads((root/'config.json').read_text());provenance=json.loads((root/'target_provenance.json').read_text())
+            if cfg['derivative_id']!=a.derivative_id or provenance['revision']!=row['revision'] or not json.loads((root/'results.json').read_text()).get('accepted'):
+                raise ValueError('wrong or rejected A2 prompt origin')
         verify_inputs(row,None,a.tokenizer,a.tokenizer_revision)
-        meta['filter_results_sha256']=sha256(root/'results.json')
+        if row['pool']=='bank':meta['filter_results_sha256']=sha256(root/'results.json')
     elif a.tokenizer!=a.base_snapshot:raise ValueError('base origin needs base tokenizer')
     from transformers import AutoTokenizer
     tokenizer=AutoTokenizer.from_pretrained(a.tokenizer,local_files_only=True,trust_remote_code=False)
     rows=[json.loads(s) for s in Path(a.prompts).read_text().splitlines() if s.strip()]
+    if a.acceptance_smoke and len(rows)>64:raise ValueError('bounded rendering limited to64 queries')
     if any(r.get('derivative_id') and r['derivative_id']!=a.derivative_id for r in rows):raise ValueError('wrong Magpie query origin')
     rendered=render_rows(rows,tokenizer)
     meta.update(prompt_sha256=sha256(a.prompts),tokenizer=a.tokenizer,tokenizer_revision=a.tokenizer_revision,
         tokenizer_sha256=sha256(Path(a.tokenizer)/'tokenizer.json'),
         template_sha256=__import__('hashlib').sha256(json.dumps(tokenizer.chat_template,sort_keys=True).encode()).hexdigest(),
-        acceptance_only=any(r.get('acceptance_only',False) for r in rows),
+        acceptance_only=a.acceptance_smoke or any(r.get('acceptance_only',False) for r in rows),
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
     write_bundle(a.output,rendered,meta)
     print(json.dumps(meta|dict(n=len(rows))))
