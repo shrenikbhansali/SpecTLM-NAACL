@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/vllm-project/speculators",
+  "revision": "261a82dd44ca05ff73006938c0614111bb2dd2b7",
+  "algorithm": "eagle3",
+  "source_files": [
+    "src/speculators/models/eagle3/core.py",
+    "src/speculators/models/eagle3/metrics.py",
+    "src/speculators/train/trainer.py"
+  ],
+  "choice": "Native EAGLE-3 unroll and loss used unchanged; paired feature wrapper under followspec."
+}

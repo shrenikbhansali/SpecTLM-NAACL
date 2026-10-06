@@ -28,7 +28,10 @@ class Target(torch.nn.Module):
     def disable_adapter(self):
         old=self.active;self.active=False
         try:yield
-        finally:self.active=old
+        finally:
+            self.active=old
+            # PEFT enable_adapter_layers re-enables adapter parameter gradients.
+            self.lm_head.weight.requires_grad_(True)
 
 
 def sample():return torch.tensor([1,2,3,4,5]),torch.tensor([False,False,True,True,True])
