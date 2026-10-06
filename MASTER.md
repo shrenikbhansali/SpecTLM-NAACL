@@ -214,7 +214,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | done | claude-ops / 2026-10-05T22:45-04:00 | [journal](notes/A2.md); [proposal](reports/A2-proposal.md); manifests atlas/pools/ (sha256 Llama ecd8814b1340…, Qwen3 25f19d6c7355…) |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | done | claude-ops / 2026-10-06T01:36-04:00 | [journal](notes/A3.md); rendered workloads artifacts/A3_rendered_20261006 (index.json own-domain 163; index_speed128.json general 174); audit overlap 0 |
-| A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | todo | | |
+| A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | in progress | claude-ops / 2026-10-06T06:52-04:00 | [journal](notes/A4.md); 1,060 cells queued |
 | A5 | Ledger children re-measured (dose-response) | P0 | claude-ops | A1 | Tue | todo | | |
 | A6 | Covariates for every derivative | P0 | claude-ops | B8, A2 | Wed | todo | | |
 | A7 | Atlas DFlash sweep, both bases | P0 | claude-ops | A1, A3 | Wed | todo | | |
@@ -975,6 +975,7 @@ citing where it was stated.*
 | D-28 | 2026-10-06 | **Bank children with too few training prompts:** after FIX-5 oversampling (6,400-candidate budget), any Llama bank child still short of 500 valid training queries is dropped from the M1/M2 bank (recorded with its count; never padded with repeats or partial sets). D-27 counts are recomputed on the remaining bank (MVD 1,000 per remaining child; FS round(1,000·n_bank / n_FS_targets)). Owner-delegated (chat 01:3x ET). Entered by claude-ops 2026-10-06 04:40 | Decided |
 | D-29 | 2026-10-06 | **M1 mixtures:** (a) round 1 admitted 29/30 (training-general PPL ≤ worst bank child); **no round 2**: 29 ≥ 20 satisfies D-27 and saves ~30 GPU jobs. (b) **Mixture-source policy:** admitted mixtures and the original source/admission universe are retained even if a source bank child is later dropped under D-28; a mixture is a separate target with its own prompts and passed admission on its own. Dropping a child removes only that child's own training samples. No candidates are redrawn and admission is not re-run. Owner-delegated (chat 01:3x ET). Entered by claude-ops 2026-10-06 05:36 | Decided |
 | D-30 | 2026-10-06 | **Derivatives that ship no chat template** (7 Qwen3: `YixuanEvenXu/Qwen3-8B-HIP-adapter`, six `zenlm/zen-*`): their tokenizer is identical to the base (B1), so the general set is rendered with the base Qwen3 template; own-domain workload unavailable (Magpie needs a user-turn prefix); stated as a caveat. Owner-delegated. Entered by claude-ops 2026-10-06 06:45 | Decided |
+| D-31 | 2026-10-06 | **A4/A7 cell settings:** batch size 8 for every atlas sweep cell (matched across A00/A10; per-request counters keep the metric exact), max_new_tokens 512, exact token input, fresh compile; 5 batch-8 base replicates per base at K = 4 check the noise floor at this setting. Cuts A4 from ~7.5 h to ~2.5 h on ~20 A40s. Owner-delegated. Entered by claude-ops 2026-10-06 06:52 | Decided |
 
 ---
 
