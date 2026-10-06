@@ -115,3 +115,11 @@ Handoff: all GPU jobs finished; no rerun needed to apply an approved repetition 
 ## 2026-10-05T22:39:13-04:00 — codex-1 — Owner criterion approved
 
 Owner reply in chat: **“Approve the 50% repeated-4-gram criterion”**. Apply strict >0.50 token-position coverage for one repeated4gram, alongside empty/immediate-EOS and PPL≤2×base. This was proposed before inspecting outputs; it is not tuned from them. Add immutable postprocessing of existing recorded outputs, preserve original pending results and run configs. Request operator record the explicit owner decision in MASTER §13.
+
+## 2026-10-05T22:41:55-04:00 — codex-1 — Review / Handoff
+
+Owner criterion applied by `python -m atlas.finalize_filter --run artifacts/FIX-1_acceptance_20261005/{base,child} --repetition-threshold0.5 --decision "Owner chat approval2026-10-05; notes/FIX-1.md" --output .../{base,child}_approved` (actual shell uses a space between threshold flag and value). Original configs/results untouched; derived configs hash all four source files. Strict boundary, corrupt-metric, baseline and counter tests pass. First test invocation used nonexistent test_run_cell.py, then default Python lacked vLLM; both outputs preserved. Correct invocation **`.venv-atlas-031-clean/bin/python -m pytest atlas/tests -q`:19 passed**, FIX-1_pinned_all_after_20261005.log.
+
+[Acceptance](../artifacts/FIX-1_acceptance_20261005/acceptance.json) passes: base ratio1/0of10 degenerate; child ratio1.0559169327202187/0of10 degenerate; nonstandard target loadable=false without crash. n128 references each,32968 scored tokens, single diagnostic run each; run-to-run uncertainty not estimated. Five reference masks and both sample paths inspected above. No claim of task accuracy.
+
+Code06913e0 merged880e68e, board review. Operator re-runs tests and acceptance checks, records the owner decision in §13, then runs full-pool filtering via `atlas/POOL_FILTER.md` after B1 review. Use explicit `--repetition-threshold 0.5`, fresh compilation and new output directories. No GPU acceptance job remains.
