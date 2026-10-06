@@ -45,9 +45,12 @@ def main():
         p.add_argument('--'+key,required=True)
     p.add_argument('--derivative-id',default='base');p.add_argument('--pool');p.add_argument('--downloads');p.add_argument('--filter-run')
     p.add_argument('--prompt-target',default='base',help='bank origin of Magpie prompts; may differ for PO-D base responses')
+    p.add_argument('--rendered-inputs',help='B5 shared rendered training bundle; identical inputs for child and PO-D controls')
+    p.add_argument('--prompt-filter-run',help='A2 proof for a bank prompt origin when the generation target is base')
     p.add_argument('--forbidden-files',nargs='+',required=True);p.add_argument('--seed',type=int,required=True)
     p.add_argument('--allow-a40-production',action='store_true');p.add_argument('--acceptance-smoke',action='store_true');p.add_argument('--dry-run',action='store_true')
     p.add_argument('--batch-size',type=int,default=32);p.add_argument('--max-model-len',type=int,default=4096)
+    p.add_argument('--max-lora-rank',type=int,help='explicit matched rank capacity across response controls')
     p.add_argument('--gpu-memory-utilization',type=float,default=.7)
     a=p.parse_args();a.adapter=None;a.adapter_revision=None
     if not re.fullmatch('[a-f0-9]{40}',a.base_revision) or Path(a.base_snapshot).name!=a.base_revision:raise ValueError('pin local base snapshot')
@@ -65,7 +68,26 @@ def main():
         hashes={}
     rows=read(a.prompts);forbidden=[r for path in a.forbidden_files for r in read(path)]
     audit=validate_queries(rows,forbidden,a.acceptance_smoke,prompt_target=a.prompt_target)
+    inputs=None;rendering=None
+    if a.rendered_inputs:
+        from followspec.render_inputs import load_bundle
+        inputs=load_bundle(a.rendered_inputs,rows,prompt_target=a.prompt_target,
+            base_tokenizer_sha256=sha256(Path(a.base_snapshot)/'tokenizer.json'),prompt_sha256=sha256(a.prompts))
+        rendering=json.loads((Path(a.rendered_inputs).parent/'config.json').read_text())
+        if rendering.get('acceptance_only') and not a.acceptance_smoke:raise ValueError('acceptance rendering cannot enter production')
+        if a.prompt_target!='base':
+            from argparse import Namespace
+            _,_,origin=resolve_target(Namespace(**(vars(a)|dict(derivative_id=a.prompt_target))))
+            if origin['pool']!='bank' or origin['type']!='lora_adapter':raise ValueError('prompt origin must be a bank adapter')
+            proof=a.prompt_filter_run or a.filter_run
+            if not proof:raise ValueError('prompt-origin A2 proof required')
+            pc=json.loads((Path(proof)/'config.json').read_text());pr=json.loads((Path(proof)/'target_provenance.json').read_text())
+            if pc['derivative_id']!=a.prompt_target or pr['revision']!=origin['revision'] or rendering['prompt_target_revision']!=origin['revision'] or not json.loads((Path(proof)/'results.json').read_text()).get('accepted'):
+                raise ValueError('wrong or rejected prompt-origin proof')
     rank=int(row['r']) if adapter else 1;cap=next((n for n in (8,16,32,64,128,256,320,512) if n>=rank),None)
+    if a.max_lora_rank is not None:
+        if a.max_lora_rank not in (8,16,32,64,128,256,320,512) or a.max_lora_rank<rank:raise ValueError('invalid matched LoRA rank capacity')
+        cap=a.max_lora_rank
     if cap is None or a.batch_size<=0:raise ValueError('unsupported adapter rank or batch size')
     cfg=vars(a)|dict(schema='followspec_response_tokens_v1',engine_version='0.31.0',K=None,drafter=None,
         temperature=.6,top_p=.95,max_new_tokens=64 if a.acceptance_smoke else 512,
@@ -74,6 +96,7 @@ def main():
         tokenizer_sha256=sha256(Path(a.tokenizer)/'tokenizer.json'),acceptance_only=a.acceptance_smoke,disjointness=audit,
         source_sha256=sha256(__file__),code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         engine_lock_sha256=sha256(Path(__file__).resolve().parents[1]/'atlas/env/requirements.lock'),
+        rendered_input_provenance=rendering,
         hardware_policy='D-19 A40 production opt-in' if a.allow_a40_production else 'original H100/H200 production; bounded A40 smoke')
     if a.filter_run:cfg['filter_results_sha256']=sha256(Path(a.filter_run)/'results.json')
     if a.dry_run:print(json.dumps(cfg,indent=2));return
@@ -86,12 +109,14 @@ def main():
     from vllm.lora.request import LoRARequest
     cfg['gpu_type']=torch.cuda.get_device_name(0);validate_hardware(cfg['gpu_type'],a.acceptance_smoke,a.allow_a40_production)
     tokenizer=AutoTokenizer.from_pretrained(a.tokenizer,local_files_only=True,trust_remote_code=False)
-    inputs=[]
-    for r in rows:
-        text=tokenizer.apply_chat_template([{'role':'user','content':r['prompt']}],tokenize=False,add_generation_prompt=True,enable_thinking=False)
-        ids=tokenizer.encode(text,add_special_tokens=False)
+    if inputs is None:
+        inputs=[]
+        for r in rows:
+            text=tokenizer.apply_chat_template([{'role':'user','content':r['prompt']}],tokenize=False,add_generation_prompt=True,enable_thinking=False)
+            inputs.append({'prompt_token_ids':tokenizer.encode(text,add_special_tokens=False)})
+    for entry in inputs:
+        ids=entry['prompt_token_ids']
         if not ids or len(ids)+cfg['max_new_tokens']>a.max_model_len:raise ValueError('context exceeds limit; no silent truncation')
-        inputs.append({'prompt_token_ids':ids})
     cfg['rendered_tokens_sha256']=__import__('hashlib').sha256(json.dumps(inputs,sort_keys=True).encode()).hexdigest()
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);write_new(out/'config.json',cfg);start=time.perf_counter()
     try:
