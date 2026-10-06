@@ -254,6 +254,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-9 | M3-to-M4 immutable job handoff: verify trained exports, preserve exact rendered tokens and paired LoRA controls, K4 all arms plus FS/Frozen K2/8; tests first | P0 | codex | B7, B6 | Tue | review | codex-1 / 2026-10-06T17:38:56-04:00 | [journal](notes/FIX-9.md); M3 export-to-M4 jobs/index integration, matched LoRA/exact-token controls;203 tests PASS including B7 roundtrip; [tests](artifacts/FIX7_integration_20261006/M4_final_tests.log); real M4 awaits M3 |
 
+| FIX-10 | Immutable M2 response retries preserving successful sources and exact generation controls | P0 | codex | M2 | Tue | in progress | codex-1 / 2026-10-06T17:47:50-04:00 | [journal](notes/FIX-10.md); parent job failed vLLM cache initialization; remaining response queue continues |
+
 ---
 
 ## 5. Research context (what agents need to know)
