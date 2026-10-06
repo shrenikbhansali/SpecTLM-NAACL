@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import pytest
 import torch
-from followspec.token_data import build_manifest,OnlineResponseDataset
+from followspec.token_data import build_manifest,validate_arm_set,OnlineResponseDataset
 from atlas.workloads import prompt_hash
 
 
@@ -23,6 +23,19 @@ def make(arm,path,split='train',forbidden=()):
     return build_manifest(arm,[dict(run=str(path),record_index=0,child_id='c',pair_id='pair',split=split)],
         registry={'c':dict(kind='bank',revision='b'*40)},base_revision='a'*40,initialization_revision='d'*40,
         forbidden_hashes=forbidden,allow_acceptance=True)
+
+
+def test_arm_set_pairs_sources_contexts_and_exact_measured_counts(tmp_path):
+    child=run(tmp_path,'child','c');base=run(tmp_path,'base','base')
+    arms={arm:make(arm,base if arm=='PO-D' else child) for arm in ['FS','MVD','PO-T','PO-D']}
+    report=validate_arm_set(arms)
+    assert report['matched'] and report['shifted_sequence_tokens']==4
+    assert arms['PO-T']['samples'][0]['feature_target']=='base'
+    assert arms['FS']['samples'][0]['feature_target']=='child'
+    assert arms['FS']['samples'][0]['assistant_tokens']==2
+    shorter=run(tmp_path,'shorter','base',answer=(4,))
+    arms['PO-D']=make('PO-D',shorter)
+    with pytest.raises(ValueError,match='token budget'):validate_arm_set(arms)
 
 
 def test_manifest_rejects_wrong_response_target_evaluation_leakage_and_changed_sources(tmp_path):

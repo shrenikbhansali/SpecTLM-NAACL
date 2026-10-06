@@ -1,13 +1,14 @@
 """One frozen base and at most one resident bank adapter for online batches.
 
-Registry entries come from B5's audited, pinned bank manifest. Mixtures are
-intentionally not admitted until B3's numerical acceptance is resolved.
+Registry entries come from B5's audited pinned bank and B3 mixture manifests.
+Production mixtures additionally require the §5.4 shared-general PPL check.
 """
 from pathlib import Path
 import threading
 from atlas.run_cell import sha256
 from atlas.generate_magpie import unpaused
 from followspec.online_capture import OnlinePairCapture
+from followspec.mixture_targets import validate_registry
 
 
 def load_adapter(base,path):
@@ -16,12 +17,8 @@ def load_adapter(base,path):
 
 
 class FrozenAdapterBank:
-    def __init__(self,base,registry,taps,draft_tokens,*,pause_check=unpaused,loader=load_adapter,capture_factory=OnlinePairCapture):
-        if 'base' in registry or any(r.get('kind')!='bank' for r in registry.values()):
-            raise ValueError('registry must contain only audited bank adapters; no mixture or heldout target')
-        for r in registry.values():
-            if not r.get('revision') or not r.get('path') or not r.get('files_sha256'):raise ValueError('pinned adapter files required')
-            if any(Path(name).is_absolute() or '..' in Path(name).parts for name in r['files_sha256']):raise ValueError('invalid adapter file path')
+    def __init__(self,base,registry,taps,draft_tokens,*,pause_check=unpaused,loader=load_adapter,capture_factory=OnlinePairCapture,allow_acceptance=False):
+        validate_registry(registry,allow_acceptance=allow_acceptance)
         self.base=base.eval().requires_grad_(False);self.model=self.base;self.registry=registry
         self.current=None;self.broken=False;self.taps=taps;self.tokens=draft_tokens;self.pause_check=pause_check
         self.loader=loader;self.factory=capture_factory;self.lock=threading.Lock()
