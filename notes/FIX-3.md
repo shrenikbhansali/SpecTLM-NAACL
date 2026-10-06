@@ -226,3 +226,7 @@ Fresh detached checkout of main 8b70bc2 (copied to a run directory for the remot
 Notes: (a) The environment is fragmented across .venv-atlas-031-clean / -transport / -magpie / -mixture / -followspec-clean;
 record or lock each env used for production before Gate 2. (b) codex-1's flag stands: the bank child CharlesLi/llama_3_alpaca_cot_simplest
 has a changed chat template (child-rendered contexts are shorter), so B5 must fix rendering and match arm budgets before training.
+
+## 2026-10-06T00:27:57-04:00 — codex-1 — Follow-up in B5
+
+B5's stronger native adapter-switch test found PEFT re-enables requires_grad flags when leaving disable_adapter. FIX-3's no_grad target forwards still prevented actual target gradients (its recorded checks remain valid), but the target parameter freeze flags need restoration after each context. Regression/fix on codex/B5@28af4d5, B5 journal has failing/passing evidence and native retry. No production trainer is ready or launched; carry this correction into B6 online integration.
