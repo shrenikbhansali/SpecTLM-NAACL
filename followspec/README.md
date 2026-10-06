@@ -69,3 +69,52 @@ headroom; check full batches and longer responses before production. The test
 used one bank adapter and one acceptance seed, not the complete mixture/data
 recipe. B5 production budgets, mixture validation and owner defaults remain
 separate requirements. No production M3 run has been launched.
+
+# B3 mixture acceptance
+
+`mixture.py` writes exact concatenated PEFT factors with scaling one. It never
+loads a base model. CPU tests cover algebra, differing ranks/modules/dtypes,
+rsLoRA and configured vLLM rank caps.
+
+`verify_mixture.py` is the original real-model acceptance driver. It has two
+phases, which must run in separate processes to release model memory. Both
+refuse real execution if the root or historical pause marker exists. Dry runs
+print provenance and never load a model or create an output directory.
+
+```sh
+python -m followspec.verify_mixture --phase logits \
+  --base meta-llama/Llama-3.1-8B-Instruct --revision BASE_SHA \
+  --adapters /path/a /path/b /path/c --prompts /path/16prompts.jsonl \
+  --max-lora-rank CAP --atol RECORDED_ATOL --rtol RECORDED_RTOL \
+  --output /path/new-logits-artifact --dry-run
+```
+
+After the pause is lifted, remove `--dry-run` in a compatible Transformers +
+PEFT environment. Tolerances are mandatory because MASTER says bf16 tolerance
+without a numerical threshold. Record them before measuring. The driver checks
+all three one-hot choices, zero scale, and three seeded random mixtures at
+scales 0.5, 1, 1.5 on the full next-token vocabulary at each of 16 prompts.
+It reports maximum absolute and relative errors, with per-prompt records.
+Direct dense merging accumulates original source updates in float32 and casts
+the final weights to bf16. Original base weights are restored bit-for-bit.
+
+Run the same arguments with `--phase vllm` and a fresh output directory using
+the isolated **vLLM 0.31.0** environment. This phase loads one mixture through
+LoRARequest and generates four tokens for each prompt. This is a loadability
+smoke test; it does not measure speculative acceptance length.
+
+Both real phases ran after the pause was lifted. The original bf16 mixed-vs-dense
+checks failed (maximum errors0.3125/0.375/0.3125), while one-hot/zero were exact
+and native vLLM generation passed. Those failures remain in the original artifacts.
+
+MASTER D-20 now authorizes fp32 maximum absolute error strictly below1e-4 on
+all seven16-prompt cases plus vLLM multi-LoRA loadability. Apply that recorded
+rule with `python -m followspec.mixture_decision --evidence-root ORIGINAL_ROOT
+--output NEW_REPORT`. It recomputes the threshold from every per-prompt record,
+checks source pins/hashes and case completeness, and reports the original bf16
+failure beside the new decision. It never rewrites or relabels old artifacts.
+The fp32 diagnostic command is `python -m followspec.diagnose_rounding
+--launch-record ORIGINAL_ROOT/launch.json --float32-only --output NEW_FP32_RUN`;
+use a fresh path for the operator's independent reproduction. Twelve CPU tests
+cover the builder, driver and D-20 checker. No throughput claim follows from
+these numerical/loadability checks.
