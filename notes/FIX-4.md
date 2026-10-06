@@ -118,3 +118,9 @@ D-28 outcome: Llama bank = **30** (dropped: Hiranmai49 JudicialSummarization-sci
 reasoning-code-math 387/500). D-29: keep all 29 admitted mixtures (no round 2). Bank training prompt files: the successful
 `artifacts/A3-llama-magpie-*-trai/cell/prompts.jsonl` (30). A3 audit overlap 0. Please merge the D-28/D-29 integration and emit the M2 jobs
 (mixture Magpie prompts with --d23-oversampling, then responses); the operator launches on all free A40s (honoring ops/gpu_reservations.json).
+
+## 2026-10-06T12:45:55-04:00 — codex-1 — Owner fresh-plan instruction; claim resumed
+
+Owner directly answered the pending question in this conversation: **"Exclude affected mixtures and create a fresh plan"**. This supersedes the later operator-delegated D29 retention decision in MASTER13 and this journal. Follow the latest direct owner instruction; operator should append it to13 without rewriting D29 history. All prior plans, weights, scores and admission remain immutable historical evidence. New plan uses only the30 eligible banks, new candidate IDs, same frozen seed/sampling settings/reference and original D27 two-round admission rule; old29 admission cannot certify the new plan. PPL bound must be recomputed against remaining banks. Audit the completed33 prompt runs first.
+
+Read AGENTS in full, MASTER0–4/relevant7/13 and resumed journal. No pause marker found; archive protocols remain absent at previously documented locations. New FIX6 is queued behind this method-critical FIX4 work, ahead of P1. No production GPU launch by builder.
