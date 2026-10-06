@@ -207,6 +207,10 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 *Add `FIX-n` rows below as needed (Agent `codex`, Depends on the failing run).*
 
+| ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | todo | filed by claude-ops 2026-10-05T20:10-04:00 | [spec](notes/FIX-1.md) |
+
 ---
 
 ## 5. Research context (what agents need to know)
