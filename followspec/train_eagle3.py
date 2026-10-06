@@ -1,9 +1,10 @@
 """Operator-only paired EAGLE-3 training entry point; dry-run never loads models.
 
-Requires resolved matched configs and audited B5 data. Not approved for jobs
-until real B6 acceptance (including checkpoint loading) is complete.
+Requires resolved matched configs and audited B5 data. Native B6 acceptance
+passed; production data and research-decision prerequisites remain enforced.
 """
 import argparse
+from contextlib import contextmanager
 import importlib.metadata
 import json
 import os
@@ -42,6 +43,23 @@ def write(path,data):
     with Path(path).open('x') as f:json.dump(data,f,indent=2,allow_nan=False);f.write('\n')
 
 
+@contextmanager
+def owned_output(out,rank,barrier):
+    """Write failures only after this launch has acquired its output directory."""
+    owned=False
+    try:
+        if rank==0:
+            out.mkdir(parents=True,exist_ok=False)
+            owned=True
+        barrier()
+        owned=True  # Other ranks join only after rank zero created this run.
+        yield
+    except BaseException as error:
+        if owned and out.is_dir() and not (out/f'failure.rank{rank}.json').exists():
+            write(out/f'failure.rank{rank}.json',dict(error_type=type(error).__name__,error=str(error)))
+        raise
+
+
 def run(a,plan,manifest):
     ensure_unpaused();ensure_unpaused(Path.cwd())
     from speculators.version import git_commit
@@ -69,81 +87,78 @@ def run(a,plan,manifest):
     rank=get_rank()
     try:
         validate_hardware(torch.cuda.get_device_name(get_local_rank()),False,a.allow_a40_production)
-        if rank==0:out.mkdir(parents=True,exist_ok=False)
-        if torch.distributed.is_initialized():torch.distributed.barrier()
-        torch.manual_seed(a.seed)
-        plan.update(dry_run=False,code_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
-            data_manifest_sha256=file_sha(a.manifest),base_revision=manifest['base_revision'],
-            base_snapshot_files_sha256={str(p.relative_to(a.base_snapshot)):file_sha(p) for p in Path(a.base_snapshot).rglob('*') if p.is_file() and '.cache' not in p.parts},
-            versions={name:importlib.metadata.version(name) for name in ('speculators','torch','transformers','hs-connectors','peft')},
-            world_size=get_dp_size(),gpu_type=torch.cuda.get_device_name(get_local_rank()),
-            allow_a40_production=a.allow_a40_production,drafter_snapshot=a.drafter_snapshot,
-            target_attention='eager',torch_compile_disable=os.environ.get('TORCH_COMPILE_DISABLE'),
-            loss_implementation='fused',data_loader_workers=0)
-        if rank==0:write(out/'config.json',plan)
-        ensure_unpaused()
-        initialization=a.drafter_snapshot or cfg['initialization']
-        if a.drafter_snapshot and Path(a.drafter_snapshot).name!=cfg['initialization_revision']:raise ValueError('drafter snapshot pin mismatch')
-        model_cfg=SpeculatorModelConfig.from_pretrained(initialization,revision=cfg['initialization_revision'])
-        model_cfg.speculators_config.verifier.name_or_path=str(Path(a.base_snapshot).resolve())
-        from atlas.run_cell import read_drafter_config
-        from atlas.covariates import tap_layers
-        base_config=json.loads((Path(a.base_snapshot)/'config.json').read_text())
-        model_cfg.eagle_aux_hidden_state_layer_ids=tap_layers(read_drafter_config(initialization,cfg['initialization_revision']),base_config['num_hidden_layers'])
-        model=SpeculatorModel.from_pretrained(initialization,revision=cfg['initialization_revision'],config=model_cfg,torch_dtype=torch.float32)
-        install_follow_spec(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],
-            shared_verifier_head=manifest.get('shared_verifier_head',False))
-        model.register_forward_pre_hook(lambda *_:ensure_unpaused())
-        def record_metrics(module,args,result):
-            metrics={k:float(v.detach().cpu()) for k,v in result[2].items() if getattr(v,'numel',lambda:0)()==1}
-            with (out/f'training_metrics.rank{rank}.jsonl').open('a') as f:f.write(json.dumps(metrics,allow_nan=False)+'\n')
-        model.register_forward_hook(record_metrics)
-        bank=None
-        if plan['feature_capture']=='online':
-            from transformers import AutoModelForCausalLM
-            from followspec.online_bank import FrozenAdapterBank
-            from followspec.token_data import OnlineResponseDataset
-            target=AutoModelForCausalLM.from_pretrained(a.base_snapshot,local_files_only=True,trust_remote_code=False,
-                torch_dtype=torch.bfloat16,attn_implementation='eager').to(get_local_rank())
-            bank=FrozenAdapterBank(target,manifest['registry'],model_cfg.eagle_aux_hidden_state_layer_ids,
-                torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused)
-        loaders={}
-        for split in ('train','val'):
-            if bank is not None:
-                ds=OnlineResponseDataset(manifest,split=split,bank=bank,shift=shift_paired,noise_std=cfg['noise_std'] if split=='train' else 0.)
-            else:
-                ds=PairedFeatureDataset(a.manifest,split=split,allowed_targets=manifest['allowed_targets'],
-                    forbidden_hashes=set(manifest['forbidden_prompt_hashes']),noise_std=cfg['noise_std'] if split=='train' else 0.)
-            sampler=MultipackDistributedBatchSamplerV2(batch_max_length=cfg['total_seq_len'],lengths=ds.approx_lengths,
-                num_replicas=get_dp_size(),rank=get_dp_rank(),seed=a.seed)
-            collate=PairedCollator(cfg['total_seq_len'],model.config.transformer_layer_config.hidden_size,
-                len(model.config.eagle_aux_hidden_state_layer_ids),cfg['ttt_steps'])
-            loaders[split]=DataLoader(ds,batch_sampler=sampler,collate_fn=collate,num_workers=0)
-            if split=='train':
-                if sum(ds.approx_lengths)!=cfg['token_budget']:raise ValueError('actual training token count mismatch')
-                if len(loaders[split])*cfg['epochs']!=cfg['optimizer_steps']:raise ValueError('actual optimizer step count mismatch')
-                if rank==0:
-                    with (out/'per_prompt.jsonl').open('x') as f:
-                        for row in ds.rows:f.write(json.dumps(row)+'\n')
-        call=dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay'],loss_config=resolve_loss_config('kl_div','fused'))
-        trainer_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=cfg['epochs'],save_path=str(out/'checkpoints'),
-            optimizer=cfg['optimizer'],weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],
-            scheduler_warmup_ratio=cfg['warmup_ratio'],scheduler_total_steps=cfg['optimizer_steps'],
-            hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,val_call_kwargs=call,resume_from_checkpoint=False)
-        trainer=Trainer(model,trainer_cfg,loaders['train'],loaders['val'])
-        ensure_unpaused();trainer.run_training()
-        if rank==0:
-            result=dict(status='trained_pending_vllm_acceptance',n=len(loaders['train'].dataset),token_budget=cfg['token_budget'],
-                        optimizer_steps=trainer.global_step,checkpoints=str(out/'checkpoints'),B2_acceptance='pending')
-            write(out/'results.json',result)
-            write(out/'ledger_draft.json',dict(id='EXP-ATL-UNASSIGNED',title=f"{cfg['arm']} EAGLE-3 seed {a.seed}",
-                landed=__import__('datetime').date.today().isoformat(),status='pilot',what_why='Matched FollowSpec training arm',
-                new='Paired native distillation and normalized centered delta',artifacts=str(out),config_results=result,
-                caveats='Operator must validate exported checkpoint and held-out cells; no research conclusion'))
-    except BaseException as e:
-        if out.is_dir() and not (out/f'failure.rank{rank}.json').exists():
-            write(out/f'failure.rank{rank}.json',dict(error_type=type(e).__name__,error=str(e)))
-        raise
+        def barrier():
+            if torch.distributed.is_initialized():torch.distributed.barrier()
+        with owned_output(out,rank,barrier):
+            torch.manual_seed(a.seed)
+            plan.update(dry_run=False,code_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+                data_manifest_sha256=file_sha(a.manifest),base_revision=manifest['base_revision'],
+                base_snapshot_files_sha256={str(p.relative_to(a.base_snapshot)):file_sha(p) for p in Path(a.base_snapshot).rglob('*') if p.is_file() and '.cache' not in p.parts},
+                versions={name:importlib.metadata.version(name) for name in ('speculators','torch','transformers','hs-connectors','peft')},
+                world_size=get_dp_size(),gpu_type=torch.cuda.get_device_name(get_local_rank()),
+                allow_a40_production=a.allow_a40_production,drafter_snapshot=a.drafter_snapshot,
+                target_attention='eager',torch_compile_disable=os.environ.get('TORCH_COMPILE_DISABLE'),
+                loss_implementation='fused',data_loader_workers=0)
+            if rank==0:write(out/'config.json',plan)
+            ensure_unpaused()
+            initialization=a.drafter_snapshot or cfg['initialization']
+            if a.drafter_snapshot and Path(a.drafter_snapshot).name!=cfg['initialization_revision']:raise ValueError('drafter snapshot pin mismatch')
+            model_cfg=SpeculatorModelConfig.from_pretrained(initialization,revision=cfg['initialization_revision'])
+            model_cfg.speculators_config.verifier.name_or_path=str(Path(a.base_snapshot).resolve())
+            from atlas.run_cell import read_drafter_config
+            from atlas.covariates import tap_layers
+            base_config=json.loads((Path(a.base_snapshot)/'config.json').read_text())
+            model_cfg.eagle_aux_hidden_state_layer_ids=tap_layers(read_drafter_config(initialization,cfg['initialization_revision']),base_config['num_hidden_layers'])
+            model=SpeculatorModel.from_pretrained(initialization,revision=cfg['initialization_revision'],config=model_cfg,torch_dtype=torch.float32)
+            install_follow_spec(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],
+                shared_verifier_head=manifest.get('shared_verifier_head',False))
+            model.register_forward_pre_hook(lambda *_:ensure_unpaused())
+            def record_metrics(module,args,result):
+                metrics={k:float(v.detach().cpu()) for k,v in result[2].items() if getattr(v,'numel',lambda:0)()==1}
+                with (out/f'training_metrics.rank{rank}.jsonl').open('a') as f:f.write(json.dumps(metrics,allow_nan=False)+'\n')
+            model.register_forward_hook(record_metrics)
+            bank=None
+            if plan['feature_capture']=='online':
+                from transformers import AutoModelForCausalLM
+                from followspec.online_bank import FrozenAdapterBank
+                from followspec.token_data import OnlineResponseDataset
+                target=AutoModelForCausalLM.from_pretrained(a.base_snapshot,local_files_only=True,trust_remote_code=False,
+                    torch_dtype=torch.bfloat16,attn_implementation='eager').to(get_local_rank())
+                bank=FrozenAdapterBank(target,manifest['registry'],model_cfg.eagle_aux_hidden_state_layer_ids,
+                    torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused)
+            loaders={}
+            for split in ('train','val'):
+                if bank is not None:
+                    ds=OnlineResponseDataset(manifest,split=split,bank=bank,shift=shift_paired,noise_std=cfg['noise_std'] if split=='train' else 0.)
+                else:
+                    ds=PairedFeatureDataset(a.manifest,split=split,allowed_targets=manifest['allowed_targets'],
+                        forbidden_hashes=set(manifest['forbidden_prompt_hashes']),noise_std=cfg['noise_std'] if split=='train' else 0.)
+                sampler=MultipackDistributedBatchSamplerV2(batch_max_length=cfg['total_seq_len'],lengths=ds.approx_lengths,
+                    num_replicas=get_dp_size(),rank=get_dp_rank(),seed=a.seed)
+                collate=PairedCollator(cfg['total_seq_len'],model.config.transformer_layer_config.hidden_size,
+                    len(model.config.eagle_aux_hidden_state_layer_ids),cfg['ttt_steps'])
+                loaders[split]=DataLoader(ds,batch_sampler=sampler,collate_fn=collate,num_workers=0)
+                if split=='train':
+                    if sum(ds.approx_lengths)!=cfg['token_budget']:raise ValueError('actual training token count mismatch')
+                    if len(loaders[split])*cfg['epochs']!=cfg['optimizer_steps']:raise ValueError('actual optimizer step count mismatch')
+                    if rank==0:
+                        with (out/'per_prompt.jsonl').open('x') as f:
+                            for row in ds.rows:f.write(json.dumps(row)+'\n')
+            call=dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay'],loss_config=resolve_loss_config('kl_div','fused'))
+            trainer_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=cfg['epochs'],save_path=str(out/'checkpoints'),
+                optimizer=cfg['optimizer'],weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],
+                scheduler_warmup_ratio=cfg['warmup_ratio'],scheduler_total_steps=cfg['optimizer_steps'],
+                hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,val_call_kwargs=call,resume_from_checkpoint=False)
+            trainer=Trainer(model,trainer_cfg,loaders['train'],loaders['val'])
+            ensure_unpaused();trainer.run_training()
+            if rank==0:
+                result=dict(status='trained_pending_vllm_acceptance',n=len(loaders['train'].dataset),token_budget=cfg['token_budget'],
+                            optimizer_steps=trainer.global_step,checkpoints=str(out/'checkpoints'),B2_acceptance='pending')
+                write(out/'results.json',result)
+                write(out/'ledger_draft.json',dict(id='EXP-ATL-UNASSIGNED',title=f"{cfg['arm']} EAGLE-3 seed {a.seed}",
+                    landed=__import__('datetime').date.today().isoformat(),status='pilot',what_why='Matched FollowSpec training arm',
+                    new='Paired native distillation and normalized centered delta',artifacts=str(out),config_results=result,
+                    caveats='Operator must validate exported checkpoint and held-out cells; no research conclusion'))
     finally:maybe_destroy_distributed()
 
 
