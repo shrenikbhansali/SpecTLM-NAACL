@@ -170,10 +170,10 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T21:56:18-04:00 | [journal](notes/B1.md); resumed audit: 200 sampled downloads complete; format/architecture, bank staging, and similarity gaps remain |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:00:57-04:00 | [journal](notes/B1.md); sampled200 staged; parser fix cb8dc16 (9 tests); format/bank/similarity gaps; [audit](notes/BUILD-AUDIT-20261005.md) |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B2.md); [six-cell acceptance](artifacts/B2_acceptance_20261005/acceptance_report.json); merged 8651954; 14 tests pass; operator re-run PASS with notes ([B2 journal](notes/B2.md)) |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B3.md); bf16 logit acceptance fails; fp32 diagnostics <1e-4; vLLM 16-prompt smoke passes |
-| B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:32:09-04:00 | [journal](notes/B4.md); owner authorized pause lift; preparing GPU acceptance |
+| B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:00:57-04:00 | [journal](notes/B4.md); SPEED128/general20k rechecked; Magpie five-derivative acceptance and bounded A40 smoke path pending; [audit](notes/BUILD-AUDIT-20261005.md) |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B6.md); 19 CPU tests and native loss composition pass; real overfit/export pending B5 |
 | B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | todo | | |
