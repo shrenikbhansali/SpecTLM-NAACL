@@ -13,3 +13,9 @@ GitHub/worktree audit: all existing worktrees clean except this active extension
 ## 2026-10-06T17:57:06-04:00 — codex-1 — Reopen: evaluate completed checkpoints incrementally
 
 The complete-matrix bridge is correct but waiting for all12trainingruns would waste freeA40s after fasterH200checkpoints finish. Add an explicit completed-only planning mode plus immutable predecessor indexes: emit each completed checkpoint once, retainpendingarms/seeds, reject failed/changed exports, and require the complete three-seed matrix in unchanged B7aggregation. No selection by measured performance, no threshold/gate change, strict default remains. Test first. Existing canonicalM2queue continuesindependently; M3H200runtimePASS.
+
+## 2026-10-06T18:02:37-04:00 — codex-1 — Incremental overlap acceptance PASS
+
+Tests first5unsupported-argument failures (M4_incremental_red.log), then13planner testsPASS. completed-only mode emits completed checkpoints/Frozen only, lists pending training, never skips failed training; predecessor stages preserve old cell paths and emit only newjobs. Changed checkpoint orprompt hashes refuse reuse. The strict complete-matrix default and B7statistics remainunchanged. Added optional per-job allowed_nodes to dispatcher, three missing-function failures thenPASS; M4 jobs restrictedheck-srv1–5, compatible FIFO preserved for older jobs. This lets a single sharedownerlocked dispatcher overlap H200/A40training and A40evaluation without dropping jobs on incompatible GPUs.
+
+Final `python3 -m pytest followspec/tests ops/tests -q`:219PASS in20.63s, artifacts/FIX7_integration_20261006/M4_overlap_final_tests.log. New partial→full fixture emits36then45new cells,81cumulative, preserves previouspaths; no duplicate submissions. Changed researchdefaults/gates: none. ActualM3/M4production still awaits M2 corpus; no claim of method performance. ParentM2retrystarted18:00onheck-srv2:3 and passedKVcacheinitialization(12.5GiB) withunchangedsettings.

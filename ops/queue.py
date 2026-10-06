@@ -35,6 +35,12 @@ def reserved(owner=""):
         return set()
 
 
+
+def eligible_job_index(jobs, node):
+    """Optional per-job placement preserves FIFO among compatible jobs."""
+    return next((i for i,job in enumerate(jobs) if 'allowed_nodes' not in job or node in job['allowed_nodes']),None)
+
+
 def gpu_busy(node, gpu, limit_mib=1000):
     """True if the GPU already holds > limit_mib (another job, any user). Checked right before each launch."""
     try:
@@ -83,6 +89,8 @@ def main():
 def dispatch(a):
     slots = a.slots.split(",")
     jobs = [json.loads(l) for l in open(a.jobs) if l.strip()]
+    if any('allowed_nodes' in j and (not isinstance(j['allowed_nodes'],list) or not j['allowed_nodes'] or any(not isinstance(n,str) for n in j['allowed_nodes'])) for j in jobs):
+        raise ValueError('allowed_nodes must be a nonempty node list')
     log = Path(a.log)
     done_names = set()
     busy = {}  # slot -> out_dir
@@ -110,9 +118,10 @@ def dispatch(a):
             if not pending or slot in reserved(a.owner):
                 continue
             node, gpu = slot.split(":")
-            if gpu_busy(node, gpu):
+            index=eligible_job_index(pending,node)
+            if index is None or gpu_busy(node, gpu):
                 continue
-            job = pending.pop(0)
+            job = pending.pop(index)
             res = subprocess.run([sys.executable, str(LAUNCH), "run", "--node", node, "--gpus", gpu, *job["args"]],
                                  capture_output=True, text=True)
             m = re.search(r"\n  (/\S+)", res.stdout)
