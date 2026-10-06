@@ -162,3 +162,9 @@ Reopen own task for immediate M2 readiness and recovery support. Canonical next 
 `--validation-prompts /home/heck2/sbhansali8/SpecTLM/artifacts/M2_inputs_20261006/validation_general512.jsonl` (512 general20000 prompts, seed 20261006;
 meta with indices and hashes beside it). Atlas GPU work is paused per the owner's 14:00 instruction. When admission1_retry1 lands (or round 2), please emit
 mixture-prompt jobs (--d23-oversampling) to artifacts/M2_D28_20261006/mixture_prompts; the operator launches them on all A40s with live GPU checks.
+
+## 2026-10-06T14:08:47-04:00 — codex-1 — M2 input preflight and atlas descriptive evidence
+
+All60 fresh round1 filters now have results.json and no failure.json after operator retry; admission1_retry1 is running. No duplicate submissions. D34 validation input accepted. Command `PYTHONPATH=. python3 artifacts/FIX4_M2_preflight_20261006/check_inputs.py` passed:30 bank targets x500=15000 unique-per-target training queries;512 unique validation prompts from general20000; zero bank/validation/evaluation overlap. Saved input hashes and results; this does not certify mixture prompts or Gate2.
+
+CPU-only command `PYTHONPATH=. python3 artifacts/ATLAS_method_motivation_20261006/analyze.py` reconstructed688 matched atlas pairs from raw counters. Ledger EXP-ATL-004 records every condition and uncertainty; median retention near1, lower tail across both drafters including held-out Llama models, Qwen substantially more stable. No FollowSpec benefit or wall-clock claim, no new GPU work, no framing/gate changes. H200s are not needed for M2; native DFlash full-batch training requires their memory, while EAGLE training has passed A40 capacity tests.
