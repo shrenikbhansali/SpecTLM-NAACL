@@ -111,3 +111,10 @@ Next step requires the pending protocol clarification: retain the existing admit
 **D-29:** keep the 29 admitted mixtures and the original source/admission universe even if a source bank child is dropped under D-28; dropping
 removes only that child's own training samples. No round 2 (29 ≥ 20). Admission: `artifacts/M1_20261006/admission1_after_retry`
 (admitted 29). Please finish the registry/admission/response integration on that basis, merge, and set review.
+
+## 2026-10-06T06:45-04:00 — claude-ops — Inputs final for M2 integration
+
+D-28 outcome: Llama bank = **30** (dropped: Hiranmai49 JudicialSummarization-sci-FirstLast 31/500, Yaxin1992 dpo-7000-tulu 3/500, Yaxin1992
+reasoning-code-math 387/500). D-29: keep all 29 admitted mixtures (no round 2). Bank training prompt files: the successful
+`artifacts/A3-llama-magpie-*-trai/cell/prompts.jsonl` (30). A3 audit overlap 0. Please merge the D-28/D-29 integration and emit the M2 jobs
+(mixture Magpie prompts with --d23-oversampling, then responses); the operator launches on all free A40s (honoring ops/gpu_reservations.json).
