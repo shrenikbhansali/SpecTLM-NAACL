@@ -14,6 +14,7 @@ from atlas.run_cell import sha256,write_new
 from atlas.workloads import prompt_hash
 from followspec.online_capture import route_arm
 from followspec.paired_responses import POLICY,trim_pair
+from followspec.mixture_targets import validate_mixture
 
 CONTROLS=('engine_version','base_revision','seed','temperature','top_p','max_new_tokens','max_lora_rank','batch_size','gpu_type')
 
@@ -41,7 +42,9 @@ def response_run(path):
 
 def build_manifest(arm,refs,*,registry,base_revision,initialization_revision,forbidden_hashes=(),allow_acceptance=False):
     if arm not in {'FS','MVD','PO-D','PO-T'} or not refs:raise ValueError('nonempty known arm required')
-    if any(r.get('kind')!='bank' for r in registry.values()):raise ValueError('only audited bank targets supported; mixtures remain B3-blocked')
+    if any(r.get('kind') not in {'bank','mixture'} for r in registry.values()):raise ValueError('only audited bank and mixture targets supported')
+    for name,entry in registry.items():
+        if entry['kind']=='mixture':validate_mixture(name,registry,allow_acceptance=allow_acceptance)
     sources={};loaded={};samples=[];ids=set();splits={};forbidden=set(forbidden_hashes)
     def load(source):
         if source not in loaded:
@@ -49,7 +52,8 @@ def build_manifest(arm,refs,*,registry,base_revision,initialization_revision,for
         return loaded[source]
     for ref in refs:
         source=str(Path(ref['run']).resolve());child=ref['child_id']
-        if child!='base' and child not in registry:raise ValueError('non-bank target in data')
+        if child!='base' and child not in registry:raise ValueError('target absent from audited registry')
+        if child!='base' and arm=='MVD' and registry[child]['kind']!='bank':raise ValueError('MVD requires bank-only targets')
         if ref['split'] not in {'train','val'} or ref['pair_id'] in ids:raise ValueError('duplicate pair ID or invalid split')
         ids.add(ref['pair_id'])
         rows,cfg,_=load(source)

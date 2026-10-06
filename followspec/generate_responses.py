@@ -44,6 +44,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('base-snapshot','base-id','base-revision','prompts','tokenizer','tokenizer-revision','output'):
         p.add_argument('--'+key,required=True)
+    p.add_argument('--target-registry',help='audited local B3 mixtures; no change to ordinary bank resolution')
     p.add_argument('--derivative-id',default='base');p.add_argument('--pool');p.add_argument('--downloads');p.add_argument('--filter-run')
     p.add_argument('--prompt-target',default='base',help='bank origin of Magpie prompts; may differ for PO-D base responses')
     p.add_argument('--rendered-inputs',help='B5 shared rendered training bundle; identical inputs for child and PO-D controls')
@@ -57,13 +58,18 @@ def main():
     a=p.parse_args();a.adapter=None;a.adapter_revision=None
     if not re.fullmatch('[a-f0-9]{40}',a.base_revision) or Path(a.base_snapshot).name!=a.base_revision:raise ValueError('pin local base snapshot')
     if not re.fullmatch('[a-f0-9]{40}',a.tokenizer_revision) or Path(a.tokenizer).name!=a.tokenizer_revision:raise ValueError('pin local tokenizer snapshot')
-    target,adapter,row=resolve_target(a)
+    if a.target_registry and a.derivative_id!='base':
+        from followspec.mixture_targets import registry_row
+        row=registry_row(a.target_registry,a.derivative_id,a.base_snapshot,a.base_id,a.base_revision,allow_acceptance=a.acceptance_smoke)
+        target,adapter=a.base_snapshot,row['local_adapter']
+    else:target,adapter,row=resolve_target(a)
     if a.derivative_id!='base':
-        if row['pool']!='bank' or row['type']!='lora_adapter':raise ValueError('only bank adapters may generate training data')
-        if not a.filter_run:raise ValueError('A2 filter proof required')
-        root=Path(a.filter_run);fc=json.loads((root/'config.json').read_text());ft=json.loads((root/'target_provenance.json').read_text())
-        if fc['derivative_id']!=a.derivative_id or ft['revision']!=row['revision'] or not json.loads((root/'results.json').read_text()).get('accepted'):
-            raise ValueError('wrong or rejected A2 target')
+        if row['pool'] not in {'bank','mixture'} or row['type']!='lora_adapter':raise ValueError('only bank or admitted mixture targets may generate training data')
+        if row['pool']=='bank':
+            if not a.filter_run:raise ValueError('A2 filter proof required')
+            root=Path(a.filter_run);fc=json.loads((root/'config.json').read_text());ft=json.loads((root/'target_provenance.json').read_text())
+            if fc['derivative_id']!=a.derivative_id or ft['revision']!=row['revision'] or not json.loads((root/'results.json').read_text()).get('accepted'):
+                raise ValueError('wrong or rejected A2 target')
         hashes=verify_inputs(row,adapter,a.tokenizer,a.tokenizer_revision)
     else:
         if Path(a.tokenizer)!=Path(a.base_snapshot) or a.tokenizer_revision!=a.base_revision:raise ValueError('base tokenizer must match base')
@@ -77,7 +83,11 @@ def main():
             base_tokenizer_sha256=sha256(Path(a.base_snapshot)/'tokenizer.json'),prompt_sha256=sha256(a.prompts))
         rendering=json.loads((Path(a.rendered_inputs).parent/'config.json').read_text())
         if rendering.get('acceptance_only') and not a.acceptance_smoke:raise ValueError('acceptance rendering cannot enter production')
-        if a.prompt_target!='base':
+        if a.prompt_target!='base' and a.target_registry:
+            from followspec.mixture_targets import registry_row
+            origin=registry_row(a.target_registry,a.prompt_target,a.base_snapshot,a.base_id,a.base_revision,allow_acceptance=a.acceptance_smoke)
+            if rendering['prompt_target_revision']!=origin['revision']:raise ValueError('wrong mixture prompt rendering pin')
+        elif a.prompt_target!='base':
             from argparse import Namespace
             _,_,origin=resolve_target(Namespace(**(vars(a)|dict(derivative_id=a.prompt_target))))
             if origin['pool']!='bank' or origin['type']!='lora_adapter':raise ValueError('prompt origin must be a bank adapter')
@@ -100,6 +110,8 @@ def main():
         engine_lock_sha256=sha256(Path(__file__).resolve().parents[1]/'atlas/env/requirements.lock'),
         rendered_input_provenance=rendering,
         hardware_policy='D-19 A40 production opt-in' if a.allow_a40_production else 'original H100/H200 production; bounded A40 smoke')
+    if a.target_registry:cfg['target_registry_sha256']=sha256(a.target_registry)
+    if row.get('mixture_registry'):cfg['mixture_registry']=row['mixture_registry']
     if a.filter_run:cfg['filter_results_sha256']=sha256(Path(a.filter_run)/'results.json')
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     unpaused()

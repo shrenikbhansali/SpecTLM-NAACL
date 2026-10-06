@@ -10,7 +10,8 @@ The rendering CLI, matched response controls, arm-set assembler and full data
 recipe below are separate B5 work, currently on codex/B5 and unmerged.
 Production requires B5/B6 operator
 verification, the final pool/recipe decisions and matched arm manifests. B3's
-mixture validation is unresolved; the current bank provider refuses mixtures.
+mixture builder passed D-20. Mixtures need immutable source/file provenance and
+the shared-training-general perplexity check before production admission.
 
 ## Inputs and audit
 
@@ -94,3 +95,40 @@ feature noise. These are builder acceptance runs, separate from M3.
 
 Every launch/capture/forward honors the active pause marker. Failed runs and
 source artifacts remain intact; retries use new directories.
+
+
+## Mixture inputs after D-20
+
+Add each B3 mixture as `kind: mixture`, its local `path`, `source_ids` (two or
+three registry bank IDs in concatenation order), SHA256 of all three files
+(`adapter_config.json`, `adapter_model.safetensors`, `mixture_manifest.json`),
+and `revision` equal to the mixture-manifest SHA256. This content revision is
+local provenance, not a Hub commit. The provider checks the original sources,
+weights, scale and rank cap; nested mixtures and test targets are refused.
+MVD always refuses a mixture target.
+
+Use `--target-registry REGISTRY.json` with `followspec.render_inputs`,
+`followspec.generate_responses`, or `atlas.generate_magpie` for a local mixture.
+Mixtures inherit the pinned base tokenizer/template. Generate paired base
+responses using the same rendered inputs, prompt target, registry and rank cap.
+The ordinary public-bank flags and their defaults remain unchanged.
+
+Production registry entries require an `admission` object naming a report
+folder and the SHA256 of its config/results. Build the report with
+`python -m followspec.mixture_targets --registry REGISTRY --mixture-id ID
+--mixture-filter-run RUN --bank-filter-runs BANK_RUNS.json
+--pool-manifest FROZEN_POOL.csv --output NEW_REPORT`.
+`BANK_RUNS.json` maps every frozen bank ID to its corresponding filter run.
+Run the existing `atlas.filter_pool` on one shared128-query reference selected
+from the B4 public **training general** pool for the bank and each mixture.
+Its `--adapter`/`--adapter-revision` inputs support local mixtures. The A2
+SPEED reference cannot stand in for this training-general check. Admission
+recomputes PPL from all per-prompt records and requires mixture PPL no higher
+than the worst real bank child's; all reference tokens, model pins and scoring
+controls must match. A changed report, source, or failed bound is rejected.
+
+Only bounded acceptance paths may use an explicitly `acceptance_only: true`
+mixture before this PPL step. They remain acceptance-only in generated data;
+the production trainer refuses them. `FrozenAdapterBank(...,
+allow_acceptance=True)` is reserved for those bounded native tests. It does
+not change the production launch default.

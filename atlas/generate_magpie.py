@@ -64,7 +64,8 @@ def verify_inputs(row, adapter, tokenizer, tokenizer_revision):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--derivative-id',required=True);p.add_argument('--pool-manifest',required=True)
+    p.add_argument('--derivative-id',required=True)
+    origin=p.add_mutually_exclusive_group(required=True);origin.add_argument('--pool-manifest');origin.add_argument('--target-registry')
     p.add_argument('--target',required=True);p.add_argument('--revision',required=True)
     p.add_argument('--adapter');p.add_argument('--tokenizer',required=True);p.add_argument('--tokenizer-revision',required=True)
     p.add_argument('--family',choices=['llama','qwen3'],required=True)
@@ -77,13 +78,18 @@ def main():
     args=p.parse_args()
     for value in (args.revision,args.tokenizer_revision):
         if not re.fullmatch('[a-f0-9]{40}',value):raise ValueError('model/tokenizer revisions must be SHA pins')
-    csv.field_size_limit(max(csv.field_size_limit(),16*1024**2))
-    with open(args.pool_manifest) as f:rows=list(csv.DictReader(f))
-    matches=[r for r in rows if r['model_id']==args.derivative_id]
-    if len(matches)!=1:raise ValueError('derivative must occur exactly once in pool manifest')
-    row=matches[0]
-    if row['exclusion']:raise ValueError('excluded derivative')
-    if args.split=='training' and row['pool']!='bank':raise ValueError('training prompts require a bank derivative')
+    if args.target_registry:
+        from followspec.mixture_targets import registry_row
+        row=registry_row(args.target_registry,args.derivative_id,args.tokenizer,args.target,args.revision,allow_acceptance=args.acceptance_smoke)
+        if Path(args.adapter or '').resolve()!=Path(row['local_adapter']):raise ValueError('mixture adapter path differs from registry')
+    else:
+        csv.field_size_limit(max(csv.field_size_limit(),16*1024**2))
+        with open(args.pool_manifest) as f:rows=list(csv.DictReader(f))
+        matches=[r for r in rows if r['model_id']==args.derivative_id]
+        if len(matches)!=1:raise ValueError('derivative must occur exactly once in pool manifest')
+        row=matches[0]
+        if row['exclusion']:raise ValueError('excluded derivative')
+    if args.split=='training' and row['pool'] not in {'bank','mixture'}:raise ValueError('training prompts require a bank derivative')
     if not args.adapter and (args.target!=row['model_id'] or args.revision!=row['revision']):
         raise ValueError('target must match pinned derivative')
     if args.adapter and (args.target!=row['base_id'] or args.revision!=row['base_revision']):
@@ -98,8 +104,9 @@ def main():
         hardware_policy='D-19 A40 production opt-in' if args.allow_a40_production else 'original H100/H200 production; bounded A40 smoke',
         magpie_revision=MAGPIE_REV,recipe='magpie-llama3.1-8b.sh' if args.family=='llama' else 'magpie-qwen2-7b.sh',
         deviations=['Derivative template replaces hard-coded upstream prefix','No optional de-markdown logits processor; length/exact/MinHash filtering applied'],
-        pool_sha256=file_hash(args.pool_manifest),forbidden_sha256={p:file_hash(p) for p in args.forbidden_files},
+        pool_sha256=file_hash(args.pool_manifest or args.target_registry),forbidden_sha256={p:file_hash(p) for p in args.forbidden_files},
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
+    if args.target_registry:config['mixture_registry']=row['mixture_registry']
     if args.dry_run:print(json.dumps(config,indent=2));return
     unpaused()
     if importlib.metadata.version('vllm')!=config['engine_version']:raise ValueError('engine differs from pin')
