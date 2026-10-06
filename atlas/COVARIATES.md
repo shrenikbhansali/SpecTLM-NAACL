@@ -1,7 +1,7 @@
 # B8 paired covariates
 
 Use the pinned vLLM0.31.0 A10 cell on the derivative's own64 B4 evaluation
-prompts as the generation source. Add `--capture-prompt-token-ids` to B2
+prompts as the generation source. Add `--use-prompt-token-ids --capture-prompt-token-ids` to B2
 `atlas.run_cell`. This optional flag saves the actual engine context tokens;
 all historical defaults and metrics are unchanged. Keep the same rendered
 prompt file for matched A00/A10. A6 preparation checks the prompt hash and
@@ -62,3 +62,9 @@ their assistant masks for every new data path before downstream use.
 Outputs are new directories with config, per-prompt metrics, weight covariates,
 results/runtime, quantization backend details where applicable, and a pilot
 ledger draft. The operator assigns a ledger ID and verifies acceptance.
+
+Use `atlas.workloads render-evaluation --capture-rendered-token-ids` when
+rendering new B4 evaluation files. This adds a distinct `rendered_token_ids`
+field using `add_special_tokens=False`; the original `token_ids` still denotes
+the raw query. Exact B2 input mode refuses raw query IDs. Older rendered files
+must be regenerated from their original raw queries into a new output directory.

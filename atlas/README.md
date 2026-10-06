@@ -7,9 +7,9 @@ The source pin is `atlas/env/engine.json`; the resolved freeze is committed only
 
 `python -m atlas.run_cell --target MODEL --target-revision SHA --drafter MODEL --drafter-revision SHA --method eagle3 --K 4 --prompts prompts.jsonl --output /absolute/WS/artifacts/UNIQUE_RUN --dry-run` prints the configuration without creating artifacts. Remove `--dry-run` only after the owner removes the experiment pause marker. Existing output directories are refused.
 
-Prompts are JSONL with unique `prompt_id` and already-rendered `prompt` strings. They are passed directly to `LLM.generate`, matching the historical GSM8K path. Do not double-apply chat templates. Qwen3 workloads must be rendered in non-thinking mode by the workload builder. Default generation length is 512, as specified in MASTER; the old script default was 128, so golden comparisons must explicitly match the historical artifact's setting.
+Prompts are JSONL with unique `prompt_id` and already-rendered `prompt` strings. The historical default passes text directly to `LLM.generate`; it remains unchanged. **B4 rendered workloads must use `--use-prompt-token-ids`** to forward their saved `rendered_token_ids` exactly: text retokenization can insert a duplicate BOS token. Missing/invalid IDs fail before launch, and engine-returned context IDs must match exactly. Add `--capture-prompt-token-ids` for B8 provenance. Never double-apply chat templates. Qwen3 workloads must be rendered in non-thinking mode by the workload builder. Default generation length is512, as specified in MASTER; golden comparisons explicitly match historical artifact settings.
 
-An adapter cell additionally takes `--adapter /pinned/local/path --adapter-revision PROVENANCE_ID`; every adapter file is hashed. Full model and drafter revisions must be 40-character SHA pins. Batch size is logged and must match across controls. The engine gets explicit target LoRA requests.
+An adapter cell additionally takes `--adapter /pinned/local/path --adapter-revision PROVENANCE_ID`; every adapter file is hashed. Full model and drafter revisions must be 40-character SHA pins. Batch size is logged and must match across controls. The engine gets explicit target LoRA requests. For matched base A00 controls of LoRA A10 cells, pass `--enable-lora` and the same `--max-lora-rank` to both cells. The flag enables engine LoRA support without requesting an adapter on the base. Without it, historical adapter-dependent behavior is unchanged. Effective `enable_lora` and the explicit request are recorded separately in both configs; do not infer this setting from max rank alone.
 
 ## Metrics
 
@@ -28,3 +28,9 @@ Collect base, identical repeat, child LoRA, same child merged, EAGLE-v1, and DFl
 The checker reports the historical base (3.0559), repeat difference versus 0.0138, signed child drift versus -0.248, LoRA/merge parity versus the observed repeat difference, and all timings. It does not invent a numeric tolerance for “similar size”; the operator must review that phrase in MASTER. DFlash's trained block size is read from the model config and saved alongside configured K; the pinned engine validates supported settings.
 
 Source contracts were checked against upstream vLLM v0.31.0 `outputs.py`, `v1/metrics/stats.py`, `engine/arg_utils.py`, `config/speculative.py`, and `config/observability.py` at https://github.com/vllm-project/vllm/tree/v0.31.0/vllm . This is not GPU validation.
+
+Use `atlas.workloads render-evaluation --capture-rendered-token-ids` when
+rendering new B4 evaluation files. This adds a distinct `rendered_token_ids`
+field using `add_special_tokens=False`; the original `token_ids` still denotes
+the raw query. Exact B2 input mode refuses raw query IDs. Older rendered files
+must be regenerated from their original raw queries into a new output directory.

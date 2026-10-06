@@ -41,6 +41,20 @@ def load_prompts(path):
     return rows
 
 
+def engine_prompts(rows,use_token_ids=False):
+    if not use_token_ids:return [r['prompt'] for r in rows]
+    result=[]
+    for row in rows:
+        ids=row.get('rendered_token_ids')
+        if not isinstance(ids,list) or not ids or any(type(i) is not int or i<0 for i in ids):
+            raise ValueError('explicit token input requires nonempty integer rendered_token_ids; raw token_ids are not chat context')
+        result.append({'prompt_token_ids':list(ids)})
+    return result
+
+
+def lora_enabled(adapter,explicit=False):return bool(adapter) or bool(explicit)
+
+
 def metrics(accepted, drafted, k):
     if not accepted or len(accepted)!=len(drafted): raise ValueError('missing or mismatched per-step counters')
     if any(type(a) is not int or type(d) is not int or not 0 <= a <= d <= k or d==0 for a,d in zip(accepted,drafted)):
@@ -121,6 +135,8 @@ def parser():
     p.add_argument('--gpu-memory-utilization',type=float,default=0.75)
     p.add_argument('--max-lora-rank',type=int,default=64)
     p.add_argument('--capture-prompt-token-ids',action='store_true',help='save engine prompt IDs for exact offline covariates')
+    p.add_argument('--use-prompt-token-ids',action='store_true',help='use saved rendered_token_ids without text retokenization')
+    p.add_argument('--enable-lora',action='store_true',help='enable LoRA engine setting on a matched base/control cell')
     p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
     return p
 
@@ -132,10 +148,12 @@ def main():
     if min(a.K,a.batch_size,a.max_new_tokens,a.max_model_len)<=0: raise ValueError('positive counts required')
     if not 0 < a.gpu_memory_utilization < 1: raise ValueError('GPU memory fraction must be between 0 and 1')
     prompts=load_prompts(a.prompts)
+    engine_prompts(prompts,a.use_prompt_token_ids)  # Validate before engine startup or artifact creation.
     engine=json.loads((ROOT/'atlas/env/engine.json').read_text())
     cfg=vars(a).copy();cfg.pop('dry_run');cfg.update(engine_version=engine['vllm_version'],temperature=0.0,
         top_p=1.0,prompt_sha256=sha256(a.prompts),n=len(prompts),dtype='bfloat16',enable_prefix_caching=False,
-        per_request_spec_decode_metrics='detailed',metric_definition='1 + accepted draft tokens / speculative steps; macro over prompts')
+        per_request_spec_decode_metrics='detailed',metric_definition='1 + accepted draft tokens / speculative steps; macro over prompts',
+        enable_lora_requested=a.enable_lora,enable_lora=lora_enabled(a.adapter,a.enable_lora))
     cfg['code_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     cfg['code_dirty']=bool(subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip())
     cfg['source_sha256']=sha256(__file__)
@@ -167,7 +185,7 @@ def main():
             dtype='bfloat16',trust_remote_code=False,seed=a.seed,disable_log_stats=False,
             enable_prefix_caching=False,max_model_len=a.max_model_len,
             gpu_memory_utilization=a.gpu_memory_utilization,
-            enable_lora=bool(a.adapter),max_lora_rank=a.max_lora_rank,
+            enable_lora=cfg['enable_lora'],max_lora_rank=a.max_lora_rank,
             per_request_spec_decode_metrics='detailed',
             speculative_config={'model':a.drafter,'revision':a.drafter_revision,
                 'method':a.method,'num_speculative_tokens':a.K})
@@ -181,10 +199,12 @@ def main():
         with (out/'per_prompt.jsonl').open('x') as f:
             for i in range(0,len(prompts),a.batch_size):
                 ensure_unpaused();batch=prompts[i:i+a.batch_size]
-                t=time.perf_counter();outputs=llm.generate([r['prompt'] for r in batch],sampling,use_tqdm=False,**kwargs)
+                t=time.perf_counter();outputs=llm.generate(engine_prompts(batch,a.use_prompt_token_ids),sampling,use_tqdm=False,**kwargs)
                 wall=time.perf_counter()-t;generation_wall+=wall
                 if len(outputs)!=len(batch): raise RuntimeError('engine omitted outputs')
                 for record,output in zip(batch,outputs):
+                    if a.use_prompt_token_ids and list(output.prompt_token_ids)!=record['rendered_token_ids']:
+                        raise RuntimeError('engine changed explicit prompt token IDs')
                     if len(output.outputs)!=1: raise RuntimeError('one completion required')
                     completion=output.outputs[0]
                     raw=completion.spec_decode_metrics
