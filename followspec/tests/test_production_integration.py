@@ -95,3 +95,48 @@ def test_changed_generation_recipe_and_changed_stage_are_refused(tmp_path,monkey
     assert not (tmp_path/'refused').exists()
     (plan/'assignment.json').write_text('{}')
     with pytest.raises(ValueError,match='stage changed'):checked_stage(plan)
+
+
+def test_response_job_pairs_share_rendering_seed_and_rank_but_use_correct_templates(tmp_path,monkeypatch):
+    """Isolate CLI construction; quota logic is tested on the full33+30 fixture."""
+    from followspec.production_pipeline import responses
+    import followspec.production_pipeline as pipeline
+    staging=tmp_path/'staging.csv';staging.write_text('fixture provenance')
+    general=tmp_path/'general.jsonl';validation=tmp_path/'val.jsonl';forbidden=tmp_path/'eval.jsonl'
+    q=dict(prompt_id='g',prompt='Training general',split='training')
+    val=dict(prompt_id='v',prompt='Held-out training validation',split='training')
+    mag=dict(prompt_id='m',prompt='Own Magpie query',split='training',derivative_id='c',revision='b'*40)
+    jsonl(general,[q,val]);jsonl(validation,[val]);jsonl(forbidden,[dict(prompt_id='e',prompt='Public evaluation')])
+    base=str(tmp_path/('a'*40));own=str(tmp_path/('b'*40))
+    spec=dict(seed=101,base_id='base',base_snapshot=base,base_revision='a'*40,python=sys.executable,
+        code_repo=str(tmp_path/'repo'),staging_manifest=str(staging),downloads=str(tmp_path/'downloads.jsonl'),
+        general_prompts=str(general),forbidden_files=[str(forbidden)],max_lora_rank=128)
+    prepared=tmp_path/'prepared';prepared.mkdir()
+    write_new(prepared/'bank_metadata.json',{'c':dict(tokenizer=own,tokenizer_revision='b'*40,filter_run='/A2/accepted')})
+    finish(prepared,dict(stage='prepare',spec=spec),{})
+    admission=tmp_path/'admission';admission.mkdir()
+    write_new(admission/'registry.json',{'c':dict(kind='bank',path=own,revision='b'*40,files_sha256={'adapter_config.json':'hash'})})
+    finish(admission,dict(stage='admit',plan=str(prepared),spec=spec),dict(ready=True))
+    magdir=tmp_path/'magpie';magdir.mkdir();jsonl(magdir/'prompts.jsonl',[mag])
+    write_new(magdir/'config.json',dict(derivative_id='c',split='training',acceptance_only=False,
+        pool_sha256=sha256(staging),revision='a'*40,count=500))
+    paths=tmp_path/'paths.json';write_new(paths,{'c':str(magdir/'prompts.jsonl')})
+    assignment=dict(queries={'c':[mag|dict(role='child',kind='magpie')], 'base':[q|dict(role='parent',kind='general')]},counts={})
+    monkeypatch.setattr(pipeline,'allocate_queries',lambda *a,**kw:assignment)
+    out=responses(str(admission),str(paths),str(validation),str(tmp_path/'responses'),[])
+    commands=read(out/'render_commands.json')
+    bank_render=next(c for c in commands if c[c.index('--derivative-id')+1]=='c')
+    assert bank_render[bank_render.index('--tokenizer')+1]==own
+    jobs=[json.loads(s) for s in (out/'jobs.jsonl').read_text().splitlines()]
+    paired=[]
+    for j in jobs:
+        cmd=j['args'][j['args'].index('--')+1:]
+        assert '--allow-a40-production' in cmd and '--acceptance-smoke' not in cmd
+        if cmd[cmd.index('--prompt-target')+1]=='c':paired.append(cmd)
+    assert len(paired)==2
+    for key in ['--rendered-inputs','--prompts','--seed','--max-lora-rank']:
+        assert paired[0][paired[0].index(key)+1]==paired[1][paired[1].index(key)+1]
+    for cmd in paired:
+        target=cmd[cmd.index('--derivative-id')+1]
+        assert cmd[cmd.index('--tokenizer')+1]==(base if target=='base' else own)
+        assert cmd[cmd.index('--filter-run')+1]=='/A2/accepted'

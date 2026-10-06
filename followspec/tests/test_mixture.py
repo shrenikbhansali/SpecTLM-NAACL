@@ -78,4 +78,3 @@ def test_mixed_dtypes_and_rank_patterns(tmp_path):
         alpha=9 if module.endswith('q_proj') else 6
         expected=alpha/(3**0.5)*t[module+'.lora_B.weight'].float()@t[module+'.lora_A.weight'].float()
         torch.testing.assert_close(update,expected,atol=2e-6,rtol=1e-5)
-
