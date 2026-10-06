@@ -30,7 +30,8 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | `notes/OPERATOR.md` | Claude Code's running state: jobs, queue, open incidents | Claude Code |
 | `reports/YYYY-MM-DD.md` | Daily report for the owner, ready by 7:00 am ET | Claude Code |
 | `reports/GATE-<n>.md` | Gate evidence reports | Claude Code |
-| `$WS/artifacts/<run_id>/` | Every run's config, per-prompt records, results | The job itself |
+| `$WS/artifacts/<run_id>/` | Every run's config, per-prompt records, results (per site; never in git) | The job itself |
+| `sites/` (`README.md`, `heck.env`, `ice.env`) | Repository protocol, per-site paths and launchers (heck-srv, ICE) | Operator; owner fills `ice.env` |
 | Ledger (`docs/research/experiments/`, `03_ALL_EXPERIMENTS.md`) | Formal record, `EXP-ATL-NNN` entries | Claude Code drafts; owner promotes |
 
 ### 0.3 Update rules (progress tracking)
@@ -82,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 23:21 ET (claude-ops) |
+| Last updated | 2026-10-05 23:53 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
 | Next gate | Gate 1 **PASSED** (§13 D-08, vLLM 0.31.0; fresh compile per cell D-14). Next: Gate 2 (verification, Wed noon). Per D-15, downstream work starts as soon as dependencies pass |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
 | Jobs running | A1 wave 4: 10 fresh-compile child repeats (claude-ops, 22:05, A40 heck-srv2/5), testing the Gate 1 child-noise attribution. B1 staging finished ~20:40 (200/200). codex-1 active again from 21:55 (audit, B1 fixes) |
 | Blockers | Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue). B11 blocked on EAGLE 3.1 recipe/data gaps (notes/B11.md) |
-| Owner action needed | (L) **A00/A10 engine-setting mismatch (decide before Wed 9 am protocol freeze):** `atlas/run_cell.py` enables LoRA only when an adapter is given, so base A00 cells run with LoRA off and LoRA-derivative A10 cells with LoRA on (compiled graphs differ). AGENTS rule 3 asks for identical settings. Measured effect so far is small (child s0 LoRA vs merged fresh means −0.0045, ≈1.2 SE) but untested directly. Options: (a) add a `--enable-lora` flag (default unchanged) and run A00 with LoRA enabled whenever its A10 is a LoRA cell; (b) keep as is and state it. Operator recommends (a); it needs codex-1 (eval code) before the freeze. (Operator error: B2 verification and EXP-ATL-001 had claimed LoRA was on everywhere; errata added.) (M) **Magpie degenerate outputs (before A3):** in B4's smoke, `INSAIT-Institute/Llama3.1-8B-MixAT` returned the refusal "Sorry, I can't do that." for 64/80 query generations, and other outputs embed an assistant answer in the user turn; filters don't catch these. Decide how A3 treats such derivatives (e.g., general-set-only evaluation for derivatives whose own-domain workload falls below 64 valid prompts, vs keep and flag). notes/B4.md. (H) **Dedicated H200s (heck-srv6) are fully occupied by another user** (`aavsian3`, 8 processes, ~131 GB per GPU at 22:39); A9 (Fri) needs exclusive use. (G1) Gate 1 follow-ups (reports/GATE-1.md): choose the atlas noise floor (base 512-tok fresh-compile SD 0.0029 / range 0.0086, n=20; LoRA A10 cells vary more, SD 0.0080, n=5, so replicate LoRA cells or use type-specific floors) and DFlash replication in A7. (1) **B3 bf16 validation (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.3125/0.375/0.3125 in logits, failing codex-1's pre-set atol 0.125; in fp32 all cases match within 9.1e-5. A single real adapter vs its own bf16 merge already differs by 0.28125. **Correction (22:08):** the rule the operator suggested earlier (mixture error ≤ single-adapter control) would still **fail** this evidence (0.3125 and 0.375 > 0.28125), so it does not unblock M1. The operator withdraws it as a default and proposes none chosen after seeing results. A revised validation protocol is the owner's decision. Evidence: notes/B3.md, notes/BUILD-AUDIT-20261005.md item 3. (2) **Shared storage `/home/heck2`: 1.5 TB free (99%) at 22:00** after B1 staged both sampled pools (~2.2 TB); B1 bank staging and B5 feature capture still need space (B5 needs a storage estimate before running). (3) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
+| Owner action needed | (L) **A00/A10 engine-setting mismatch (decide before Wed 9 am protocol freeze):** `atlas/run_cell.py` enables LoRA only when an adapter is given, so base A00 cells run with LoRA off and LoRA-derivative A10 cells with LoRA on (compiled graphs differ). AGENTS rule 3 asks for identical settings. Measured effect so far is small (child s0 LoRA vs merged fresh means −0.0045, ≈1.2 SE) but untested directly. Options: (a) add a `--enable-lora` flag (default unchanged) and run A00 with LoRA enabled whenever its A10 is a LoRA cell; (b) keep as is and state it. Operator recommends (a); it needs codex-1 (eval code) before the freeze. (Operator error: B2 verification and EXP-ATL-001 had claimed LoRA was on everywhere; errata added.) (M) **Magpie degenerate outputs (before A3):** in B4's smoke, `INSAIT-Institute/Llama3.1-8B-MixAT` returned the refusal "Sorry, I can't do that." for 64/80 query generations, and other outputs embed an assistant answer in the user turn; filters don't catch these. Decide how A3 treats such derivatives (e.g., general-set-only evaluation for derivatives whose own-domain workload falls below 64 valid prompts, vs keep and flag). notes/B4.md. (H) **Dedicated H200s (heck-srv6) are fully occupied by another user** (`aavsian3`, 8 processes, ~131 GB per GPU at 22:39); A9 (Fri) needs exclusive use. (G1) Gate 1 follow-ups (reports/GATE-1.md): choose the atlas noise floor (base 512-tok fresh-compile SD 0.0029 / range 0.0086, n=20; LoRA A10 cells vary more, SD 0.0080, n=5, so replicate LoRA cells or use type-specific floors) and DFlash replication in A7. (1) **B3 bf16 validation (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.3125/0.375/0.3125 in logits, failing codex-1's pre-set atol 0.125; in fp32 all cases match within 9.1e-5. A single real adapter vs its own bf16 merge already differs by 0.28125. **Correction (22:08):** the rule the operator suggested earlier (mixture error ≤ single-adapter control) would still **fail** this evidence (0.3125 and 0.375 > 0.28125), so it does not unblock M1. The operator withdraws it as a default and proposes none chosen after seeing results. A revised validation protocol is the owner's decision. Evidence: notes/B3.md, notes/BUILD-AUDIT-20261005.md item 3. (2) **Shared storage `/home/heck2`: 1.5 TB free (99%) at 22:00** after B1 staged both sampled pools (~2.2 TB); B1 bank staging and B5 feature capture still need space (B5 needs a storage estimate before running). (3) **ICE cluster (H100/H200):** repo pushed to GitHub (`SpecTLM-NAACL`, D-18). Clone on ICE, fill `sites/ice.env` (workspace, HF cache, account, partition, GRES), build the env from the lock and run one golden smoke cell (`sites/README.md`). M2 (Tue) and M3 (Wed) run there. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
 
 ---
 
@@ -666,9 +667,10 @@ every session:
 
 - **Critical path first:** M1 → M2 → M3 → M4 (Gate 3 depends on it), then A4,
   A7, A6, A5, then P1 (M5, M6, M7, A8, A9), then P2.
-- **Placement:** 40 A40s for A1–A8 inference and covariates; cluster
-  H100/H200s for M2 data generation, all training, and evaluation of trained
-  drafters; the 4 dedicated H200s for A9 timing only, with no other jobs.
+- **Placement:** 40 A40s (site `heck`) for A1–A8 inference and covariates; the ICE
+  cluster's H100/H200s (site `ice`) for M2 data generation, all training, and evaluation
+  of trained drafters; the 4 dedicated H200s (heck-srv6) for A9 timing only, with no
+  other jobs. Never mix GPU types within one comparison (`sites/README.md`).
 - **Jobs are idempotent and resumable.** One run ID per job:
   `<task>-<base>-<drafter>-k<K>-s<seed>-<YYYYMMDDHHMM>`. Never overwrite an
   artifact directory; replicates get new IDs.
@@ -781,9 +783,11 @@ Each session ends with a **Handoff** entry.
 
 ### 10.3 Git
 
-Codex works on `codex/<TASK-ID>` and merges after tests pass. The operator's
-small fixes go on `claude/fix-<id>`. Commit messages start with the task ID.
-Every run records the commit it ran from.
+Remote `origin` = `https://github.com/shrenikbhansali/SpecTLM-NAACL` (private), shared by every site (§13 D-18). One
+`main` holds code, this file, notes, ledger and reports for all sites; site differences live only in `sites/<site>.env`
+(protocol in `sites/README.md`). Pull with rebase before editing shared files and push right after committing. Codex
+works on `codex/<TASK-ID>` and merges after tests pass; the operator's small fixes go on `claude/fix-<id>`; both push
+their branches. Commit messages start with the task ID. Every run records the commit and the pushed `run-*` tag it ran from.
 
 ---
 
@@ -930,6 +934,7 @@ citing where it was stated.*
 | D-15 | 2026-10-05 | Work as fast as possible: do not wait for gate calendar dates or another "continue"; advance as soon as dependency checks pass. Failed acceptance tests are not waived and thresholds are unchanged. Owner to codex-1 (notes/B2.md, 22:11 entry). Entered by claude-ops | Decided |
 | D-16 | 2026-10-05 | A2 coherence filter (FIX-1) degeneracy criterion: flag an answer if it is empty, ends immediately, or one repeated 4-gram covers **strictly more than 50%** of its generated token positions (alongside MASTER's PPL ≤ 2× base and 10-prompt check). Owner reply to codex-1: "Approve the 50% repeated-4-gram criterion" (notes/FIX-1.md 22:39; proposed before outputs were inspected). Entered by claude-ops | Decided |
 | D-17 | 2026-10-05 | Transport decomposition (B9/A8): label_shift = a(base features, child labels) − a(base, base); transport = a(child, child) − a(base, child); R = transport / (−label_shift), undefined when the denominator is 0. Owner approval to codex-1 (notes/B9.md 23:19). Entered by claude-ops | Decided |
+| D-18 | 2026-10-05 | Repository on GitHub, private `shrenikbhansali/SpecTLM-NAACL`; **one `main` plus per-site config** (`sites/heck.env`, `sites/ice.env`), no long-lived site branches; the ICE Slurm cluster (H100/H200) is the training/data-generation site. Owner answers to claude-ops in chat (2026-10-05 23:53 ET). Entered by claude-ops | Decided |
 
 ---
 

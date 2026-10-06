@@ -54,6 +54,9 @@ your journal.
    the journal, then claim another ready task.
 5. **Edit only your own rows** in MASTER.md. Pull and rebase first; commit
    small changes (`board: B2 review`).
+   The shared remote is `origin` (GitHub, private `SpecTLM-NAACL`); push after
+   every commit to main. Site paths and the multi-site protocol are in
+   `sites/README.md` (heck-srv and the ICE Slurm cluster share one `main`).
 6. **End every session with a Handoff entry** in your journal: current state,
    next step, open questions.
 7. The operator also keeps `notes/OPERATOR.md` (MASTER §8.8) and writes

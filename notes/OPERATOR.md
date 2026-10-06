@@ -3,6 +3,7 @@
 Newest information first under each heading. Layout defined in MASTER.md §8.8.
 
 ## Now
+- **Git remote (D-18):** `origin` = https://github.com/shrenikbhansali/SpecTLM-NAACL (private). After every fast-forward of main, also `git -C ../SpecTLM push origin main` (and tags). Push uses the gh credential helper (`condastuff/shallowspec/bin/gh`, account shrenikbhansali). Sites: `sites/README.md`.
 - Time (ET): 2026-10-05 20:48
 - Sprint day: Day 1 of 8 (Mon Oct 5)
 - Gate 1: report ready (`reports/GATE-1.md`, 18:32), recommends PASS; waiting on owner D-08 plus compile-cache/noise-floor decisions.
