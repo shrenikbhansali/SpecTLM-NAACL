@@ -12,7 +12,7 @@ from followspec.production import ARMS, launcher_job
 from followspec.production_pipeline import checked_stage, execution_spec, finish, jsonl, lines, new_output, read
 
 
-def evaluation_jobs(training, targets, output, *, python, code_repo=None):
+def evaluation_jobs(training, targets, output, *, python, code_repo=None, completed_only=False, previous=None):
     root, cfg = checked_stage(training)
     if cfg['stage'] != 'training-jobs' or read(root/'results.json').get('n_jobs') != 12:
         raise ValueError('complete twelve-job M3 plan required')
@@ -20,14 +20,18 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None):
     if sha256(final/'stage_files.json') != cfg['finalized_stage_sha256']:
         raise ValueError('finalized data stage changed')
     spec = execution_spec(cfg['spec'], code_repo or cfg['spec']['code_repo'])
-    checkpoints = []; evidence = {}; seen = set()
+    checkpoints = []; evidence = {}; seen = set(); pending = []
     for job in lines(root/'jobs.jsonl'):
         argv = job['args']; cmd = argv[argv.index('--')+1:]
         arm = cmd[cmd.index('--arm')+1]; seed = int(cmd[cmd.index('--seed')+1])
         if (arm, seed) in seen or arm not in ARMS or seed not in range(3):
             raise ValueError('duplicate or invalid M3 arm/seed')
         seen.add((arm, seed)); run = Path(cmd[cmd.index('--output')+1])
-        if not (run/'results.json').is_file() or list(run.glob('failure*.json')):
+        if list(run.glob('failure*.json')):
+            raise ValueError(f'completed M3 run required, failed run: {run}')
+        if not (run/'results.json').is_file():
+            if completed_only:
+                pending.append(dict(arm=arm,seed=seed,run=str(run)));continue
             raise ValueError(f'completed M3 run required: {run}')
         actual = read(run/'config.json'); result = read(run/'results.json')
         expected = read(final/arm/'training_config.json')
@@ -77,6 +81,18 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None):
                     not r.get('rendered_token_ids') or any(type(t) is not int or t<0 for t in r['rendered_token_ids']) for r in rows):
                 raise ValueError('unique exact rendered prompt tokens required')
             prompt_hashes[str(Path(path).resolve())] = sha256(path)
+    prior_records = {}; prior_jobs = []; previous_path = None
+    if previous is not None:
+        previous_path, previous_cfg = checked_stage(previous)
+        if previous_cfg['stage'] != 'evaluation-jobs' or previous_cfg['training'] != str(root):
+            raise ValueError('previous evaluation stage must use this training plan')
+        if previous_cfg['targets_sha256'] != sha256(targets) or previous_cfg['prompt_sha256'] != prompt_hashes:
+            raise ValueError('previous targets or prompt files changed')
+        for path,digest in read(previous_path/'checkpoint_inputs_sha256.json').items():
+            if evidence.get(path) != digest:
+                raise ValueError('previous checkpoint changed or is no longer complete')
+        prior_records = {r['run_id']:r for name in ('index_k4.json','index_k2_k8.json') for r in read(previous_path/name)}
+        prior_jobs = lines(previous_path/('effective_jobs.jsonl' if (previous_path/'effective_jobs.jsonl').exists() else 'jobs.jsonl'))
     # Do not choose workloads/targets based on observed checkpoint results.
     plan_spec = dict(base_id=spec['base_id'],base_revision=spec['base_revision'],targets=target_rows,
                      checkpoints=checkpoints,K=[4],evaluation_seed=0,max_new_tokens=512)
@@ -92,7 +108,17 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None):
         command += ['--use-prompt-token-ids','--batch-size','8','--gpu-memory-utilization','0.70']
         if target.get('adapter'):
             command += ['--enable-lora','--max-lora-rank',str(target['max_lora_rank'])]
+        prior = prior_records.get(record['run_id'])
+        if prior is not None:
+            # Only the immutable stage's output directory may differ.
+            wanted = [python,*command]; old = list(prior['argv'])
+            wanted[wanted.index('--output')+1] = old[old.index('--output')+1]
+            if wanted != old:
+                raise ValueError('previous cell controls or checkpoint identity changed')
+            record.clear();record.update(prior)
+            continue
         job = launcher_job(spec | dict(seed=0),record['run_id'],'M4',record['prompt_file'],command,python=python)
+        job['allowed_nodes']=[f'heck-srv{i}' for i in range(1,6)]
         args=job['args'];args[args.index('--drafter')+1]='eagle3';args[args.index('--k')+1]=str(record['K'])
         args[args.index('--target')+1]=command[ti];args[args.index('--target-rev')+1]=command[command.index('--target-revision')+1]
         extra=['--drafter-model',command[command.index('--drafter')+1],'--drafter-rev',command[command.index('--drafter-revision')+1]]
@@ -102,13 +128,18 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None):
         # The actual launcher path carries its own timestamp; per-cell artifacts retain B7 IDs.
         record['hardware_policy']='A40 only; D-26 training exemption does not apply'
         jobs.append(job)
+    if not set(prior_records) <= {r['run_id'] for r in primary+secondary}:
+        raise ValueError('previous evaluation cells lost from continuation')
     out=new_output(out)
+    jsonl(out/'effective_jobs.jsonl',prior_jobs+jobs)
     jsonl(out/'jobs.jsonl',jobs);write_new(out/'index_k4.json',primary);write_new(out/'index_k2_k8.json',secondary)
     write_new(out/'checkpoint_inputs_sha256.json',evidence)
     finish(out,dict(stage='evaluation-jobs',training=str(root),spec=spec,targets=str(Path(targets).resolve()),
         targets_sha256=sha256(targets),prompt_sha256=prompt_hashes,python=python,
+        completed_only=completed_only,previous=str(previous_path) if previous_path else None,
         analysis_versions={p:importlib.metadata.version(p) for p in ('numpy','scipy')}),
-        dict(n_jobs=len(jobs),n_primary=len(primary),n_secondary=len(secondary),submitted=False,
+        dict(n_jobs=len(jobs),n_effective_jobs=len(prior_jobs)+len(jobs),n_primary=len(primary),n_secondary=len(secondary),submitted=False,
+             training_complete=not pending,n_pending_training=len(pending),pending_training=pending,
              checkpoint_loadability='pending first vLLM cells',owner_gate_decision='pending',
              next='Preflight and dispatch to free A40s. Aggregate index_k4 with B7; K2/8 are separate FS/Frozen diagnostics.'))
     return out
@@ -117,8 +148,9 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('training','targets','output','python'):p.add_argument('--'+name,required=True)
-    p.add_argument('--code-repo');a=p.parse_args()
-    print(evaluation_jobs(a.training,a.targets,a.output,python=a.python,code_repo=a.code_repo))
+    p.add_argument('--code-repo');p.add_argument('--completed-only',action='store_true');p.add_argument('--previous')
+    a=p.parse_args()
+    print(evaluation_jobs(a.training,a.targets,a.output,python=a.python,code_repo=a.code_repo,completed_only=a.completed_only,previous=a.previous))
 
 
 if __name__=='__main__':main()

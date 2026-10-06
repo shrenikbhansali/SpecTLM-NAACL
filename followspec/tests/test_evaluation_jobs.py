@@ -39,6 +39,7 @@ def test_matched_lora_exact_tokens_and_requested_k_scope(tmp_path):
     assert {r['arm'] for r in secondary}=={'FS','Frozen'}
     index={r['run_id']:r for r in primary+secondary}
     for job in jobs:
+        assert job['allowed_nodes']==[f'heck-srv{i}' for i in range(1,6)]
         a=job['args'];split=a.index('--');cmd=a[split+1:];record=index[job['name']]
         assert cmd[0]=='/eval/python' and '--use-prompt-token-ids' in cmd
         assert '--allow-h200-training' not in a and a[a.index('--task')+1]=='M4'
@@ -116,3 +117,54 @@ def test_workloads_need_parent_retention_cells(tmp_path):
     spec['targets'][0]['workloads']={'other':str(tmp_path/'eval.jsonl')};targets.write_text(json.dumps(spec))
     with pytest.raises(ValueError,match='workload labels'):evaluation_jobs(training,targets,tmp_path/'eval',python='python')
     assert not (tmp_path/'eval').exists()
+
+
+def test_incremental_jobs_reuse_previous_cells_and_finish_full_matrix(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path);saved={}
+    for p in (training/'runs').glob('*/results.json'):
+        if p.parent.name!='m3-fs-s0':saved[p]=p.read_bytes();p.unlink()
+    first=evaluation_jobs(training,targets,tmp_path/'first',python='python',completed_only=True)
+    assert len((first/'jobs.jsonl').read_text().splitlines())==36
+    assert read(first/'results.json')['n_pending_training']==11
+    old={r['run_id']:r['run_dir'] for r in read(first/'index_k4.json')+read(first/'index_k2_k8.json')}
+    for p,data in saved.items():p.write_bytes(data)
+    second=evaluation_jobs(training,targets,tmp_path/'second',python='python',previous=first)
+    assert len((second/'jobs.jsonl').read_text().splitlines())==45
+    assert len((second/'effective_jobs.jsonl').read_text().splitlines())==81
+    assert read(second/'results.json')['training_complete'] is True
+    new={r['run_id']:r['run_dir'] for r in read(second/'index_k4.json')+read(second/'index_k2_k8.json')}
+    assert all(new[k]==v for k,v in old.items())
+
+
+def test_completed_only_can_prepare_frozen_reference_before_training_finishes(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path)
+    for p in (training/'runs').glob('*/results.json'):p.unlink()
+    out=evaluation_jobs(training,targets,tmp_path/'eval',python='python',completed_only=True)
+    assert len((out/'jobs.jsonl').read_text().splitlines())==27
+    assert {r['arm'] for r in read(out/'index_k4.json')}=={'Frozen'}
+    assert read(out/'results.json')['training_complete'] is False
+
+
+def test_incremental_mode_does_not_skip_failed_training(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path);run=training/'runs/m3-fs-s0';(run/'results.json').unlink();write_new(run/'failure.rank0.json',{})
+    with pytest.raises(ValueError,match='completed M3'):evaluation_jobs(training,targets,tmp_path/'eval',python='python',completed_only=True)
+
+
+def test_incremental_reuse_refuses_changed_checkpoint(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path)
+    first=evaluation_jobs(training,targets,tmp_path/'first',python='python')
+    (training/'runs/m3-fs-s0/checkpoints/0/model.safetensors').write_bytes(b'different fixture')
+    with pytest.raises(ValueError,match='checkpoint changed'):evaluation_jobs(training,targets,tmp_path/'second',python='python',previous=first)
+    assert not (tmp_path/'second').exists()
+
+
+def test_incremental_reuse_refuses_changed_prompts(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path)
+    first=evaluation_jobs(training,targets,tmp_path/'first',python='python')
+    (tmp_path/'eval.jsonl').write_text('{"prompt_id":"eval-1","prompt":"hi","rendered_token_ids":[3,4]}\n')
+    with pytest.raises(ValueError,match='prompt'):evaluation_jobs(training,targets,tmp_path/'second',python='python',previous=first)

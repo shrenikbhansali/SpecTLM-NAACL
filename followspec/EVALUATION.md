@@ -82,3 +82,22 @@ only FS/Frozen and must stay separate from the complete-arm Gate 3 aggregator.
 The owner still chooses the primary workload and makes the Gate 3 call; emitting
 jobs or reporting numerical criteria does not make that decision. The stage
 records NumPy/SciPy versions for the CPU planning/analysis environment.
+
+### Overlap evaluation with training
+
+Add `--completed-only` to prepare Frozen reference cells and any checkpoints
+whose M3 runs have finished. Pending runs are listed explicitly; failed runs are
+still refused. As more checkpoints finish, pass `--previous PREVIOUS_M4_STAGE`
+and a fresh output directory. The next stage rechecks prior checkpoint/prompt
+hashes and controls, retains earlier cell paths, and emits only new cells in
+`jobs.jsonl`. Its `effective_jobs.jsonl` and indexes cover the cumulative plan.
+No checkpoint is chosen by its score. `training_complete` remains false until
+all twelve runs have completed; B7 still rejects an incomplete Gate 3 matrix.
+
+Keep a single method dispatcher with `--owner method-M1 --exclusive-owner`.
+For overlapping M3/M4, combine the immutable training jobs with the latest
+cumulative M4 jobs and resume the same canonical launch log during an idle
+dispatcher interval; never submit a second method queue. M4 jobs carry
+`allowed_nodes` for heck-srv1–5. The queue skips incompatible jobs without
+removing them, so a free H200 can take a training job while evaluations stay on
+A40s. Jobs without `allowed_nodes` retain the existing FIFO behavior.
