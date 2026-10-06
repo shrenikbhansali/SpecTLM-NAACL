@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-06 05:36 ET (claude-ops) |
+| Last updated | 2026-10-06T17:53:26-04:00 (codex-1, authorized method operations) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
-| Next gate | Gate 2 (verification), Wed noon; protocol freeze Wed 9 am. Gate 1 PASSED (D-08). Gate 3 Thu 8 pm |
+| Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | A3 Qwen3 eval Magpie (68 jobs, FIX-5 oversampling, 13 A40s); A3 Llama bank training-prompt retries (3 of 9 left); codex-1 builder checks. M1 round 1 admitted 29 mixtures (D-29). Next: mixture prompts → M2 responses (after FIX-4 merge) |
-| Blockers | ICE down until Thu Oct 8 (D-19): all work on heck A40s (§3.2). FIX-4 integration of D-28/D-29 (codex) gates M2. B9 (transport validation failed) and B11 (recipe) blocked; B11/M7 deprioritized (D-26) |
-| Owner action needed | Open decisions resolved under owner delegation (§13 D-04–D-06, D-20–D-26, 2026-10-06 01:31). Remaining owner items: ARR registrations; fill `sites/ice.env` when ICE returns (Oct 8); Gate 3 call (Thu). |
+| Jobs running | Canonical M2 responses on available A40s, owned by codex-1. Use responses_retry1 overlay for assembly; original response_queue.log remains canonical. Do not start another dispatcher. M3 H200 bounded runtime check PASSED; production training awaits M2. |
+| Blockers | M3 needs completed M2 responses, matched assembly and decoded-mask review. Parent response retry recovers an operator duplicate-GPU launch; other responses continue. ICE unavailable; heck A40/H200 training authorized. B9 validation failed; B11/M7 deprioritized. |
+| Owner action needed | No operational approval needed to continue approved method stages. Gate 3 framing/primary-workload decision remains with owner when results are available; ARR registration/submission items remain. |
 
 ---
 
@@ -254,7 +254,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-9 | M3-to-M4 immutable job handoff: verify trained exports, preserve exact rendered tokens and paired LoRA controls, K4 all arms plus FS/Frozen K2/8; tests first | P0 | codex | B7, B6 | Tue | review | codex-1 / 2026-10-06T17:38:56-04:00 | [journal](notes/FIX-9.md); M3 export-to-M4 jobs/index integration, matched LoRA/exact-token controls;203 tests PASS including B7 roundtrip; [tests](artifacts/FIX7_integration_20261006/M4_final_tests.log); real M4 awaits M3 |
 
-| FIX-10 | Immutable M2 response retries preserving successful sources and exact generation controls | P0 | codex | M2 | Tue | in progress | codex-1 / 2026-10-06T17:47:50-04:00 | [journal](notes/FIX-10.md); parent job failed vLLM cache initialization; remaining response queue continues |
+| FIX-10 | Immutable M2 response retries preserving successful sources and exact generation controls | P0 | codex | M2 | Tue | review | codex-1 / 2026-10-06T17:53:40-04:00 | [journal](notes/FIX-10.md); immutable response retry + shared dispatcher owner lock;211 tests PASS; actual parent retry preflights PASS; [tests](artifacts/FIX7_integration_20261006/recovery_lock_final_tests.log); M2 queue continues |
 
 ---
 

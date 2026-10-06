@@ -36,6 +36,9 @@ your journal.
   launch/monitor the approved method data, training and evaluation jobs.
   Continue through ready stages without waiting for another user prompt.
   Check existing queues and journals first to prevent duplicate launches.
+  All method dispatchers must use `ops/queue.py --owner method-M1
+  --exclusive-owner`; resume the canonical launch log instead of starting a
+  second queue. The shared owner lock prevents concurrent method dispatchers.
 - **Claude Code is the operator.** Verify Codex's acceptance tests, launch and
   monitor jobs, triage crashes (MASTER §8.3), make small operational fixes on
   `claude/fix-<id>`, analyze outputs, draft ledger entries, keep MASTER §1 and
