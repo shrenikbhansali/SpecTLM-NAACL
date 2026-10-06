@@ -19,6 +19,12 @@ from followspec.mixture_targets import validate_mixture
 CONTROLS=('engine_version','base_revision','seed','temperature','top_p','max_new_tokens','max_lora_rank','batch_size','gpu_type')
 
 
+def layout_spec(name):
+    if name=='eagle_shift':return 1,'shifted sequence tokens'
+    if name=='dflash_raw':return 0,'raw sequence tokens'
+    raise ValueError('unknown native sequence layout')
+
+
 def response_run(path):
     path=Path(path).resolve()
     if (path/'failure.json').exists():raise ValueError('failed response source')
@@ -40,7 +46,8 @@ def response_run(path):
     return rows,cfg,provenance
 
 
-def build_manifest(arm,refs,*,registry,base_revision,initialization_revision,forbidden_hashes=(),allow_acceptance=False):
+def build_manifest(arm,refs,*,registry,base_revision,initialization_revision,forbidden_hashes=(),allow_acceptance=False,sequence_layout='eagle_shift'):
+    offset,unit=layout_spec(sequence_layout)
     if arm not in {'FS','MVD','PO-D','PO-T'} or not refs:raise ValueError('nonempty known arm required')
     if any(r.get('kind') not in {'bank','mixture'} for r in registry.values()):raise ValueError('only audited bank and mixture targets supported')
     for name,entry in registry.items():
@@ -90,7 +97,7 @@ def build_manifest(arm,refs,*,registry,base_revision,initialization_revision,for
     return dict(schema='followspec_online_tokens_v1',arm=arm,registry=registry,sources=sources,samples=samples,
         base_revision=base_revision,initialization_revision=initialization_revision,forbidden_prompt_hashes=sorted(forbidden),
         acceptance_only=any(s['acceptance_only'] for s in sources.values()),data_acceptance_passed=False,
-        token_budget=sum(r['length']-1 for r in train),token_budget_unit='shifted sequence tokens',
+        token_budget=sum(r['length']-offset for r in train),token_budget_unit=unit,sequence_layout=sequence_layout,
         assistant_loss_tokens=sum(r['assistant_tokens'] for r in train),optimizer_steps=None,
         parent_sample_share=sum(r['child_id']=='base' for r in train)/len(train) if train else None,
         status='assembled_pending_matched_budget_and_native_trainer_acceptance')
@@ -145,6 +152,8 @@ class OnlineResponseDataset(Dataset):
         if manifest['acceptance_only'] and not allow_acceptance:raise ValueError('acceptance-only dataset')
         if not math.isfinite(noise_std) or noise_std<0:raise ValueError('invalid shared noise')
         self.manifest=manifest;self.bank=bank;self.shift=shift;self.noise_std=noise_std;self.loaded={};self.stats={}
+        offset,unit=layout_spec(manifest.get('sequence_layout','eagle_shift'))
+        if manifest.get('token_budget_unit')!=unit:raise ValueError('token budget unit differs from native layout')
         for source,proof in manifest['sources'].items():
             for name,digest in proof['files_sha256'].items():
                 if sha256(Path(source)/name)!=digest:raise ValueError('response source changed')
@@ -157,7 +166,7 @@ class OnlineResponseDataset(Dataset):
             expected=route_arm(manifest['arm'],r['generation_target'],item['child_id'])
             if item['feature_target']!=expected or item['length']!=len(r['input_ids']) or item['prompt_sha256']!=r['prompt_sha256'] or item['assistant_tokens']!=sum(r['loss_mask']) or item['context_token_ids']!=r['prompt_token_ids']:
                 raise ValueError('manifest entry differs from source')
-        self.approx_lengths=[r['length']-1 for r in self.rows];self.hidden_states_dtype=torch.bfloat16
+        self.approx_lengths=[r['length']-offset for r in self.rows];self.hidden_states_dtype=torch.bfloat16
 
     def _view(self,item):
         rows,cfg,_=self.loaded[item['source']];r=rows[item['record_index']]
@@ -184,7 +193,10 @@ class OnlineResponseDataset(Dataset):
         if self.noise_std:
             noise=2*(torch.rand_like(raw['hidden_states'])-.5)*self.noise_std
             raw['hidden_states']=raw['hidden_states']+noise;raw['base_hidden_states']=raw['base_hidden_states']+noise
-        return dict(tensors=self.shift(raw),target_id=item['child_id'],sample_id=item['sample_id'])
+        tensors=self.shift(raw)
+        if 'lengths' in tensors and (int(tensors['lengths'].sum())!=self.approx_lengths[index] or len(tensors['input_ids'])!=self.approx_lengths[index]):
+            raise ValueError('transformed sequence length differs from native layout')
+        return dict(tensors=tensors,target_id=item['child_id'],sample_id=item['sample_id'])
 
 
 def main():
