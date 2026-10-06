@@ -170,7 +170,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:15:31-04:00 | [journal](notes/B1.md); 16 provisional adapters staged; full curation PIDs 199072/199073 |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T21:56:18-04:00 | [journal](notes/B1.md); resumed audit: 200 sampled downloads complete; format/architecture, bank staging, and similarity gaps remain |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B2.md); [six-cell acceptance](artifacts/B2_acceptance_20261005/acceptance_report.json); merged 8651954; 14 tests pass; operator re-run PASS with notes ([B2 journal](notes/B2.md)) |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B3.md); bf16 logit acceptance fails; fp32 diagnostics <1e-4; vLLM 16-prompt smoke passes |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T17:32:09-04:00 | [journal](notes/B4.md); owner authorized pause lift; preparing GPU acceptance |
