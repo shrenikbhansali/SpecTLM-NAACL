@@ -176,7 +176,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:18:01-04:00 | [journal](notes/B4.md); five bounded Magpie GPU checks running; PID449904/449927/450041/450058/450113 |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B6.md); 19 CPU tests and native loss composition pass; real overfit/export pending B5 |
-| B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | todo | | |
+| B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | in progress | codex-1 / 2026-10-05T22:24:51-04:00 | [journal](notes/B7.md); acceptance-first paired aggregation and eval planning |
 | B8 | Covariates pipeline | P0 | codex | B1 | Tue | todo | | |
 | B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
