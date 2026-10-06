@@ -51,8 +51,9 @@ This flag changes recomputation only; model parameters, masks, anchors, loss
 and optimizer settings remain fixed. It is refused for Eagle3's mutable cache
 path. Use all memory flags consistently across comparison arms and record them.
 
-`--serial-adamw` disables Torch AdamW foreach dispatch to avoid allocating
-optimizer temporaries for all parameters at once. Learning rate, betas, epsilon,
+`--serial-adamw` invokes native foreach kernels one parameter at a time to
+avoid allocating optimizer temporaries for all parameters at once. Public
+parameter groups are restored after each step, including on errors. Learning rate, betas, epsilon,
 weight decay and state precision remain unchanged; the explicit option is
 checked against foreach on pinned A40 Torch for exact weights/states. It does
 not disable a fused optimizer or support a different optimizer type.

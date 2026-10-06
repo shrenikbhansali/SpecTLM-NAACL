@@ -6,6 +6,7 @@ clipping, optimizer state or step order. Evaluation keeps last-step gradients.
 Install only on the pinned Trainer, not on a gradient-accumulating loop.
 """
 import torch
+from functools import wraps
 
 
 def release_grad_before_forward(trainer):
@@ -32,11 +33,21 @@ def checkpoint_dflash_layers(model):
 
 
 def serial_adamw(trainer):
-    """Avoid AdamW's all-parameter foreach temporaries with unchanged updates."""
+    """Run native foreach kernels tensorwise, restoring public parameter groups."""
     if not trainer.optimizers or any(not isinstance(opt,torch.optim.AdamW) for opt in trainer.optimizers):
         raise ValueError('serial AdamW requires the native AdamW optimizer')
     if any(group.get('fused') for opt in trainer.optimizers for group in opt.param_groups):
         raise ValueError('cannot change a fused optimizer implementation')
-    for opt in trainer.optimizers:
-        opt.defaults['foreach']=False
-        for group in opt.param_groups:group['foreach']=False
+    def install(opt):
+        original_step=opt.step
+        @wraps(original_step)
+        def step(*args,**kwargs):
+            groups=opt.param_groups
+            opt.param_groups=[dict(group,params=[p],foreach=True)
+                              for group in groups for p in group['params']]
+            try:
+                return original_step(*args,**kwargs)
+            finally:
+                opt.param_groups=groups
+        opt.step=step
+    for opt in trainer.optimizers:install(opt)
