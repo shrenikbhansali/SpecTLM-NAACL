@@ -26,6 +26,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
+    p.add_argument('--family',choices=['llama','qwen3'],default='llama',help='explicit Qwen3 EAGLE initialization; native recipe unchanged')
     a=p.parse_args();ensure_unpaused();ensure_unpaused(Path.cwd())
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip():raise ValueError('commit first')
     from followspec.token_data import response_run,build_manifest,OnlineResponseDataset
@@ -43,13 +44,14 @@ def main():
     from speculators.train.trainer import Trainer,TrainerConfig
     from speculators.train.distributed_batch_sampler import MultipackDistributedBatchSamplerV2
     from atlas.covariates import tap_layers
-    from followspec.configs import load_presets
+    from followspec.configs import load_presets,validate_eagle_family
     from followspec.online_bank import FrozenAdapterBank
     from followspec.paired_data import PairedCollator,shift_paired
     from followspec.eagle3_extension import install_follow_spec
     if git_commit!=BACKEND:raise ValueError('wrong native backend')
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('D-19 acceptance requires A40')
-    cfg=load_presets()['FS'];epochs=a.epochs;seed=0
+    cfg=load_presets(family=a.family)['FS'];epochs=a.epochs;seed=0
+    validate_eagle_family(a.family,json.loads((Path(a.base)/'config.json').read_text()),json.loads((Path(a.drafter)/'config.json').read_text()))
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);start=time.perf_counter();torch.manual_seed(seed)
     config=vars(a)|dict(acceptance_only=True,n=64,epochs=epochs,seed=seed,K=None,training_config=cfg,
         base_revision=Path(a.base).name,initialization_revision=Path(a.drafter).name,backend_revision=BACKEND,

@@ -12,8 +12,20 @@ EXPECTED={
 ALLOWED={'arm',*next(iter(EXPECTED.values())).keys()}
 
 
-def load_presets():
-    return {name:json.loads((Path(__file__).with_name('configs')/(name+'.json')).read_text()) for name in EXPECTED}
+def load_presets(*,family='llama'):
+    if family not in {'llama','qwen3'}:raise ValueError('unsupported EAGLE family')
+    arms={name:json.loads((Path(__file__).with_name('configs')/(name+'.json')).read_text()) for name in EXPECTED}
+    if family=='qwen3':
+        for cfg in arms.values():cfg['initialization']='RedHatAI/Qwen3-8B-speculator.eagle3'
+    return arms
+
+
+def validate_eagle_family(family,base_config,drafter_config):
+    expected={'llama':'LlamaForCausalLM','qwen3':'Qwen3ForCausalLM'}
+    if family not in expected or base_config.get('model_type')!=family:raise ValueError('target family differs')
+    spec=drafter_config.get('speculators_config',{})
+    if spec.get('algorithm')!='eagle3' or expected[family] not in spec.get('verifier',{}).get('architectures',[]):
+        raise ValueError('drafter verifier family differs')
 
 
 def check_matched(arms):
@@ -35,7 +47,8 @@ def check_matched(arms):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--configs',nargs=4)
-    a=p.parse_args();arms=load_presets() if not a.configs else {c['arm']:c for c in [json.loads(Path(p).read_text()) for p in a.configs]}
+    p.add_argument('--family',choices=['llama','qwen3'],default='llama')
+    a=p.parse_args();arms=load_presets(family=a.family) if not a.configs else {c['arm']:c for c in [json.loads(Path(p).read_text()) for p in a.configs]}
     print(json.dumps(check_matched(arms),indent=2))
 
 if __name__=='__main__':main()
