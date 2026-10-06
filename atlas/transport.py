@@ -96,7 +96,7 @@ def validate_diagonals(records):
     return dict(n_derivatives=len(records),spearman_pooled_diagonal_pairs=rho,
         spearman_A00=rank_correlation(x[:,0].tolist(),y[:,0].tolist()),spearman_A10=rank_correlation(x[:,1].tolist(),y[:,1].tolist()),
         sign_agreement=sign,spearman_threshold=.8,sign_threshold=.9,passed=rho is not None and rho>=.8 and sign>=.9,
-        diagnostic=True,independent_unit='derivative; both paired diagonal cells included in correlation',
+        diagnostic=True,primary_validation_metric='first-position top-1 agreement',independent_unit='derivative; both paired diagonal cells included in correlation',
         caveat='offline diagnostics; operator verifies real-source matching before interpreting this check')
 
 
@@ -119,7 +119,7 @@ def main():
     (out/'decomposition.json').write_text(json.dumps(decomposition,indent=2,allow_nan=False)+'\n')
     (out/'config.json').write_text(json.dumps(manifest|dict(source_code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         transport_ratio='(a(child,child)-a(base,child))/(-(a(base,child)-a(base,base))); zero denominator undefined; owner approved 2026-10-05',
-        primary_validation_metric='not selected by scorer'),indent=2)+'\n')
+        primary_validation_metric='first-position top-1 agreement; owner approved 2026-10-05'),indent=2)+'\n')
     with (out/'cells.csv').open('x',newline='') as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows({**r,'source_run_ids':json.dumps(r['source_run_ids'])} for r in rows)
 

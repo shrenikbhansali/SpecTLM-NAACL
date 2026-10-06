@@ -48,3 +48,13 @@ def test_owner_decomposition_exact_identity_and_zero_denominator():
     infinite=decompose(None,None,None)
     assert infinite['R'] is None and infinite['undefined_reason']=='nonfinite cell'
     with pytest.raises(ValueError):decompose(float('nan'),.4,.5)
+
+
+def test_prompt_cells_pool_by_scored_tokens_and_keep_infinite_kl_explicit():
+    from atlas.capture_transport import aggregate_cells
+    row=dict(feature_source='base',label_source='child',head='frozen_drafter',unroll_position=0,n=1,top1_agreement=1.,overlap=.8,forward_kl=.1,forward_kl_infinite=False,infinite_kl_positions=0,diagnostic=True)
+    r=aggregate_cells([row,row|dict(n=3,top1_agreement=0.,overlap=.4,forward_kl=None,forward_kl_infinite=True,infinite_kl_positions=1)])[0]
+    assert r['n']==4 and r['n_prompts']==2
+    assert r['top1_agreement']==.25 and r['overlap']==pytest.approx(.5)
+    assert r['forward_kl'] is None and r['forward_kl_infinite'] and r['infinite_kl_positions']==1
+    with pytest.raises(ValueError):aggregate_cells([row|dict(diagnostic=False)])
