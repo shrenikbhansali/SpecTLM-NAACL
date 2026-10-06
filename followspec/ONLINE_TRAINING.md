@@ -140,3 +140,21 @@ It validates the three paired manifests with `validate_paired_arms`; it makes
 no MVD mixture or four-arm budget claim. The default bank check still requires
 all four arms. Both modes require the recorded decoded-string/mask audit and
 immutable source hashes before loading a GPU model.
+
+Before resolving M3 presets, run the CPU-only native sampler audit:
+
+```sh
+python -m followspec.audit_batches \
+  --manifests FS.json MVD.json PO-D.json PO-T.json --replicas 1 \
+  --output /absolute/path/to/new/batch-audit
+```
+
+It rechecks source hashes and paired views, rejects cross-arm train/validation
+leakage, verifies every sample appears exactly once per epoch across all ranks,
+and requires identical actual token budgets and optimizer steps across all arms
+and preset seeds. Long samples are rejected before the sampler can truncate them.
+The output records every batch's sample indices. It changes no presets, quotas,
+source files or acceptance flags. `--acceptance-smoke` permits only at most64
+acceptance-only records per arm for builder checks; its output cannot establish
+production readiness. A failing audit requires explicit data assembly changes;
+it never silently drops, repeats or truncates samples to make counts match.
