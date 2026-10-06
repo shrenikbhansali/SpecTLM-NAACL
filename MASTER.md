@@ -170,7 +170,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:00:57-04:00 | [journal](notes/B1.md); sampled200 staged; parser fix cb8dc16 (9 tests); format/bank/similarity gaps; [audit](notes/BUILD-AUDIT-20261005.md) |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:08:27-04:00 | [journal](notes/B1.md); repairing format/architecture checks; corrected draft and all-bank staging next |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B2.md); [six-cell acceptance](artifacts/B2_acceptance_20261005/acceptance_report.json); merged 8651954; 14 tests pass; operator re-run PASS with notes ([B2 journal](notes/B2.md)) |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B3.md); bf16 logit acceptance fails; fp32 diagnostics <1e-4; vLLM 16-prompt smoke passes |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T22:00:57-04:00 | [journal](notes/B4.md); SPEED128/general20k rechecked; Magpie five-derivative acceptance and bounded A40 smoke path pending; [audit](notes/BUILD-AUDIT-20261005.md) |
