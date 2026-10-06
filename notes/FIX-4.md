@@ -13,3 +13,7 @@ fixed by **§13 D-27** (owner-delegated). Please build one orchestrator (CPU pla
 4. runs paired trimming (D-21), builds FS/MVD/PO-D/PO-T manifests, and applies D-27(6)'s logged tail truncation to equalize tokens/steps;
 5. runs `followspec.audit_batches` and the 5-sample decoded/mask audits; writes a single readiness report.
 Inputs ready: frozen pools `atlas/pools/`; bank Magpie training prompts are coming from A3 phase 2 (operator, 500 per bank child).
+
+## 2026-10-06T02:58:48-04:00 — codex-1 — Claim
+
+Claimed FIX-4 ahead of P1 B10; owner method priority. Read D-27, §5.4–5.5, B5/B6 specs, ONLINE_TRAINING and filed FIX-4 request. Existing B3/B5 operator done; B6 D-26 acceptance passed, review. Build CPU planner/orchestrator under followspec, branch codex/FIX-4; operator launches production GPU jobs. Tests first for deterministic sampling/rank limits, shared training-only filter reference, admitted≥20/≤30 and≤2rounds, prompt allocation/disjointness/50:50/parent25%, exact generation flags, D-21 pair integrity, logged tail matching, native batch audit and readiness fail-closed. No pause marker; B10 OOM preserved, no production launch.
