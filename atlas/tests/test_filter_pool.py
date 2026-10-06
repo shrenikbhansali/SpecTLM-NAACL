@@ -27,3 +27,15 @@ def test_matched_baseline_identity_ratio_and_pending_threshold():
     assert result['accepted'] is None
     assert summarize(rows,samples,math.exp(2),.5)['accepted'] is True
     assert summarize(rows,samples,math.exp(2)/3,.5)['accepted'] is False
+
+
+def test_reference_contains_flat_ids_and_explicit_truncation():
+    from atlas.filter_pool import prepare_reference
+    class Tokenizer:
+        def __call__(self,text,**kwargs):return {'input_ids':list(range(12))}
+        def apply_chat_template(self,*args,return_dict=True,**kwargs):
+            return {'input_ids':list(range(20))} if return_dict else list(range(20))
+        def decode(self,ids):return str(ids)
+    row=prepare_reference([{'prompt_id':'a','prompt':'hello'}],Tokenizer(),8)[0]
+    assert row['input_ids']==list(range(8)) and row['generation_input_ids']==list(range(12,20))
+    assert row['score_mask']==[0]+[1]*7 and row['truncated'] and row['generation_truncated']

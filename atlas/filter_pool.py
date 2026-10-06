@@ -61,7 +61,7 @@ def prepare_reference(prompts, tokenizer, max_tokens):
         raw=tokenizer(r['prompt'],add_special_tokens=True)['input_ids'];ids=raw[:max_tokens]
         if len(ids)<2:raise ValueError('reference too short')
         rendered=tokenizer.apply_chat_template([{'role':'user','content':r['prompt']}],tokenize=True,
-            add_generation_prompt=True,enable_thinking=False)
+            add_generation_prompt=True,enable_thinking=False,return_dict=False)
         # Keep the generation header at the end of an explicitly truncated context.
         generation=rendered[-max_tokens:]
         rows.append(dict(prompt_id=r['prompt_id'],input_ids=ids,score_mask=[0]+[1]*(len(ids)-1),
