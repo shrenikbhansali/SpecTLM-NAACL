@@ -83,13 +83,13 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-06 01:31 ET (claude-ops) |
-| Sprint day | Day 1 of 8 (Mon Oct 5) |
-| Next gate | Gate 1 **PASSED** (§13 D-08, vLLM 0.31.0; fresh compile per cell D-14). Next: Gate 2 (verification, Wed noon). Per D-15, downstream work starts as soon as dependencies pass |
+| Last updated | 2026-10-06 05:36 ET (claude-ops) |
+| Sprint day | Day 2 of 8 (Tue Oct 6) |
+| Next gate | Gate 2 (verification), Wed noon; protocol freeze Wed 9 am. Gate 1 PASSED (D-08). Gate 3 Thu 8 pm |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | A1 wave 4: 10 fresh-compile child repeats (claude-ops, 22:05, A40 heck-srv2/5), testing the Gate 1 child-noise attribution. B1 staging finished ~20:40 (200/200). codex-1 active again from 21:55 (audit, B1 fixes) |
-| Blockers | **ICE down until Thu Oct 8 (D-19): all work on heck A40s (§3.2).** Method path on A40s needs FIX-3 (A40 production path + online capture), B5, B6 GPU acceptance, and owner decisions D-04/D-05/D-06 and B3 validation. B11 recipe/data gaps |
+| Jobs running | A3 Qwen3 eval Magpie (68 jobs, FIX-5 oversampling, 13 A40s); A3 Llama bank training-prompt retries (3 of 9 left); codex-1 builder checks. M1 round 1 admitted 29 mixtures (D-29). Next: mixture prompts → M2 responses (after FIX-4 merge) |
+| Blockers | ICE down until Thu Oct 8 (D-19): all work on heck A40s (§3.2). FIX-4 integration of D-28/D-29 (codex) gates M2. B9 (transport validation failed) and B11 (recipe) blocked; B11/M7 deprioritized (D-26) |
 | Owner action needed | Open decisions resolved under owner delegation (§13 D-04–D-06, D-20–D-26, 2026-10-06 01:31). Remaining owner items: ARR registrations; fill `sites/ice.env` when ICE returns (Oct 8); Gate 3 call (Thu). |
 
 ---
