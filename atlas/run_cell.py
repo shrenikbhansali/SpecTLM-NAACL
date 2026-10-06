@@ -56,31 +56,48 @@ def lora_enabled(adapter,explicit=False):return bool(adapter) or bool(explicit)
 
 
 def metrics(accepted, drafted, k):
-    if not accepted or len(accepted)!=len(drafted): raise ValueError('missing or mismatched per-step counters')
+    if not isinstance(accepted,list) or not isinstance(drafted,list) or len(accepted)!=len(drafted): raise ValueError('missing or mismatched per-step counters')
+    if type(k) is not int or k<=0:raise ValueError('positive integer K required')
     if any(type(a) is not int or type(d) is not int or not 0 <= a <= d <= k or d==0 for a,d in zip(accepted,drafted)):
         raise ValueError('invalid accepted/draft counters')
     steps=len(accepted); total=sum(accepted)
     counts=[sum(a>=i+1 for a in accepted) for i in range(k)]
     # Condition on surviving earlier positions AND on this position being proposed.
     opportunities=[sum(a>=i and d>=i+1 for a,d in zip(accepted,drafted)) for i in range(k)]
-    return dict(num_drafts=steps,num_draft_tokens=sum(drafted),num_accepted_tokens=total,
+    return dict(zero_step=steps==0,num_drafts=steps,num_draft_tokens=sum(drafted),num_accepted_tokens=total,
         accepted_lengths=[a+1 for a in accepted],per_step_accepted=accepted,per_step_drafted=drafted,
-        acceptance_length=1+total/steps,draft_token_acceptance_rate=total/sum(drafted),
-        per_position_acceptance=[c/steps for c in counts],
+        acceptance_length=1+total/steps if steps else None,draft_token_acceptance_rate=total/sum(drafted) if steps else None,
+        per_position_acceptance=[c/steps if steps else None for c in counts],
         per_position_conditional_acceptance=[c/n if n else None for c,n in zip(counts,opportunities)],
         per_position_accepted=counts,per_position_opportunities=opportunities)
 
 
+def request_metrics(raw,k):
+    """An empty detailed array is zero-step only if all engine counters agree."""
+    if raw is None:raise RuntimeError('missing per-request speculative metrics')
+    raw=asdict(raw) if is_dataclass(raw) else raw
+    result=metrics(raw['per_step_accepted'],raw['per_step_drafted'],k)
+    expected=[raw['per_step_accepted'].count(i) for i in range(k+1)]
+    histogram=raw['histogram']
+    if (raw.get('num_spec_tokens')!=k or not isinstance(histogram,list) or
+        any(type(n) is not int or n<0 for n in histogram) or histogram!=expected or
+        type(raw['num_draft_tokens']) is not int or raw['num_draft_tokens']!=result['num_draft_tokens']):
+        raise RuntimeError('inconsistent engine counters')
+    return result
+
+
 def aggregate(rows):
     if not rows: raise ValueError('no prompt results')
-    values=[r['acceptance_length'] for r in rows]
+    values=[r['acceptance_length'] for r in rows if r['num_drafts']>0]
+    zeros=[r for r in rows if r['num_drafts']==0]
+    if any(r.get('zero_step') is not True or r['acceptance_length'] is not None or r['num_accepted_tokens'] or r['num_draft_tokens'] for r in zeros):raise ValueError('invalid zero-step record')
     if not all(math.isfinite(v) for v in values): raise ValueError('nonfinite acceptance')
     # Deterministic prompt bootstrap for descriptive uncertainty, not independent runs.
     import random
     rng=random.Random(20261005)
-    means=sorted(statistics.mean(rng.choices(values,k=len(values))) for _ in range(2000))
-    return dict(n=len(values),macro_acceptance_length=statistics.mean(values),
-        prompt_bootstrap_95_ci=[means[49],means[1949]],
+    means=sorted(statistics.mean(rng.choices(values,k=len(values))) for _ in range(2000)) if values else []
+    return dict(n=len(values),n_total=len(rows),n_zero_step=len(zeros),macro_acceptance_length=statistics.mean(values) if values else None,
+        prompt_bootstrap_95_ci=[means[49],means[1949]] if values else None,
         uncertainty_unit='prompts; 2000 bootstrap resamples; not run-to-run noise',
         total_drafts=sum(r['num_drafts'] for r in rows),total_accepted_draft_tokens=sum(r['num_accepted_tokens'] for r in rows))
 
@@ -152,7 +169,8 @@ def main():
     engine=json.loads((ROOT/'atlas/env/engine.json').read_text())
     cfg=vars(a).copy();cfg.pop('dry_run');cfg.update(engine_version=engine['vllm_version'],temperature=0.0,
         top_p=1.0,prompt_sha256=sha256(a.prompts),n=len(prompts),dtype='bfloat16',enable_prefix_caching=False,
-        per_request_spec_decode_metrics='detailed',metric_definition='1 + accepted draft tokens / speculative steps; macro over prompts',
+        per_request_spec_decode_metrics='detailed',metric_definition='1 + accepted draft tokens / speculative steps; macro over nonzero-step prompts',
+        zero_step_policy='D32: null per-prompt AL; exclude from cell macro; pairwise shared nonzero IDs for comparisons',
         enable_lora_requested=a.enable_lora,enable_lora=lora_enabled(a.adapter,a.enable_lora))
     cfg['code_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     cfg['code_dirty']=bool(subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip())
@@ -207,12 +225,7 @@ def main():
                         raise RuntimeError('engine changed explicit prompt token IDs')
                     if len(output.outputs)!=1: raise RuntimeError('one completion required')
                     completion=output.outputs[0]
-                    raw=completion.spec_decode_metrics
-                    if raw is None: raise RuntimeError('missing per-request speculative metrics')
-                    raw=asdict(raw) if is_dataclass(raw) else raw
-                    result=metrics(raw['per_step_accepted'],raw['per_step_drafted'],a.K)
-                    if sum(raw['histogram'])!=result['num_drafts'] or raw['num_draft_tokens']!=result['num_draft_tokens']:
-                        raise RuntimeError('inconsistent engine counters')
+                    result=request_metrics(completion.spec_decode_metrics,a.K)
                     row=dict(prompt_id=record['prompt_id'],completion=completion.text,
                         completion_token_ids=list(completion.token_ids),batch_wall_s=wall,batch_index=i//a.batch_size,**result)
                     if a.capture_prompt_token_ids:row['prompt_token_ids']=list(output.prompt_token_ids)

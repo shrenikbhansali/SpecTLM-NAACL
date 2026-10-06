@@ -13,6 +13,7 @@ import re
 import subprocess
 import numpy as np
 from scipy import stats
+from atlas.paired_cells import read_cell,paired_values
 
 ARMS=('FS','MVD','PO-D','PO-T')
 
@@ -92,33 +93,18 @@ def schedule(spec,output_root):
 
 
 def load_measurements(index):
-    from atlas.run_cell import metrics
     rows=[];seen=set()
     for record in index:
         key=tuple(record[k] for k in ('arm','seed','derivative_id','workload','K','cell'))
         if key in seen:raise ValueError('duplicate measurement')
         seen.add(key)
         if record['pool'] not in ('test','base'):raise ValueError('bank result in held-out report')
-        root=Path(record['run_dir'])
-        if (root/'failure.json').exists():raise ValueError('failed cell in index')
-        cfg=json.loads((root/'config.json').read_text());res=json.loads((root/'results.json').read_text())
-        raw=[json.loads(x) for x in (root/'per_prompt.jsonl').read_text().splitlines()]
-        if len(raw)!=res['n'] or not raw or len({r['prompt_id'] for r in raw})!=len(raw):raise ValueError('invalid prompt records')
-        rebuilt=[metrics(r['per_step_accepted'],r['per_step_drafted'],record['K']) for r in raw]
-        if any(r['num_drafts']!=v['num_drafts'] or abs(r['acceptance_length']-v['acceptance_length'])>1e-10 for r,v in zip(raw,rebuilt)):
-            raise ValueError('per-prompt counters not consistent')
-        macro=float(np.mean([r['acceptance_length'] for r in rebuilt]))
-        if abs(macro-res['macro_acceptance_length'])>1e-10:raise ValueError('macro not derivable from counters')
-        if cfg['code_dirty'] or cfg['K']!=record['K']:raise ValueError('invalid cell config')
-        if cfg['engine_version']!='0.31.0' or res['engine_version']!=cfg['engine_version']:raise ValueError('mixed/unpinned engine')
-        if cfg['temperature']!=0. or cfg['top_p']!=1.:raise ValueError('evaluation must be greedy')
+        loaded=read_cell(record['run_dir']);cfg=loaded.pop('config');loaded.pop('results')
+        if cfg['K']!=record['K']:raise ValueError('invalid cell config')
         pin(cfg['target_revision']);pin(cfg['drafter_revision'])
         target_identity={q:cfg.get(q) for q in ('target','target_revision','target_files_sha256','adapter_revision','adapter_files_sha256')}
         drafter_identity={q:cfg.get(q) for q in ('drafter','drafter_revision','drafter_files_sha256','method')}
-        rows.append(record|dict(value=macro,n_prompts=len(raw),prompt_sha256=cfg['prompt_sha256'],
-            settings={k:cfg[k] for k in ('K','seed','max_new_tokens','batch_size','max_model_len','dtype','temperature','top_p','engine_version','method','max_lora_rank','gpu_memory_utilization','enable_prefix_caching')},
-            target_identity=target_identity,drafter_identity=drafter_identity,
-            prompt_ids=sorted(r['prompt_id'] for r in raw)))
+        rows.append(record|loaded|dict(target_identity=target_identity,drafter_identity=drafter_identity))
     return rows
 
 
@@ -145,7 +131,7 @@ def aggregate(rows):
         for r in group:cells[(r['derivative_id'],r['arm'],int(r['seed']))][r['cell']]=r
         targets=sorted({r['derivative_id'] for r in group if r['pool']=='test'})
         if not targets:raise ValueError('no held-out derivatives')
-        values={a:[] for a in ARMS};bases=[];common_seeds=None
+        common_seeds=None;retentions=[]
         for target in targets:
             seeds={seed for t,arm,seed in cells if t==target and arm=='FS'}
             if len(seeds)!=3:raise ValueError('Gate3 requires3 matched training seeds')
@@ -153,11 +139,10 @@ def aggregate(rows):
             if common_seeds!=seeds:raise ValueError('training seeds differ across derivatives')
             for arm in (*ARMS,'Frozen'):
                 if {s for t,a,s in cells if t==target and a==arm}!=seeds:raise ValueError('unmatched arm/seed set')
-            baseline=[]
             for seed in sorted(seeds):
                 frozen_cells=cells[(target,'Frozen',seed)]
                 if set(frozen_cells)!= {'A00','A10'}:raise ValueError('missing frozen target cells')
-                frozen=frozen_cells['A00'];baseline.append(frozen['value'])
+                frozen=frozen_cells['A00']
                 if any(frozen_cells['A10'][q]!=frozen[q] for q in ('prompt_sha256','prompt_ids','settings')):raise ValueError('frozen controls not matched')
                 for arm in ARMS:
                     entry=cells[(target,arm,seed)]
@@ -167,14 +152,33 @@ def aggregate(rows):
                         if any(candidate[q]!=frozen[q] for q in ('prompt_sha256','prompt_ids','settings')):raise ValueError('controls not matched')
                         expected=frozen_cells['A00' if cell=='A01' else 'A10']
                         if candidate['target_identity']!=expected['target_identity']:raise ValueError('paired target identity mismatch')
-            bases.append(float(np.mean(baseline)))
+            def pairs(arm,left,right):
+                return {str(seed):paired_values(cells[(target,arm,seed)][left],cells[(target,arm,seed)][right]) for seed in sorted(seeds)}
+            frozen_pairs=pairs('Frozen','A00','A10')
+            a00,a10=np.mean([p['values'] for p in frozen_pairs.values()],axis=0)
             for arm in ARMS:
-                mean=float(np.mean([cells[(target,arm,s)]['A11']['value'] for s in sorted(seeds)]));values[arm].append(mean)
-                a01=float(np.mean([cells[(target,arm,s)]['A01']['value'] for s in sorted(seeds)]))
-                a10=float(np.mean([cells[(target,'Frozen',s)]['A10']['value'] for s in sorted(seeds)]))
-                derivative_rows.append(dict(K=k,workload=workload,derivative_id=target,arm=arm,n_training_seeds=3,A01=a01,A11=mean,A00=bases[-1],A10=a10,retention=mean/bases[-1],
+                trained_pairs=pairs(arm,'A01','A11')
+                a01,a11=np.mean([p['values'] for p in trained_pairs.values()],axis=0)
+                retention_pairs={str(seed):paired_values(cells[(target,arm,seed)]['A11'],cells[(target,'Frozen',seed)]['A00']) for seed in sorted(seeds)}
+                numerator,denominator=np.mean([p['values'] for p in retention_pairs.values()],axis=0)
+                if arm=='FS':retentions.append(float(numerator/denominator))
+                derivative_rows.append(dict(K=k,workload=workload,derivative_id=target,arm=arm,n_training_seeds=3,
+                    A01=float(a01),A11=float(a11),A00=float(a00),A10=float(a10),retention=float(numerator/denominator),
+                    pairing_A00_A10=json.dumps(frozen_pairs),pairing_A01_A11=json.dumps(trained_pairs),pairing_retention=json.dumps(retention_pairs),
                     run_ids=json.dumps([cells[(target,a,s)][c]['run_id'] for s in sorted(seeds) for a,cs in ((arm,('A01','A11')),('Frozen',('A00','A10'))) for c in cs])))
-        comparisons={arm:paired_summary(values['FS'],values[arm],bases,seed=0) for arm in ARMS if arm!='FS'}
+        comparisons={};comparison_pairing={}
+        for arm in ARMS:
+            if arm=='FS':continue
+            fs_values=[];control_values=[];comparison_pairing[arm]={}
+            for target in targets:
+                pairs={str(seed):paired_values(cells[(target,'FS',seed)]['A11'],cells[(target,arm,seed)]['A11']) for seed in sorted(common_seeds)}
+                fs,control=np.mean([p['values'] for p in pairs.values()],axis=0)
+                fs_values.append(fs);control_values.append(control);comparison_pairing[arm][target]=pairs
+            result=paired_summary(fs_values,control_values,np.ones(len(targets)),seed=0)
+            # Gains and retention compare different cell pairs. Each ratio uses
+            # its own paired numerator/denominator, never an independent macro.
+            result['worst_decile_retention']=float(np.mean(np.sort(retentions)[:result['worst_decile_n']]))
+            comparisons[arm]=result
         parent={};parent_seeds=sorted(common_seeds)
         for arm in ARMS:
             try:
@@ -183,9 +187,11 @@ def aggregate(rows):
             except KeyError:raise ValueError('parent-retention cells missing')
             for t,b in zip(trained,frozen):
                 if any(t[q]!=b[q] for q in ('prompt_sha256','prompt_ids','settings')):raise ValueError('parent controls not matched')
-            parent[arm]=parent_tost([r['value'] for r in trained],[r['value'] for r in frozen])
+            pairs={str(seed):paired_values(t,b) for seed,t,b in zip(parent_seeds,trained,frozen)}
+            parent[arm]=parent_tost([p['values'][0] for p in pairs.values()],[p['values'][1] for p in pairs.values()])
+            parent[arm]['pairing']=pairs
         numerical_pass=all(r['median_gain_ci95'][0]>0 for r in comparisons.values()) and parent['FS']['equivalent']
-        summaries.append(dict(K=k,workload=workload,comparisons=comparisons,parent_retention=parent,
+        summaries.append(dict(K=k,workload=workload,comparisons=comparisons,comparison_pairing=comparison_pairing,parent_retention=parent,
             numerical_criteria_met=numerical_pass,owner_gate_decision='pending',source_run_ids=sorted(r['run_id'] for r in group)))
     return summaries,derivative_rows
 
@@ -201,13 +207,13 @@ def main():
     with (out/'summary.json').open('x') as f:json.dump(summaries,f,indent=2);f.write('\n')
     with (out/'per_derivative.csv').open('x',newline='') as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
-    fields=['K','workload','derivative_id','pool','arm','seed','cell','value','n_prompts','run_id','run_dir','prompt_sha256']
+    fields=['K','workload','derivative_id','pool','arm','seed','cell','value','n_prompts','n_valid','n_zero_step','run_id','run_dir','prompt_sha256']
     with (out/'per_seed.csv').open('x',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields,extrasaction='ignore');w.writeheader();w.writerows(measurements)
     (out/'provenance.json').write_text(json.dumps(dict(input_index_sha256=hashlib.sha256(Path(a.input).read_bytes()).hexdigest(),
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),engine_version='0.31.0',
         source_run_ids=sorted(r['run_id'] for r in measurements)),indent=2)+'\n')
-    text='# Gate 3 — evidence for owner review\n\nNo framing decision is made by this report. Intervals resample derivatives after averaging 3 training seeds. Parent TOST uses independent training seeds, relative margin 2%. Workloads and K are reported separately; the owner chooses the prespecified gate comparison.\n'
+    text='# Gate 3 — evidence for owner review\n\nD32: every direct comparison uses shared nonzero-step prompt IDs; counts and excluded IDs per derivative and seed are in per_derivative.csv and summary.json. Empty intersections block the report. No framing decision is made by this report. Intervals resample derivatives after averaging 3 training seeds. Parent TOST uses independent training seeds, relative margin 2%. Workloads and K are reported separately; the owner chooses the prespecified gate comparison.\n'
     for s in summaries:
         text+=f"\n## K={s['K']}, workload={s['workload']}\n\n| FS versus | n derivatives | Median gain | Bootstrap95% CI | Win rate | Worst-decile retention |\n| --- | --- | --- | --- | --- | --- |\n"
         for arm,r in s['comparisons'].items():text+=f"| {arm} | {r['n_derivatives']} | {r['median_gain']:.6f} | {r['median_gain_ci95']} | {r['win_rate']:.4f} | {r['worst_decile_retention']:.6f} |\n"

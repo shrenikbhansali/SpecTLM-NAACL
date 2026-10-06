@@ -117,3 +117,37 @@ def test_cli_roundtrip_artifacts_and_zero_effect_interval(tmp_path):
     assert all(c['median_gain_ci95']==[0.,0.] for c in summary['comparisons'].values())
     assert len((out/'per_seed.csv').read_text().splitlines())==len(matrix)+1
     assert set(json.loads((out/'provenance.json').read_text())['source_run_ids'])=={r['run_id'] for r in matrix}
+
+
+def test_d32_gate_uses_paired_subsets_for_cells_gains_and_parent_tost():
+    import json
+    from followspec.evaluate import aggregate
+    rows=synthetic_matrix()
+    for row in rows:
+        row.update(prompt_ids=['p0','p1','p2'],n_prompts=3,prompt_values=dict(p0=3.,p1=3.,p2=3.),n_zero_step=0)
+        if row['pool']=='test' and row['arm']=='FS':
+            row['prompt_values']=dict(p0=2.,p1=4.,p2=None) if row['cell']=='A01' else dict(p0=None,p1=5.,p2=1.)
+            row['n_zero_step']=1
+        elif row['pool']=='test' and row['cell']=='A11':
+            row['prompt_values']=dict(p0=5.,p1=2.,p2=None);row['n_zero_step']=1
+        elif row['pool']=='base' and row['arm']=='FS':
+            row['prompt_values']=dict(p0=None,p1=3.,p2=3.);row['n_zero_step']=1
+    summary,table=aggregate(rows)
+    fs=next(r for r in table if r['arm']=='FS')
+    assert fs['A01']==4. and fs['A11']==5. and fs['retention']==1.
+    assert all(v['n_excluded']==2 for v in json.loads(fs['pairing_A01_A11']).values())
+    assert summary[0]['comparisons']['MVD']['median_gain']==3.
+    assert summary[0]['parent_retention']['FS']['equivalent']
+    assert all(v['n_excluded']==1 for v in summary[0]['parent_retention']['FS']['pairing'].values())
+    details=summary[0]['comparison_pairing']['MVD']['child0']
+    assert all(v['n_excluded']==2 for v in details.values())
+
+
+def test_d32_loader_preserves_zero_records_for_later_pairing(tmp_path):
+    from atlas.tests.test_paired_cells import fixture
+    from followspec.evaluate import load_measurements
+    p=fixture(tmp_path/'cell',dict(p0=None,p1=3))
+    record=dict(arm='FS',seed=0,derivative_id='child',pool='test',workload='general',K=4,cell='A11',run_id='run',run_dir=str(p))
+    row=load_measurements([record])[0]
+    assert row['prompt_values']==dict(p0=None,p1=3.) and row['n_zero_step']==1
+    assert row['value']==3. and row['n_prompts']==2 and row['n_valid']==1
