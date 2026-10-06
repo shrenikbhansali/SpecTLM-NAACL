@@ -23,3 +23,19 @@ Inspected five raw decoded prompts per shortfall in `five_samples_per_shortfall.
 System CPU suite (excluding native CT only) initially **260 passed, 1 expected failure** (`test_engine_matches_committed_pin`, vLLM absent), /tmp/FIX7_cpu_suite.txt; native CT separately **1 passed**, /tmp/FIX7_native_ct.txt. Added regressions for existing prompts.jsonl shortfall output and preserved exact500/eligibility/mixture-bound/validation/forbidden/row-split checks.
 
 GitHub connector recovered remote main f75d250 (operator FIX-8 update). Imported exact remote blobs/tree/unsigned commit with SHA verification using /tmp/FIX7_import_remote.py, then rebased; only claim-row context conflicted, resolved by preserving remote MASTER verbatim except own FIX-7 row. Connector publication is necessary because shell GitHub DNS remains unavailable; shared .git remains untouched.
+
+## 2026-10-06T17:09:14-04:00 — codex-1 — Handoff
+
+FIX-7 implemented on `codex/FIX-7` (tip dda122ed126853090b03675b50926c5f82fa5c8b), merged into **local main in the isolated builder clone** at b4b5f86d74801eb6c04c8972209d90d67d0c440e. Tag `run-FIX7-20261006` points to that merge; clean detached checkout `/home/heck2/sbhansali8/SpecTLM/.worktrees/run-FIX7-20261006` is ready for operator recheck. Its owning Git metadata is in `.worktrees/build-FIX7-20261006/.git`; retain that clone. Shared root Git metadata was never changed.
+
+Final acceptance: `artifacts/FIX7_acceptance_20261006/acceptance.json` passed. Exact final CPU CLI argv in `planning_command.json`; output `artifacts/FIX7_acceptance_20261006/planning` **exit0**, 121 GPU response jobs planned and 61 CPU rendering commands. No jobs launched. Checked stage hashes, execution commit/pin, all requested forbidden paths, 60 FS targets/30 eligible bank, 30,000 child + 10,000 parent samples per arm, both D-35 records (364/250 and388/250), and 250 own-Magpie assignments each.
+
+Final commands/results:
+- `python3 -m pytest followspec/tests atlas/tests --ignore=atlas/tests/test_native_ct.py -q` → **269 passed, 1 failed in19.86s**; sole failure is expected system-Python missing vLLM pin test. `artifacts/FIX7_acceptance_20261006/FIX7_final_cpu.txt`.
+- `PYTHONDONTWRITEBYTECODE=1 /home/heck2/sbhansali8/SpecTLM/.venv-atlas-031-clean/bin/python -m pytest atlas/tests/test_native_ct.py -q` → **1 passed,14 warnings in12.76s**. Read-only use, no environment modification. `FIX7_native_ct.txt`.
+- From final clean tagged checkout: `python3 -m pytest followspec/tests/test_magpie_shortfalls.py -q` → **27 passed in7.47s**. `tagged_shortfall_tests.txt`.
+- `git diff origin/main..HEAD --check` → pass. Initial red tests and missing-dependency collection failure retained under acceptance root.
+
+**Publication blocker:** attempted `git push origin main codex/FIX-7 refs/tags/run-FIX7-20261006` failed (`Could not resolve host: github.com`). GitHub connector read access succeeded, but its create-tree write was rejected: `MCP tool call requires approval, but approval policy is never`. No remote writes succeeded; branch, merge and tag are LOCAL ONLY. Row is review because implementation/acceptance passed; operator must publish and rerun before done/launch.
+
+Next step from a session with network/write permission: `git -C .worktrees/build-FIX7-20261006 push origin main codex/FIX-7 refs/tags/run-FIX7-20261006` after fetching/reconciling any newer remote main (never force). Re-run CPU checks and verify acceptance metadata, then follow existing render-local/response operator workflow from the clean checkout. No open research questions; no thresholds/hyperparameters changed.
