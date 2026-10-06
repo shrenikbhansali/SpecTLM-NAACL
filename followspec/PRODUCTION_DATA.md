@@ -238,3 +238,21 @@ hashes every part. Reported joined wall time is the sum of part times, explicitl
 not elapsed time or an inference speedup. Assemble the new parent overlay only
 after the join and every other referenced source are complete. Historical
 serial outputs stay untouched and must not be mixed with the parallel source.
+
+Optional matched-step proposal (`native_split_max_v1`): `assemble
+--batch-step-policy native_split_max_v1` retains the largest exact-token,
+composition-preserving suffix cut, then subdivides existing native packed
+batches to the maximum native count across the four arms and three seeds.
+It preserves the flattened native sample order, every selected sample/token,
+and the8192-token ceiling. It repeatedly splits the largest eligible batch
+near its token midpoint (ties choose the earliest batch/cut); audit artifacts
+record every subdivision and the original counts. Only one epoch/replica is
+supported. Default native packing and validation packing remain unchanged.
+
+This is a proposed training-recipe adjustment, not an automatic recovery.
+Finalization requires evidence `batch_step_policy_approval` containing the
+matching `policy`, `approved: true`, and the owner's recorded `decision_id`.
+The approval and policy appear identically in all four configs/manifests;
+trainer resolution rejects inconsistent approval. No approval should be
+invented merely to make the preparation pass. Preserve the original failed
+assembly and use a new artifact directory for the proposed policy.

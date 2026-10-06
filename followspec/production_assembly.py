@@ -33,13 +33,18 @@ def balanced_order(child, parent, *, seed):
     return result,[dict(sample_id=r['pair_id'],reason='incomplete final composition block') for r in dropped]
 
 
-def native_auditor(lengths):
+def native_auditor(lengths, *, batch_step_policy=None):
     from followspec.audit_batches import inspect_batches
     from followspec.train_eagle3 import BACKEND
     from speculators.version import git_commit
     from speculators.train.distributed_batch_sampler import MultipackDistributedBatchSamplerV2
     if git_commit!=BACKEND:raise ValueError('native sampler backend differs from pin')
-    return inspect_batches(lengths,factory=MultipackDistributedBatchSamplerV2,batch_max_length=8192,seeds=[0,1,2],epochs=1,replicas=1)
+    inspect=inspect_batches
+    if batch_step_policy is not None:
+        from followspec.matched_batches import POLICY,inspect_matched_batches
+        if batch_step_policy!=POLICY:raise ValueError('unknown batch step policy')
+        inspect=inspect_matched_batches
+    return inspect(lengths,factory=MultipackDistributedBatchSamplerV2,batch_max_length=8192,seeds=[0,1,2],epochs=1,replicas=1)
 
 
 def verify_response_plan(root, cfg, assignment, runs):
@@ -60,7 +65,7 @@ def verify_response_plan(root, cfg, assignment, runs):
                     raise ValueError('response query identity differs from assignment')
 
 
-def assemble(plan, output):
+def assemble(plan, output, *, batch_step_policy=None):
     from followspec.paired_responses import pair_runs
     from followspec.token_data import build_manifest,OnlineResponseDataset,validate_arm_set
     from followspec.audit_batches import inspect_splits
@@ -116,7 +121,8 @@ def assemble(plan, output):
     jsonl(out/'paired_trims.jsonl',trims);write_new(out/'composition_tail_drops.json',dropped)
     write_new(out/'pretrim_counts.json',{a:dict(n=len(lengths[a]),tokens=sum(lengths[a])) for a in ARMS})
     try:
-        matching=match_tails(lengths,batch_check=native_auditor,allowed_ends=allowed)
+        auditor=native_auditor if batch_step_policy is None else lambda values:native_auditor(values,batch_step_policy=batch_step_policy)
+        matching=match_tails(lengths,batch_check=auditor,allowed_ends=allowed)
         audit=matching.pop('audit');batches=audit.pop('batches')
         jsonl(out/'per_batch.jsonl',batches);write_new(out/'batch_audit.json',audit|dict(passed=True))
         write_new(out/'tail_matching.json',matching)
@@ -154,7 +160,8 @@ def assemble(plan, output):
             summaries[arm]=dict(n_train=len(ds),n_val=sum(r['split']=='val' for r in m['samples']),
                 tokens=m['token_budget'],assistant_tokens=m['assistant_loss_tokens'],parent_share=m['parent_sample_share'],
                 per_child_counts=dict(Counter(r['child_id'] for r in ds.rows)),mask_audit_sha256=sha256(dest/'decoded_masks.jsonl'))
-        finish(out,dict(stage='assemble',plan=str(root),spec=spec),dict(matched=matched,split_audit=splits,arms=summaries,
+        policy_fields=dict(batch_step_policy=batch_step_policy) if batch_step_policy is not None else {}
+        finish(out,dict(stage='assemble',plan=str(root),spec=spec,**policy_fields),dict(matched=matched,split_audit=splits,arms=summaries,
             batch_audit=audit,production_ready=False,data_ready=False,
             next='Inspect all five decoded samples/masks per arm, supply hash-pinned B5 feature evidence to finalize; capacity remains separate'))
     except Exception as exc:
@@ -183,6 +190,10 @@ def finalize(assembly, evidence, output):
     root,cfg=checked_stage(assembly);spec=cfg['spec']
     if cfg['stage']!='assemble':raise ValueError('matched assembly required')
     proof=read(evidence);masks={a:root/a/'decoded_masks.jsonl' for a in ARMS};status=readiness(proof,masks)
+    policy=cfg.get('batch_step_policy');approval=proof.get('batch_step_policy_approval',{})
+    if policy is not None and not (approval.get('policy')==policy and approval.get('approved') is True and approval.get('decision_id')):
+        status['blockers'].append('explicit owner decision required for batch step policy')
+        status['data_ready']=False
     out=new_output(output)
     if not status['data_ready']:
         finish(out,dict(stage='finalize',assembly=str(root),evidence_sha256=sha256(evidence),spec=spec),status|dict(production_ready=False))
@@ -190,7 +201,8 @@ def finalize(assembly, evidence, output):
     manifests={a:read(root/a/'manifest.json') for a in ARMS}
     validate_arm_set(manifests)
     lengths={a:OnlineResponseDataset(m,split='train',bank=None,shift=lambda r:r).approx_lengths for a,m in manifests.items()}
-    actual=native_auditor(lengths);saved=read(root/'batch_audit.json')
+    actual=native_auditor(lengths) if policy is None else native_auditor(lengths,batch_step_policy=policy)
+    saved=read(root/'batch_audit.json')
     if any(actual[k]!=saved[k] for k in ['token_budget','optimizer_steps','step_counts']):raise ValueError('native batch recheck differs')
     presets=load_presets()
     for arm,m in manifests.items():
@@ -200,6 +212,9 @@ def finalize(assembly, evidence, output):
         presets[arm].update(initialization_revision=m['initialization_revision'],token_budget=m['token_budget'],
                             optimizer_steps=m['optimizer_steps'],status='resolved_D27_matched_data',
                             resolved_data_recipe=dict(decision='D-27',actual_arm_counts=read(root/'results.json')['arms']))
+        if policy is not None:
+            m.update(batch_step_policy=policy,batch_step_policy_approval=approval)
+            presets[arm].update(batch_step_policy=policy,batch_step_policy_approval=approval)
         write_new(dest/'manifest.json',m);write_new(dest/'training_config.json',presets[arm])
         for seed in [0,1,2]:resolve_plan(presets[arm],m,seed)
     differences=check_matched(presets);write_new(out/'config_diff.json',differences)
