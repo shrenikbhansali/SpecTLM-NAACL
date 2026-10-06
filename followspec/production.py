@@ -64,7 +64,8 @@ def checked_queries(rows, label, forbidden=()):
     return hashes
 
 
-def allocate_queries(registry, general, magpie, validation, *, seed, forbidden,eligible_bank=None):
+def allocate_queries(registry, general, magpie, validation, *, seed, forbidden,eligible_bank=None,
+                     magpie_shortfalls=None):
     """Parent and child general pools are disjoint; general queries are shared
     across child targets. Each target has no repeated query. Validation is an
     explicit operator input, globally disjoint from all training queries.
@@ -80,18 +81,32 @@ def allocate_queries(registry, general, magpie, validation, *, seed, forbidden,e
     targets = sorted(bank + mixtures)
     if set(magpie) != set(targets):
         raise ValueError('Magpie inputs must cover all admitted targets')
+    # Compute quotas before validating D-35 exceptions; bank still needs 500 for MVD.
+    bank_budget=1000*len(bank)
+    rounded = round(bank_budget / len(targets)); per_fs = rounded - rounded % 2
+    shortfalls = {} if magpie_shortfalls is None else magpie_shortfalls
+    if not set(shortfalls) <= set(mixtures):
+        raise ValueError('D-35 shortfalls require admitted mixture targets')
+    shortfall_records = {}
     blocked = {prompt_hash(q['prompt']) for q in forbidden}
     val_hashes = checked_queries(validation, 'validation', blocked)
     checked_queries(general, 'general', blocked | val_hashes)
     for k in targets:
         checked_queries(magpie[k], 'Magpie '+k, blocked | val_hashes)
-        if len(magpie[k]) < 500:
+        if k in shortfalls:
+            proof = shortfalls[k]
+            if (proof.get('status') != 'shortfall' or proof.get('candidate_budget') != 6400 or
+                    proof.get('attempted') != proof['candidate_budget']):
+                raise ValueError('D-35 requires an exhausted D-23 shortfall')
+            count = len(magpie[k]); need = per_fs // 2
+            if proof.get('n') != count or not need <= count < 500:
+                raise ValueError(f'{k}: shortfall count {count} must cover own-Magpie need {need} (<500)')
+            shortfall_records[k] = dict(count=count, need=need, decision='D-35')
+        elif len(magpie[k]) != 500:
             raise ValueError('Magpie requires 500 queries per target')
         if any(q.get('derivative_id', k) != k for q in magpie[k]):
             raise ValueError('wrong Magpie origin')
     # Nearest D-27 integer, dropping at most one final query to permit exact halves.
-    bank_budget=1000*len(bank)
-    rounded = round(bank_budget / len(targets)); per_fs = rounded - rounded % 2
     child_counts = {'FS': per_fs * len(targets), 'MVD': bank_budget}
     # Keep only complete six-child/two-parent blocks at final tail matching.
     parent_counts = {a: n // 3 for a, n in child_counts.items()}
@@ -128,6 +143,7 @@ def allocate_queries(registry, general, magpie, validation, *, seed, forbidden,e
     return dict(schema='followspec_D27_queries_v1', queries=assigned, arm_ids=arm_ids,
                 parent_ids={a: [q['prompt_id'] for q in parent[:n]] for a, n in parent_counts.items()},
                 validation=validation, seed=seed,
+                **({'magpie_shortfalls': shortfall_records} if shortfall_records else {}),
                 counts=dict(fs_per_target=per_fs, fs_rounded_per_target=rounded,
                             per_target_tail_drop=rounded-per_fs, child=child_counts, parent=parent_counts),
                 policy='Seeded parent/child general partition; general shared across targets; no within-target duplicates',

@@ -348,21 +348,56 @@ def mixture_prompts(admission, output, forbidden_files,*,code_repo=None,d23_over
     return out
 
 
-def responses(admission, prompt_paths, validation_prompts, output, forbidden_files,*,code_repo=None):
-    from followspec.mixture_targets import validate_registry
-    root,cfg=checked_stage(admission);spec=execution_spec(cfg['spec'],code_repo);registry=read(root/'registry.json');validate_registry(registry)
-    if not read(root/'results.json')['ready']:raise ValueError('mixture admission not ready')
-    plan,pc=checked_stage(cfg['plan']);metadata=read(plan/'bank_metadata.json')
-    paths=read(prompt_paths);magpie={k:lines(p) for k,p in paths.items()}
-    for name,path in paths.items():
-        c=read(Path(path).parent/'config.json')
+def response_magpie_inputs(registry, spec, root, paths):
+    """Read explicit run paths; D-35 partial files never imply training readiness.
+
+    FIX-5 writes partial_queries.jsonl (not prompts.jsonl) on shortfall. Resolve
+    that sibling only for a proven exhausted run, keeping the source immutable.
+    Complete runs retain their existing config and revision checks.
+    """
+    magpie = {}; shortfalls = {}; evidence = {}
+    for name, requested in paths.items():
+        if name not in registry:
+            raise ValueError('unknown Magpie target')
+        path = Path(requested).resolve(); run = path.parent
+        config_path = run/'config.json'; c = read(config_path)
+        evidence[str(config_path)] = sha256(config_path)
         if c['derivative_id']!=name or c['split']!='training' or c['acceptance_only'] or c['pool_sha256'] not in {
                 sha256(spec['staging_manifest']),sha256(root/'registry.json')}:
             raise ValueError('Magpie production provenance differs')
         if c.get('revision')!=spec['base_revision'] or c.get('count')!=500:
             raise ValueError('wrong Magpie base pin/count')
+        if (run/'failure.json').exists():
+            raise ValueError('failed Magpie run is not shortfall/completion evidence')
+        result_path = run/'results.json'
+        result = read(result_path) if result_path.exists() else {}
+        if result_path.exists():
+            evidence[str(result_path)] = sha256(result_path)
+        if result.get('status') == 'shortfall':
+            if (registry[name]['kind'] != 'mixture' or c.get('d23_oversampling') is not True or
+                    c.get('candidate_budget') != 6400 or result.get('candidate_budget') != 6400 or
+                    result.get('attempted') != result['candidate_budget'] or
+                    result.get('requested') != 500 or result.get('acceptance_only') is not False):
+                raise ValueError('D-35 requires an exhausted production D-23 mixture shortfall')
+            if not path.exists() and path.name == 'prompts.jsonl':
+                path = run/'partial_queries.jsonl'
+            shortfalls[name] = result
+        magpie[name] = lines(path); evidence[str(path)] = sha256(path)
+        if name in shortfalls and (result.get('n') != len(magpie[name]) or
+                                   result.get('valid_before_truncation') != len(magpie[name])):
+            raise ValueError('Magpie shortfall evidence count differs')
         if any(q.get('revision')!=registry[name]['revision'] for q in magpie[name]):
             raise ValueError('wrong Magpie target revision')
+    return magpie, shortfalls, evidence
+
+
+def responses(admission, prompt_paths, validation_prompts, output, forbidden_files,*,code_repo=None):
+    from followspec.mixture_targets import validate_registry
+    root,cfg=checked_stage(admission);spec=execution_spec(cfg['spec'],code_repo);registry=read(root/'registry.json');validate_registry(registry)
+    if not read(root/'results.json')['ready']:raise ValueError('mixture admission not ready')
+    plan,pc=checked_stage(cfg['plan']);metadata=read(plan/'bank_metadata.json')
+    paths=read(prompt_paths)
+    magpie,shortfalls,magpie_evidence=response_magpie_inputs(registry,spec,root,paths)
     forbidden=sorted(set(spec['forbidden_files']+forbidden_files));blocked=[q for p in forbidden for q in lines(p)]
     validation=lines(validation_prompts);val_hash={prompt_hash(q['prompt']) for q in validation}
     general=lines(spec['general_prompts'])
@@ -371,7 +406,9 @@ def responses(admission, prompt_paths, validation_prompts, output, forbidden_fil
     if eligible is not None and set(eligible)!={k for k,v in registry.items() if v['kind']=='bank'}:
         raise ValueError('fresh-plan bank universe differs from registry')
     assignment=allocate_queries(registry,[q for q in general if prompt_hash(q['prompt']) not in val_hash],magpie,validation,
-                                seed=spec['seed'],forbidden=blocked,**({'eligible_bank':eligible} if eligible is not None else {}))
+                                seed=spec['seed'],forbidden=blocked,
+                                **({'magpie_shortfalls':shortfalls} if shortfalls else {}),
+                                **({'eligible_bank':eligible} if eligible is not None else {}))
     out=new_output(output);write_new(out/'assignment.json',assignment)
     cpu=[];jobs=[];runs={}
     for i,(target,queries) in enumerate(sorted(assignment['queries'].items())):
@@ -402,8 +439,9 @@ def responses(admission, prompt_paths, validation_prompts, output, forbidden_fil
         runs[target]=pair
     write_new(out/'render_commands.json',cpu);write_new(out/'response_runs.json',runs);jsonl(out/'jobs.jsonl',jobs)
     finish(out,dict(stage='responses',admission=str(root),spec=spec,validation_prompts=str(Path(validation_prompts).resolve()),
-                    input_sha256={p:sha256(p) for p in [prompt_paths,validation_prompts,*paths.values(),*forbidden]},
+                    input_sha256=magpie_evidence | {p:sha256(p) for p in [prompt_paths,validation_prompts,*forbidden]},
                     forbidden_files=forbidden),dict(counts=assignment['counts'],n_gpu_jobs=len(jobs),n_cpu_render_commands=len(cpu),
+                    **({'magpie_shortfalls':assignment['magpie_shortfalls']} if shortfalls else {}),
                     production_ready=False,next='run render-local, then operator GPU response queue, then assemble'))
     return out
 
