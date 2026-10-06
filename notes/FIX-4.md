@@ -71,3 +71,11 @@ Next: operator M1 (baseline + 63 filter jobs on the training-general reference, 
 ## 2026-10-06T04:18:28-04:00 — codex-1 — Claim immutable filter retry overlay
 
 Accepted originalFIX-4 pipeline remainsverified. ConcreteM1 failures005/009 exposedrecoverygap: filter_runs.json points atfailedartifactdirs, and rerunningtherewouldoverwritehistoricalartifacts. Reopenownrow for explicit retry-filters stage: requireselectedfailedtargets, writefreshroundoverlay referencingunchangedregistry/plan/reference/baseline andalluntouchedruns; emitonlyselectedretryjobswithfreshpaths; admissionusesoverlay. Oldfailedoutputs retained. Nochangedcandidate/seed/admissionthreshold; nonewGPUjoblaunchedbybuilder. Testsfirstrejectsuccessful/unknown/activecells, unchangedoriginalbytes, subsetretryandadmissionmapping. P0preemptsB10; B6nativecapacitypasses,freshmixtureexportawaitsM1slots.
+
+## 2026-10-06T04:24:40-04:00 — codex-1 — Retry overlay PASS → review / Handoff
+
+Tests firstmissingretry_filters; now130testsPASS (FIX4_retry_before/after_20261006.log). Explicitretry-filters commandrefusessuccessful/active/unknown/duplicatetargets, verifiesoldstagehashes, preservesoriginalbytes, changesonlyselectedrunpathsandjobtags, keepsalljobdefinitionsforlaterchainedretries. Sourceed3f905mergedmain/pushed. No seed, candidate, model, reference, baseline or admissionthreshold changes.
+
+RealM1overlay: artifacts/FIX4_M1_retry_overlay_20261006, exactly2retryjobs for CharlesLi/llama_3_gsm8k_cot_simplest (005) and CharlesLi/llama_3_gsm8k_helpful (009);61otherpathsunchanged. Bothactual atlas.filter_pool CLI --dry-run passed; acceptance artifacts/FIX4_retry_acceptance_20261006/acceptance.json. Originalfailedcellshaveconfig/results/failure preserved. M1initial63jobsfinished,admitexit1asexpectedforfailedcells. NoCPUplannerclaimedadmission.
+
+Handoff: operatorrunnew filter_jobs.jsonl (existing spec usesvalidrun-M1 tag andunchangedfiltercode), then `python -m followspec.production admit --round-dir /home/heck2/sbhansali8/SpecTLM/artifacts/FIX4_M1_retry_overlay_20261006 --output NEW_ADMISSION`. No need rebuild/re-run61successfulcells. Verifythisextensionthendone; originalFIX4productionacceptance remainsvalid. BuilderB6exportrunningonheck-srv3:2, B10boundedfull64onheck-srv3:1; exclude those2slotsfromanyretryqueueuntiltheyfinish. AllotherM1queueassignmentscompleted.
