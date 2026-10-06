@@ -29,7 +29,17 @@ mixture validation is unresolved; the current bank provider refuses mixtures.
    source has config/results/records hashes. FS and PO-T reuse identical token
    records; PO-D has base-generated responses on the same rendered prompts.
    Counts distinguish shifted sequence tokens from assistant loss tokens.
-   Unequal arm budgets are rejected. No trimming/resampling policy is inferred.
+   The owner approved paired response trimming on 2026-10-06. Before assembly,
+   run `python -m followspec.paired_responses --child-run CHILD --base-run BASE
+   --child-id BANK_ID --output NEW_DIRECTORY`. It verifies exact shared prompts
+   and generation controls, then writes child/base reference lists and a log
+   of every pair (including zero trims). Both lists retain the shorter response
+   prefix, keep every prompt token, and refer to unchanged original files.
+   Use child references for FS/PO-T; base references for PO-D. MVD bank sources
+   can use the same policy, but its overall quotas still need the approved recipe.
+   The loader recomputes each retained length from both hash-pinned originals;
+   hand-edited lengths or changed peers are rejected. All four arm totals must
+   still match; pairing does not infer MVD resampling or a final token budget.
 5. Before resolving presets, audit actual counts, native sampler steps, parent
    share, per-child Magpie/general quotas, forbidden prompt hashes, train/val
    disjointness, and five decoded samples/masks per arm. Set audit status only
