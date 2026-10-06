@@ -67,5 +67,19 @@ Total 40 A40s (heck-srv1–5); 33 free at 16:42. Local root disks: 400–735 GB 
 - No pinned sprint engine env yet (B2 builds it).
 
 ## Handoff
-- 16:50: O1 claimed, inventory done. Next: ops tooling (`ops/status.sh`, `ops/launch.py`), then the operator loop. Gate 1 needs B2 plus the pause lift.
-- 18:43 correction: Gate 1 report header, ledger path-verification times, §1 "Last updated", and the G1 row were stamped 18:40–18:50 from an estimate. The actual commit time was 18:32. Corrected. Operator timestamps now always come from `date`.
+- **2026-10-05 21:27 (claude-ops):** state for the next operator session.
+  - Done today: W1, B2 (verified), O1, A1. Gate 1 report `reports/GATE-1.md` (recommends PASS; owner D-08 pending).
+    Ledger drafts in `ledger/` (EXP-ATL-001/002). Daily report draft `reports/2026-10-06.md`: **refresh and finalize by 07:00**
+    (update §1 copy, runs, any new decisions, B1/Codex status).
+  - Waiting on owner: D-08 + compile-cache policy + noise floor (GATE-1); B3 bf16 tolerance; D-04/D-05/D-06; license
+    allow-list; A5 child set; cluster access; HF token §13 entry. All listed in §1 and in the daily report §6.
+  - Waiting on Codex (idle since 17:50): B1 pre-review fixes (notes/B1.md: formats, architectures, typing, bank staging),
+    then B1 review → operator verify → A2 proposal; FIX-1 (A2 loadability/coherence filter, notes/FIX-1.md); B4 Magpie
+    (A3), B6, B5, B7.
+  - Next operator actions when unblocked: verify B1 (re-run acceptance; the download pre-check already passes 200/200);
+    draft the A2 pool-freeze proposal (counts per type and pool after filters, §5.7 checks, leakage cosine); launch A5 once
+    the owner picks the child set (prep in notes/A5.md); A4/A7 after A3 and D-05.
+  - Tooling: `ops/status.sh`, `ops/launch.py` (setsid; `--env`, `--tag`, `--rep`), wave scripts in `ops/waves/`, analysis
+    `ops/a1_analyze.py`. Cells: `HF_HUB_OFFLINE=1`, fresh compile via `VLLM_CACHE_ROOT={out_dir}/vllm_cache` (pending owner policy).
+  - Lessons: never `git config` in a worktree (shared); run `git rebase` as its own step; take every timestamp from `date`;
+    pkill patterns must not match their own command line.
