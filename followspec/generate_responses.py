@@ -59,6 +59,7 @@ def main():
     p.add_argument('--allow-a40-production',action='store_true');p.add_argument('--acceptance-smoke',action='store_true');p.add_argument('--dry-run',action='store_true')
     p.add_argument('--capacity-smoke',action='store_true',help='bounded64-query capacity inputs at production512 response limit; remain acceptance-only')
     p.add_argument('--acceptance-limit',type=int,choices=[5,64],default=5,help='64 only for B6 bounded overfit acceptance; still max64 response tokens')
+    p.add_argument('--shard-index',type=int);p.add_argument('--shard-count',type=int)
     p.add_argument('--batch-size',type=int,default=32);p.add_argument('--max-model-len',type=int,default=4096)
     p.add_argument('--max-lora-rank',type=int,help='explicit matched rank capacity across response controls')
     p.add_argument('--gpu-memory-utilization',type=float,default=.7)
@@ -119,6 +120,13 @@ def main():
         engine_lock_sha256=sha256(Path(__file__).resolve().parents[1]/'atlas/env/requirements.lock'),
         rendered_input_provenance=rendering,
         hardware_policy='D-19 A40 production opt-in' if a.allow_a40_production else 'original H100/H200 production; bounded A40 smoke')
+    from followspec.response_shards import response_partition
+    shard_start,shard_end=response_partition(len(rows),a.batch_size,a.shard_index,a.shard_count)
+    cfg.pop('shard_index');cfg.pop('shard_count')
+    if a.shard_count is not None:
+        if a.derivative_id!='base' or a.prompt_target!='base' or not a.rendered_inputs:
+            raise ValueError('parallel shards require exact rendered parent inputs')
+        cfg.update(n=shard_end-shard_start,response_shard=dict(index=a.shard_index,count=a.shard_count,start=shard_start,end=shard_end,total_n=len(rows)))
     if a.target_registry:cfg['target_registry_sha256']=sha256(a.target_registry)
     if row.get('mixture_registry'):cfg['mixture_registry']=row['mixture_registry']
     if a.filter_run:cfg['filter_results_sha256']=sha256(Path(a.filter_run)/'results.json')
@@ -150,8 +158,8 @@ def main():
         kw={'lora_request':LoRARequest(a.derivative_id,1,adapter)} if adapter else {}
         seeds=request_seeds(a.seed,0,len(rows));counts=[]
         with (out/'per_prompt.jsonl').open('x') as f:
-            for start_idx in range(0,len(rows),a.batch_size):
-                unpaused();end=min(start_idx+a.batch_size,len(rows))
+            for start_idx in range(shard_start,shard_end,a.batch_size):
+                unpaused();end=min(start_idx+a.batch_size,shard_end)
                 params=[SamplingParams(temperature=.6,top_p=.95,max_tokens=cfg['max_new_tokens'],seed=s) for s in seeds[start_idx:end]]
                 outputs=llm.generate(inputs[start_idx:end],params,use_tqdm=False,**kw)
                 if len(outputs)!=end-start_idx:raise ValueError('engine response count mismatch')

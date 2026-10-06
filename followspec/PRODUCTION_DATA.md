@@ -218,3 +218,23 @@ retry, run it on a free GPU, then assemble the overlay after all its sources
 complete. Do not launch the entire effective job list as a new independent queue;
 that would duplicate already running or completed sources. For a dispatcher
 restart, retain its existing launch log so recorded jobs are skipped.
+
+## Parallel execution of the long parent response job
+
+`followspec.response_shards plan --plan RESPONSE_STAGE --count N
+--code-repo CLEAN_TAGGED_MAIN --output NEW_PARENT_OVERLAY` emits N A40 jobs
+for the single base-parent source, preserving the other response sources.
+Each part owns whole original batches; the last original partial batch stays
+intact. `generate_responses --shard-index I --shard-count N` preserves global
+query indices and `request_seeds(seed, 0, global_index)`; defaults are unchanged.
+These flags require exact rendered parent inputs and preserve the original
+acceptance-only/production scope.
+
+After every part finishes, execute the emitted `join_command.json`. The join
+verifies complete unique coverage, original query order, global seeds, exact
+prompt tokens, assistant masks, unchanged render/source hashes and identical
+settings/pins before writing a fresh combined response source. It preserves and
+hashes every part. Reported joined wall time is the sum of part times, explicitly
+not elapsed time or an inference speedup. Assemble the new parent overlay only
+after the join and every other referenced source are complete. Historical
+serial outputs stay untouched and must not be mixed with the parallel source.
