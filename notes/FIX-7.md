@@ -43,3 +43,16 @@ Next step from a session with network/write permission: `git -C .worktrees/build
 ## 2026-10-06T17:28:53-04:00 — codex-1 — Publication blocker resolved
 
 Imported the verified isolated-clone commits/tag into the shared repository, preserving the mirrored uncommitted journal/board under artifacts/FIX7_integration_20261006 before integration. Merged newer origin/main; pushed main660f703 and run-FIX7-20261006 tag b4b5f86 to GitHub without force. Shared main and clean run checkout match published ancestry. Independent pinned-vLLM environment checks2/2 and shortfall tests27/27 PASS. Canonical response planning/rendering and all121 CLI+launcher preflights PASS; M2 responsequeue now started by codex-1. Previous session's DNS/connector publication blocker is resolved. See notes/FIX-4.md for queue ownership and continuation.
+
+## 2026-10-06T17:45-04:00 — claude-ops — Verified; done. Duplicate response plan/queue stopped
+
+- Re-ran in clean tag run-FIX7-20261006 (b4b5f86): system pytest (atlas/followspec/paper/ops, excl. native CT) → 291 passed, 1 failed (vLLM pin, env-only);
+  pinned env test_environment + test_native_ct → 3 passed. Reviewed the diff: shortfall accepted only for admitted mixtures with exhausted 6400
+  budget, d23 oversampling, requested 500, not acceptance-only, no failure.json, count == evidence n and need ≤ count < 500; all others need exactly 500. **FIX-7 done.**
+- Operator error (coordination): not knowing codex-1 had already planned and queued M2 responses at 17:31 (`M2_D28_20261006/responses`,
+  `response_queue.log`), I planned `responses_d35` (same inputs; **assignment.json sha256 identical**, b43c5c9c…), rendered it, and launched
+  `responses_d35_queue.log` at 17:43. One job (000-child, heck-srv1:7) started before I saw the other queue; I killed my queue and that job
+  by VLLM_CACHE_ROOT match (exit 143, GPU 7 freed). No other process was touched. `responses_d35` and its aborted run are kept as historical, unused.
+  **Canonical M2 responses = codex-1's `responses` stage/queue.** The operator monitors it and does not launch.
+- Five rendered prompts inspected (target-000/007 CharlesLi own template 8036f7…, no system block; 025 bank and 040 mixture and 060 standard Llama-3.1
+  template ca5b86…; single BOS each). The plans are identical, so this applies to the canonical stage too.
