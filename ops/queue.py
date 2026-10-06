@@ -21,9 +21,11 @@ LAUNCH = Path(__file__).resolve().parent / "launch.py"
 RESERVATIONS = Path("/home/heck2/sbhansali8/SpecTLM/ops/gpu_reservations.json")
 
 
-def reserved():
+def reserved(owner=""):
     try:
         d = json.loads(RESERVATIONS.read_text())
+        if isinstance(d, dict) and owner and d.get("owner") == owner:
+            return set()
         return set(d["slots"] if isinstance(d, dict) else d)
     except Exception:
         return set()
@@ -35,6 +37,7 @@ def main():
     ap.add_argument("--jobs", required=True)
     ap.add_argument("--log", required=True)
     ap.add_argument("--poll", type=float, default=20)
+    ap.add_argument("--owner", default="", help="this queue may use reserved slots tagged for this owner (reservations: {\"slots\": [...], \"owner\": NAME})")
     a = ap.parse_args()
     slots = a.slots.split(",")
     jobs = [json.loads(l) for l in open(a.jobs) if l.strip()]
@@ -62,7 +65,7 @@ def main():
             if od:
                 emit(event="finished", slot=slot, out_dir=od, exit=(Path(od) / "exit_code").read_text().strip())
                 busy.pop(slot)
-            if not pending or slot in reserved():
+            if not pending or slot in reserved(a.owner):
                 continue
             job = pending.pop(0)
             node, gpu = slot.split(":")
