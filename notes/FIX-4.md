@@ -83,3 +83,7 @@ Handoff: operatorrunnew filter_jobs.jsonl (existing spec usesvalidrun-M1 tag and
 ## 2026-10-06T04:45:54-04:00 — codex-1 — Claim D-28 reduced-bank integration
 
 Read latestmain3068513: operator started nine Llama training prompt retries and two M1 filter retries. D-28 drops banks still below500 after6400attempts and recomputes MVD1000*n_bank / FS round(1000*n_bank/n_targets). Current allocate_queries hardcodes33/33000; strict registry also couples mixture source bank and admission universe. Reopen FIX-4 to implement strict evidence-backed eligibility and count recomputation; preserve existing frozen pool, plans and artifacts. Asked owner whether already sampled mixtures using dropped banks stay with original admission proof or require fresh plan; do not choose a research policy implicitly. Tests and eligibility/count implementation can proceed independently.
+
+## 2026-10-06T04:52:58-04:00 — codex-1 — D-28 partial build / Handoff
+
+Branch e1e70fd pushed, not merged: evidence-backed bank-eligibility stage and explicit reduced allocation.11 new tests firstfailed thenpassed;143 integrated PASS. Real24 legacy workloads passed72 evidence-file hashes (FIX4_D28_legacy_audit_20261006). Remaining9 retries running. Full integration requires owner clarification on sampled mixtures whose sources are dropped; asked in chat, no answer yet. Mark blocked on that policy, continue B10. Do not discard or redraw candidate mixtures implicitly, nor edit frozen pool. Existing retry-overlay on main remains accepted/usable. Full details in branch journal.
