@@ -125,8 +125,6 @@ def main():
     rows,source=load_sequences(a.sequences,a.acceptance_smoke)
     if a.derivative_id!='base' and (source['derivative_id']!=a.derivative_id or source['derivative_revision']!=a.derivative_revision):raise ValueError('sequences from another derivative')
     bc=json.loads((Path(a.base)/'config.json').read_text());dc=json.loads((Path(a.drafter)/'config.json').read_text());taps=tap_layers(dc,bc['num_hidden_layers'])
-    if a.child and json.loads((Path(a.child)/'config.json').read_text()).get('quantization_config'):
-        raise ValueError('packed/quantized target requires a validated native dequantizer; never measure packed codes as weights')
     template=template_identity(a.base,a.child or a.adapter,adapter=bool(a.adapter))
     config=vars(a)|dict(source=source,template=template,tap_indices=taps,tap_semantics='HF hidden_states indices (embedding-inclusive), pre-final-norm',
         tap_default_source='vLLM0.31.0 SupportsEagle3.get_eagle3_default_aux_hidden_state_layers: (2,n//2,n-3)',
@@ -157,9 +155,14 @@ def main():
             weight_result=adapter_norms(weights,a.adapter)
             child=PeftModel.from_pretrained(base,a.adapter,autocast_adapter_dtype=False).eval()
         elif a.child:
-            child=AutoModelForCausalLM.from_pretrained(a.child,torch_dtype=torch.bfloat16,local_files_only=True,trust_remote_code=False,attn_implementation='eager').to('cuda').eval()
+            from atlas.quantized_targets import load_child
+            child,backend=load_child(a.child)
+            write_new(out/'child_backend.json',backend)
             cw=dict(child.named_parameters())
-            if set(weights)!=set(cw):raise ValueError('full-weight parameter names differ')
+            if set(weights)-set(cw):raise ValueError('full-weight parameter names differ')
+            # Native CT retains scale metadata parameters; only actual base model
+            # weights enter the norm. Packed layouts must be expanded by the loader.
+            if any(cw[k].shape!=v.shape for k,v in weights.items()):raise ValueError('unexpanded quantized weight shape')
             weight_result=norm_groups(weights,{k:square_norm(cw[k].float()-v.float()) for k,v in weights.items()})
         else:weight_result=norm_groups(weights,{})
         write_new(out/'weight_covariates.json',weight_result)
