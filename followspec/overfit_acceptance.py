@@ -40,6 +40,12 @@ def validate_acceptance_registry(registry, rows, *, capacity=False):
     validate_registry(registry,allow_acceptance=True)
 
 
+def validate_training_device(device,*,allow_h200=False,capacity=False):
+    if 'A40' in device:return
+    if allow_h200 and not capacity and 'H200' in device:return
+    raise ValueError('A40 required; D-26 permits explicit H200 training smoke, never A40 capacity evidence')
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
@@ -48,6 +54,7 @@ def main():
     p.add_argument('--offload-saved-tensors',action='store_true',help='store autograd saved tensors on CPU; no recomputation, precision or recipe change')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
     p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
+    p.add_argument('--allow-h200-training-smoke',action='store_true',help='D-26: bounded training on a free local H200; export evaluation remains A40')
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
     p.add_argument('--family',choices=['llama','qwen3'],default='llama',help='explicit Qwen3 EAGLE initialization; native recipe unchanged')
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3',help='DFlash uses native raw blocks, not EAGLE shifts')
@@ -76,7 +83,7 @@ def main():
     from followspec.paired_data import PairedCollator,shift_paired
     from followspec.eagle3_extension import install_follow_spec
     if git_commit!=BACKEND:raise ValueError('wrong native backend')
-    if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('D-19 acceptance requires A40')
+    validate_training_device(torch.cuda.get_device_name(0),allow_h200=a.allow_h200_training_smoke,capacity=a.capacity_smoke)
     cfg=load_presets(family=a.family,algorithm=a.algorithm)['FS'];epochs=1 if a.capacity_smoke else a.epochs;seed=0
     if a.algorithm=='eagle3':
         validate_eagle_family(a.family,json.loads((Path(a.base)/'config.json').read_text()),json.loads((Path(a.drafter)/'config.json').read_text()))

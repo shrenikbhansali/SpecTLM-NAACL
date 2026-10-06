@@ -1,4 +1,13 @@
 import pytest
+
+
+def test_h200_training_smoke_requires_explicit_d26_option_and_cannot_claim_a40_capacity():
+    from followspec.overfit_acceptance import validate_training_device
+    validate_training_device('NVIDIA A40')
+    validate_training_device('NVIDIA H200',allow_h200=True)
+    for device,allow,capacity in [('NVIDIA H200',False,False),('NVIDIA H100',True,False),
+                                  ('NVIDIA H200',True,True)]:
+        with pytest.raises(ValueError):validate_training_device(device,allow_h200=allow,capacity=capacity)
 from followspec.overfit_acceptance import validate_corpus
 
 
