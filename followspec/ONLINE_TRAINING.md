@@ -166,3 +166,18 @@ one epoch. The earlier3-step run used8.6GB for its checkpoints, so budget
 roughly86GB for30 checkpoints. Preserve every run/checkpoint; use a fresh
 output directory. This check still does not establish capacity on long or
 fully occupied batches.
+
+The separate full-response capacity check uses
+`generate_responses --acceptance-smoke --acceptance-limit 64 --capacity-smoke`.
+It still requires exactly64 distinct training queries and marks every response
+acceptance-only, but uses the production512-token response cap. These records
+cannot enter M2 production manifests. Inspect the first5 decoded strings and
+masks and record the normal audit before running
+`overfit_acceptance --capacity-smoke` with those sources. This mode runs one
+native epoch with at most8 optimizer steps and at most65536 actual sequence
+tokens, retaining the8192 batch, released initialization, noise, optimizer and
+loss settings. It requires at least one response reaching512 tokens. The
+ordinary5/64-query generation cap remains64 response tokens, the default
+overfit remains3 epochs, and D-26 remains30 steps. Capacity results record
+actual tokens in each batch as well as padding; they do not certify every
+possible production prompt length or mixture rank. No sweeps are launched.
