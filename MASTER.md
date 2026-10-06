@@ -216,8 +216,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | done | claude-ops / 2026-10-06T01:36-04:00 | [journal](notes/A3.md); rendered workloads artifacts/A3_rendered_20261006 (index.json own-domain 163; index_speed128.json general 174); audit overlap 0 |
 | A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | in progress | claude-ops / 2026-10-06T06:52-04:00 | [journal](notes/A4.md); 1,038/1,059 cells ok; 21 zero-step cells await FIX-6 rerun |
 | A5 | Ledger children re-measured (dose-response) | P0 | claude-ops | A1 | Tue | todo | | |
-| A6 | Covariates for every derivative | P0 | claude-ops | B8, A2 | Wed | todo | | |
-| A7 | Atlas DFlash sweep, both bases | P0 | claude-ops | A1, A3 | Wed | in progress | claude-ops / 2026-10-06T10:43-04:00 | [journal](notes/A7.md); 400 cells (native K all; K=4 subset 20) |
+| A6 | Covariates for every derivative | P0 | claude-ops | B8, A2 | Wed | in progress | claude-ops / 2026-10-06T12:15-04:00 | [journal](notes/A6.md); capture + covariates chain running |
+| A7 | Atlas DFlash sweep, both bases | P0 | claude-ops | A1, A3 | Wed | in progress | claude-ops / 2026-10-06T10:43-04:00 | [journal](notes/A7.md); sweep complete; zero-step cells await FIX-6 |
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | in progress | claude-ops / 2026-10-06T03:42-04:00 | [journal](notes/M1.md); prepare done; round-1 chain armed |
