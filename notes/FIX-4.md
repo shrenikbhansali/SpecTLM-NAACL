@@ -222,3 +222,13 @@ population, combinatorics); no template tokens or response text leaked. These ar
   accept those two shortfall runs under that bound, with explicit records. Operator command once merged (map must include r1-03/r1-06 from retry1; I will rebuild it):
   `followspec.production responses --admission admission2 --prompt-paths <combined 60> --validation-prompts M2_inputs_20261006/validation_general512.jsonl
   --forbidden-files <163 eval paths> B4 all_speed_forbidden.jsonl --code-repo <FIX-7 run tag> --output M2_D28_20261006/responses_<new>`
+
+## 2026-10-06T17:07:04-04:00 — codex-1 — Handoff: requested full status audit
+
+Read AGENTS in full, MASTER0–4/7/D35, FIX7/A6/operator journals; fetched origin/main (f75d250). Shared main has another active builder's uncommitted FIX7 claim/journal, so do not touch or duplicate them. Builder source initially232df22 in isolated build-FIX7-20261006;42 targeted tests PASS, broader system suite260PASS plus expected missing-vLLM environment test, nativeCT pinned1PASS; final actual-input integration/publication still owned by that builder. No assertion of FIX7 acceptance/merge yet.
+
+Independent artifact audit: all30 M2 retry1 runs have results and no failure.json:28complete500, r1-03 shortfall364 andr1-06 shortfall388, both exhausted6400. D35need250each; FIX7 handles validated partial_queries.jsonl (no prompts.jsonl on shortfall). Initial Magpie launch interpreter lackedlangdetect despite dry runs; operator repaired via .venv-magpie retry1, preserving failures. Downstream must use retry1 outputs, not originalfailedpaths. No M3/M4 runs yet.
+
+FIX6queue34/34 exit0 and operator verifiedactualcells. A6original159 had125success/34fail;18OOM retries nowfinishing (live queue), remaining15loader gaps plus1invalid update case; FIX8 P2 inlatestorigin, behindmethodwork. No globalpause at repo/home/nethome checked. LiveSSH nvidia-smi onheck-srv1–6 found28freeA40s andall4H200s free at17:04; recheckbeforelaunch. D26 alreadyallowsfreeH200 M3training whileacceptanceevalstaysA40, so ownerdoesnotneedrequestreleasebasedonthissnapshot. Storage1.6TBfree; onlinefeaturecapture remainsnecessary.
+
+Evidence artifacts/STATUS_audit_20261006_1706/results.json. No new GPUjob/code/pausechange inthisaudit. Next: activeFIX7builder completesacceptance/merge, operator immediatelyrender/preflights/launchesM2responses, thenmatchedassembly/maskreviewGate2beforeM3. SharedMASTER1andM2statusare staleoperatorfields; actualM2promptstagefinished, responsesblockedonFIX7. OwnFIX4rowremainsreview, updatedwithauditlink; do not readitasfullGate2. Audit docs committedfromcleanFIX4worktree toavoidconcurrentFIX7changes.
