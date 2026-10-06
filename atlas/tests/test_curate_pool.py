@@ -65,3 +65,28 @@ def test_download_completion_event_can_record_snapshot_path(tmp_path):
     log=tmp_path/'log.jsonl'
     event(log,status='complete',path='/cache/snapshot')
     assert json.loads(log.read_text())['path']=='/cache/snapshot'
+
+
+def test_csv_roundtrip_string_fields_and_large_file_inventory(tmp_path):
+    from atlas.curate_pool import read_csv, write_csv
+    r=row();r['target_modules']='all-linear';r['gated']='auto'
+    r['files']=[dict(path=f'part-{i}.safetensors',size=100,sha256='a'*64) for i in range(2000)]
+    path=tmp_path/'large.csv';write_csv(path,[r])
+    actual=read_csv(path)[0]
+    for key in ('target_modules','gated','files','tokenizer_identical'):
+        assert actual[key]==r[key]
+
+
+def test_read_legacy_string_csv_and_reject_malformed_json(tmp_path):
+    import csv
+    from atlas.curate_pool import read_csv,write_csv
+    r=row();path=tmp_path/'old.csv';write_csv(path,[r])
+    with path.open() as f:records=list(csv.DictReader(f))
+    records[0]['target_modules']='all-linear';records[0]['gated']='manual'
+    def save():
+        with path.open('w',newline='') as f:
+            w=csv.DictWriter(f,fieldnames=FIELDS);w.writeheader();w.writerows(records)
+    save();actual=read_csv(path)[0]
+    assert actual['target_modules']=='all-linear' and actual['gated']=='manual'
+    records[0]['files']='[invalid';save()
+    with pytest.raises(json.JSONDecodeError):read_csv(path)

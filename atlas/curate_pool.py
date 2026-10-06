@@ -109,17 +109,28 @@ def write_csv(path, rows, fields=FIELDS):
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writeheader()
         for row in rows:
-            writer.writerow({k: json.dumps(v, sort_keys=True) if isinstance(v, (list, dict, bool))
+            writer.writerow({k: json.dumps(v, sort_keys=True) if k in JSON_FIELDS or isinstance(v, (list, dict, bool))
                              or v is None else v for k, v in row.items()})
 
 
 def read_csv(path):
-    with Path(path).open() as f:
-        rows = list(csv.DictReader(f))
+    # Hub file inventories can exceed csv's small default field limit.
+    prior_limit = csv.field_size_limit()
+    try:
+        csv.field_size_limit(max(prior_limit, 16 * 1024**2))
+        with Path(path).open() as f:
+            rows = list(csv.DictReader(f))
+    finally:
+        csv.field_size_limit(prior_limit)
     for r in rows:
         for key in JSON_FIELDS:
             if r.get(key):
-                r[key] = json.loads(r[key])
+                value = r[key]
+                # Earlier draft CSVs wrote valid string-valued fields unquoted.
+                legacy_string = ((key == 'gated' and value in {'auto', 'manual'}) or
+                                 (key == 'target_modules' and not value.startswith(('[', '"'))
+                                  and value not in {'null', 'true', 'false'}))
+                r[key] = value if legacy_string else json.loads(value)
         for key in ('size_bytes', 'downloads'):
             r[key] = int(r[key])
     return rows
