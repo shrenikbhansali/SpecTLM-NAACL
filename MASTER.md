@@ -170,7 +170,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | review | codex-1 / 2026-10-05T22:42:51-04:00 | [journal](notes/B1.md); finaldraft_retry acceptance both bases;18 tests; 200 sampled + all64 bank adapters staged; full cosine matrices; merged556e955 |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T22:42:51-04:00 | [journal](notes/B1.md); finaldraft_retry acceptance both bases;18 tests; 200 sampled + all64 bank adapters staged; full cosine matrices; merged556e955; operator re-run PASS (23 tests, both validators, independent checks) with A2 notes ([B1 journal](notes/B1.md)) |
 | B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B2.md); [six-cell acceptance](artifacts/B2_acceptance_20261005/acceptance_report.json); merged 8651954; 14 tests pass; operator re-run PASS with notes ([B2 journal](notes/B2.md)) |
 | B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B3.md); bf16 logit acceptance fails; fp32 diagnostics <1e-4; vLLM 16-prompt smoke passes |
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T22:34:14-04:00 | [journal](notes/B4.md); [smoke acceptance](artifacts/B4_smoke_20261005/acceptance.json); 11 tests, five derivatives × two splits, zero leakage; merged 592c919; A3 production pending; operator re-run PASS (11 tests; leakage 0) with A3 flags ([B4 journal](notes/B4.md)) |
@@ -186,7 +186,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages); operator re-run PASS ([W1 journal](notes/W1.md)) |
 | O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | done | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md); `ops/` (status.sh, launch.py, 8 tests pass); lock = atlas/env/requirements.lock |
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
-| A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | todo | | |
+| A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | in progress | claude-ops / 2026-10-05T22:45-04:00 | [journal](notes/A2.md) |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | todo | | |
 | A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | todo | | |
 | A5 | Ledger children re-measured (dose-response) | P0 | claude-ops | A1 | Tue | todo | | |
