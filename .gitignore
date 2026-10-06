@@ -11,3 +11,4 @@ artifacts/
 *.egg-info/
 ops/runs.jsonl
 ops/gpu_reservations.json
+ops/queue_locks/

@@ -13,3 +13,13 @@ Tests first5missing-module failures in recovery_red.log; now5PASS. New response_
 ## 2026-10-06T17:51:12-04:00 — codex-1 — Recovery acceptance PASS
 
 Full `python3 -m pytest followspec/tests ops/tests -q`:208PASS in20.99s, artifacts/FIX7_integration_20261006/recovery_full_tests.log. Merge recovery helper now to unblock immediate unchanged parent retry; dispatcher exclusivity hardening follows. Canonical assembly must use new responses_retry1 overlay and ignore superseded failed source.
+
+## 2026-10-06T17:53:26-04:00 — codex-1 — Dispatcher ownership hardening
+
+Added opt-in `ops/queue.py --exclusive-owner` using a shared advisory lock keyed by owner. Test-first3missing-function failures, then18targeted testsPASS: a second process cannot acquire the same owner, distinct owners remain independent, closing owner releases lock. Existing invocation behavior unchanged unless flag used. AGENTS now requires this flag for all method-M1 dispatchers under owner authorization to adjust operational instructions. This prevents the observed duplicate-queue race; live GPU memory checks remain. Updated MASTER1 method status to prevent stale morning text from prompting duplicate launches. No scientific protocol/threshold changed.
+
+Canonical retry overlay created from merged/tagged recoverycode ae6ddaa: artifacts/M2_D28_20261006/responses_retry1, one unchanged parent retry,120sources reused. Actual responseCLI and launcher dry runsPASS (response_retry1_preflight/results.json). Original failedparent source retained. Next resume the single canonical queue with effective job list/retryfirst, sharedownerlock and SAME launchlog; restart assembly watcher against overlay.
+
+## 2026-10-06T17:53:40-04:00 — codex-1 — Full regression PASS
+
+211 testsPASS in20.44s (recovery_lock_final_tests.log); default launcher/queue behavior preserved, new methodownerlock required by updatedAGENTS. Ready for review. Runtime retry remains operational M2 work, not a claim the corpus/Gate2 is complete.

@@ -8,6 +8,10 @@ A slot is free when the run it last started has an exit_code file. Jobs already 
 log are skipped, so the queue can be restarted. Never launches two jobs on one slot.
 """
 import argparse
+import fcntl
+import hashlib
+import os
+import socket
 import json
 import re
 import subprocess
@@ -42,6 +46,24 @@ def gpu_busy(node, gpu, limit_mib=1000):
         return True
 
 
+
+def acquire_owner_lock(owner, directory=None):
+    """One opted-in dispatcher per owner across shared-workspace processes."""
+    if not owner:raise ValueError('--exclusive-owner requires a nonempty --owner')
+    directory=Path(directory) if directory is not None else RESERVATIONS.parent/'queue_locks'
+    directory.mkdir(parents=True,exist_ok=True)
+    path=directory/(hashlib.sha256(owner.encode()).hexdigest()+'.lock')
+    handle=path.open('a+')
+    try:
+        fcntl.flock(handle.fileno(),fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except BlockingIOError:
+        handle.close()
+        raise RuntimeError(f'owner {owner} already has a dispatcher; use its existing log/queue') from None
+    handle.seek(0);handle.truncate()
+    json.dump(dict(owner=owner,pid=os.getpid(),host=socket.gethostname()),handle);handle.flush()
+    return handle
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--slots", required=True)
@@ -49,7 +71,16 @@ def main():
     ap.add_argument("--log", required=True)
     ap.add_argument("--poll", type=float, default=20)
     ap.add_argument("--owner", default="", help="this queue may use reserved slots tagged for this owner (reservations: {\"slots\": [...], \"owner\": NAME})")
+    ap.add_argument('--exclusive-owner',action='store_true',help='refuse a second dispatcher with the same owner; required for method queues')
     a = ap.parse_args()
+    lock=acquire_owner_lock(a.owner) if a.exclusive_owner else None
+    try:
+        dispatch(a)
+    finally:
+        if lock is not None:lock.close()
+
+
+def dispatch(a):
     slots = a.slots.split(",")
     jobs = [json.loads(l) for l in open(a.jobs) if l.strip()]
     log = Path(a.log)
