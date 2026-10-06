@@ -5,12 +5,13 @@ The implementation uses one frozen base model, one resident bank adapter and
 online child/base capture. Response-token files remain on disk; dense paired
 features do not. Run one training process per A40 with data-loader workers0.
 
-The B6 core includes the native trainer and accepted token reader/provider.
-The rendering CLI, matched response controls, arm-set assembler and full data
-recipe below are separate B5 work, currently on codex/B5 and unmerged.
-Production requires B5/B6 operator
-verification, the final pool/recipe decisions and matched arm manifests. B3's
-mixture validation is unresolved; the current bank provider refuses mixtures.
+B5 provides rendering, matched response controls, arm manifests and the online
+feature provider; B6 provides the native trainer. Bounded bank and mixture
+checks establish the implementation, while M1/M2 must produce the admitted
+mixture registry and complete production corpora. Production requires B5/B6
+operator verification and audited, matched arm manifests. B3's
+mixture builder passed D-20. Mixtures need immutable source/file provenance and
+the shared-training-general perplexity check before production admission.
 
 ## Inputs and audit
 
@@ -29,7 +30,17 @@ mixture validation is unresolved; the current bank provider refuses mixtures.
    source has config/results/records hashes. FS and PO-T reuse identical token
    records; PO-D has base-generated responses on the same rendered prompts.
    Counts distinguish shifted sequence tokens from assistant loss tokens.
-   Unequal arm budgets are rejected. No trimming/resampling policy is inferred.
+   The owner approved paired response trimming on 2026-10-06. Before assembly,
+   run `python -m followspec.paired_responses --child-run CHILD --base-run BASE
+   --child-id BANK_ID --output NEW_DIRECTORY`. It verifies exact shared prompts
+   and generation controls, then writes child/base reference lists and a log
+   of every pair (including zero trims). Both lists retain the shorter response
+   prefix, keep every prompt token, and refer to unchanged original files.
+   Use child references for FS/PO-T; base references for PO-D. MVD bank sources
+   can use the same policy, but its overall quotas still need the approved recipe.
+   The loader recomputes each retained length from both hash-pinned originals;
+   hand-edited lengths or changed peers are rejected. All four arm totals must
+   still match; pairing does not infer MVD resampling or a final token budget.
 5. Before resolving presets, audit actual counts, native sampler steps, parent
    share, per-child Magpie/general quotas, forbidden prompt hashes, train/val
    disjointness, and five decoded samples/masks per arm. Set audit status only
@@ -84,3 +95,66 @@ feature noise. These are builder acceptance runs, separate from M3.
 
 Every launch/capture/forward honors the active pause marker. Failed runs and
 source artifacts remain intact; retries use new directories.
+
+
+## Mixture inputs after D-20
+
+Add each B3 mixture as `kind: mixture`, its local `path`, `source_ids` (two or
+three registry bank IDs in concatenation order), SHA256 of all three files
+(`adapter_config.json`, `adapter_model.safetensors`, `mixture_manifest.json`),
+and `revision` equal to the mixture-manifest SHA256. This content revision is
+local provenance, not a Hub commit. The provider checks the original sources,
+weights, scale and rank cap; nested mixtures and test targets are refused.
+MVD always refuses a mixture target.
+
+Use `--target-registry REGISTRY.json` with `followspec.render_inputs`,
+`followspec.generate_responses`, or `atlas.generate_magpie` for a local mixture.
+Mixtures inherit the pinned base tokenizer/template. Generate paired base
+responses using the same rendered inputs, prompt target, registry and rank cap.
+The ordinary public-bank flags and their defaults remain unchanged.
+
+Production registry entries require an `admission` object naming a report
+folder and the SHA256 of its config/results. Build the report with
+`python -m followspec.mixture_targets --registry REGISTRY --mixture-id ID
+--mixture-filter-run RUN --bank-filter-runs BANK_RUNS.json
+--pool-manifest FROZEN_POOL.csv --output NEW_REPORT`.
+`BANK_RUNS.json` maps every frozen bank ID to its corresponding filter run.
+Run the existing `atlas.filter_pool` on one shared128-query reference selected
+from the B4 public **training general** pool for the bank and each mixture.
+Its `--adapter`/`--adapter-revision` inputs support local mixtures. The A2
+SPEED reference cannot stand in for this training-general check. Admission
+recomputes PPL from all per-prompt records and requires mixture PPL no higher
+than the worst real bank child's; all reference tokens, model pins and scoring
+controls must match. A changed report, source, or failed bound is rejected.
+
+Only bounded acceptance paths may use an explicitly `acceptance_only: true`
+mixture before this PPL step. They remain acceptance-only in generated data;
+the production trainer refuses them. `FrozenAdapterBank(...,
+allow_acceptance=True)` is reserved for those bounded native tests. It does
+not change the production launch default.
+
+The bounded `followspec.tests.native_trim_check --mixture-id ID` mode checks
+five mixture examples in FS/PO-T/PO-D, fresh child/base features on three
+examples, exact zero-update equality, and mixture → bank → mixture restoration.
+It validates the three paired manifests with `validate_paired_arms`; it makes
+no MVD mixture or four-arm budget claim. The default bank check still requires
+all four arms. Both modes require the recorded decoded-string/mask audit and
+immutable source hashes before loading a GPU model.
+
+Before resolving M3 presets, run the CPU-only native sampler audit:
+
+```sh
+python -m followspec.audit_batches \
+  --manifests FS.json MVD.json PO-D.json PO-T.json --replicas 1 \
+  --output /absolute/path/to/new/batch-audit
+```
+
+It rechecks source hashes and paired views, rejects cross-arm train/validation
+leakage, verifies every sample appears exactly once per epoch across all ranks,
+and requires identical actual token budgets and optimizer steps across all arms
+and preset seeds. Long samples are rejected before the sampler can truncate them.
+The output records every batch's sample indices. It changes no presets, quotas,
+source files or acceptance flags. `--acceptance-smoke` permits only at most64
+acceptance-only records per arm for builder checks; its output cannot establish
+production readiness. A failing audit requires explicit data assembly changes;
+it never silently drops, repeats or truncates samples to make counts match.
