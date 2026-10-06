@@ -82,7 +82,7 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 22:24 ET (claude-ops) |
+| Last updated | 2026-10-05 22:22 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
 | Next gate | Gate 1 **PASSED** (§13 D-08, vLLM 0.31.0; fresh compile per cell D-14). Next: Gate 2 (verification, Wed noon). Per D-15, downstream work starts as soon as dependencies pass |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
