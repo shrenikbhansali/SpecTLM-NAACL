@@ -97,7 +97,8 @@ def test_changed_generation_recipe_and_changed_stage_are_refused(tmp_path,monkey
     with pytest.raises(ValueError,match='stage changed'):checked_stage(plan)
 
 
-def test_response_job_pairs_share_rendering_seed_and_rank_but_use_correct_templates(tmp_path,monkeypatch):
+@pytest.mark.parametrize('replanned',[False,True])
+def test_response_job_pairs_share_rendering_seed_and_rank_but_use_correct_templates(tmp_path,monkeypatch,replanned):
     """Isolate CLI construction; quota logic is tested on the full33+30 fixture."""
     from followspec.production_pipeline import responses
     import followspec.production_pipeline as pipeline
@@ -111,6 +112,7 @@ def test_response_job_pairs_share_rendering_seed_and_rank_but_use_correct_templa
     spec=dict(seed=101,base_id='base',base_snapshot=base,base_revision='a'*40,python=sys.executable,
         code_repo=str(tmp_path/'repo'),staging_manifest=str(staging),downloads=str(tmp_path/'downloads.jsonl'),
         general_prompts=str(general),forbidden_files=[str(forbidden)],max_lora_rank=128)
+    if replanned:spec['d28_eligible_bank']=['c']
     prepared=tmp_path/'prepared';prepared.mkdir()
     write_new(prepared/'bank_metadata.json',{'c':dict(tokenizer=own,tokenizer_revision='b'*40,filter_run='/A2/accepted')})
     finish(prepared,dict(stage='prepare',spec=spec),{})
@@ -122,7 +124,10 @@ def test_response_job_pairs_share_rendering_seed_and_rank_but_use_correct_templa
         pool_sha256=sha256(staging),revision='a'*40,count=500))
     paths=tmp_path/'paths.json';write_new(paths,{'c':str(magdir/'prompts.jsonl')})
     assignment=dict(queries={'c':[mag|dict(role='child',kind='magpie')], 'base':[q|dict(role='parent',kind='general')]},counts={})
-    monkeypatch.setattr(pipeline,'allocate_queries',lambda *a,**kw:assignment)
+    def allocate(*a,**kw):
+        assert kw.get('eligible_bank')==(['c'] if replanned else None)
+        return assignment
+    monkeypatch.setattr(pipeline,'allocate_queries',allocate)
     out=responses(str(admission),str(paths),str(validation),str(tmp_path/'responses'),[])
     commands=read(out/'render_commands.json')
     bank_render=next(c for c in commands if c[c.index('--derivative-id')+1]=='c')

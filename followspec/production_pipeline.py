@@ -54,6 +54,18 @@ def base_args(spec):
     return ['--base-snapshot',spec['base_snapshot'],'--base-id',spec['base_id'],'--base-revision',spec['base_revision']]
 
 
+def execution_spec(spec,code_repo):
+    """Rebind future commands only; preserve data paths, seeds and engine pin."""
+    if code_repo is None:return dict(spec)
+    repo=Path(code_repo).resolve()
+    dirty=subprocess.check_output(['git','-C',str(repo),'status','--porcelain'],text=True)
+    if dirty:raise ValueError('new execution checkout must be clean')
+    if sha256(repo/'atlas/env/requirements.lock')!=sha256(Path(spec['code_repo'])/'atlas/env/requirements.lock'):
+        raise ValueError('execution engine pin differs')
+    commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    return spec|dict(code_repo=str(repo),execution_code_commit=commit)
+
+
 def load_bank(spec):
     """Frozen A2 identities, staging sizes/hashes and accepted A2 proofs."""
     from argparse import Namespace
@@ -100,6 +112,76 @@ def prepare(spec_path, output):
         inputs_sha256={p:sha256(p) for p in [spec['pool_manifest'],spec['staging_manifest'],spec['downloads'],spec['general_prompts'],*spec['forbidden_files']]}),
         dict(n_bank=33,n_candidate_plans=60,n_reference=128,production_ready=False,
              next='materialize round1 on CPU, then operator launches baseline followed by filter jobs'))
+    return out
+
+
+def bank_eligibility(plan,bank_runs,output):
+    """Audit final bank workloads without choosing a mixture exclusion policy."""
+    from followspec.bank_eligibility import audit_bank_prompts
+    root,cfg=checked_stage(plan)
+    if cfg['stage']!='prepare':raise ValueError('original prepare plan required')
+    result=audit_bank_prompts(read(root/'bank_registry.json'),cfg['spec'],read(bank_runs))
+    out=new_output(output)
+    write_new(out/'eligibility.json',result)
+    write_new(out/'prompt_paths.json',result['prompt_paths'])
+    finish(out,dict(stage='bank-eligibility',plan=str(root),spec=cfg['spec'],bank_runs=str(Path(bank_runs).resolve()),
+        bank_runs_sha256=sha256(bank_runs)),dict(n_eligible_bank=result['n_eligible_bank'],
+        n_dropped_bank=len(result['dropped_bank']),production_ready=False,mixture_policy_applied=False))
+    return out
+
+
+def replan_d28(plan,eligibility,output,*,code_repo=None):
+    """Fresh two-round plan from verified remaining banks, per direct owner call.
+
+    All old candidates are superseded, and affected candidates are explicitly
+    identified. No old admission result or candidate ID enters the new plan.
+    """
+    import hashlib
+    from followspec.bank_eligibility import audit_bank_prompts
+    root,cfg=checked_stage(plan);audit,ac=checked_stage(eligibility)
+    if cfg['stage']!='prepare' or ac['stage']!='bank-eligibility' or Path(ac['plan'])!=root:
+        raise ValueError('eligibility must belong to the original prepare plan')
+    for path,digest in cfg['inputs_sha256'].items():
+        if sha256(path)!=digest:raise ValueError('original planning input changed')
+    if sha256(ac['bank_runs'])!=ac['bank_runs_sha256']:raise ValueError('bank run mapping changed')
+    original=read(root/'bank_registry.json');saved=read(audit/'eligibility.json')
+    current=audit_bank_prompts(original,cfg['spec'],read(ac['bank_runs']))
+    if current!=saved:raise ValueError('bank eligibility evidence changed')
+    eligible=current['eligible_bank'];dropped=current['dropped_bank']
+    if not dropped:raise ValueError('fresh D28 plan requires verified bank exclusions')
+    registry={k:original[k] for k in eligible}
+    spec=execution_spec(cfg['spec'],code_repo)
+    candidates=sample_candidates(registry,seed=spec['seed'],max_lora_rank=spec['max_lora_rank'])
+    namespace=hashlib.sha256(json.dumps(dict(eligible=eligible,original_candidates=sha256(root/'candidates.json'),
+        policy='exclude_and_replan'),sort_keys=True).encode()).hexdigest()[:12]
+    for c in candidates:c['id']=c['id'].replace('m1-',f'm1-d28-{namespace}-',1)
+    csv.field_size_limit(16*1024**2)
+    with open(spec['pool_manifest']) as f:
+        reader=csv.DictReader(f);fields=reader.fieldnames;pool=list(reader)
+    if {r['model_id'] for r in pool if r['in_bank']=='True'}!=set(original):raise ValueError('original bank universe differs')
+    out=new_output(output);pool_path=out/'remaining_pool.csv'
+    with pool_path.open('x') as f:
+        writer=csv.DictWriter(f,fieldnames=fields);writer.writeheader()
+        writer.writerows(r|dict(in_bank='False') if r['model_id'] in dropped else r for r in pool)
+    spec=spec|dict(pool_manifest=str(pool_path),d28_eligible_bank=eligible,
+                   d28_original_pool=cfg['spec']['pool_manifest'],d28_eligibility=str(audit))
+    metadata=read(root/'bank_metadata.json')
+    write_new(out/'spec.json',spec);write_new(out/'bank_registry.json',registry)
+    write_new(out/'bank_metadata.json',{k:metadata[k] for k in eligible});write_new(out/'candidates.json',candidates)
+    (out/'reference_queries.jsonl').write_bytes((root/'reference_queries.jsonl').read_bytes())
+    superseded=[dict(id=c['id'],source_ids=c['source_ids'],dropped_source_ids=sorted(set(c['source_ids'])&dropped.keys()),
+        reason='excluded_dropped_source' if set(c['source_ids'])&dropped.keys() else 'superseded_by_owner_fresh_plan')
+        for c in read(root/'candidates.json')]
+    write_new(out/'superseded_candidates.json',superseded);write_new(out/'bank_prompt_paths.json',current['prompt_paths'])
+    write_new(out/'bank_exclusions.json',dropped)
+    inputs=cfg['inputs_sha256']|current['evidence_sha256']|{str(pool_path):sha256(pool_path),
+        str(audit/'stage_files.json'):sha256(audit/'stage_files.json')}
+    finish(out,dict(stage='prepare',spec=spec,spec_sha256=sha256(out/'spec.json'),inputs_sha256=inputs,
+        original_plan=str(root),eligibility=str(audit),replan_policy='exclude_and_replan',
+        original_stage_sha256=sha256(root/'stage_files.json')),
+        dict(n_bank=len(registry),n_dropped_bank=len(dropped),n_candidate_plans=60,n_reference=128,
+             n_old_candidates_with_dropped_sources=sum(bool(c['dropped_source_ids']) for c in superseded),
+             production_ready=False,next='materialize fresh round1; operator runs baseline/filter jobs; admit against remaining bank'))
     return out
 
 
@@ -243,9 +325,9 @@ def admit(round_dir, output):
     return out
 
 
-def mixture_prompts(admission, output, forbidden_files):
+def mixture_prompts(admission, output, forbidden_files,*,code_repo=None,d23_oversampling=False):
     from followspec.mixture_targets import validate_registry
-    root,cfg=checked_stage(admission);spec=cfg['spec'];registry=read(root/'registry.json');validate_registry(registry)
+    root,cfg=checked_stage(admission);spec=execution_spec(cfg['spec'],code_repo);registry=read(root/'registry.json');validate_registry(registry)
     if not read(root/'results.json')['ready']:raise ValueError('mixture admission not ready')
     forbidden=sorted(set(spec['forbidden_files']+forbidden_files+[spec['general_prompts']]))
     for p in forbidden:lines(p)
@@ -258,16 +340,17 @@ def mixture_prompts(admission, output, forbidden_files):
             '--tokenizer',spec['base_snapshot'],'--tokenizer-revision',spec['base_revision'],'--family','llama',
             '--split','training','--seed',str(spec['seed']+1000+i),'--allow-a40-production','--output',str(dest),
             '--forbidden-files',*forbidden]
+        if d23_oversampling:command+=['--d23-oversampling']
         jobs.append(launcher_job(spec,f'{out.name}-magpie-{i:03}','M2',spec['general_prompts'],command))
     jsonl(out/'jobs.jsonl',jobs);write_new(out/'prompt_paths.json',paths)
-    finish(out,dict(stage='mixture-prompts',admission=str(root),spec=spec,forbidden_sha256={p:sha256(p) for p in forbidden}),
+    finish(out,dict(stage='mixture-prompts',admission=str(root),spec=spec,d23_oversampling=d23_oversampling,forbidden_sha256={p:sha256(p) for p in forbidden}),
            dict(n_jobs=len(jobs),production_ready=False))
     return out
 
 
-def responses(admission, prompt_paths, validation_prompts, output, forbidden_files):
+def responses(admission, prompt_paths, validation_prompts, output, forbidden_files,*,code_repo=None):
     from followspec.mixture_targets import validate_registry
-    root,cfg=checked_stage(admission);spec=cfg['spec'];registry=read(root/'registry.json');validate_registry(registry)
+    root,cfg=checked_stage(admission);spec=execution_spec(cfg['spec'],code_repo);registry=read(root/'registry.json');validate_registry(registry)
     if not read(root/'results.json')['ready']:raise ValueError('mixture admission not ready')
     plan,pc=checked_stage(cfg['plan']);metadata=read(plan/'bank_metadata.json')
     paths=read(prompt_paths);magpie={k:lines(p) for k,p in paths.items()}
@@ -284,8 +367,11 @@ def responses(admission, prompt_paths, validation_prompts, output, forbidden_fil
     validation=lines(validation_prompts);val_hash={prompt_hash(q['prompt']) for q in validation}
     general=lines(spec['general_prompts'])
     if not val_hash <= {prompt_hash(q['prompt']) for q in general}:raise ValueError('validation must be explicitly selected from general20000')
+    eligible=spec.get('d28_eligible_bank')
+    if eligible is not None and set(eligible)!={k for k,v in registry.items() if v['kind']=='bank'}:
+        raise ValueError('fresh-plan bank universe differs from registry')
     assignment=allocate_queries(registry,[q for q in general if prompt_hash(q['prompt']) not in val_hash],magpie,validation,
-                                seed=spec['seed'],forbidden=blocked)
+                                seed=spec['seed'],forbidden=blocked,**({'eligible_bank':eligible} if eligible is not None else {}))
     out=new_output(output);write_new(out/'assignment.json',assignment)
     cpu=[];jobs=[];runs={}
     for i,(target,queries) in enumerate(sorted(assignment['queries'].items())):
@@ -339,13 +425,17 @@ def render_local(stage):
 def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='stage',required=True)
     a=sub.add_parser('prepare');a.add_argument('--spec',required=True);a.add_argument('--output',required=True)
+    a=sub.add_parser('bank-eligibility');a.add_argument('--plan',required=True);a.add_argument('--bank-runs',required=True);a.add_argument('--output',required=True)
+    a=sub.add_parser('replan-d28');a.add_argument('--plan',required=True);a.add_argument('--eligibility',required=True);a.add_argument('--output',required=True);a.add_argument('--code-repo')
     a=sub.add_parser('materialize');a.add_argument('--plan',required=True);a.add_argument('--previous');a.add_argument('--output',required=True)
     a=sub.add_parser('retry-filters');a.add_argument('--round-dir',required=True);a.add_argument('--targets',nargs='+',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('admit');a.add_argument('--round-dir',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('mixture-prompts');a.add_argument('--admission',required=True);a.add_argument('--output',required=True);a.add_argument('--forbidden-files',nargs='*',default=[])
+    a.add_argument('--code-repo');a.add_argument('--d23-oversampling',action='store_true')
     a=sub.add_parser('responses')
     for key in ('admission','prompt-paths','validation-prompts','output'):a.add_argument('--'+key,required=True)
     a.add_argument('--forbidden-files',nargs='*',default=[])
+    a.add_argument('--code-repo')
     a=sub.add_parser('render-local');a.add_argument('--plan',required=True)
     a=sub.add_parser('assemble');a.add_argument('--plan',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('finalize');a.add_argument('--assembly',required=True);a.add_argument('--evidence',required=True);a.add_argument('--output',required=True)

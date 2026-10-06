@@ -69,7 +69,7 @@ silently inferred.
 ## Exact matching and integer counts
 
 The planned MVD corpus uses 1000 queries/bank child. The FS per-target count
-starts at `round(33000 / n_targets)`; when odd, its last query is omitted so
+starts at `round(1000 * n_bank / n_targets)`; when odd, its last query is omitted so
 both halves are equal (recorded). General queries are shared across targets,
 as §5.4 specifies, with no repeated query within a target. A seeded partition
 keeps parent general queries disjoint from every child general query; validation
@@ -87,6 +87,21 @@ it never cuts a prompt, repeats a sample, or invents response tokens. Every
 retained prefix has 25% parent samples and 50:50 child composition. Final
 per-target counts and retained totals are reported, since suffix truncation
 can change the initially assigned quotas.
+
+## D-28 bank workload eligibility
+
+`bank-eligibility --plan ORIGINAL_PLAN --bank-runs RUNS.json --output NEW_AUDIT`
+audits one final Magpie cell directory per original bank adapter. The mapping
+must cover the complete original bank. Complete legacy workloads remain usable;
+each must contain exactly 500 unique training queries with matching model pins
+and adapter hashes. A dropped child needs a completed FIX-5 shortfall with all
+6400 raw attempts, matching round/filter summaries and no failure marker.
+Missing, still-running or crashed jobs do not justify exclusions. The stage
+writes eligible prompt paths, drop counts/reasons and hashes of all evidence.
+It changes no source artifact, pool, candidate plan or admission result.
+
+The audit itself reports `mixture_policy_applied=false`. Apply the owner
+fresh-plan decision with the stage below before planning production responses.
 
 A shared prefix may not exist for real response lengths. The assembler then
 preserves `failure.json` and the pretrim counts and refuses readiness. It does
@@ -118,3 +133,36 @@ Run NEW_ROUND/filter_jobs.jsonl, then `admit --round-dir NEW_ROUND --output NEW_
 Every referenced cell must still complete successfully; this does not discard
 candidates or grant admission. Later retries can use the preceding overlay.
 A failed baseline needs separate recovery; this command retries target filters.
+
+
+For new M2 jobs, `mixture-prompts` and `responses` accept `--code-repo` pointing
+to a clean execution checkout. It must retain the original engine lock hash;
+the new commit is recorded in the new stage. The operator should use a tagged
+main checkout as required by the launcher. This changes future command paths
+without editing the original M1 spec or existing jobs. Use
+`mixture-prompts ... --code-repo NEW_CHECKOUT --d23-oversampling` to enable
+FIX-5's complete candidate budget and clean shortfall handling. Without the
+explicit options, old command behavior is preserved. Mixture shortfalls still
+block full response planning; D-28 only specifies bank-child exclusions.
+
+
+## Fresh plan after D-28 exclusions
+
+The owner's direct instruction on October 6 supersedes D-29's retention policy:
+exclude affected mixtures and create a fresh plan from the remaining bank.
+Run `replan-d28 --plan ORIGINAL_PLAN --eligibility FINAL_BANK_AUDIT
+--code-repo CLEAN_TAGGED_CHECKOUT --output FRESH_PLAN`. This rechecks every
+workload proof, preserves the original pool and artifacts, and writes a separate
+remaining-bank CSV, registry and tokenizer metadata. It records affected old
+candidates and supersedes the old candidate plan without importing old admission
+results. New IDs distinguish all 60 candidates; the seed, sampling recipe and
+128 training-reference queries remain fixed.
+
+Then use the existing `materialize`, `admit`, `mixture-prompts --d23-oversampling`,
+`responses`, `assemble` and `finalize` stages on this new plan. Fresh admission
+uses the worst PPL among the remaining bank, with the original D-27 maximum of
+two rounds and minimum of 20 admitted mixtures. The old 29-mixture admission
+cannot certify the fresh plan. GPU filter/generation/training jobs belong to
+the operator. `bank_prompt_paths.json` supplies the 30 reusable completed bank
+workloads in the current run; mixture prompts follow new admission. Quotas are
+recomputed from the actual remaining-bank size throughout response planning.

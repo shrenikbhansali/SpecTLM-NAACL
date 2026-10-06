@@ -64,14 +64,18 @@ def checked_queries(rows, label, forbidden=()):
     return hashes
 
 
-def allocate_queries(registry, general, magpie, validation, *, seed, forbidden):
+def allocate_queries(registry, general, magpie, validation, *, seed, forbidden,eligible_bank=None):
     """Parent and child general pools are disjoint; general queries are shared
     across child targets. Each target has no repeated query. Validation is an
     explicit operator input, globally disjoint from all training queries.
     """
     bank = sorted(k for k, v in registry.items() if v['kind'] == 'bank')
     mixtures = sorted(k for k, v in registry.items() if v['kind'] == 'mixture')
-    if len(bank) != 33 or not 20 <= len(mixtures) <= 30:
+    if eligible_bank is not None:
+        if not eligible_bank or len(set(eligible_bank))!=len(eligible_bank) or not set(eligible_bank)<=set(bank):
+            raise ValueError('distinct known eligible bank targets required')
+        bank=sorted(eligible_bank)
+    if (eligible_bank is None and len(bank) != 33) or not 20 <= len(mixtures) <= 30:
         raise ValueError('D-27 requires 33 bank and 20–30 admitted mixtures')
     targets = sorted(bank + mixtures)
     if set(magpie) != set(targets):
@@ -86,8 +90,9 @@ def allocate_queries(registry, general, magpie, validation, *, seed, forbidden):
         if any(q.get('derivative_id', k) != k for q in magpie[k]):
             raise ValueError('wrong Magpie origin')
     # Nearest D-27 integer, dropping at most one final query to permit exact halves.
-    rounded = round(33000 / len(targets)); per_fs = rounded - rounded % 2
-    child_counts = {'FS': per_fs * len(targets), 'MVD': 33000}
+    bank_budget=1000*len(bank)
+    rounded = round(bank_budget / len(targets)); per_fs = rounded - rounded % 2
+    child_counts = {'FS': per_fs * len(targets), 'MVD': bank_budget}
     # Keep only complete six-child/two-parent blocks at final tail matching.
     parent_counts = {a: n // 3 for a, n in child_counts.items()}
     parent_n = max(parent_counts.values())
