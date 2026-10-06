@@ -220,7 +220,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A7 | Atlas DFlash sweep, both bases | P0 | claude-ops | A1, A3 | Wed | todo | | |
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
-| M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | todo | | |
+| M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | in progress | claude-ops / 2026-10-06T03:42-04:00 | [journal](notes/M1.md); prepare done; round-1 chain armed |
 | M2 | Bank data generation (all arms' data) | P0 | claude-ops | B5, M1 | Tue | todo | | |
 | M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | claude-ops | B6, M2 | Wed | todo | | |
 | M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
