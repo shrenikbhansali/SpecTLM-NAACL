@@ -230,7 +230,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
 | M2 | Bank data generation (all arms' data) | P0 | codex / claude-ops | B5, M1 | Tue | in progress | codex-1 / 2026-10-06T17:28:53-04:00 | [journal](notes/FIX-4.md); response generation running:121 jobs,61 renders and242 preflights PASS; [queue](artifacts/M2_D28_20261006/response_queue.log); assembly/masks/Gate2 pending; codex owns queue, do not duplicate |
-| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | claude-ops | B6, M2 | Wed | todo | | |
+| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T17:41:30-04:00 | [journal](notes/M3.md); execution preparation: merged matched12-job planner, free H200 runtime smoke next; production training still gated on M2 assembly/masks |
 | M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
