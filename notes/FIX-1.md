@@ -123,3 +123,18 @@ Owner criterion applied by `python -m atlas.finalize_filter --run artifacts/FIX-
 [Acceptance](../artifacts/FIX-1_acceptance_20261005/acceptance.json) passes: base ratio1/0of10 degenerate; child ratio1.0559169327202187/0of10 degenerate; nonstandard target loadable=false without crash. n128 references each,32968 scored tokens, single diagnostic run each; run-to-run uncertainty not estimated. Five reference masks and both sample paths inspected above. No claim of task accuracy.
 
 Code06913e0 merged880e68e, board review. Operator re-runs tests and acceptance checks, records the owner decision in §13, then runs full-pool filtering via `atlas/POOL_FILTER.md` after B1 review. Use explicit `--repetition-threshold 0.5`, fresh compilation and new output directories. No GPU acceptance job remains.
+
+## 2026-10-05T22:43-04:00 — claude-ops — Operator verification: PASS → done
+
+Fresh detached checkout of main 17acf3b; pinned env `.venv-atlas-031-clean`.
+1. `PATH=<venv>/bin:$PATH <venv>/bin/python -m pytest atlas/tests -q` → **48 passed** (all atlas tests, FIX-1's 19 included).
+2. `artifacts/FIX-1_acceptance_20261005/acceptance.json`: passed=true. Base PPL 7.4613 (ratio 1.0, 0/10 degenerate, n = 128
+   references, 32,968 scored tokens); EXP-MTH-018 child PPL 7.8785 (ratio 1.0559, 0/10 degenerate); broken input
+   loadable=false, `ValueError: B1 exclusion: nonstandard_weight_layout` at input validation, no crash.
+3. Code read (`atlas/filter_pool.py` 148–195): the engine is built like an atlas cell (EAGLE-3 drafter K = 4, LoRA enabled,
+   max_model_len 4096, gpu-mem 0.70, prefix caching off); greedy 128-token samples on 10 fixed prompts; teacher-forced PPL
+   from `prompt_logprobs` on shared reference token IDs (documented in `atlas/POOL_FILTER.md`). Any exception in
+   engine_load/generation/scoring is caught and written as loadable/phase/load_error plus failure.json.
+- Note: the acceptance's "broken" case was rejected by B1's metadata flag before any engine load. The engine-load failure
+  path is covered by the generic handler but was not exercised on a real model; the full-pool run will exercise it.
+- Owner criterion recorded as §13 D-16.

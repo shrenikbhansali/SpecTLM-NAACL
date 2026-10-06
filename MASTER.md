@@ -209,7 +209,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | review | codex-1 / 2026-10-05T22:41:55-04:00 | [journal](notes/FIX-1.md); [acceptance](artifacts/FIX-1_acceptance_20261005/acceptance.json); approved50% criterion, base/child/broken pass;19 tests; merged880e68e |
+| FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | done | codex-1 / 2026-10-05T22:41:55-04:00 | [journal](notes/FIX-1.md); [acceptance](artifacts/FIX-1_acceptance_20261005/acceptance.json); approved50% criterion, base/child/broken pass;19 tests; merged880e68e; operator re-run PASS (48 tests) ([FIX-1 journal](notes/FIX-1.md)) |
 
 ---
 
@@ -927,6 +927,7 @@ citing where it was stated.*
 | D-13 | 2026-10-05 | Use the existing write-capable Hugging Face token for reads/downloads only; never upload or mutate Hub resources (AGENTS rule 9 amended). Owner to codex-1: "Just use the token with write access, and change the AGENTS.md accordingly" (cited in notes/B1.md 16:5x and notes/BUILD-AUDIT-20261005.md item 7; AGENTS.md commit ff2ef3c). Entered here by claude-ops | Decided |
 | D-14 | 2026-10-05 | Atlas cells use a **fresh vLLM compile per cell** (`VLLM_CACHE_ROOT=<run>/vllm_cache`); child/derivative repeats are reported separately. Same owner reply as D-08. The noise-floor choice (GATE-1 decision 3) and DFlash replication (decision 4) remain open. Entered by claude-ops | Decided |
 | D-15 | 2026-10-05 | Work as fast as possible: do not wait for gate calendar dates or another "continue"; advance as soon as dependency checks pass. Failed acceptance tests are not waived and thresholds are unchanged. Owner to codex-1 (notes/B2.md, 22:11 entry). Entered by claude-ops | Decided |
+| D-16 | 2026-10-05 | A2 coherence filter (FIX-1) degeneracy criterion: flag an answer if it is empty, ends immediately, or one repeated 4-gram covers **strictly more than 50%** of its generated token positions (alongside MASTER's PPL ≤ 2× base and 10-prompt check). Owner reply to codex-1: "Approve the 50% repeated-4-gram criterion" (notes/FIX-1.md 22:39; proposed before outputs were inspected). Entered by claude-ops | Decided |
 
 ---
 
