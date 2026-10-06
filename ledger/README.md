@@ -13,3 +13,4 @@ owner decides whether to merge these into a master ledger.
 | [EXP-ATL-003](EXP-ATL-003.md) | DFlash K probe on vLLM 0.31.0 (A7 prep) | 2026-10-05 | pilot |
 
 | [EXP-ATL-004](EXP-ATL-004.md) | Completed atlas pairs: method motivation evidence | 2026-10-06 | pilot |
+| [EXP-ATL-005](EXP-ATL-005.md) | Complete atlas census after FIX-6 retries (A4/A7) | 2026-10-06 | pilot |
