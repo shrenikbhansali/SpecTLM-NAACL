@@ -1,6 +1,7 @@
 """B6 acceptance only: native training on exactly64 bounded bank responses.
 
-Three fixed epochs, native8192 batching and the starting FS optimizer/loss.
+Three default epochs, or an explicit30-step D-26 check, with native8192
+batching and the same starting FS optimizer/loss.
 The before/after probe reuses training data to test overfitting, not held-out
 generalization. This command cannot consume production data or launch a sweep.
 """
@@ -24,6 +25,7 @@ def validate_corpus(rows):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
     a=p.parse_args();ensure_unpaused();ensure_unpaused(Path.cwd())
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip():raise ValueError('commit first')
     from followspec.token_data import response_run,build_manifest,OnlineResponseDataset
@@ -47,7 +49,7 @@ def main():
     from followspec.eagle3_extension import install_follow_spec
     if git_commit!=BACKEND:raise ValueError('wrong native backend')
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('D-19 acceptance requires A40')
-    cfg=load_presets()['FS'];epochs=3;seed=0
+    cfg=load_presets()['FS'];epochs=a.epochs;seed=0
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);start=time.perf_counter();torch.manual_seed(seed)
     config=vars(a)|dict(acceptance_only=True,n=64,epochs=epochs,seed=seed,K=None,training_config=cfg,
         base_revision=Path(a.base).name,initialization_revision=Path(a.drafter).name,backend_revision=BACKEND,
@@ -91,6 +93,7 @@ def main():
         train=loader(cfg['noise_std']);probe=loader(0.)
         call=dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay'],loss_config=resolve_loss_config('kl_div','fused'))
         steps=epochs*len(train)
+        if len(train)!=1:raise ValueError('bounded overfit requires a single64-example native batch')
         native_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=epochs,save_path=str(out/'checkpoints'),optimizer=cfg['optimizer'],
             weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],scheduler_warmup_ratio=cfg['warmup_ratio'],
             scheduler_total_steps=steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,resume_from_checkpoint=False)

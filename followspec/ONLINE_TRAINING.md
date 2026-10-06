@@ -84,3 +84,12 @@ feature noise. These are builder acceptance runs, separate from M3.
 
 Every launch/capture/forward honors the active pause marker. Failed runs and
 source artifacts remain intact; retries use new directories.
+
+
+D-26's longer pre-M3 check uses `followspec.overfit_acceptance --epochs 30`
+with the same audited64-example inputs. It is exactly30 optimizer steps on
+one native batch; default acceptance remains3 steps and production remains
+one epoch. The earlier3-step run used8.6GB for its checkpoints, so budget
+roughly86GB for30 checkpoints. Preserve every run/checkpoint; use a fresh
+output directory. This check still does not establish capacity on long or
+fully occupied batches.
