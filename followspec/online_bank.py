@@ -41,11 +41,11 @@ class FrozenAdapterBank:
         for name,digest in item['files_sha256'].items():
             if sha256(Path(item['path'])/name)!=digest:raise ValueError('adapter file hash mismatch')
         self.provider=None
-        if self.current is not None:
-            self.model=self.model.unload()
-            if self.model is not self.base:raise ValueError('PEFT unload replaced the base instance')
-            self.current=None
         try:
+            if self.current is not None:
+                self.model=self.model.unload()
+                if self.model is not self.base:raise ValueError('PEFT unload replaced the base instance')
+                self.current=None
             self.model=self.loader(self.base,item['path'])
             self.current=target
             self.provider=self.factory(self.model,self.taps,self.tokens,pause_check=self.pause_check)
