@@ -22,11 +22,11 @@ else
   echo "absent"
 fi
 
-hdr "board (non-todo rows, per branch)"
-for br in $(git -C "$REPO" for-each-ref --format='%(refname:short)' refs/heads/); do
+hdr "board (non-todo: main rows + each codex/<ID> branch's own row)"
+for br in $(git -C "$REPO" for-each-ref --format='%(refname:short)' refs/heads/ | grep -v '^claude/'); do
   git -C "$REPO" show "$br:MASTER.md" 2>/dev/null \
     | awk -F'|' -v br="$br" '/^## 4\./ {on=1} /^## 5\./ {on=0} on && /^\| (B|O|A|M|W|G|R|FIX)[0-9A-Z–-]* \|/ {
-        st=$8; gsub(/^ +| +$/,"",st); if (st!="todo") {id=$2; gsub(/ /,"",id); who=$9; gsub(/^ +| +$/,"",who); printf "%-12s %-6s %-12s %s\n", br, id, st, who}}'
+        st=$8; gsub(/^ +| +$/,"",st); id=$2; gsub(/ /,"",id); own=br; sub(/^codex\//,"",own); if (st!="todo" && (br=="main" || own==id)) { who=$9; gsub(/^ +| +$/,"",who); printf "%-12s %-6s %-12s %s\n", br, id, st, who}}'
 done | sort -k2,2 -k1,1 | uniq
 
 hdr "git"

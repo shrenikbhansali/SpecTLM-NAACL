@@ -27,6 +27,7 @@ import os
 import shlex
 import subprocess
 import sys
+import time
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -47,10 +48,13 @@ def now_et() -> dt.datetime:
     return dt.datetime.now(ET)
 
 
-def make_run_id(task, base, drafter, k, seed, when=None, rep=None) -> str:
+def make_run_id(task, base, drafter, k, seed, when=None, rep=None, tag=None) -> str:
     when = when or now_et()
     rid = f"{task}-{base}-{drafter}-k{k}-s{seed}-{when.strftime('%Y%m%d%H%M')}"
-    # Replicates of one cell launched in the same minute: suffix -r<NN>.
+    # Operational suffixes (journaled in notes/O1.md): -<tag> names the target
+    # variant (e.g. a derivative), -r<NN> numbers replicates of one cell.
+    if tag:
+        rid += f"-{tag}"
     return rid if rep is None else f"{rid}-r{int(rep):02d}"
 
 
@@ -114,7 +118,7 @@ def build_config(a, run_id: str, out_dir: Path) -> dict:
     return {
         "run_id": run_id,
         "task": a.task, "base": a.base, "drafter_method": a.drafter, "K": a.k, "seed": a.seed,
-        "replicate": a.rep,
+        "replicate": a.rep, "tag": a.tag,
         "models": models,
         "prompts": prompts,
         "engine": engine_info(Path(a.engine_lock) if a.engine_lock else None),
@@ -122,7 +126,7 @@ def build_config(a, run_id: str, out_dir: Path) -> dict:
         "launch": {
             "node": a.node, "gpus": a.gpus, "python": a.python, "command": cmd,
             "cwd": str(Path(a.code_repo).resolve()), "launched_at_et": now_et().isoformat(timespec="seconds"),
-            "launched_by": "claude-ops", "dry_run": a.dry_run,
+            "launched_by": "claude-ops", "dry_run": a.dry_run, "env": a.env,
             "pause_marker_present": PAUSE_MARKER.exists(),
         },
         "notes": a.note,
@@ -138,8 +142,10 @@ def check_guards(a):
         st = code_state(Path(a.code_repo))
         if st["dirty"]:
             raise LaunchError("code checkout is dirty; real runs need a clean main commit")
-        if st["branch"] != "main" and not a.allow_branch:
-            raise LaunchError(f"checkout is on {st['branch']}; real runs run from main (MASTER §2.2)")
+        on_tag = st["branch"] == "HEAD" and any(t.startswith("run-") for t in st["tags"]) and subprocess.run(
+            ["git", "merge-base", "--is-ancestor", "HEAD", "main"], cwd=a.code_repo).returncode == 0
+        if st["branch"] != "main" and not on_tag and not a.allow_branch:
+            raise LaunchError(f"checkout is on {st['branch']}; real runs run from main or a run-* tag on main (MASTER §2.2)")
         if not a.engine_lock:
             raise LaunchError("--engine-lock is required for real runs (AGENTS rule 2)")
         if not a.prompts:
@@ -154,7 +160,7 @@ def append_registry(rec: dict):
 
 def cmd_run(a) -> int:
     check_guards(a)
-    run_id = make_run_id(a.task, a.base, a.drafter, a.k, a.seed, rep=a.rep)
+    run_id = make_run_id(a.task, a.base, a.drafter, a.k, a.seed, rep=a.rep, tag=a.tag)
     root = WS / "artifacts" / ("_dryrun" if a.dry_run else "")
     out_dir = root / run_id
     if out_dir.exists():
@@ -163,23 +169,34 @@ def cmd_run(a) -> int:
     out_dir.mkdir(parents=True, exist_ok=False)
     (out_dir / a.config_name).write_text(json.dumps(cfg, indent=2) + "\n")
     inner = " ".join(shlex.quote(c) for c in cfg["launch"]["command"])
-    env = f"CUDA_VISIBLE_DEVICES={shlex.quote(a.gpus)} HF_HOME={shlex.quote(os.environ.get('HF_HOME', ''))} "
+    env = f"export CUDA_VISIBLE_DEVICES={shlex.quote(a.gpus)} HF_HOME={shlex.quote(os.environ.get('HF_HOME', ''))}\n"
     if a.python:
-        env += f"PATH={shlex.quote(str(Path(a.python).parent))}:$PATH "
-    script = (f"cd {shlex.quote(cfg['launch']['cwd'])} && {env} nohup bash -c "
-              f"{shlex.quote(inner + '; echo $? > ' + str(out_dir / 'exit_code'))} "
-              f"> {shlex.quote(str(out_dir / 'launch.log'))} 2>&1 < /dev/null & echo $!")
+        env += f"export PATH={shlex.quote(str(Path(a.python).parent))}:$PATH\n"
+    for kv in a.env:
+        k, _, v = kv.format(run_id=run_id, out_dir=str(out_dir)).partition("=")
+        env += f"export {k}={shlex.quote(v)}\n"
+    # The job script records its own PID and exit code. It is started with `setsid -f`
+    # because ssh otherwise waits for nohup'd children (observed 2026-10-05, notes/O1.md).
+    job = (f"#!/usr/bin/env bash\necho $$ > {shlex.quote(str(out_dir / 'pid'))}\n"
+           f"cd {shlex.quote(cfg['launch']['cwd'])}\n{env}{inner}\n"
+           f"echo $? > {shlex.quote(str(out_dir / 'exit_code'))}\n")
+    (out_dir / "launch_script.sh").write_text(job)
+    remote = (f"setsid -f bash {shlex.quote(str(out_dir / 'launch_script.sh'))} "
+              f"> {shlex.quote(str(out_dir / 'launch.log'))} 2>&1 < /dev/null")
     rec = {"run_id": run_id, "task": a.task, "node": a.node, "gpus": a.gpus, "out_dir": str(out_dir),
            "launched_at_et": cfg["launch"]["launched_at_et"], "dry_run": a.dry_run, "pid": None}
     if a.dry_run:
-        (out_dir / "launch_script.sh").write_text(script + "\n")
-        print(f"[dry-run] {run_id}\n  config: {out_dir / a.config_name}\n  would run on {a.node}: {script}")
+        print(f"[dry-run] {run_id}\n  config: {out_dir / a.config_name}\n  would run on {a.node}: {remote}")
     else:
-        res = subprocess.run(["ssh", "-o", "BatchMode=yes", a.node, script], capture_output=True, text=True,
+        res = subprocess.run(["ssh", "-n", "-o", "BatchMode=yes", a.node, remote], capture_output=True, text=True,
                              timeout=60)
         if res.returncode != 0:
             raise LaunchError(f"ssh launch failed: {res.stderr.strip()}")
-        rec["pid"] = int(res.stdout.strip().splitlines()[-1])
+        for _ in range(50):
+            if (out_dir / "pid").exists() and (out_dir / "pid").read_text().strip():
+                rec["pid"] = int((out_dir / "pid").read_text())
+                break
+            time.sleep(0.2)
         print(f"launched {run_id} on {a.node} gpus={a.gpus} pid={rec['pid']}\n  {out_dir}")
     append_registry(rec)
     return 0
@@ -199,7 +216,10 @@ def run_state(rec: dict) -> str:
     if rec.get("dry_run"):
         return "dry-run"
     try:
-        r = subprocess.run(["ssh", "-o", "BatchMode=yes", rec["node"], f"kill -0 {rec['pid']} 2>/dev/null && echo up"],
+        pid = rec.get("pid") or ((out / "pid").read_text().strip() if (out / "pid").exists() else None)
+        if not pid:
+            return "starting(no pid yet)"
+        r = subprocess.run(["ssh", "-n", "-o", "BatchMode=yes", rec["node"], f"kill -0 {pid} 2>/dev/null && echo up"],
                            capture_output=True, text=True, timeout=20)
         return "running" if "up" in r.stdout else "vanished(no exit_code)"
     except subprocess.TimeoutExpired:
@@ -225,6 +245,7 @@ def main(argv=None) -> int:
     r.add_argument("--k", type=int, required=True)
     r.add_argument("--seed", type=int, default=0)
     r.add_argument("--rep", type=int, default=None, help="replicate index (adds -rNN to the run ID)")
+    r.add_argument("--tag", default=None, help="target-variant label appended to the run ID ([a-z0-9.]+)")
     r.add_argument("--node", required=True)
     r.add_argument("--gpus", required=True, help="CUDA_VISIBLE_DEVICES on the node")
     r.add_argument("--target"), r.add_argument("--target-rev")
@@ -238,6 +259,7 @@ def main(argv=None) -> int:
     r.add_argument("--code-repo", default=str(REPO), help="checkout the job runs from (default: this repo)")
     r.add_argument("--allow-branch", action="store_true", help="permit a non-main checkout (verification only)")
     r.add_argument("--config-name", default="config.json")
+    r.add_argument("--env", action="append", default=[], help="extra KEY=VALUE exported in the job (repeatable)")
     r.add_argument("--note", default="")
     r.add_argument("--dry-run", action="store_true")
     r.add_argument("command", nargs=argparse.REMAINDER)
