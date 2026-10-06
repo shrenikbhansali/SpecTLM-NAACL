@@ -166,3 +166,37 @@ cannot certify the fresh plan. GPU filter/generation/training jobs belong to
 the operator. `bank_prompt_paths.json` supplies the 30 reusable completed bank
 workloads in the current run; mixture prompts follow new admission. Quotas are
 recomputed from the actual remaining-bank size throughout response planning.
+
+## D-35 mixture shortfalls and M3 continuation
+
+D-35 supersedes the mixture-shortfall restriction above: a completed,
+provenance-checked D-23 shortfall is usable when its valid count covers that
+mixture's assigned own-Magpie quota (250 in the current 30-bank/30-mixture
+plan). FIX-7 validates the exhausted candidate budget, pins and partial output;
+`responses` records the retained shortfalls. This does not relax bank eligibility
+or permit crashed/incomplete sources.
+
+After responses finish, run `assemble`, inspect five decoded strings and loss
+masks per arm, and run `finalize` with the actual mask hashes plus the accepted
+feature/capacity evidence. Then emit the twelve training jobs:
+
+```bash
+python -m followspec.training_jobs --finalized FINALIZED_STAGE \
+  --python /path/to/native-training-env/bin/python \
+  --code-repo CLEAN_TAGGED_MAIN_CHECKOUT --output NEW_M3_STAGE
+```
+
+The planner refuses incomplete readiness, altered sealed outputs, mismatched
+controls or changed reviewed masks. It preserves the four-arm configurations,
+seeds 0/1/2 and initialization pins. Every job uses the two verified memory
+flags, `--release-grad-before-forward --offload-saved-tensors`, and
+`TORCH_COMPILE_DISABLE=0`. Run both the emitted trainer CLI dry runs and launcher
+dry runs before dispatch. The native training interpreter is separate from the
+pinned vLLM evaluation interpreter.
+
+D-26 is exposed through the explicit launcher flag `--allow-h200-training` for
+M3 only. It permits free H200s for training while preserving the default A9-only
+H200 guard and requiring A40s for acceptance evaluation. Check live GPU usage
+before dispatch. The owner's October 6 authorization allows Codex to execute
+this continuation as well as the operator; journal queue ownership to prevent
+duplicate launches. A pause marker still blocks real jobs.
