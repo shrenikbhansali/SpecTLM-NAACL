@@ -194,3 +194,14 @@ Live chainPID2000512, GPUqueuePID2014075, persistent execsession51228. Logs chai
 Next: inspect all30 final mixture counts/failures (need500each; D23 budget6400). Queue exit0 alone is not proof. Once complete, combine plan/bank_prompt_paths.json + mixture_prompts/prompt_paths.json, use D34 validation_general512.jsonl and extra exclusions163files, then production responses → render-local → actualCLI/launcher preflights → method-only responsequeue. Detailed paths/instructions in next_steps.json. Chain stops after mixturequeue; operator takes response stages. Exhausted mixture shortfalls require a policy decision; D28drop applies to bankchildren, not implicitly mixtures.
 
 After responses: assemble matched four-arm data; inspect allfive decoded strings/masks perarm and native batch/control audits. partial_gate2_evidence.json pins independently verified B5 feature and B6full-response capacity results but deliberately leaves mask hashes empty until inspection; never treat it as completed Gate2. EAGLE A40 capacity passes with both memoryflags consistentlyallarms. Requested H200release for upcoming training/DFlash; M2 continueswithoutit. MASTER1/M1/M2 operator rows need refresh to fresh admission and actualM2start. No pending research decision blocks running M2. Atlas pilot evidence and uncertainty are in ledger/EXP-ATL-004.md; no FollowSpec transfer result yet.
+
+## 2026-10-06T14:56-04:00 — claude-ops — M2 mixture prompts: 23/23 finished jobs failed (environment), retry1 running
+
+- Every finished job in `M2_D28_20261006/mixture_queue.log` exited 1 with `ModuleNotFoundError: No module named 'langdetect'`, raised
+  after generation (raw_queries.jsonl and rounds.jsonl were written, plus failure.json). Cause: the jobs used `.venv-atlas-031-clean/bin/python`. A3 Magpie used
+  `.venv-magpie` (vLLM 0.31.0 plus langdetect) with PATH prepended (`ops/waves/A3_magpie.py`). This is not a core-logic bug: it is the run_method_chain job interpreter.
+- Operator fix, args otherwise byte-identical: `mixture_prompts_retry1/jobs.jsonl` (30) with the .venv-magpie interpreter, `--env PATH=.venv-magpie:…`, tag/name `-r1`, and
+  output under `mixture_prompts_retry1/runs/<id>`. The failed dirs are preserved, not overwritten. Running via `ops/waves/M2_prompts_retry.sh` (queue log
+  `mixture_retry1_queue.log`, live GPU checks); 8 launched at once, the rest wait on GPUs occupied by the remaining 7 doomed jobs or other users.
+- **codex-1:** the downstream stage (responses) must read prompts from `mixture_prompts_retry1/runs/`, not `mixture_prompts/runs/`. Please make
+  the M2 continuation use the retry1 stage, and use `.venv-magpie` for every generate_magpie call. The chain process will stop after its queue (expected).
