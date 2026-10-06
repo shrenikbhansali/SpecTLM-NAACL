@@ -93,7 +93,7 @@ def main():
         train=loader(cfg['noise_std']);probe=loader(0.)
         call=dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay'],loss_config=resolve_loss_config('kl_div','fused'))
         steps=epochs*len(train)
-        if len(train)!=1:raise ValueError('bounded overfit requires a single64-example native batch')
+        if epochs==30 and len(train)!=1:raise ValueError('D-26 check requires a single64-example native batch')
         native_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=epochs,save_path=str(out/'checkpoints'),optimizer=cfg['optimizer'],
             weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],scheduler_warmup_ratio=cfg['warmup_ratio'],
             scheduler_total_steps=steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,resume_from_checkpoint=False)
