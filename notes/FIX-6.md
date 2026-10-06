@@ -41,3 +41,12 @@ Test first failed on existing record-count guard (FIX6_cov_before_20261006.log).
 Covariate follow-up source d15b5d1 merged fe87b43 and pushed/tagged run-FIX6-A6-20261006, clean .worktrees/run-FIX6-A6-20261006. Final acceptance artifacts/FIX6_final_acceptance_20261006/acceptance.json: prior265-test coverage plus new regression,29 affected tests re-run PASS, actual64-record A6 source prepares correctly. Six A6 capture retry jobs at artifacts/FIX6_A6_retry_jobs_20261006/A6_jobs.jsonl:6 launcher dry runs +1 representative Qwen cell CLI dry run PASS. Exact old generation flags, including --capture-prompt-token-ids, preserved; fresh artifacts and code only. A4/A7 previous28-job packet remains valid.
 
 Operator: verify final change, run retries after method allocation. When preparing covariates from recovered A6 cells use main at fe87b43 or newer (or the new tag), since old prepare_covariates compares total records to valid-only n. New source counts are provenance only; no sequence/mask changes or dropped covariate examples. Historical failed artifacts retained. D33 has now been recorded and FIX4 independently marked done by operator; M1_D28 baseline launched,16 method A40 slots reserved. Next method dependency is fresh baseline/filter admission, then mixture prompts and M2. No global pause marker, no builder background/GPU job remains. No ready Codex task remains; B9/B11 blockers and B10 operator-review state unchanged.
+
+## 2026-10-06T16:18-04:00 — claude-ops — Verified; done; retries launched
+
+- Re-ran in clean tag run-FIX6-A6-20261006 (fe87b43): `python3 -m pytest atlas/tests followspec/tests paper/tests ops/tests --ignore=atlas/tests/test_native_ct.py -q`
+  → 264 passed, 1 failed (test_engine_matches_committed_pin: vLLM not installed in system Python, expected). Pinned
+  `.venv-atlas-031-clean` test_environment + test_native_ct → 3 passed. Legacy audit check.py → passed, 1,435 unchanged cells, 0 failures. **FIX-6 done.**
+- Owner's atlas hold lasted until M2 started. M2 prompts are complete and responses are blocked on FIX-7, so the A40s are free. Launched all 34 retry jobs
+  (codex packets A4 21 + A7 7 + A6 6, unchanged; combined at artifacts/FIX6_retry_queue_20261006/jobs.jsonl) via `ops/waves/FIX6_retry.sh`
+  with live GPU checks; 10 launched in the first 90 s. Analysis will use `atlas.paired_cells` (pairwise exclusion, D-32), not independent macros.
