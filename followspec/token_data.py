@@ -98,6 +98,16 @@ def build_manifest(arm,refs,*,registry,base_revision,initialization_revision,for
 
 def validate_arm_set(arms):
     if set(arms)!={'FS','MVD','PO-D','PO-T'}:raise ValueError('all four arms required')
+    return _validate_arms(arms)
+
+
+def validate_paired_arms(arms):
+    """Validate a paired subset without claiming the bank-only MVD is matched."""
+    if set(arms)!={'FS','PO-D','PO-T'}:raise ValueError('exactly three paired arms required')
+    return _validate_arms(arms)
+
+
+def _validate_arms(arms):
     if any(m['arm']!=name for name,m in arms.items()):raise ValueError('arm identity mismatch')
     for key in ['base_revision','initialization_revision','token_budget','token_budget_unit']:
         if len({m[key] for m in arms.values()})!=1:raise ValueError('token budget or common initialization differs: '+key)

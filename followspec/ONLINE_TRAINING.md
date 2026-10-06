@@ -132,3 +132,11 @@ mixture before this PPL step. They remain acceptance-only in generated data;
 the production trainer refuses them. `FrozenAdapterBank(...,
 allow_acceptance=True)` is reserved for those bounded native tests. It does
 not change the production launch default.
+
+The bounded `followspec.tests.native_trim_check --mixture-id ID` mode checks
+five mixture examples in FS/PO-T/PO-D, fresh child/base features on three
+examples, exact zero-update equality, and mixture → bank → mixture restoration.
+It validates the three paired manifests with `validate_paired_arms`; it makes
+no MVD mixture or four-arm budget claim. The default bank check still requires
+all four arms. Both modes require the recorded decoded-string/mask audit and
+immutable source hashes before loading a GPU model.

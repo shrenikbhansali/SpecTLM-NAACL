@@ -14,16 +14,22 @@ from atlas.generate_magpie import unpaused
 from atlas.covariates import tap_layers
 from followspec.online_bank import FrozenAdapterBank
 from followspec.paired_data import shift_paired
-from followspec.token_data import OnlineResponseDataset,validate_arm_set
+from followspec.token_data import OnlineResponseDataset,validate_arm_set,validate_paired_arms
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','manifests','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--mixture-id',help='Bounded mixture check of FS/PO-T/PO-D only; MVD remains bank-only')
     a=p.parse_args();unpaused()
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip():raise ValueError('commit first')
-    arms={name:json.loads((Path(a.manifests)/f'{name}.json').read_text()) for name in ['FS','MVD','PO-D','PO-T']}
-    matched=validate_arm_set(arms)
+    names=['FS','PO-D','PO-T'] if a.mixture_id else ['FS','MVD','PO-D','PO-T']
+    arms={name:json.loads((Path(a.manifests)/f'{name}.json').read_text()) for name in names}
+    matched=(validate_paired_arms if a.mixture_id else validate_arm_set)(arms)
+    if a.mixture_id:
+        registry=arms['FS']['registry']
+        if registry[a.mixture_id]['kind']!='mixture' or any(r['child_id']!=a.mixture_id for m in arms.values() for r in m['samples']):
+            raise ValueError('all five paired examples must use the named mixture')
     if any(m['base_revision']!=Path(a.base).name or m['initialization_revision']!=Path(a.drafter).name for m in arms.values()):raise ValueError('manifest/model pins differ')
     if any(not m['acceptance_only'] or len(m['samples'])!=5 for m in arms.values()):raise ValueError('exactly five acceptance-only examples per arm required')
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('A40 required')
@@ -35,13 +41,14 @@ def main():
         manifest_sha256=digests,sample_audit_sha256=sha256(a.sample_audit),registry=arms['FS']['registry'],seed=0,K=None,
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),gpu_type=torch.cuda.get_device_name(0),
         generation_engine='0.31.0',versions={n:importlib.metadata.version(n) for n in ['torch','transformers','peft']},
-        tolerance=dict(atol=0,rtol=0),scope='B5 trimmed bank-data acceptance; no production quotas, mixture data or training')
+        tolerance=dict(atol=0,rtol=0),mixture_id=a.mixture_id,
+        scope='B5 bounded paired feature acceptance; no production quotas or training; MVD checked separately in mixture mode')
     write_new(out/'config.json',cfg)
     try:
         target=AutoModelForCausalLM.from_pretrained(a.base,local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda')
         with safe_open(str(Path(a.drafter)/'model.safetensors'),framework='pt',device='cpu') as f:d2t=f.get_tensor('d2t')
         taps=tap_layers(json.loads((Path(a.drafter)/'config.json').read_text()),target.config.num_hidden_layers)
-        bank=FrozenAdapterBank(target,arms['FS']['registry'],taps,torch.arange(len(d2t))+d2t)
+        bank=FrozenAdapterBank(target,arms['FS']['registry'],taps,torch.arange(len(d2t))+d2t,allow_acceptance=bool(a.mixture_id))
         datasets={name:OnlineResponseDataset(m,split='train',bank=bank,shift=lambda r:r,allow_acceptance=True) for name,m in arms.items()}
         def fresh(raw,base):
             last=[];hook=target.model.norm.register_forward_pre_hook(lambda m,args:last.append(args[0].detach()))
@@ -56,6 +63,8 @@ def main():
         with (out/'per_prompt.jsonl').open('x') as log:
             for i in range(5):
                 unpaused();reference=datasets['FS'][i]['tensors'];assert not torch.equal(reference['hidden_states'],reference['base_hidden_states'])
+                if i==0 and a.mixture_id:
+                    initial_mixture={k:reference[k].cpu() for k in ['hidden_states','base_hidden_states','child_target_logits','base_target_logits']}
                 if i<3:
                     for base in [False,True]:
                         f,last=fresh(reference,base);prefix='base_' if base else ''
@@ -93,9 +102,20 @@ def main():
         finally:
             with torch.no_grad():
                 for x,y in zip(factors,copies,strict=True):x.copy_(y)
+        if a.mixture_id:
+            first=datasets['FS'][0]['tensors']
+            bank_name=next(name for name,item in bank.registry.items() if item['kind']=='bank')
+            switched=bank.capture(bank_name,first['input_ids'],first['loss_mask'])
+            assert bank.resident_adapters==1 and bank.base is target
+            assert torch.equal(switched['base_hidden_states'].cpu(),initial_mixture['base_hidden_states'])
+            del first,switched
+            restored=datasets['FS'][0]['tensors']
+            for key,expected in initial_mixture.items():assert torch.equal(restored[key].cpu(),expected)
+            assert bank.resident_adapters==1 and bank.base is target
+            del restored
         assert all(not p.requires_grad and p.grad is None for p in bank.model.parameters())
         result=dict(passed=True,n_per_arm=5,matched=matched,fresh_pair_checks=3,zero_update_exact_checks=3,
-            target_frozen=True,feature_shards_written=0,wall_s=time.perf_counter()-start,
+            target_frozen=True,feature_shards_written=0,mixture_bank_mixture_restored_exact=bool(a.mixture_id),wall_s=time.perf_counter()-start,
             max_gpu_allocated_gb=torch.cuda.max_memory_allocated()/1024**3,uncertainty='deterministic equality checks; one seed, no performance inference')
         write_new(out/'results.json',result)
         write_new(out/'ledger_draft.json',dict(id='EXP-ATL-UNASSIGNED',title=out.name,landed=__import__('datetime').date.today().isoformat(),status='pilot',
