@@ -16,6 +16,17 @@ import time
 from pathlib import Path
 
 LAUNCH = Path(__file__).resolve().parent / "launch.py"
+# Builders reserve GPUs by listing "node:gpu" strings in this file (JSON list or {"slots": [...]}); the queue never launches
+# on a reserved slot. Shared-file coordination for codex-1 and claude-ops (2026-10-06 collision, notes/O1.md).
+RESERVATIONS = Path("/home/heck2/sbhansali8/SpecTLM/ops/gpu_reservations.json")
+
+
+def reserved():
+    try:
+        d = json.loads(RESERVATIONS.read_text())
+        return set(d["slots"] if isinstance(d, dict) else d)
+    except Exception:
+        return set()
 
 
 def main():
@@ -51,7 +62,7 @@ def main():
             if od:
                 emit(event="finished", slot=slot, out_dir=od, exit=(Path(od) / "exit_code").read_text().strip())
                 busy.pop(slot)
-            if not pending:
+            if not pending or slot in reserved():
                 continue
             job = pending.pop(0)
             node, gpu = slot.split(":")

@@ -10,3 +10,4 @@ __pycache__/
 artifacts/
 *.egg-info/
 ops/runs.jsonl
+ops/gpu_reservations.json

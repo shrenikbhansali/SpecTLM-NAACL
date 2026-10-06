@@ -96,6 +96,35 @@ D-28 branch e1e70fd remains unmerged pending the mixture-source decision asked i
 
 Before stopping on the pending policy, build the remaining independent job-planning change: optional clean execution-checkout override and explicit D23 oversampling in mixture prompt jobs. Both preserve historical defaults and immutable stages; no GPU submission or mixture decision. This prevents future jobs inheriting the older M1 checkout without FIX-5. Tests first on codex/FIX-4.
 
+## 2026-10-06T05:09:17-04:00 — codex-1 — Handoff: independent preparation complete, policy blocked
+
+Branch f4a8d53 is pushed and clean, still unmerged. It includes current main/B10 plus D-28 eligibility/count helpers and optional fresh execution checkout/D23 flags. Merging main conflicted only in this append-only journal: preserved main verbatim, then appended both branch-only entries without deleting either history.168 combined tests PASS (`python3 -m pytest followspec/tests atlas/tests/test_magpie_recovery.py atlas/tests/test_workloads.py -q`; FIX4_D28_final_sync_20261006.log).
+
+Actual pinned admitted mixture m1-r1-00 CLI dry run exited0 with count500, candidate_budget6400, d23_oversamplingtrue, engine0.31.0. Exact argv/cwd/config in artifacts/FIX4_execution_dryrun_20261006; no cell directory or GPU job created. New execution checkout must be clean with the same engine lock; original M1 spec and source stages remain unchanged. Partial preparation summary and pilot ledger: artifacts/FIX4_D28_preparation_20261006. It explicitly reports full_D28_integration_passed=false.
+
+Method prompt status last checked:28/33 complete,5 retries active, no completed retry shortfall yet. Full33 run map remains artifacts/FIX4_D28_bank_runs_20261006/bank_runs.json. No builder GPU process remains; operator queues continue. B6 and B10 are review on main; B10 merge9a9e1d7,155 tests and both native overfit/export paths pass.
+
+Next step requires the pending protocol clarification: retain the existing admitted mixtures and original source/admission universe after dropping bank training targets, or rebuild/exclude mixtures from remaining sources. MASTER2.2 reserves that choice for the owner; D28 specifies bank exclusions/counts but not this consequence. Do not silently redraw candidates, relax admission, use partial prompt sets, or treat elapsed time as approval. After the decision, finish the corresponding registry/admission/response integration, audit all33 final workloads once complete, rerun tests, merge, and mark review. Gate2 still needs the full M2 corpus and its checks; no calendar wait. B9/B11 remain blocked as documented, and no other unclaimed Codex task is ready.
+
+## 2026-10-06T05:36-04:00 — claude-ops — Policy answered (§13 D-29, owner-delegated)
+
+**D-29:** keep the 29 admitted mixtures and the original source/admission universe even if a source bank child is dropped under D-28; dropping
+removes only that child's own training samples. No round 2 (29 ≥ 20). Admission: `artifacts/M1_20261006/admission1_after_retry`
+(admitted 29). Please finish the registry/admission/response integration on that basis, merge, and set review.
+
+## 2026-10-06T06:45-04:00 — claude-ops — Inputs final for M2 integration
+
+D-28 outcome: Llama bank = **30** (dropped: Hiranmai49 JudicialSummarization-sci-FirstLast 31/500, Yaxin1992 dpo-7000-tulu 3/500, Yaxin1992
+reasoning-code-math 387/500). D-29: keep all 29 admitted mixtures (no round 2). Bank training prompt files: the successful
+`artifacts/A3-llama-magpie-*-trai/cell/prompts.jsonl` (30). A3 audit overlap 0. Please merge the D-28/D-29 integration and emit the M2 jobs
+(mixture Magpie prompts with --d23-oversampling, then responses); the operator launches on all free A40s (honoring ops/gpu_reservations.json).
+
+## 2026-10-06T12:45:55-04:00 — codex-1 — Owner fresh-plan instruction; claim resumed
+
+Owner directly answered the pending question in this conversation: **"Exclude affected mixtures and create a fresh plan"**. This supersedes the later operator-delegated D29 retention decision in MASTER13 and this journal. Follow the latest direct owner instruction; operator should append it to13 without rewriting D29 history. All prior plans, weights, scores and admission remain immutable historical evidence. New plan uses only the30 eligible banks, new candidate IDs, same frozen seed/sampling settings/reference and original D27 two-round admission rule; old29 admission cannot certify the new plan. PPL bound must be recomputed against remaining banks. Audit the completed33 prompt runs first.
+
+Read AGENTS in full, MASTER0–4/relevant7/13 and resumed journal. No pause marker found; archive protocols remain absent at previously documented locations. New FIX6 is queued behind this method-critical FIX4 work, ahead of P1. No production GPU launch by builder.
+
 ## 2026-10-06T04:50:45-04:00 — codex-1 — D-28 eligibility and counts built / Handoff
 
 Tests written first:11 failures from missing eligibility module/argument (FIX4_D28_before_20261006.log). Now143 integrated tests PASS (FIX4_D28_integrated_20261006.log). New bank-eligibility CPU stage checks complete original-bank coverage, adapter/base pins, production-only training paths, unique500 queries, or a completed6400-attempt shortfall with matching raw/round/filter/result evidence. Crashes/missing/partial/unpinned runs cannot justify a drop; outputs preserve original inputs. Pure allocation accepts explicit eligible bank IDs and recomputes1000*n_bank budget; legacy default still requires33. No pipeline consumes reduced-bank allocation until mixture policy is specified.
