@@ -91,3 +91,7 @@ Branch e1e70fd pushed, not merged: evidence-backed bank-eligibility stage and ex
 ## 2026-10-06T05:03:11-04:00 — codex-1 — Handoff
 
 D-28 branch e1e70fd remains unmerged pending the mixture-source decision asked in chat. Prepared the final33-cell map at artifacts/FIX4_D28_bank_runs_20261006/bank_runs.json (24 original completions plus9 explicit retry paths). At04:57,26/33 workloads were complete;7 retries still active. The bank-eligibility stage must wait for complete or fully exhausted evidence from every mapped cell. Once policy is specified, integrate it with allocation/admission/source provenance, merge latestmain (now B10), rerun tests, and emit fresh jobs. Important launch detail: the original M1 spec uses an older execution checkout; new M2 jobs need a fresh tagged main with FIX-5, and mixture-prompt job generation needs an explicit D23 oversampling option. Do not mutate historical specs or jobs. Existing M1 round1 admission is29; original D27 requires secondround to seek30. No new global pause marker exists.
+
+## 2026-10-06T05:04:29-04:00 — codex-1 — Independent M2 launch preparation
+
+Before stopping on the pending policy, build the remaining independent job-planning change: optional clean execution-checkout override and explicit D23 oversampling in mixture prompt jobs. Both preserve historical defaults and immutable stages; no GPU submission or mixture decision. This prevents future jobs inheriting the older M1 checkout without FIX-5. Tests first on codex/FIX-4.
