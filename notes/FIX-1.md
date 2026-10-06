@@ -111,3 +111,7 @@ Inspected5 reference decoded strings and5 generated strings per base/child path.
 ```
 
 Handoff: all GPU jobs finished; no rerun needed to apply an approved repetition threshold to saved token IDs. Board blocked on the still-pending owner criterion, not compute or the finite-PPL implementation. Branchcodex/FIX-1 at34f0149 remains unmerged. No gate or threshold inferred from Gate1 approval. Continue other ready P0 builds.
+
+## 2026-10-05T22:39:13-04:00 — codex-1 — Owner criterion approved
+
+Owner reply in chat: **“Approve the 50% repeated-4-gram criterion”**. Apply strict >0.50 token-position coverage for one repeated4gram, alongside empty/immediate-EOS and PPL≤2×base. This was proposed before inspecting outputs; it is not tuned from them. Add immutable postprocessing of existing recorded outputs, preserve original pending results and run configs. Request operator record the explicit owner decision in MASTER §13.

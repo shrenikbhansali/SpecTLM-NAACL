@@ -209,7 +209,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | blocked | codex-1 / 2026-10-05T22:38:52-04:00 | [journal](notes/FIX-1.md); base ratio1, child1.056, broken input rejected; owner repetition criterion pending (metrics complete) |
+| FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | in progress | codex-1 / 2026-10-05T22:39:13-04:00 | [journal](notes/FIX-1.md); owner approved >50% repeated4gram criterion; finalizing saved acceptance outputs |
 
 ---
 
