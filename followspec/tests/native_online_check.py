@@ -84,7 +84,7 @@ def main():
                         decoded_prompt=tokenizer.decode(ids[:row['response_start']]),decoded_answer=tokenizer.decode(ids[row['response_start']:]),
                         response_start=row['response_start'],loss_mask=row['loss_mask'],tokens=len(ids),assistant_tokens=int(mask.sum())))
                 report=dict(sample_id=row['sample_id'],feature_difference_l2=displacement,assistant_tokens=int(mask.sum()),
-                    fresh_pass_exact=index<3,target_gradients=False,drafter_layer_backward=True)
+                    fresh_pass_exact=True if index<3 else None,target_gradients=False,drafter_layer_backward=True)
                 record.write(json.dumps(report)+'\n');record.flush();reports.append(report);del raw,head
             for row in base_rows:
                 ids=torch.tensor(row['input_ids']);mask=torch.tensor(row['loss_mask']);raw=capture(ids,mask,feature_target=route_arm('PO-D','base',cc['derivative_id']))

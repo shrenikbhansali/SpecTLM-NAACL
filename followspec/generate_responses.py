@@ -106,6 +106,7 @@ def main():
                 unpaused();end=min(start_idx+a.batch_size,len(rows))
                 params=[SamplingParams(temperature=.6,top_p=.95,max_tokens=cfg['max_new_tokens'],seed=s) for s in seeds[start_idx:end]]
                 outputs=llm.generate(inputs[start_idx:end],params,use_tqdm=False,**kw)
+                if len(outputs)!=end-start_idx:raise ValueError('engine response count mismatch')
                 for j,o in enumerate(outputs,start_idx):
                     if list(o.prompt_token_ids)!=inputs[j]['prompt_token_ids']:raise ValueError('engine changed exact prompt tokens')
                     answer=o.outputs[0];r=make_sample(rows[j],list(o.prompt_token_ids),list(answer.token_ids),target_id=a.derivative_id,
