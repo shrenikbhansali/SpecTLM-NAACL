@@ -181,3 +181,11 @@ ordinary5/64-query generation cap remains64 response tokens, the default
 overfit remains3 epochs, and D-26 remains30 steps. Capacity results record
 actual tokens in each batch as well as padding; they do not certify every
 possible production prompt length or mixture rank. No sweeps are launched.
+
+The optional `--release-grad-before-forward` flag (trainer and bounded overfit
+checker) clears previous-step gradients before the next training forward. The
+pinned native Trainer normally clears them after that forward; it does not
+accumulate gradients. This changes tensor lifetime only: native backward,
+clipping, optimizer and scheduler stay unchanged. Evaluation retains the final
+training gradients for acceptance inspection. Record the flag and use the same
+setting across all matched arms. Original default is unchanged.

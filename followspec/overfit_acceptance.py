@@ -35,6 +35,7 @@ def validate_capacity(rows, source):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
     p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
     a=p.parse_args();ensure_unpaused();ensure_unpaused(Path.cwd())
@@ -116,6 +117,9 @@ def main():
             weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],scheduler_warmup_ratio=cfg['warmup_ratio'],
             scheduler_total_steps=steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,resume_from_checkpoint=False)
         trainer=Trainer(model,native_cfg,train,None)
+        if a.release_grad_before_forward:
+            from followspec.training_memory import release_grad_before_forward
+            release_grad_before_forward(trainer)
         def evaluate():
             model.eval();values=[]
             with torch.no_grad():
