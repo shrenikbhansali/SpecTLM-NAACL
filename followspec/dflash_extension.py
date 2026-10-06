@@ -9,6 +9,7 @@ import math
 import types
 import torch
 from followspec.delta import centered_delta, objective
+from followspec.teacher_selection import teacher_topk, teacher_gather
 from followspec.paired_data import shift_paired, validate_packed
 
 
@@ -69,13 +70,13 @@ def install_follow_spec_dflash(model,*,beta=1.,delta_lambda=.1,top_k=32,shared_v
                     captured['mask']=mask.to(torch.bool);captured['indices']=indices
                     if delta_lambda:
                         if top_k>p.shape[-1]:raise ValueError('top-k exceeds draft vocabulary')
-                        pc,ids=p.detach().float().topk(top_k,dim=-1)
+                        pc,ids=teacher_topk(p,top_k)
                         captured.update(pc=pc,ids=ids,qc=q.gather(-1,ids))
                 else:
                     if not torch.equal(indices,captured['indices']) or not torch.equal(mask.to(torch.bool),captured['mask']):
                         raise ValueError('paired native anchors or masks differ')
                     if delta_lambda:
-                        captured.update(p0=p.detach().float().gather(-1,captured['ids']),
+                        captured.update(p0=teacher_gather(p,captured['ids']),
                                         q0=q.detach().gather(-1,captured['ids']))
                 return hidden,q,p,mask,indices
             self._backbone_forward=types.MethodType(backbone,self)

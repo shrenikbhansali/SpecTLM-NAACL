@@ -34,3 +34,10 @@ accepts `--family qwen3` and checks the target and verifier architecture family.
 Qwen3 response inputs must use non-thinking rendering; the B10 bounded input
 bundle explicitly verifies the empty `<think>…</think>` prefix on all64 queries.
 Neither family presets nor CPU plumbing tests establish B10(a)–(g) GPU acceptance.
+
+Teacher top-k extraction now selects in the original bf16/fp16 representation
+before casting the selected values to float32; base values are gathered before
+casting too. Float64 inputs retain float32-before-top-k behavior. This removes
+a5120×128256 float32 temporary at the native512-anchor layout. The pinned A40
+check compared values and indices exactly on random bf16/fp16, tied and all-zero
+inputs; all passed. It changes no loss formula, anchor count or optimizer.
