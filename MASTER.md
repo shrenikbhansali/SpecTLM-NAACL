@@ -177,7 +177,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B6.md); 19 CPU tests and native loss composition pass; real overfit/export pending B5 |
 | B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | done | codex-1 / 2026-10-05T22:38:52-04:00 | [journal](notes/B7.md); [synthetic acceptance](artifacts/B7_acceptance_20261005/acceptance.json); 9 tests, 94% coverage across200 trials; merged ec802a4; operator re-run PASS (9 tests; coverage 0.967, noisy-twice 0.953) ([B7 journal](notes/B7.md)) |
-| B8 | Covariates pipeline | P0 | codex | B1 | Tue | in progress | codex-1 / 2026-10-05T22:47:26-04:00 | [journal](notes/B8.md); B1 operator verified; covariate acceptance tests first |
+| B8 | Covariates pipeline | P0 | codex | B1 | Tue | in progress | codex-1 / 2026-10-05T22:58:58-04:00 | [journal](notes/B8.md); 17 tests + dense/LoRA GPU smoke pass (5 prompts/349 tokens); quantized coverage and production provenance pending |
 | B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
 | B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B11.md); recipe/license gaps remain; pause lifted; 8 checker tests pass |
