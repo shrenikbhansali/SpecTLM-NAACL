@@ -84,6 +84,18 @@ Handoff: operatorrunnew filter_jobs.jsonl (existing spec usesvalidrun-M1 tag and
 
 Read latestmain3068513: operator started nine Llama training prompt retries and two M1 filter retries. D-28 drops banks still below500 after6400attempts and recomputes MVD1000*n_bank / FS round(1000*n_bank/n_targets). Current allocate_queries hardcodes33/33000; strict registry also couples mixture source bank and admission universe. Reopen FIX-4 to implement strict evidence-backed eligibility and count recomputation; preserve existing frozen pool, plans and artifacts. Asked owner whether already sampled mixtures using dropped banks stay with original admission proof or require fresh plan; do not choose a research policy implicitly. Tests and eligibility/count implementation can proceed independently.
 
+## 2026-10-06T04:52:58-04:00 — codex-1 — D-28 partial build / Handoff
+
+Branch e1e70fd pushed, not merged: evidence-backed bank-eligibility stage and explicit reduced allocation.11 new tests firstfailed thenpassed;143 integrated PASS. Real24 legacy workloads passed72 evidence-file hashes (FIX4_D28_legacy_audit_20261006). Remaining9 retries running. Full integration requires owner clarification on sampled mixtures whose sources are dropped; asked in chat, no answer yet. Mark blocked on that policy, continue B10. Do not discard or redraw candidate mixtures implicitly, nor edit frozen pool. Existing retry-overlay on main remains accepted/usable. Full details in branch journal.
+
+## 2026-10-06T05:03:11-04:00 — codex-1 — Handoff
+
+D-28 branch e1e70fd remains unmerged pending the mixture-source decision asked in chat. Prepared the final33-cell map at artifacts/FIX4_D28_bank_runs_20261006/bank_runs.json (24 original completions plus9 explicit retry paths). At04:57,26/33 workloads were complete;7 retries still active. The bank-eligibility stage must wait for complete or fully exhausted evidence from every mapped cell. Once policy is specified, integrate it with allocation/admission/source provenance, merge latestmain (now B10), rerun tests, and emit fresh jobs. Important launch detail: the original M1 spec uses an older execution checkout; new M2 jobs need a fresh tagged main with FIX-5, and mixture-prompt job generation needs an explicit D23 oversampling option. Do not mutate historical specs or jobs. Existing M1 round1 admission is29; original D27 requires secondround to seek30. No new global pause marker exists.
+
+## 2026-10-06T05:04:29-04:00 — codex-1 — Independent M2 launch preparation
+
+Before stopping on the pending policy, build the remaining independent job-planning change: optional clean execution-checkout override and explicit D23 oversampling in mixture prompt jobs. Both preserve historical defaults and immutable stages; no GPU submission or mixture decision. This prevents future jobs inheriting the older M1 checkout without FIX-5. Tests first on codex/FIX-4.
+
 ## 2026-10-06T04:50:45-04:00 — codex-1 — D-28 eligibility and counts built / Handoff
 
 Tests written first:11 failures from missing eligibility module/argument (FIX4_D28_before_20261006.log). Now143 integrated tests PASS (FIX4_D28_integrated_20261006.log). New bank-eligibility CPU stage checks complete original-bank coverage, adapter/base pins, production-only training paths, unique500 queries, or a completed6400-attempt shortfall with matching raw/round/filter/result evidence. Crashes/missing/partial/unpinned runs cannot justify a drop; outputs preserve original inputs. Pure allocation accepts explicit eligible bank IDs and recomputes1000*n_bank budget; legacy default still requires33. No pipeline consumes reduced-bank allocation until mixture policy is specified.

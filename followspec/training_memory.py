@@ -6,6 +6,7 @@ clipping, optimizer state or step order. Evaluation keeps last-step gradients.
 Install only on the pinned Trainer, not on a gradient-accumulating loop.
 """
 import torch
+from functools import wraps
 
 
 def release_grad_before_forward(trainer):
@@ -19,3 +20,34 @@ def saved_tensor_context(enabled=False):
     """Move autograd's saved tensors to pinned CPU storage without arithmetic changes."""
     from contextlib import nullcontext
     return torch.autograd.graph.save_on_cpu(pin_memory=True) if enabled else nullcontext()
+
+
+def checkpoint_dflash_layers(model):
+    """Use native cache-free DFlash layers with kwargs-safe checkpointing."""
+    if model.config.speculators_config.algorithm!='dflash':
+        raise ValueError('layer checkpointing is restricted to native DFlash; Eagle has mutable caches')
+    if not model.supports_gradient_checkpointing:raise ValueError('backend does not support checkpointing')
+    # Native DFlash passes both trainable hidden inputs by keyword. Reentrant
+    # checkpointing cannot track those inputs and would silently lose gradients.
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
+
+
+def serial_adamw(trainer):
+    """Run native foreach kernels tensorwise, restoring public parameter groups."""
+    if not trainer.optimizers or any(not isinstance(opt,torch.optim.AdamW) for opt in trainer.optimizers):
+        raise ValueError('serial AdamW requires the native AdamW optimizer')
+    if any(group.get('fused') for opt in trainer.optimizers for group in opt.param_groups):
+        raise ValueError('cannot change a fused optimizer implementation')
+    def install(opt):
+        original_step=opt.step
+        @wraps(original_step)
+        def step(*args,**kwargs):
+            groups=opt.param_groups
+            opt.param_groups=[dict(group,params=[p],foreach=True)
+                              for group in groups for p in group['params']]
+            try:
+                return original_step(*args,**kwargs)
+            finally:
+                opt.param_groups=groups
+        opt.step=step
+    for opt in trainer.optimizers:install(opt)

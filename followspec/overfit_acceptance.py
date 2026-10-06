@@ -40,13 +40,24 @@ def validate_acceptance_registry(registry, rows, *, capacity=False):
     validate_registry(registry,allow_acceptance=True)
 
 
+def validate_training_device(device,*,allow_h200=False,capacity=False):
+    if 'A40' in device:return
+    if allow_h200 and not capacity and 'H200' in device:return
+    raise ValueError('A40 required; D-26 permits explicit H200 training smoke, never A40 capacity evidence')
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['base','drafter','registry','responses','sample-audit','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--serial-adamw',action='store_true',help='avoid all-parameter foreach optimizer temporaries; identical AdamW update settings')
+    p.add_argument('--checkpoint-dflash-layers',action='store_true',help='native DFlash layer recomputation with kwargs-safe non-reentrant checkpointing')
     p.add_argument('--offload-saved-tensors',action='store_true',help='store autograd saved tensors on CPU; no recomputation, precision or recipe change')
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; no recipe change')
     p.add_argument('--capacity-smoke',action='store_true',help='one native epoch, at most8 optimizer steps, on explicit bounded512-response inputs')
+    p.add_argument('--allow-h200-training-smoke',action='store_true',help='D-26: bounded training on a free local H200; export evaluation remains A40')
     p.add_argument('--epochs',type=int,choices=[3,30],default=3,help='30 is the bounded D-26 pre-M3 overfit check; production defaults unchanged')
+    p.add_argument('--family',choices=['llama','qwen3'],default='llama',help='explicit Qwen3 EAGLE initialization; native recipe unchanged')
+    p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3',help='DFlash uses native raw blocks, not EAGLE shifts')
     a=p.parse_args();ensure_unpaused();ensure_unpaused(Path.cwd())
     if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip():raise ValueError('commit first')
     from followspec.token_data import response_run,build_manifest,OnlineResponseDataset
@@ -67,13 +78,15 @@ def main():
     from speculators.train.trainer import Trainer,TrainerConfig
     from speculators.train.distributed_batch_sampler import MultipackDistributedBatchSamplerV2
     from atlas.covariates import tap_layers
-    from followspec.configs import load_presets
+    from followspec.configs import load_presets,validate_eagle_family
     from followspec.online_bank import FrozenAdapterBank
     from followspec.paired_data import PairedCollator,shift_paired
     from followspec.eagle3_extension import install_follow_spec
     if git_commit!=BACKEND:raise ValueError('wrong native backend')
-    if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('D-19 acceptance requires A40')
-    cfg=load_presets()['FS'];epochs=1 if a.capacity_smoke else a.epochs;seed=0
+    validate_training_device(torch.cuda.get_device_name(0),allow_h200=a.allow_h200_training_smoke,capacity=a.capacity_smoke)
+    cfg=load_presets(family=a.family,algorithm=a.algorithm)['FS'];epochs=1 if a.capacity_smoke else a.epochs;seed=0
+    if a.algorithm=='eagle3':
+        validate_eagle_family(a.family,json.loads((Path(a.base)/'config.json').read_text()),json.loads((Path(a.drafter)/'config.json').read_text()))
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);start=time.perf_counter();torch.manual_seed(seed)
     config=vars(a)|dict(acceptance_only=True,n=64,epochs=epochs,seed=seed,K=None,training_config=cfg,
         base_revision=Path(a.base).name,initialization_revision=Path(a.drafter).name,backend_revision=BACKEND,
@@ -91,17 +104,28 @@ def main():
         validate_acceptance_registry(registry,rows,capacity=a.capacity_smoke)
         refs=[dict(run=a.responses,record_index=i,child_id=r['generation_target'],pair_id=r['sample_id'],split='train') for i,r in enumerate(rows)]
         manifest=build_manifest('FS',refs,registry=registry,base_revision=Path(a.base).name,
-            initialization_revision=Path(a.drafter).name,allow_acceptance=True)
+            initialization_revision=Path(a.drafter).name,allow_acceptance=True,
+            sequence_layout='dflash_raw' if a.algorithm=='dflash' else 'eagle_shift')
         write_new(out/'manifest.json',manifest)
         target=AutoModelForCausalLM.from_pretrained(a.base,local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda')
-        model_cfg=SpeculatorModelConfig.from_pretrained(a.drafter,local_files_only=True)
-        model_cfg.speculators_config.verifier.name_or_path=a.base
-        model_cfg.eagle_aux_hidden_state_layer_ids=tap_layers(json.loads((Path(a.drafter)/'config.json').read_text()),target.config.num_hidden_layers)
-        model_cfg.transformer_layer_config._attn_implementation='simple_flex_attention'
-        model=SpeculatorModel.from_pretrained(a.drafter,config=model_cfg,local_files_only=True,torch_dtype=torch.float32)
-        bank=FrozenAdapterBank(target,registry,model_cfg.eagle_aux_hidden_state_layer_ids,
-            torch.arange(len(model.d2t))+model.d2t.cpu(),pause_check=ensure_unpaused,allow_acceptance=True)
-        install_follow_spec(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],shared_verifier_head=False)
+        if a.algorithm=='dflash':
+            from followspec.dflash_loader import load_released_dflash
+            from followspec.dflash_extension import install_follow_spec_dflash,prepare_block_sample
+            model=load_released_dflash(a.drafter,a.base,device='cpu');model_cfg=model.config
+            if model.block_size!=cfg['block_size']:raise ValueError('native DFlash block size differs')
+            taps=list(model.target_layer_ids);shift=prepare_block_sample;span=model.block_size;install=install_follow_spec_dflash
+        else:
+            model_cfg=SpeculatorModelConfig.from_pretrained(a.drafter,local_files_only=True)
+            model_cfg.speculators_config.verifier.name_or_path=a.base
+            taps=tap_layers(json.loads((Path(a.drafter)/'config.json').read_text()),target.config.num_hidden_layers)
+            model_cfg.eagle_aux_hidden_state_layer_ids=taps
+            model_cfg.transformer_layer_config._attn_implementation='simple_flex_attention'
+            model=SpeculatorModel.from_pretrained(a.drafter,config=model_cfg,local_files_only=True,torch_dtype=torch.float32)
+            shift=shift_paired;span=cfg['ttt_steps'];install=install_follow_spec
+        tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(target.config.vocab_size)
+        bank=FrozenAdapterBank(target,registry,taps,tokens,pause_check=ensure_unpaused,allow_acceptance=True)
+        install(model,beta=cfg['beta'],delta_lambda=cfg['delta_lambda'],top_k=cfg['top_k'],shared_verifier_head=False)
+
         keys=set(model.state_dict());initial_fc=model.fc.weight.detach().clone()
         def capture_metrics(module,args,result):
             if not torch.isfinite(result[1]):raise ValueError('nonfinite native loss')
@@ -110,13 +134,15 @@ def main():
         model.register_forward_pre_hook(lambda *_:ensure_unpaused())
         model.register_forward_hook(capture_metrics)
         def loader(noise):
-            ds=OnlineResponseDataset(manifest,split='train',bank=bank,shift=shift_paired,noise_std=noise,allow_acceptance=True)
+            ds=OnlineResponseDataset(manifest,split='train',bank=bank,shift=shift,noise_std=noise,allow_acceptance=True)
             if max(ds.approx_lengths)>cfg['total_seq_len']:raise ValueError('no sample truncation allowed')
             sampler=MultipackDistributedBatchSamplerV2(cfg['total_seq_len'],ds.approx_lengths,1,0,seed=seed)
             if sorted(int(i) for batch in sampler for i in batch)!=list(range(64)):raise ValueError('sampler dropped or duplicated samples')
-            return DataLoader(ds,batch_sampler=sampler,collate_fn=PairedCollator(cfg['total_seq_len'],target.config.hidden_size,3,cfg['ttt_steps']),num_workers=0)
+            return DataLoader(ds,batch_sampler=sampler,collate_fn=PairedCollator(cfg['total_seq_len'],target.config.hidden_size,len(taps),span),num_workers=0)
         train=loader(cfg['noise_std']);probe=loader(0.)
-        call=dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay'],loss_config=resolve_loss_config('kl_div','fused'))
+        call=(dict(max_anchors=cfg['max_anchors'],gamma=cfg['gamma'],per_position_loss_weight=cfg['per_position_loss_weight'])
+              if a.algorithm=='dflash' else dict(ttt_steps=cfg['ttt_steps'],ttt_step_loss_decay=cfg['ttt_step_loss_decay']))
+        call['loss_config']=resolve_loss_config('kl_div','fused')
         steps=epochs*len(train)
         batch_tokens=[sum(train.dataset.approx_lengths[int(i)] for i in batch) for batch in train.batch_sampler]
         write_new(out/'batch_capacity.json',dict(actual_tokens=batch_tokens,padded_tokens_per_batch=cfg['total_seq_len'],
@@ -126,13 +152,23 @@ def main():
         native_cfg=TrainerConfig(lr=cfg['lr'],num_epochs=epochs,save_path=str(out/'checkpoints'),optimizer=cfg['optimizer'],
             weight_decay=cfg['weight_decay'],scheduler_type=cfg['scheduler'],scheduler_warmup_ratio=cfg['warmup_ratio'],
             scheduler_total_steps=steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,resume_from_checkpoint=False)
+        if a.checkpoint_dflash_layers:
+            from followspec.training_memory import checkpoint_dflash_layers
+            checkpoint_dflash_layers(model)
         trainer=Trainer(model,native_cfg,train,None)
+        if a.serial_adamw:
+            from followspec.training_memory import serial_adamw
+            serial_adamw(trainer)
         if a.release_grad_before_forward:
             from followspec.training_memory import release_grad_before_forward
             release_grad_before_forward(trainer)
         def evaluate():
             model.eval();values=[]
-            with torch.no_grad():
+            # DFlash samples anchors. Its before/after probe must replay the
+            # same draws without altering training's RNG stream.
+            from contextlib import nullcontext
+            with (torch.random.fork_rng(devices=[0]) if a.algorithm=='dflash' else nullcontext()),torch.no_grad():
+                if a.algorithm=='dflash':torch.manual_seed(seed)
                 for batch in probe:
                     batch={k:v.to('cuda') if isinstance(v,torch.Tensor) else v for k,v in batch.items()}
                     with torch.autocast('cuda',dtype=torch.bfloat16):_,loss,_=model(**batch,**call)
@@ -152,10 +188,13 @@ def main():
         checkpoint=out/'checkpoints'/str(epochs-1)
         assert (checkpoint/'config.json').is_file() and (checkpoint/'model.safetensors').is_file()
         with (out/'per_prompt.jsonl').open('x') as f:
-            for r in rows:f.write(json.dumps(dict(sample_id=r['sample_id'],prompt_sha256=r['prompt_sha256'],assistant_tokens=sum(r['loss_mask']),shifted_tokens=len(r['input_ids'])-1))+'\n')
-        result=dict(passed=True,n=64,epochs=epochs,optimizer_steps=steps,shifted_tokens=manifest['token_budget'],
+            for r in rows:
+                count={('raw_tokens' if a.algorithm=='dflash' else 'shifted_tokens'):len(r['input_ids'])-(a.algorithm!='dflash')}
+                f.write(json.dumps(dict(sample_id=r['sample_id'],prompt_sha256=r['prompt_sha256'],assistant_tokens=sum(r['loss_mask']),**count))+'\n')
+        result=dict(passed=True,n=64,epochs=epochs,optimizer_steps=steps,**{('raw_tokens' if a.algorithm=='dflash' else 'shifted_tokens'):manifest['token_budget']},
             capacity_smoke=a.capacity_smoke,total_seq_len=cfg['total_seq_len'],full_response=a.capacity_smoke,
             actual_batch_tokens=batch_tokens,base_revision=Path(a.base).name,initialization_revision=Path(a.drafter).name,
+
             before=before,after=after,loss_decrease=before['mean_batch_loss']-after['mean_batch_loss'],
             frozen_teacher=True,finite_drafter_gradients=True,checkpoint=str(checkpoint.resolve()),
             checkpoint_sha256={p.name:sha256(p) for p in checkpoint.iterdir() if p.suffix in {'.safetensors','.json'}},

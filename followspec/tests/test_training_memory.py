@@ -60,3 +60,38 @@ def test_saved_tensor_offload_preserves_multistep_loss_gradients_and_adam_state(
             assert torch.equal(p,q) and torch.equal(p.grad,q.grad)
         for p,q in zip(opts[0].state.values(),opts[1].state.values()):
             for key in p:assert torch.equal(p[key],q[key])
+
+
+def test_serial_adamw_matches_batched_updates_and_states():
+    from followspec.training_memory import serial_adamw
+    from types import SimpleNamespace
+    torch.manual_seed(33)
+    params=[torch.nn.Parameter(torch.randn(n,n)) for n in (5,9,17)]
+    others=[torch.nn.Parameter(p.detach().clone()) for p in params]
+    a=torch.optim.AdamW(params,lr=.003,weight_decay=.02,foreach=True)
+    b=torch.optim.AdamW(others,lr=.003,weight_decay=.02,foreach=True)
+    serial_adamw(SimpleNamespace(optimizers=[b]))
+    for _ in range(3):
+        for p,q in zip(params,others):p.grad=torch.randn_like(p);q.grad=p.grad.clone()
+        a.step();b.step()
+        for p,q in zip(params,others):
+            assert torch.equal(p,q)
+            for k in a.state[p]:assert torch.equal(a.state[p][k],b.state[q][k])
+
+
+def test_tensorwise_adam_preserves_public_groups_scheduler_and_restores_on_error():
+    from followspec.training_memory import serial_adamw
+    from types import SimpleNamespace
+    p=[torch.nn.Parameter(torch.ones(2)),torch.nn.Parameter(torch.ones(3))]
+    opt=torch.optim.AdamW(p,lr=.01,foreach=True)
+    schedule=torch.optim.lr_scheduler.StepLR(opt,step_size=1,gamma=.5)
+    groups=opt.param_groups
+    serial_adamw(SimpleNamespace(optimizers=[opt]))
+    for x in p:x.grad=torch.ones_like(x)
+    opt.step();schedule.step()
+    assert opt.param_groups is groups and len(groups)==1 and groups[0]['foreach'] is True
+    assert opt.param_groups[0]['lr']==.005 and schedule.get_last_lr()==[.005]
+    def fail():raise ValueError('closure failure')
+    import pytest
+    with pytest.raises(ValueError,match='closure'):opt.step(fail)
+    assert opt.param_groups is groups
