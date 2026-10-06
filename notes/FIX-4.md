@@ -105,3 +105,9 @@ Actual pinned admitted mixture m1-r1-00 CLI dry run exited0 with count500, candi
 Method prompt status last checked:28/33 complete,5 retries active, no completed retry shortfall yet. Full33 run map remains artifacts/FIX4_D28_bank_runs_20261006/bank_runs.json. No builder GPU process remains; operator queues continue. B6 and B10 are review on main; B10 merge9a9e1d7,155 tests and both native overfit/export paths pass.
 
 Next step requires the pending protocol clarification: retain the existing admitted mixtures and original source/admission universe after dropping bank training targets, or rebuild/exclude mixtures from remaining sources. MASTER2.2 reserves that choice for the owner; D28 specifies bank exclusions/counts but not this consequence. Do not silently redraw candidates, relax admission, use partial prompt sets, or treat elapsed time as approval. After the decision, finish the corresponding registry/admission/response integration, audit all33 final workloads once complete, rerun tests, merge, and mark review. Gate2 still needs the full M2 corpus and its checks; no calendar wait. B9/B11 remain blocked as documented, and no other unclaimed Codex task is ready.
+
+## 2026-10-06T05:36-04:00 — claude-ops — Policy answered (§13 D-29, owner-delegated)
+
+**D-29:** keep the 29 admitted mixtures and the original source/admission universe even if a source bank child is dropped under D-28; dropping
+removes only that child's own training samples. No round 2 (29 ≥ 20). Admission: `artifacts/M1_20261006/admission1_after_retry`
+(admitted 29). Please finish the registry/admission/response integration on that basis, merge, and set review.
