@@ -81,3 +81,20 @@ def test_adapter_and_tokenizer_provenance_is_verified(tmp_path):
     verify_inputs(row,str(adapter),str(tokenizer),'b'*40)
     (adapter/'adapter_model.safetensors').write_bytes(b'changed')
     with pytest.raises(ValueError,match='hash'):verify_inputs(row,str(adapter),str(tokenizer),'b'*40)
+
+
+def test_rendered_eval_keeps_source_ids_and_disables_qwen_thinking():
+    from atlas.workloads import render_evaluation
+    class Tokenizer:
+        def apply_chat_template(self,messages,**kwargs):
+            assert kwargs['enable_thinking'] is False and kwargs['add_generation_prompt']
+            return '<user>'+messages[0]['content']+'<assistant>'
+    result=render_evaluation([{'prompt_id':'p','prompt':'query'}],Tokenizer(),'qwen3')
+    assert result[0]['prompt']=='<user>query<assistant>' and result[0]['prompt_id']=='p'
+    assert result[0]['raw_prompt']=='query' and result[0]['format']=='chat_template_rendered'
+
+
+def test_rendered_prompt_audit_still_detects_raw_query_leakage():
+    with pytest.raises(ValueError,match='overlap'):
+        audit_disjoint({'train':[{'prompt':'A shared user query'}]},
+                       {'eval':[{'prompt':'<user>A shared user query<assistant>','raw_prompt':'A shared user query'}]})

@@ -79,8 +79,8 @@ def stratified_sample(rows,count,seed):
 
 
 def audit_disjoint(training,evaluation):
-    train={prompt_hash(r['prompt']) for rows in training.values() for r in rows}
-    evaluation_hashes={prompt_hash(r['prompt']) for rows in evaluation.values() for r in rows}
+    train={prompt_hash(r.get('raw_prompt',r['prompt'])) for rows in training.values() for r in rows}
+    evaluation_hashes={prompt_hash(r.get('raw_prompt',r['prompt'])) for rows in evaluation.values() for r in rows}
     overlap=train & evaluation_hashes
     if overlap:raise ValueError(f'training/evaluation overlap: {len(overlap)} hashes')
     return dict(training_unique=len(train),evaluation_unique=len(evaluation_hashes),overlap_count=0)
@@ -92,6 +92,44 @@ def magpie_prefix(tokenizer,family):
                                          add_generation_prompt=False,enable_thinking=False)
     if rendered.count(sentinel)!=1:raise ValueError('template must preserve user content exactly once')
     return rendered.split(sentinel)[0]
+
+
+def render_evaluation(rows,tokenizer,family):
+    """Render once, keeping raw queries available for cross-split hash auditing."""
+    if family not in {'llama','qwen3'}:raise ValueError('unsupported model family')
+    result=[];seen=set()
+    for row in rows:
+        if row.get('format')=='chat_template_rendered':raise ValueError('already rendered')
+        if row.get('split')=='training':raise ValueError('training queries must remain raw for B5')
+        if row['prompt_id'] in seen:raise ValueError('duplicate prompt ID')
+        seen.add(row['prompt_id'])
+        raw=row['prompt']
+        rendered=tokenizer.apply_chat_template([{'role':'user','content':raw}],tokenize=False,
+                                               add_generation_prompt=True,enable_thinking=False)
+        if not isinstance(rendered,str) or not rendered:raise ValueError('empty rendered prompt')
+        result.append(row|dict(raw_prompt=raw,prompt=rendered,raw_prompt_sha256=prompt_hash(raw),
+                               format='chat_template_rendered'))
+    return result
+
+
+def render(args):
+    from transformers import AutoTokenizer
+    if not re.fullmatch('[0-9a-f]{40}',args.tokenizer_revision):raise ValueError('pinned tokenizer revision required')
+    source=Path(args.tokenizer)
+    if not source.is_dir():raise ValueError('local tokenizer snapshot required')
+    tokenizer=AutoTokenizer.from_pretrained(source,local_files_only=True,trust_remote_code=False)
+    rows=[json.loads(line) for line in Path(args.input).read_text().splitlines() if line.strip()]
+    rendered=render_evaluation(rows,tokenizer,args.family)
+    out=Path(args.output);out.mkdir(parents=True,exist_ok=False)
+    write_jsonl(out/'prompts.jsonl',rendered)
+    config=dict(input=str(Path(args.input).resolve()),input_sha256=file_hash(args.input),n=len(rows),
+                tokenizer=str(source.resolve()),tokenizer_revision=args.tokenizer_revision,
+                tokenizer_sha256=file_hash(source/'tokenizer.json'),
+                chat_template_sha256=hashlib.sha256(json.dumps(tokenizer.chat_template,sort_keys=True).encode()).hexdigest(),
+                family=args.family,enable_thinking=False,add_generation_prompt=True,
+                prompts_sha256=file_hash(out/'prompts.jsonl'),acceptance_only=any(r.get('acceptance_only',False) for r in rows))
+    (out/'config.json').write_text(json.dumps(config,indent=2)+'\n')
+    print(json.dumps(config,indent=2))
 
 
 def language(text):
@@ -148,6 +186,8 @@ def main():
     b=sub.add_parser('build-public');b.add_argument('--speed-parquet',required=True);b.add_argument('--general-parquet',required=True)
     b.add_argument('--speed-provenance');b.add_argument('--seed',type=int,default=20261005);b.add_argument('--near-threshold',type=float,default=.9);b.add_argument('--output',required=True)
     a=sub.add_parser('audit');a.add_argument('--training',nargs='+',required=True);a.add_argument('--evaluation',nargs='+',required=True)
-    args=p.parse_args();public(args) if args.command=='build-public' else audit(args)
+    r=sub.add_parser('render-evaluation');r.add_argument('--input',required=True);r.add_argument('--tokenizer',required=True)
+    r.add_argument('--tokenizer-revision',required=True);r.add_argument('--family',choices=['llama','qwen3'],required=True);r.add_argument('--output',required=True)
+    args=p.parse_args();{'build-public':public,'audit':audit,'render-evaluation':render}[args.command](args)
 
 if __name__=='__main__':main()
