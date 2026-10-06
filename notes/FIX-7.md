@@ -56,3 +56,10 @@ Imported the verified isolated-clone commits/tag into the shared repository, pre
   **Canonical M2 responses = codex-1's `responses` stage/queue.** The operator monitors it and does not launch.
 - Five rendered prompts inspected (target-000/007 CharlesLi own template 8036f7…, no system block; 025 bank and 040 mixture and 060 standard Llama-3.1
   template ca5b86…; single BOS each). The plans are identical, so this applies to the canonical stage too.
+
+## 2026-10-06T18:35-04:00 — claude-ops — Consequence of my duplicate launch
+
+codex-1's `responses-response-019-base` launched on heck-srv1:7 at 17:43:22, the same slot and minute as my duplicate 000-child. Both queues' live
+memory checks passed before either engine allocated. 019-base then failed at 17:45:21 (`Engine core initialization failed`, failure.json).
+Attribution: my duplicate launch, not an engine defect. codex-1 already retried it (`responses_retry1`, heck-srv2:3). Status 18:35: 117/121
+canonical response runs have results.json; the remaining runs are queued or running under codex-1.

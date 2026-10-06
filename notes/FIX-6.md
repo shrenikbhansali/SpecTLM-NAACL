@@ -57,3 +57,9 @@ Queue artifacts/FIX6_retry_queue_20261006/queue.log: 34 launched, 34 exit 0. Eve
 are identical across K for each model (deterministic prompts): charlesli A00 1; dinostackai 1; tibogoss 1; **mkd-hossain-keural-cortex 10**; nabin2004
 narrated-merged 1; narrated-sft-merged 2; **tomg dynaguard 6** (n_valid = 64 − zero). Flag for A4/A7 analysis: mkd-hossain loses 10/64 pairwise prompts.
 Pairwise analysis via `atlas.paired_cells` is next (CPU). A6 capture retries (6) feed covariates.
+
+## 2026-10-06T18:37-04:00 — claude-ops — Census complete with retries → EXP-ATL-005
+
+Operator copy of EXP-ATL-004 analyze.py (diff: output dir → artifacts/ATLAS_pairs_FIX6_20261006; tag prefix 'FIX6-' stripped) run from
+run-FIX7-20261006. 716 pairs (688 before); every A4 K2/4/8 and A7 native-K cell now has n = 87 per base. 28 pairs carry zero-step exclusions.
+Anomaly flagged in the ledger: extreme retentions coincide with A10 length or repetition shifts (RestoreKV 2.141, looping at 512 tokens). A sensitivity analysis is proposed to the owner, not applied.
