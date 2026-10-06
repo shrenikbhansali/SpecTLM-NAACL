@@ -115,3 +115,9 @@ def test_exllama_quantization_is_nonstandard_even_with_hf_filenames():
     from atlas.curate_pool import layout_exclusion
     for method in ('exl2','exl3'):
         assert layout_exclusion({'quantization_config':{'quant_method':method}},['model.safetensors'])=='nonstandard_quantization'
+
+
+def test_mlx_quantization_with_duplicate_config_fields_is_rejected():
+    from atlas.curate_pool import layout_exclusion
+    q={'bits':6,'group_size':64}
+    assert layout_exclusion({'quantization':q,'quantization_config':q},['model.safetensors'])=='mlx_quantization'

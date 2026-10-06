@@ -211,7 +211,7 @@ def layout_exclusion(cfg, paths):
         return 'different_architecture'
     if str((cfg.get('quantization_config') or {}).get('quant_method','')).lower() in {'exl2','exl3'}:
         return 'nonstandard_quantization'
-    if cfg.get('quantization') and not cfg.get('quantization_config'):
+    if cfg.get('quantization') and not (cfg.get('quantization_config') or {}).get('quant_method'):
         return 'mlx_quantization'
     standard = any(re.fullmatch(r'(?:model|pytorch_model)(?:-\d+-of-\d+)?\.(?:safetensors|bin)', p)
                    or re.fullmatch(r'adapter_model\.(?:safetensors|bin)', p) for p in paths)
