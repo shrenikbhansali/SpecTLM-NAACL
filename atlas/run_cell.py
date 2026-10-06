@@ -120,6 +120,7 @@ def parser():
     p.add_argument('--batch-size',type=int,default=1);p.add_argument('--max-model-len',type=int,default=4096)
     p.add_argument('--gpu-memory-utilization',type=float,default=0.75)
     p.add_argument('--max-lora-rank',type=int,default=64)
+    p.add_argument('--capture-prompt-token-ids',action='store_true',help='save engine prompt IDs for exact offline covariates')
     p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
     return p
 
@@ -194,6 +195,7 @@ def main():
                         raise RuntimeError('inconsistent engine counters')
                     row=dict(prompt_id=record['prompt_id'],completion=completion.text,
                         completion_token_ids=list(completion.token_ids),batch_wall_s=wall,batch_index=i//a.batch_size,**result)
+                    if a.capture_prompt_token_ids:row['prompt_token_ids']=list(output.prompt_token_ids)
                     f.write(json.dumps(row,allow_nan=False)+'\n');f.flush();rows.append(row)
         result=aggregate(rows)|dict(startup_s=startup,generation_wall_s=generation_wall,
             cell_wall_s=time.perf_counter()-started,gpu_type=cfg['gpu_type'],engine_version=engine['vllm_version'],
