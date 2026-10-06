@@ -176,7 +176,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T22:34:14-04:00 | [journal](notes/B4.md); [smoke acceptance](artifacts/B4_smoke_20261005/acceptance.json); 11 tests, five derivatives × two splits, zero leakage; merged 592c919; A3 production pending; operator re-run PASS (11 tests; leakage 0) with A3 flags ([B4 journal](notes/B4.md)) |
 | B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
 | B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B6.md); 19 CPU tests and native loss composition pass; real overfit/export pending B5 |
-| B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | review | codex-1 / 2026-10-05T22:38:52-04:00 | [journal](notes/B7.md); [synthetic acceptance](artifacts/B7_acceptance_20261005/acceptance.json); 9 tests, 94% coverage across200 trials; merged ec802a4 |
+| B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | done | codex-1 / 2026-10-05T22:38:52-04:00 | [journal](notes/B7.md); [synthetic acceptance](artifacts/B7_acceptance_20261005/acceptance.json); 9 tests, 94% coverage across200 trials; merged ec802a4; operator re-run PASS (9 tests; coverage 0.967, noisy-twice 0.953) ([B7 journal](notes/B7.md)) |
 | B8 | Covariates pipeline | P0 | codex | B1 | Tue | todo | | |
 | B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
