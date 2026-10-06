@@ -30,7 +30,8 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | `notes/OPERATOR.md` | Claude Code's running state: jobs, queue, open incidents | Claude Code |
 | `reports/YYYY-MM-DD.md` | Daily report for the owner, ready by 7:00 am ET | Claude Code |
 | `reports/GATE-<n>.md` | Gate evidence reports | Claude Code |
-| `$WS/artifacts/<run_id>/` | Every run's config, per-prompt records, results | The job itself |
+| `$WS/artifacts/<run_id>/` | Every run's config, per-prompt records, results (per site; never in git) | The job itself |
+| `sites/` (`README.md`, `heck.env`, `ice.env`) | Repository protocol, per-site paths and launchers (heck-srv, ICE) | Operator; owner fills `ice.env` |
 | Ledger (`docs/research/experiments/`, `03_ALL_EXPERIMENTS.md`) | Formal record, `EXP-ATL-NNN` entries | Claude Code drafts; owner promotes |
 
 ### 0.3 Update rules (progress tracking)
@@ -82,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 16:50 ET (claude-ops) |
+| Last updated | 2026-10-06 00:01 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
-| Next gate | Gate 1 (engine), due Mon Oct 5, 11 pm ET |
+| Next gate | Gate 1 **PASSED** (§13 D-08, vLLM 0.31.0; fresh compile per cell D-14). Next: Gate 2 (verification, Wed noon). Per D-15, downstream work starts as soon as dependencies pass |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
-| Experiment pause marker | **PRESENT**: `tlm-spec-maintenance/EXPERIMENTS_PAUSED.json` (status `paused`, set 2026-09-11). Code, tests, downloads and dry runs only; A1 smoke cells cannot run until it is lifted |
-| Jobs running | none (B1 downloads by codex-1 starting) |
-| Blockers | Pause marker blocks A1/Gate 1 GPU cells. Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue) |
-| Owner action needed | (1) **Lift pause marker** (needed for Gate 1 by 11 pm). (2) Confirm the write-scoped HF token authorization that codex-1 recorded in AGENTS.md rule 9 (commit ff2ef3c) and add it to §13. (3) **Shared storage `/home/heck2` is 97% full (2.5 TB free)**: too little for full fine-tunes of both pools plus feature capture; free space or name another volume. (4) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (5) Home quota `/nethome/sbhansali8` at 15.26 of 15.36 GB soft limit. (6) ARR registrations. (7) Confirm §13 D-04 cutoffs |
+| Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
+| Jobs running | A1 wave 4: 10 fresh-compile child repeats (claude-ops, 22:05, A40 heck-srv2/5), testing the Gate 1 child-noise attribution. B1 staging finished ~20:40 (200/200). codex-1 active again from 21:55 (audit, B1 fixes) |
+| Blockers | **ICE down until Thu Oct 8 (D-19): all work on heck A40s (§3.2).** Method path on A40s needs FIX-3 (A40 production path + online capture), B5, B6 GPU acceptance, and owner decisions D-04/D-05/D-06 and B3 validation. B11 recipe/data gaps |
+| Owner action needed | (A2) **Pool freeze proposal ready: `reports/A2-proposal.md`.** Both bases meet §5.7 (Llama 87 atlas / 50 test; Qwen3 88 / 46); bank after dedup Llama 33, Qwen3 21. Confirm D-04 cutoffs and the dedup rule to freeze. (L) **A00/A10 engine-setting mismatch (decide before Wed 9 am protocol freeze):** `atlas/run_cell.py` enables LoRA only when an adapter is given, so base A00 cells run with LoRA off and LoRA-derivative A10 cells with LoRA on (compiled graphs differ). AGENTS rule 3 asks for identical settings. Measured effect so far is small (child s0 LoRA vs merged fresh means −0.0045, ≈1.2 SE) but untested directly. Options: (a) add a `--enable-lora` flag (default unchanged) and run A00 with LoRA enabled whenever its A10 is a LoRA cell; (b) keep as is and state it. Operator recommends (a); it needs codex-1 (eval code) before the freeze. (Operator error: B2 verification and EXP-ATL-001 had claimed LoRA was on everywhere; errata added.) (M) **Magpie degenerate outputs (before A3):** in B4's smoke, `INSAIT-Institute/Llama3.1-8B-MixAT` returned the refusal "Sorry, I can't do that." for 64/80 query generations, and other outputs embed an assistant answer in the user turn; filters don't catch these. Decide how A3 treats such derivatives (e.g., general-set-only evaluation for derivatives whose own-domain workload falls below 64 valid prompts, vs keep and flag). notes/B4.md. (H) **Dedicated H200s (heck-srv6) are fully occupied by another user** (`aavsian3`, 8 processes, ~131 GB per GPU at 22:39); A9 (Fri) needs exclusive use. (G1) Gate 1 follow-ups (reports/GATE-1.md): choose the atlas noise floor (base 512-tok fresh-compile SD 0.0029 / range 0.0086, n=20; LoRA A10 cells vary more, SD 0.0080, n=5, so replicate LoRA cells or use type-specific floors) and DFlash replication in A7. (1) **B3 bf16 validation (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.3125/0.375/0.3125 in logits, failing codex-1's pre-set atol 0.125; in fp32 all cases match within 9.1e-5. A single real adapter vs its own bf16 merge already differs by 0.28125. **Correction (22:08):** the rule the operator suggested earlier (mixture error ≤ single-adapter control) would still **fail** this evidence (0.3125 and 0.375 > 0.28125), so it does not unblock M1. The operator withdraws it as a default and proposes none chosen after seeing results. A revised validation protocol is the owner's decision. Evidence: notes/B3.md, notes/BUILD-AUDIT-20261005.md item 3. (2) **Shared storage `/home/heck2`: 1.5 TB free (99%) at 22:00** after B1 staged both sampled pools (~2.2 TB); B1 bank staging and B5 feature capture still need space (B5 needs a storage estimate before running). (3) **ICE** is down until Oct 8 (D-19); repo ready to clone then (`sites/README.md`). Optional: allow the heck-srv6 H200s for M3 training until ICE returns (currently occupied by another user). (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
 
 ---
 
@@ -161,6 +162,31 @@ runs jobs from main only, on a tagged commit recorded in each run's config.
 - **Gate 4 — freeze (Sat noon).** No new experiments; reruns only for bugs.
   If only P0 atlas results are solid, consider a 4-page short paper.
 
+### 3.2 Heck-only operation until ICE returns (Thu Oct 8) — owner decision D-19
+
+The ICE cluster is down until Thursday October 8. Until then **every job runs on heck** (§8.2 placement is overridden;
+`sites/README.md`). Everything runs on A40s, so both tracks stay on one GPU type, which keeps comparisons clean (never
+mix GPU types). The dedicated H200s (heck-srv6) stay A9-only unless the owner reallocates them; they are occupied by
+another user as of Oct 5.
+
+**Priority order on the A40s (method critical path first, atlas in parallel):**
+1. **Method data path, in the background as early as possible.** B5 on A40s: Magpie training prompts for every accepted
+   bank adapter (500 each) and on-policy child responses with vLLM multi-LoRA (§5.4 settings). Response generation is
+   cheap: an 8B model at batch ≫ 1 on one A40. It can start for all A2-accepted bank-candidate adapters plus the base
+   before D-04 is final; the cutoff only drops children, and generated data is reusable. Mixture children follow once
+   the B3 validation rule is decided.
+2. **Feature capture online, not offline.** Paired child + base EAGLE-3 tap features take ~48 KB per token (3 taps ×
+   4096 × bf16 × 2 passes), ≈1.5 TB per arm at 30M tokens and ≈6 TB for four arms; `/home/heck2` has ~2 TB free. Bank
+   children are LoRAs of the base, so one weight copy serves both passes by toggling the adapter; this fits an A40
+   (16 GB weights + drafter + activations). B5/B6 should train with online capture (B5 step 3).
+3. **M3 training on A40s** (4 arms × 3 seeds, one A40 each), once B5/B6 pass and D-04/D-05/D-06 are decided; then M4 on
+   A40s. Budget estimates go in the journals before launch.
+4. **Atlas track in parallel on the remaining A40s:** A2 freeze → A3 → A4/A7 sweeps; A5 when its child set is chosen.
+5. **Default A40 split** (operator adjusts by queue state): heck-srv2 + heck-srv3 for the method track; heck-srv5,
+   heck-srv1:6–7 and any freed GPUs for the atlas. Other users hold heck-srv1:0–5 and heck-srv4.
+
+Gate 3 (Thu) stands. If M3/M4 cannot finish in time on A40s, the §3.1 rule applies to whatever exists; the owner decides.
+
 ---
 
 ## 4. Task board (live)
@@ -170,23 +196,23 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:42:06-04:00 | [journal](notes/B1.md) |
-| B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:46:43-04:00 | [journal](notes/B2.md); GPU acceptance paused |
-| B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B3.md); real-logit/vLLM acceptance paused; 7 algebra tests pass |
-| B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | in progress | codex-1 / 2026-10-05T16:54:19-04:00 | [journal](notes/B4.md) |
-| B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | todo | | |
-| B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-05T16:57:48-04:00 | [journal](notes/B6.md); top-k centering clarification pending |
-| B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | todo | | |
-| B8 | Covariates pipeline | P0 | codex | B1 | Tue | todo | | |
-| B9 | Transport-cell scorer | P1 | codex | B2 | Wed | todo | | |
+| B1 | Derivative pool curation, both bases | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T22:42:51-04:00 | [journal](notes/B1.md); finaldraft_retry acceptance both bases;18 tests; 200 sampled + all64 bank adapters staged; full cosine matrices; merged556e955; operator re-run PASS (23 tests, both validators, independent checks) with A2 notes ([B1 journal](notes/B1.md)) |
+| B2 | Atlas cell harness on pinned vLLM | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B2.md); [six-cell acceptance](artifacts/B2_acceptance_20261005/acceptance_report.json); merged 8651954; 14 tests pass; operator re-run PASS with notes ([B2 journal](notes/B2.md)) |
+| B3 | LoRA-mixture builder | P0 | codex | — | Mon | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B3.md); bf16 logit acceptance fails; fp32 diagnostics <1e-4; vLLM 16-prompt smoke passes |
+| B4 | Workload builder (SPEED-Bench + Magpie prompts) | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T22:34:14-04:00 | [journal](notes/B4.md); [smoke acceptance](artifacts/B4_smoke_20261005/acceptance.json); 11 tests, five derivatives × two splits, zero leakage; merged 592c919; A3 production pending; operator re-run PASS (11 tests; leakage 0) with A3 flags ([B4 journal](notes/B4.md)) |
+| B5 | On-policy data generation + feature capture pipeline | P0 | codex | B3, B4 | Tue | in progress | codex-1 / 2026-10-06T00:35:00-04:00 | [journal](notes/B5.md);14 tests, matched contexts and native two-adapter check pass; token dataset on073a251; final budgets/quotas/mixtures pending |
+| B6 | FollowSpec trainer: arms, losses, configs (EAGLE-3) | P0 | codex | — | Tue | in progress | codex-1 / 2026-10-06T00:35:00-04:00 | [journal](notes/B6.md); resume native online fixed-batch acceptance on A40; B5 full manifests/64-sample fit/export pending |
+| B7 | Held-out evaluation driver + Gate 3 report generator | P0 | codex | B2 | Tue | done | codex-1 / 2026-10-05T22:38:52-04:00 | [journal](notes/B7.md); [synthetic acceptance](artifacts/B7_acceptance_20261005/acceptance.json); 9 tests, 94% coverage across200 trials; merged ec802a4; operator re-run PASS (9 tests; coverage 0.967, noisy-twice 0.953) ([B7 journal](notes/B7.md)) |
+| B8 | Covariates pipeline | P0 | codex | B1 | Tue | review | codex-1 / 2026-10-05T23:34:01-04:00 | [journal](notes/B8.md); [acceptance](artifacts/B8_acceptance_final_20261005/acceptance.json);22 CPU tests; native dense/LoRA/AWQ/CT/GPTQ checks pass; code1ab1661 merged; FIX-2 token-input integration before production |
+| B9 | Transport-cell scorer | P1 | codex | B2 | Wed | in progress | codex-1 / 2026-10-06T00:02:12-04:00 | [journal](notes/B9.md);10 tests and full Eagle3 5-prompt smoke pass; n10 subset fixed, jobs not started; resume after P0 FIX-3 |
 | B10 | DFlash and Qwen3 training paths | P1 | codex | B5, B6 | Wed | todo | | |
-| B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | todo | | |
-| B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | todo | | |
-| B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | todo | | |
-| W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | todo | | |
-| O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | in progress | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md) |
-| A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | todo | | |
-| A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | todo | | |
+| B11 | EAGLE 3.1 baseline training pipeline | P1 | codex | — | Wed | blocked | codex-1 / 2026-10-05T17:50:31-04:00 | [journal](notes/B11.md); recipe/license gaps remain; pause lifted; 8 checker tests pass |
+| B12 | Analysis and figure scripts | P0 | codex | B7 | Wed | done | codex-1 / 2026-10-05T22:50:05-04:00 | [journal](notes/B12.md); [acceptance](artifacts/B12_acceptance_20261005/acceptance.json); 6 tests,18 exhibit families byte-identical twice; merged054561a; operator re-run PASS (8 tests; 86 files byte-identical; cross-session identical except code_commit) ([B12 journal](notes/B12.md)) |
+| B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | review | codex-1 / 2026-10-05T23:28:03-04:00 | [journal](notes/B13.md); [acceptance](artifacts/B13_acceptance_20261005/acceptance.json);12 combined tests; actual-ledger valid bundle passes and altered macro caught; code9173385 merged |
+| W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages); operator re-run PASS ([W1 journal](notes/W1.md)) |
+| O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | done | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md); `ops/` (status.sh, launch.py, 8 tests pass); lock = atlas/env/requirements.lock |
+| A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
+| A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | in progress | claude-ops / 2026-10-05T22:45-04:00 | [journal](notes/A2.md); [proposal](reports/A2-proposal.md); filter done both bases; freeze awaits D-04 |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | todo | | |
 | A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | todo | | |
 | A5 | Ledger children re-measured (dose-response) | P0 | claude-ops | A1 | Tue | todo | | |
@@ -202,10 +228,16 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
 | M8 | Delta-KD objective; online adaptation curves | P2 | claude-ops | Gate 3 | Fri | todo | | |
-| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | todo | | |
+| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | in progress | claude-ops / 2026-10-05T18:32-04:00 | G1: [reports/GATE-1.md](reports/GATE-1.md) (18:32, revised 22:11) → **PASS** (D-08) |
 | R1 | Daily reports (`reports/YYYY-MM-DD.md`) | P0 | claude-ops | — | daily 7 am | todo | | |
 
 *Add `FIX-n` rows below as needed (Agent `codex`, Depends on the failing run).*
+
+| ID | Task | Pri | Agent | Depends on | Due | Status | Claimed by / updated | Evidence |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| FIX-1 | A2 filter script: vLLM loadability + coherence per derivative (no B task covers it; spec in notes/FIX-1.md) | P0 | codex | B1, B2 | Tue am | done | codex-1 / 2026-10-05T22:41:55-04:00 | [journal](notes/FIX-1.md); [acceptance](artifacts/FIX-1_acceptance_20261005/acceptance.json); approved50% criterion, base/child/broken pass;19 tests; merged880e68e; operator re-run PASS (48 tests) ([FIX-1 journal](notes/FIX-1.md)) |
+| FIX-2 | Exact rendered token input and explicit matched LoRA setting in B2 | P0 | codex | B2, B4 | now | done | codex-1 / 2026-10-05T23:51:05-04:00 | [journal](notes/FIX-2.md); [acceptance](artifacts/FIX-2_rendered_retry_20261005/acceptance.json);34 tests + paired5-prompt GPU checks pass; code898f0c7 merged; operator re-run PASS (71 tests; checker; single BOS 10/10) ([FIX-2 journal](notes/FIX-2.md)) |
+| FIX-3 | A40 production path for B4/B5 (D-19): allow full Magpie and response generation on A40s (currently H100/H200-only for production, notes/BUILD-AUDIT item 8) and implement online paired feature capture for B5/B6 training (§3.2 storage estimate) | P0 | codex | B4, B6 | Tue am | done | codex-1 / 2026-10-06T00:15:17-04:00 | [journal](notes/FIX-3.md); [acceptance](artifacts/FIX-3_online_final_20261006/check/results.json);29 tests, paired5-response GPU runs, exact fresh/zero online checks; merged8b70bc2; full B5/B6 integration next; operator re-run PASS (tests; independent native online check identical) ([FIX-3 journal](notes/FIX-3.md)) |
 
 ---
 
@@ -661,9 +693,10 @@ every session:
 
 - **Critical path first:** M1 → M2 → M3 → M4 (Gate 3 depends on it), then A4,
   A7, A6, A5, then P1 (M5, M6, M7, A8, A9), then P2.
-- **Placement:** 40 A40s for A1–A8 inference and covariates; cluster
-  H100/H200s for M2 data generation, all training, and evaluation of trained
-  drafters; the 4 dedicated H200s for A9 timing only, with no other jobs.
+- **Placement:** 40 A40s (site `heck`) for A1–A8 inference and covariates; the ICE
+  cluster's H100/H200s (site `ice`) for M2 data generation, all training, and evaluation
+  of trained drafters; the 4 dedicated H200s (heck-srv6) for A9 timing only, with no
+  other jobs. Never mix GPU types within one comparison (`sites/README.md`).
 - **Jobs are idempotent and resumable.** One run ID per job:
   `<task>-<base>-<drafter>-k<K>-s<seed>-<YYYYMMDDHHMM>`. Never overwrite an
   artifact directory; replicates get new IDs.
@@ -776,9 +809,11 @@ Each session ends with a **Handoff** entry.
 
 ### 10.3 Git
 
-Codex works on `codex/<TASK-ID>` and merges after tests pass. The operator's
-small fixes go on `claude/fix-<id>`. Commit messages start with the task ID.
-Every run records the commit it ran from.
+Remote `origin` = `https://github.com/shrenikbhansali/SpecTLM-NAACL` (private), shared by every site (§13 D-18). One
+`main` holds code, this file, notes, ledger and reports for all sites; site differences live only in `sites/<site>.env`
+(protocol in `sites/README.md`). Pull with rebase before editing shared files and push right after committing. Codex
+works on `codex/<TASK-ID>` and merges after tests pass; the operator's small fixes go on `claude/fix-<id>`; both push
+their branches. Commit messages start with the task ID. Every run records the commit and the pushed `run-*` tag it ran from.
 
 ---
 
@@ -915,9 +950,18 @@ citing where it was stated.*
 | D-05 | — | Predictions in §6.3 recorded in the ledger before A4 and M3 launch | **Pending owner** |
 | D-06 | — | FollowSpec starting hyperparameters (§5.4) accepted | **Pending owner** |
 | D-07 | 2026-10-05 | The TTCL workshop paper (EXP-SUB-001) was never submitted or published; no conflict | Decided |
-| D-08 | — | Gate 1 outcome | Pending |
+| D-08 | 2026-10-05 | **Gate 1 PASS**: engine locked to vLLM 0.31.0 (`atlas/env/requirements.lock`, sha256 deb579cd…) for all sprint numbers. Owner reply to codex-1 ~22:10 ET: "Approve PASS and fresh compilation per cell" (notes/B2.md, 22:11 entry); evidence reports/GATE-1.md. Entered by claude-ops | Decided |
 | D-09 | — | Gate 2 outcome | Pending |
 | D-10 | — | Gate 3 outcome and framing | Pending |
+| D-11 | 2026-10-05 | Delta-consistency term (§5.4): renormalize the child's p_c within the top-k set V_k for both d̄ and the variance weights, so the term is invariant to additive log constants (§7 B6 test (b)). Owner reply to codex-1 in chat, "Normalize within top-k (recommended)", recorded in notes/B6.md at 17:18 ET; entered here by claude-ops. No other §5.4 default changes; D-06 is still pending | Decided |
+| D-12 | 2026-10-05 | Lift the Sep 11 experiment pause for the NAACL sprint (small builder acceptance runs and operator jobs whose dependencies and preflight pass; no restart of historical campaigns). Owner message to codex-1: "if there are pause markers we can lift, lift them so we can begin running GPU jobs ... if the relevant code ... has been built". Recorded before removal in `notes/PAUSE-LIFT-20261005.json`; marker archived at `artifacts/pause_archive/20261005/`; marker absent from 17:32 ET. Entered here by claude-ops | Decided |
+| D-13 | 2026-10-05 | Use the existing write-capable Hugging Face token for reads/downloads only; never upload or mutate Hub resources (AGENTS rule 9 amended). Owner to codex-1: "Just use the token with write access, and change the AGENTS.md accordingly" (cited in notes/B1.md 16:5x and notes/BUILD-AUDIT-20261005.md item 7; AGENTS.md commit ff2ef3c). Entered here by claude-ops | Decided |
+| D-14 | 2026-10-05 | Atlas cells use a **fresh vLLM compile per cell** (`VLLM_CACHE_ROOT=<run>/vllm_cache`); child/derivative repeats are reported separately. Same owner reply as D-08. The noise-floor choice (GATE-1 decision 3) and DFlash replication (decision 4) remain open. Entered by claude-ops | Decided |
+| D-15 | 2026-10-05 | Work as fast as possible: do not wait for gate calendar dates or another "continue"; advance as soon as dependency checks pass. Failed acceptance tests are not waived and thresholds are unchanged. Owner to codex-1 (notes/B2.md, 22:11 entry). Entered by claude-ops | Decided |
+| D-16 | 2026-10-05 | A2 coherence filter (FIX-1) degeneracy criterion: flag an answer if it is empty, ends immediately, or one repeated 4-gram covers **strictly more than 50%** of its generated token positions (alongside MASTER's PPL ≤ 2× base and 10-prompt check). Owner reply to codex-1: "Approve the 50% repeated-4-gram criterion" (notes/FIX-1.md 22:39; proposed before outputs were inspected). Entered by claude-ops | Decided |
+| D-17 | 2026-10-05 | Transport decomposition (B9/A8): label_shift = a(base features, child labels) − a(base, base); transport = a(child, child) − a(base, child); R = transport / (−label_shift), undefined when the denominator is 0. Owner approval to codex-1 (notes/B9.md 23:19). Entered by claude-ops | Decided |
+| D-18 | 2026-10-05 | Repository on GitHub, private `shrenikbhansali/SpecTLM-NAACL`; **one `main` plus per-site config** (`sites/heck.env`, `sites/ice.env`), no long-lived site branches; the ICE Slurm cluster (H100/H200) is the training/data-generation site. Owner answers to claude-ops in chat (2026-10-05 23:53 ET). Entered by claude-ops | Decided |
+| D-19 | 2026-10-06 | ICE is down until Thu Oct 8: all work runs on heck A40s until then, with the method data path (B5 generation, online feature capture, M2/M3 on A40s) prioritized and running in the background alongside the atlas track (§3.2). Owner instruction to claude-ops in chat (2026-10-06 00:01 ET). Entered by claude-ops | Decided |
 
 ---
 

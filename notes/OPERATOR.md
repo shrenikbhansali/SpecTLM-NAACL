@@ -3,28 +3,39 @@
 Newest information first under each heading. Layout defined in MASTER.md §8.8.
 
 ## Now
-- Time (ET): 2026-10-05 16:50
+- **Git remote (D-18):** `origin` = https://github.com/shrenikbhansali/SpecTLM-NAACL (private). After every fast-forward of main, also `git -C ../SpecTLM push origin main` (and tags). Push uses the gh credential helper (`condastuff/shallowspec/bin/gh`, account shrenikbhansali). Sites: `sites/README.md`.
+- Time (ET): 2026-10-05 20:48
 - Sprint day: Day 1 of 8 (Mon Oct 5)
-- Next gate: Gate 1 (engine), due Mon Oct 5, 11 pm ET. Needs B2 in review **and** the pause marker lifted.
-- Pause marker: PRESENT (`tlm-spec-maintenance/EXPERIMENTS_PAUSED.json`).
-- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; rebase on main, then update main with `git -C ../SpecTLM merge --ff-only claude/ops` (primary tree stays on clean main; Codex uses `.worktrees/<ID>`)).
+- Gate 1: report ready (`reports/GATE-1.md`, 18:32), recommends PASS; waiting on owner D-08 plus compile-cache/noise-floor decisions.
+- Next gate: Gate 2 (Wed noon). Next deliverable: `reports/2026-10-06.md` by 7:00 am.
+- Pause marker: lifted 17:32 (§13 D-12).
+- Operator worktree: `/home/heck2/sbhansali8/SpecTLM-ops` (branch `claude/ops`; run `git rebase main` as its own step, then `git -C ../SpecTLM merge --ff-only claude/ops`). Commit with `git -c user.name=claude-ops -c user.email=claude-ops@localhost`; never `git config`. Run worktrees: `/home/heck2/sbhansali8/SpecTLM-runs/<run-tag>`.
+- Launch with `ops/launch.py` (setsid-based) and wave scripts in `ops/waves/`; cells use `HF_HUB_OFFLINE=1`, plus `VLLM_CACHE_ROOT={out_dir}/vllm_cache` for fresh compile.
 
 ## Active jobs
 | Run ID | Task | Cluster | Started (ET) | ETA | Status |
 | --- | --- | --- | --- | --- | --- |
-| (none) | | | | | |
+| B1 curators (codex-1) | B1 | heck-srv2 CPU / HF | 17:07 | — | **finished ~20:40**: both pools inspected; sampled 100/100 staged per base (download logs: 100 started, 100 complete each); /home/heck2 1.5 TB free. Bank adapters outside the sample are not staged |
+| A1 waves 1–3 (74 runs) | A1 | A40 heck-srv1–5 | 17:56 | — | finished 18:29; 71 included |
 
 ## Queue (ready to launch next)
-- A1 (Gate 1): waits on B2 → review, and the pause being lifted.
+- A2 pool-freeze proposal: when B1 → review (prepare the proposal for the owner).
+- A4/A7 atlas sweeps: need A3 (B4 + A2), the owner's compile-cache decision, and D-05 predictions recorded.
+- A5 ledger children: deps met (A1 done), but it needs the update-library list of ~50 Llama configs; to prepare.
 
 ## Open incidents
 - INC-1 (16:48; updated 17:05): HF token at `$HF_HOME/token` is **write**-scoped (`role: write`, display name `spectlm`). At 16:48 codex-1 changed AGENTS.md rule 9 (commit ff2ef3c) to say the owner authorized the write-capable token for reads and downloads on 2026-10-05. There is no §13 row and no journal citation. Treated as owner-authorized; asking the owner to confirm and record it in §13.
-- INC-2 (16:48): `/home/heck2` (heck-nfs1, 77 T) is 97% full with 2.5 TB free and shared with other users. B1 downloads of full fine-tunes (~16 GB each) for ~100 candidates per base plus B5 feature capture will not fit. Owner action listed in §1; B1 must check capacity before staging full fine-tunes.
+- INC-2 **update 19:26:** `/home/heck2` free 2.6 TB (was 3.2 TB at 18:41 after the owner's cleanup). `artifacts/atlas` is 1.1 TB (Qwen3 pool staging, sample 1.06 TB). Llama staging (~1.1 TB) has not started; projected ~1.5 TB free afterwards, before B5 feature capture. **Alert threshold: < 1 TB free → owner in §1.**
+- INC-2 (16:48): `/home/heck2` (heck-nfs1, 77 T) is 97% full with 2.5 TB free and shared with other users. B1 downloads of full fine-tunes (~16 GB each) for ~100 candidates per base plus B5 feature capture will not fit. Owner action listed in §1; B1 must check capacity before staging full fine-tunes. **Update ~17:00 (mis-stamped 17:25 in an earlier commit):** B1's Qwen3 draft sample (100 models) totals 1.18 TB (full_finetune 28 × 18.7 GB, rl_tuned 26 × 17.7 GB, lora 28 × 0.5 GB). Llama is likely similar, so both pools need ≈2.3 TB of the 2.5 TB free, before any B5 feature capture. Owner is freeing a few TB (~17:00). **Caveat (17:15):** that sample came from a rate-limited inspection, with 4,131 of 4,876 Qwen3 candidates failing on HF 429; codex-1 restarted with throttling (`B1_*_throttled_20261005`), so pool composition and size will change. Owner asked whether the atlas needs full fine-tunes: per §5.7 the atlas is stratified across types and the method bank is LoRA-only; scope is the owner's call.
 - INC-3 (16:48): shared H100/H200 cluster access is unknown. On heck-srv2, `sinfo`/`squeue`/`sacctmgr` fail parsing `/etc/slurm/slurm.conf` (lines 18–19, `AutoDetect=nvml`, `Name=gpu`), which suggests a client/config version mismatch. No ssh config entries or docs name the cluster. This blocks M2/M3 placement (Tue).
-- INC-4 (16:48): home quota `/nethome/sbhansali8` at 15262 MB used of 15360 MB soft (16384 MB hard). Anything writing to `~` (pip/conda caches, `~/.cache`, agent logs) may fail. Keep caches on `/home/heck2`.
+- INC-4 **RESOLVED 17:37:** the owner ran the offload: exit.log truncated (last 1000 lines in `/home/heck2/sbhansali8/home_offload_20261005/tmux-exit.log.tail`); `~/.local/lib/python3.9` (202 packages) and `~/.cache/copilot.premigration-20260728` moved to `/home/heck2/sbhansali8/home_offload_20261005/` with symlinks back (verified). Home quota **7.38 GB** of 15.36 GB. Still open: `tmux-persistent.service` keeps crash-looping and refilling exit.log (owner can stop it with `systemctl --user disable --now tmux-persistent`), and codex env builds should use a pip cache off home.
+- INC-4 **update 17:35:** ~/.cache/pip (written by codex-1's isolated env builds, which ignore the global `no-cache-dir=true`) grew about 900 MB in 30 min and pushed home to 15.86 GB. The operator ran `python3 -m pip --isolated cache purge` (272 files; regenerable cache; no pip process running) → home **15.22 GB**, under the soft limit. **Codex: set `PIP_CACHE_DIR=/home/heck2/sbhansali8/SpecTLM/artifacts/.pip-cache` (or `--no-cache-dir`) for env builds.** The tmux log and python3.9 offload items are still with the owner.
+- INC-4 (16:48; updated ~17:00; first written as 17:25, a mis-stamp): home `/nethome/sbhansali8` is **over** its soft quota (15.76 of 15.36 GB; 6-day grace). Causes: `~/.local/state/tmux-persistent/exit.log` is 553 MB because user service `tmux-persistent.service` (`tmux -D`) has crash-looped every ~2 s since Aug, appending one line per exit; `~/.local/lib/python3.9` user site-packages is 7.0 GB (torch 1.7 G, nvidia 4.1 G); `~/.cache/copilot.premigration-20260728` is 764 MB. The operator's offload (move to `/home/heck2` and symlink back) was denied by the permission classifier; the commands were handed to the owner at ~17:00.
 
 ## Recently verified
-- (none yet)
+- 18:32 A1 done (71 cells validated; GATE-1 written). O1 done (8 tests).
+- 17:54 B2 → done (fresh checkout: 14 tests pass; checker re-run; all six cells recomputed from raw counters; configs matched).
+- 17:14 W1 → done (fresh checkout; 2 passed; method 2 pp, atlas 1 pp; no warnings). Non-blocking: build relies on TEXINPUTS=paper/style.
 
 ## Inventory (2026-10-05 16:41–16:48 ET)
 
@@ -57,4 +68,20 @@ Total 40 A40s (heck-srv1–5); 33 free at 16:42. Local root disks: 400–735 GB 
 - No pinned sprint engine env yet (B2 builds it).
 
 ## Handoff
-- 16:50: O1 claimed, inventory done. Next: ops tooling (`ops/status.sh`, `ops/launch.py`), then the operator loop. Gate 1 needs B2 plus the pause lift.
+- **2026-10-05 21:27 (claude-ops):** state for the next operator session.
+  - Done today: W1, B2 (verified), O1, A1. Gate 1 report `reports/GATE-1.md` (recommends PASS; owner D-08 pending).
+    Ledger drafts in `ledger/` (EXP-ATL-001/002). Daily report draft `reports/2026-10-06.md`: **refresh and finalize by 07:00**
+    (update §1 copy, runs, any new decisions, B1/Codex status).
+  - Waiting on owner: D-08 + compile-cache policy + noise floor (GATE-1); B3 bf16 tolerance; D-04/D-05/D-06; license
+    allow-list; A5 child set; cluster access; HF token §13 entry. All listed in §1 and in the daily report §6.
+  - Waiting on Codex (idle since 17:50): B1 pre-review fixes (notes/B1.md: formats, architectures, typing, bank staging),
+    then B1 review → operator verify → A2 proposal; FIX-1 (A2 loadability/coherence filter, notes/FIX-1.md); B4 Magpie
+    (A3), B6, B5, B7.
+  - Next operator actions when unblocked: verify B1 (re-run acceptance; the download pre-check already passes 200/200);
+    draft the A2 pool-freeze proposal (counts per type and pool after filters, §5.7 checks, leakage cosine); launch A5 once
+    the owner picks the child set (prep in notes/A5.md); A4/A7 after A3 and D-05.
+  - Tooling: `ops/status.sh`, `ops/launch.py` (setsid; `--env`, `--tag`, `--rep`), wave scripts in `ops/waves/`, analysis
+    `ops/a1_analyze.py`. Cells: `HF_HUB_OFFLINE=1`, fresh compile via `VLLM_CACHE_ROOT={out_dir}/vllm_cache` (pending owner policy).
+  - Lessons: never `git config` in a worktree (shared); run `git rebase` as its own step; take every timestamp from `date`;
+    pkill patterns must not match their own command line.
+- 2026-10-06T00:01 — **D-19: ICE down until Thu Oct 8; heck-only operation (MASTER §3.2).** Method data path prioritized on A40s (B5 generation in the background, online capture since offline features ≈ 6 TB vs ~2 TB free). FIX-3 filed for codex (A40 production path + online capture). Default split: srv2 + srv3 method, srv5 + srv1:6–7 atlas.
