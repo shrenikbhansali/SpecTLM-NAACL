@@ -31,6 +31,17 @@ def reserved(owner=""):
         return set()
 
 
+def gpu_busy(node, gpu, limit_mib=1000):
+    """True if the GPU already holds > limit_mib (another job, any user). Checked right before each launch."""
+    try:
+        r = subprocess.run(["ssh", "-n", "-o", "BatchMode=yes", "-o", "LogLevel=ERROR", node,
+                            f"nvidia-smi -i {gpu} --query-gpu=memory.used --format=csv,noheader,nounits"],
+                           capture_output=True, text=True, timeout=20)
+        return int(r.stdout.strip().splitlines()[-1]) > limit_mib
+    except Exception:
+        return True
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--slots", required=True)
@@ -67,8 +78,10 @@ def main():
                 busy.pop(slot)
             if not pending or slot in reserved(a.owner):
                 continue
-            job = pending.pop(0)
             node, gpu = slot.split(":")
+            if gpu_busy(node, gpu):
+                continue
+            job = pending.pop(0)
             res = subprocess.run([sys.executable, str(LAUNCH), "run", "--node", node, "--gpus", gpu, *job["args"]],
                                  capture_output=True, text=True)
             m = re.search(r"\n  (/\S+)", res.stdout)
