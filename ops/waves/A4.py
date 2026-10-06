@@ -40,12 +40,12 @@ for k in (4, 2, 8):
             prompts, wl = (own[key]["rendered"], "own") if key in own else (gen[key]["rendered"], "general")
             is_ad = r["type"] == "lora_adapter"; snap = r["staged_path"]
             rank = next(c for c in CAPS if c >= int(float(r["r"]))) if is_ad else None
-            hub = "/home/heck2/sbhansali8/HFcache/hub" if is_ad else str(Path(snap).parents[2])
+            hub = "/home/heck2/sbhansali8/HFcache/hub"  # base + drafters live here; full-weight targets are passed as local snapshot paths
             meta = f"A4 {b} K={k} workload={wl} {m} ({r['type']}, {r['pool']})"
             if is_ad:
                 jobs.append(cell(b, "A10", slug, x["id"], x["rev"], prompts, k, hub, adapter=snap, arev=r["revision"], lora_rank=rank, note=meta))
             else:
-                jobs.append(cell(b, "A10", slug, m, r["revision"], prompts, k, hub, note=meta))
+                jobs.append(cell(b, "A10", slug, snap, r["revision"], prompts, k, hub, note=meta + f" [local snapshot of {m}@{r['revision']}]"))
             jobs.append(cell(b, "A00", slug, x["id"], x["rev"], prompts, k, "/home/heck2/sbhansali8/HFcache/hub", lora_rank=rank, note=meta + " [A00]"))
     if k == 4:
         for b, x in B.items():
