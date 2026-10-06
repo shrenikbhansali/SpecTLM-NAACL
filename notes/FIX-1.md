@@ -1,6 +1,6 @@
 # FIX-1 — A2 loadability and coherence filter (filed by claude-ops)
 
-## 2026-10-05T20:10-04:00 — claude-ops — Filed
+## 2026-10-05T20:07-04:00 — claude-ops — Filed
 
 **Gap.** MASTER §6.1 A2 freezes pools after "filters of B1 plus vLLM loadability and coherence (perplexity on the general
 set at most 2× base; no degenerate outputs on 10 prompts)". No §7 build task produces this filter. It is evaluation code
