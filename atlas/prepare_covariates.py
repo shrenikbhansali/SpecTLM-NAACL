@@ -25,9 +25,12 @@ def from_cell(root,smoke,count):
         raise ValueError('production needs64 derivative-own evaluation prompts')
     derivative_ids={r['derivative_id'] for r in prompts.values() if r.get('derivative_id')}
     if len(derivative_ids)!=1:raise ValueError('need one workload derivative identity')
+    revision=cfg['adapter_revision'] if cfg.get('adapter') else cfg['target_revision']
+    if any(r.get('revision')!=revision for r in prompts.values()):
+        raise ValueError('generation revision must match workload derivative revision; use A10, not A00')
     config=dict(generation_engine=cfg['engine_version'],K=cfg['K'],prompt_sha256=cfg['prompt_sha256'],
         source_run_id=root.name,source_config_sha256=sha256(root/'config.json'),source_records_sha256=sha256(root/'per_prompt.jsonl'),
-        derivative_id=next(iter(derivative_ids)),derivative_revision=cfg['adapter_revision'] if cfg.get('adapter') else cfg['target_revision'],
+        derivative_id=next(iter(derivative_ids)),derivative_revision=revision,
         workload='own',acceptance_only=smoke,template_changed=None)
     selected=records[:count] if smoke else records
     return [sequence(r['prompt_id'],r['prompt_token_ids'],r['completion_token_ids']) for r in selected],config

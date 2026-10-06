@@ -100,12 +100,16 @@ def load_sequences(path,smoke):
     path=Path(path);cfg=json.loads((path.parent/'config.json').read_text())
     if cfg['sequences_sha256']!=sha256(path) or cfg['generation_engine']!='0.31.0':raise ValueError('sequence provenance mismatch')
     rows=[json.loads(line) for line in path.read_text().splitlines()]
+    if cfg.get('n')!=len(rows):raise ValueError('sequence count differs from manifest')
     if (smoke and not 1<=len(rows)<=10) or (not smoke and len(rows)!=64):raise ValueError('need64 own queries, or explicit <=10 acceptance smoke')
     if not smoke and (cfg['acceptance_only'] or cfg['workload']!='own'):raise ValueError('production requires real own-workload sequences')
     if len({r['prompt_id'] for r in rows})!=len(rows):raise ValueError('duplicate prompt IDs')
     for r in rows:
         if not 1<=r['response_start']<len(r['input_ids']):raise ValueError('missing response')
         if len(r['input_ids'])>4096:raise ValueError('sequence too long; no silent truncation')
+        if any(type(i) is not int or i<0 for i in r['input_ids']):raise ValueError('invalid input token')
+        expected=[0]*r['response_start']+[1]*(len(r['input_ids'])-r['response_start'])
+        if r.get('assistant_mask')!=expected:raise ValueError('assistant mask differs from saved generation boundary')
     return rows,cfg
 
 

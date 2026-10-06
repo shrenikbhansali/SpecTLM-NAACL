@@ -41,7 +41,7 @@ def test_preparation_requires_actual_engine_prompt_tokens_and_preserves_response
     import json
     from atlas.prepare_covariates import from_cell
     cfg=dict(engine_version='0.31.0',prompt_sha256='will-set',target='child',target_revision='a'*40,adapter=None,adapter_revision=None,K=4)
-    prompts=tmp_path/'prompts.jsonl';prompts.write_text(json.dumps(dict(prompt_id='p',prompt='query',derivative_id='child',split='evaluation',acceptance_only=True))+'\n')
+    prompts=tmp_path/'prompts.jsonl';prompts.write_text(json.dumps(dict(prompt_id='p',prompt='query',derivative_id='child',revision='a'*40,split='evaluation',acceptance_only=True))+'\n')
     import hashlib
     cfg['prompt_sha256']=hashlib.sha256(prompts.read_bytes()).hexdigest();cfg['prompts']=str(prompts)
     (tmp_path/'config.json').write_text(json.dumps(cfg))
@@ -62,3 +62,23 @@ def test_template_identity_is_measured_from_snapshot_and_adapter_inheritance(tmp
     assert template_identity(base,child,adapter=True)['changed'] is False
     (child/'chat_template.jinja').write_text('template-B')
     assert template_identity(base,child,adapter=True)['changed'] is True
+
+
+def test_preparation_rejects_base_generation_on_child_workload(tmp_path):
+    import json
+    from atlas.prepare_covariates import from_cell
+    from atlas.run_cell import sha256
+    prompt=tmp_path/'prompts.jsonl';prompt.write_text(json.dumps(dict(prompt_id='p',prompt='q',derivative_id='child',revision='b'*40,split='evaluation'))+'\n')
+    (tmp_path/'config.json').write_text(json.dumps(dict(engine_version='0.31.0',prompts=str(prompt),prompt_sha256=sha256(prompt),target_revision='a'*40,adapter=None,K=4)))
+    (tmp_path/'results.json').write_text('{"n":1}')
+    (tmp_path/'per_prompt.jsonl').write_text(json.dumps(dict(prompt_id='p',prompt_token_ids=[1],completion_token_ids=[2]))+'\n')
+    with pytest.raises(ValueError,match='revision'):from_cell(tmp_path,True,1)
+
+
+def test_sequence_loader_rejects_wrong_assistant_mask(tmp_path):
+    import json
+    from atlas.covariates import load_sequences
+    from atlas.run_cell import sha256
+    seq=tmp_path/'sequences.jsonl';seq.write_text(json.dumps(dict(prompt_id='p',input_ids=[1,2],response_start=1,assistant_mask=[1,1]))+'\n')
+    (tmp_path/'config.json').write_text(json.dumps(dict(n=1,generation_engine='0.31.0',sequences_sha256=sha256(seq))))
+    with pytest.raises(ValueError,match='mask'):load_sequences(seq,True)
