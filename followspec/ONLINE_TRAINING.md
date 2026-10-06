@@ -5,11 +5,11 @@ The implementation uses one frozen base model, one resident bank adapter and
 online child/base capture. Response-token files remain on disk; dense paired
 features do not. Run one training process per A40 with data-loader workers0.
 
-The B6 core includes the native trainer and accepted token reader/provider.
-The rendering CLI, matched response controls, arm-set assembler and full data
-recipe below are separate B5 work, currently on codex/B5 and unmerged.
-Production requires B5/B6 operator
-verification, the final pool/recipe decisions and matched arm manifests. B3's
+B5 provides rendering, matched response controls, arm manifests and the online
+feature provider; B6 provides the native trainer. Bounded bank and mixture
+checks establish the implementation, while M1/M2 must produce the admitted
+mixture registry and complete production corpora. Production requires B5/B6
+operator verification and audited, matched arm manifests. B3's
 mixture builder passed D-20. Mixtures need immutable source/file provenance and
 the shared-training-general perplexity check before production admission.
 
