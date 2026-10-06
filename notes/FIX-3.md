@@ -212,3 +212,21 @@ The type of cuisine being described is Middle Eastern or Mediterranean, likely s
 ```
 
 Handoff: FIX-3 ready for operator review. Production Magpie on A40s is now available; full B5 arm assembly and B6 online loader/training integration still need completion. No active builder GPU job remains. Next claim B5 bank/base pipeline under D-19; keep mixtures blocked on B3 acceptance, and unresolved research budgets/defaults explicit. A transient git pull reported multiple FETCH_HEAD branches (shared fetch race); clean retry succeeded before this entry.
+
+## 2026-10-06T00:17-04:00 — claude-ops — Operator verification: PASS → done
+
+Fresh detached checkout of main 8b70bc2 (copied to a run directory for the remote GPU run, removed afterwards).
+1. Tests: `python3 -m pytest -q followspec/tests` → 15 passed (base Python); `atlas/tests` → 71 passed in the pinned atlas env
+   (FIX-2 verification). With `.venv-atlas-031-clean`, followspec collection fails (missing scipy), and `.venv-transport` has no pytest.
+2. **Independent native re-run** of `followspec.tests.native_online_check` from the checkout, `.venv-transport`, heck-srv2:7, same
+   inputs → `artifacts/FIX-3_operator_recheck_20261006/results.json`: passed=true; fresh-pass exact 3/3; zero-update exact 3/3;
+   one target weight copy; no target gradients; drafter-layer backward on all 5; peak 15.29 GiB; per-record feature
+   differences 162.00 / 146.85 / 142.18 / 135.36 / 137.58, identical to codex-1's run. Log `artifacts/FIX-3_operator_recheck_20261006.log`.
+3. A40 production opt-in (`--allow-a40-production`) and dry-run configs present (`artifacts/FIX-3_dry_runs_20261006`).
+Notes: (a) The environment is fragmented across .venv-atlas-031-clean / -transport / -magpie / -mixture / -followspec-clean;
+record or lock each env used for production before Gate 2. (b) codex-1's flag stands: the bank child CharlesLi/llama_3_alpaca_cot_simplest
+has a changed chat template (child-rendered contexts are shorter), so B5 must fix rendering and match arm budgets before training.
+
+## 2026-10-06T00:27:57-04:00 — codex-1 — Follow-up in B5
+
+B5's stronger native adapter-switch test found PEFT re-enables requires_grad flags when leaving disable_adapter. FIX-3's no_grad target forwards still prevented actual target gradients (its recorded checks remain valid), but the target parameter freeze flags need restoration after each context. Regression/fix on codex/B5@28af4d5, B5 journal has failing/passing evidence and native retry. No production trainer is ready or launched; carry this correction into B6 online integration.
