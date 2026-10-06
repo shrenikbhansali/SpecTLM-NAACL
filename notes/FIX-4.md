@@ -211,3 +211,14 @@ After responses: assemble matched four-arm data; inspect allfive decoded strings
 14/14 finished exit 0 (16 running). First complete: r1-00 status complete, n 500/500, valid_before_truncation 524, attempted 896 of 6,400 budget,
 training_ready true, engine 0.31.0. Five decoded queries (r1-00/02/04/05/08) are ordinary English Magpie instructions (facts, chemistry, ecology,
 population, combinatorics); no template tokens or response text leaked. These are query records only, so no loss mask exists yet; mask review happens at assembly.
+
+## 2026-10-06T16:15-04:00 — claude-ops — M2 prompts done: 28 complete, 2 shortfall → D-35 / FIX-7
+
+- retry1: 30/30 exit 0, 0 failure.json. 28 × (complete, 500, training_ready). **r1-03: shortfall 364** and **r1-06: shortfall 388**,
+  both attempted 6400/6400 (r1-03: 2,031 length-rejected, 4,003 length-terminated, 2 forbidden).
+- Combined prompt map with both excluded: `artifacts/M2_inputs_20261006/prompt_paths_combined_d35.json` (58; bank 30 + 28 mixtures from retry1). The
+  responses stage refused it: `ValueError: Magpie inputs must cover all admitted targets` (production.py:82). No output dir was created.
+- Decision **D-35** (owner-delegated): keep all 30, because the D-27 per-target Magpie need is 250 (≤ 364). Filed **FIX-7** (codex, P0) to let `responses`
+  accept those two shortfall runs under that bound, with explicit records. Operator command once merged (map must include r1-03/r1-06 from retry1; I will rebuild it):
+  `followspec.production responses --admission admission2 --prompt-paths <combined 60> --validation-prompts M2_inputs_20261006/validation_general512.jsonl
+  --forbidden-files <163 eval paths> B4 all_speed_forbidden.jsonl --code-repo <FIX-7 run tag> --output M2_D28_20261006/responses_<new>`
