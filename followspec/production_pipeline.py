@@ -169,6 +169,44 @@ def materialize(plan, output, *, previous=None):
     return out
 
 
+def retry_filters(round_dir, targets, output):
+    """Fresh attempt paths for explicitly failed cells; retain all earlier bytes."""
+    root,cfg=checked_stage(round_dir)
+    if cfg['stage'] not in {'materialize','retry-filters'}:raise ValueError('filter round required')
+    runs=read(root/'filter_runs.json');registry=read(root/'registry.json')
+    if not targets or len(set(targets))!=len(targets) or not set(targets)<=runs.keys():
+        raise ValueError('distinct known failed targets required')
+    jobs=lines(root/('all_filter_jobs.jsonl' if (root/'all_filter_jobs.jsonl').exists() else 'filter_jobs.jsonl'))
+    selected={};failures={}
+    for name in targets:
+        failure=Path(runs[name])/'failure.json'
+        if not failure.is_file():raise ValueError('explicit failure evidence required; do not retry successful or active cells')
+        read(failure);failures[str(failure)]=sha256(failure)
+        matches=[]
+        for index,job in enumerate(jobs):
+            command=job['args'][job['args'].index('--')+1:]
+            if '--derivative-id' in command and command[command.index('--derivative-id')+1]==name:
+                if command[command.index('--output')+1]!=runs[name]:raise ValueError('retry job output differs from recorded run')
+                matches.append(index)
+        if len(matches)!=1:raise ValueError('exactly one original job per failed target required')
+        selected[name]=matches[0]
+    out=new_output(output);retry_jobs=[]
+    for name,index in sorted(selected.items()):
+        job=jobs[index];args=list(job['args']);new_name=out.name+'-'+job['name']
+        args[args.index('--tag')+1]=new_name
+        sep=args.index('--');output_index=args.index('--output',sep)+1
+        dest=out/'runs'/Path(runs[name]).name
+        args[output_index]=str(dest);runs[name]=str(dest)
+        jobs[index]=dict(job,name=new_name,args=args);retry_jobs.append(jobs[index])
+    write_new(out/'registry.json',registry);write_new(out/'filter_runs.json',runs)
+    jsonl(out/'filter_jobs.jsonl',retry_jobs);jsonl(out/'all_filter_jobs.jsonl',jobs)
+    finish(out,cfg|dict(stage='retry-filters',parent_round=str(root),retry_targets=sorted(targets),
+        parent_stage_sha256=sha256(root/'stage_files.json'),failure_evidence_sha256=failures),
+        dict(n_retry_jobs=len(retry_jobs),production_ready=False,
+             next='operator runs filter_jobs; admit this overlay after all referenced cells complete'))
+    return out
+
+
 def admit(round_dir, output):
     from followspec.mixture_targets import collect_admission,validate_registry
     root,cfg=checked_stage(round_dir);spec=cfg['spec'];plan,pc=checked_stage(cfg['plan'])
@@ -302,6 +340,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);sub=p.add_subparsers(dest='stage',required=True)
     a=sub.add_parser('prepare');a.add_argument('--spec',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('materialize');a.add_argument('--plan',required=True);a.add_argument('--previous');a.add_argument('--output',required=True)
+    a=sub.add_parser('retry-filters');a.add_argument('--round-dir',required=True);a.add_argument('--targets',nargs='+',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('admit');a.add_argument('--round-dir',required=True);a.add_argument('--output',required=True)
     a=sub.add_parser('mixture-prompts');a.add_argument('--admission',required=True);a.add_argument('--output',required=True);a.add_argument('--forbidden-files',nargs='*',default=[])
     a=sub.add_parser('responses')
