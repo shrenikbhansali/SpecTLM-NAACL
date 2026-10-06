@@ -39,3 +39,24 @@ def test_reference_contains_flat_ids_and_explicit_truncation():
     row=prepare_reference([{'prompt_id':'a','prompt':'hello'}],Tokenizer(),8)[0]
     assert row['input_ids']==list(range(8)) and row['generation_input_ids']==list(range(12,20))
     assert row['score_mask']==[0]+[1]*7 and row['truncated'] and row['generation_truncated']
+
+
+def test_approved_threshold_is_strict_and_applied_to_saved_token_ids(tmp_path):
+    import json
+    from atlas.finalize_filter import finalize
+    cfg=dict(derivative_id='base',baseline=None,engine_version='0.31.0')
+    (tmp_path/'config.json').write_text(json.dumps(cfg))
+    (tmp_path/'results.json').write_text(json.dumps(dict(loadable=True,ppl=1.,n=128)))
+    scores=[dict(prompt_id=str(i),nll_sum=0.,scored_tokens=2,token_logprobs=[0.,0.]) for i in range(128)]
+    (tmp_path/'per_prompt.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in scores))
+    # 8 covered positions/16 tokens = exactly 0.5: allowed under strict >50%.
+    tokens=[1,2,3,4,1,2,3,4]+list(range(10,18))
+    samples=[dict(prompt_id=str(i),token_ids=tokens,completion='words',finish_reason='length',empty=False,immediate_eos=False,repetition_coverage=.5) for i in range(10)]
+    (tmp_path/'samples.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in samples))
+    assert finalize(tmp_path,.5)['accepted'] is True
+    samples[0]['token_ids']=[1,2,3,4]*4;samples[0]['repetition_coverage']=1.
+    (tmp_path/'samples.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in samples))
+    assert finalize(tmp_path,.5)['degenerate_count']==1
+    samples[0]['repetition_coverage']=0.
+    (tmp_path/'samples.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in samples))
+    with pytest.raises(ValueError,match='repetition'):finalize(tmp_path,.5)
