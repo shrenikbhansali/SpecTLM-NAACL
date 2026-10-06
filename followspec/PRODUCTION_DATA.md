@@ -100,9 +100,8 @@ Missing, still-running or crashed jobs do not justify exclusions. The stage
 writes eligible prompt paths, drop counts/reasons and hashes of all evidence.
 It changes no source artifact, pool, candidate plan or admission result.
 
-Mixture handling after a source-bank exclusion needs an explicit policy before
-response planning can consume this audit. The audit reports
-`mixture_policy_applied=false` and cannot authorize production on its own.
+The audit itself reports `mixture_policy_applied=false`. Apply the owner
+fresh-plan decision with the stage below before planning production responses.
 
 A shared prefix may not exist for real response lengths. The assembler then
 preserves `failure.json` and the pretrim counts and refuses readiness. It does
@@ -145,3 +144,25 @@ without editing the original M1 spec or existing jobs. Use
 FIX-5's complete candidate budget and clean shortfall handling. Without the
 explicit options, old command behavior is preserved. Mixture shortfalls still
 block full response planning; D-28 only specifies bank-child exclusions.
+
+
+## Fresh plan after D-28 exclusions
+
+The owner's direct instruction on October 6 supersedes D-29's retention policy:
+exclude affected mixtures and create a fresh plan from the remaining bank.
+Run `replan-d28 --plan ORIGINAL_PLAN --eligibility FINAL_BANK_AUDIT
+--code-repo CLEAN_TAGGED_CHECKOUT --output FRESH_PLAN`. This rechecks every
+workload proof, preserves the original pool and artifacts, and writes a separate
+remaining-bank CSV, registry and tokenizer metadata. It records affected old
+candidates and supersedes the old candidate plan without importing old admission
+results. New IDs distinguish all 60 candidates; the seed, sampling recipe and
+128 training-reference queries remain fixed.
+
+Then use the existing `materialize`, `admit`, `mixture-prompts --d23-oversampling`,
+`responses`, `assemble` and `finalize` stages on this new plan. Fresh admission
+uses the worst PPL among the remaining bank, with the original D-27 maximum of
+two rounds and minimum of 20 admitted mixtures. The old 29-mixture admission
+cannot certify the fresh plan. GPU filter/generation/training jobs belong to
+the operator. `bank_prompt_paths.json` supplies the 30 reusable completed bank
+workloads in the current run; mixture prompts follow new admission. Quotas are
+recomputed from the actual remaining-bank size throughout response planning.

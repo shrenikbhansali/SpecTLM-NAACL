@@ -124,3 +124,23 @@ def test_mvd_never_uses_mixture_targets_even_in_bounded_acceptance(tmp_path):
     reg=registry_fixture(tmp_path)
     with pytest.raises(ValueError,match='MVD'):
         build_manifest('MVD',[dict(child_id='mixed',run='unused')],registry=reg,base_revision='f'*40,initialization_revision='d'*40,allow_acceptance=True)
+
+
+def test_removed_bank_cannot_keep_old_perplexity_admission_bound(tmp_path):
+    import math,shutil
+    from followspec.mixture_targets import collect_admission
+    reg,paths,pool,ref=admission_fixture(tmp_path)
+    reg['dropped']=copy.deepcopy(reg['a'])
+    dest=tmp_path/'dropped_score';shutil.copytree(paths['a'],dest);paths['dropped']=str(dest)
+    cfg=json.loads((dest/'config.json').read_text());cfg['derivative_id']='dropped';(dest/'config.json').write_text(json.dumps(cfg))
+    for name,ppl in [('dropped',20.),('mixed',5.)]:
+        d=Path(paths[name]);r=json.loads((d/'results.json').read_text());r['ppl']=ppl;(d/'results.json').write_text(json.dumps(r))
+        rows=[json.loads(s)|dict(nll_sum=math.log(ppl)) for s in (d/'per_prompt.jsonl').read_text().splitlines()]
+        (d/'per_prompt.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in rows))
+    with pool.open('a') as f:f.write(f"dropped,True,{reg['dropped']['revision']},{'f'*40}\n")
+    result,_=collect_admission('mixed',reg,paths['mixed'],{k:paths[k] for k in ['a','b','dropped']},pool)
+    assert result['accepted'] and result['worst_bank_ppl']==pytest.approx(20)
+    reduced=tmp_path/'remaining_pool.csv';reduced.write_text(pool.read_text().replace('dropped,True,','dropped,False,'))
+    del reg['dropped']
+    result,_=collect_admission('mixed',reg,paths['mixed'],{k:paths[k] for k in ['a','b']},reduced)
+    assert not result['accepted'] and result['n_bank']==2 and result['worst_bank_ppl']==pytest.approx(4)
