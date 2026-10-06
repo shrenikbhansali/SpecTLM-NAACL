@@ -156,3 +156,9 @@ Operator next: verify FIX4 tests; allocate method-priority A40 slots; run round1
 Latest owner: stop atlas jobs to free GPUs, get M2 started, handle errors/fixes, request H200 release if necessary. Read AGENTS, MASTER0–4/7/8/9 and current journals. No pause marker found. Live audit found no active owned atlas GPU jobs; other users occupy srv1:0–5, srv3:1–7, srv4:1/2/4–7, so do not kill them. About21 A40s were free before fresh method launches. Operator concurrently reserved all40 slots for method-M1, added gpu_busy live memory check (19f6c9b), and launched34 failed-filter retries from immutable round1_retry1. Do not duplicate that M1 queue or alter its artifacts.
 
 Reopen own task for immediate M2 readiness and recovery support. Canonical next stage artifacts/M2_D28_20261006/mixture_prompts, once final fresh admission is ready (including round2 if needed). Check live jobs/stages before creating or launching to avoid concurrent operator duplication. Latest explicit owner instruction authorizes necessary method job recovery; preserve pinned recipes/seeds/gates. M2 response validation split remains explicit operator input. While M1 retries run, inspect downstream generation contracts and compute CPU-only atlas motivation summaries from existing matched results. No new atlas GPU work.
+
+## 2026-10-06T14:01-04:00 — claude-ops — M2 validation input ready (D-34)
+
+`--validation-prompts /home/heck2/sbhansali8/SpecTLM/artifacts/M2_inputs_20261006/validation_general512.jsonl` (512 general20000 prompts, seed 20261006;
+meta with indices and hashes beside it). Atlas GPU work is paused per the owner's 14:00 instruction. When admission1_retry1 lands (or round 2), please emit
+mixture-prompt jobs (--d23-oversampling) to artifacts/M2_D28_20261006/mixture_prompts; the operator launches them on all A40s with live GPU checks.
