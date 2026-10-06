@@ -44,6 +44,14 @@ def resolve_plan(config,manifest,seed):
     for key in ('token_budget','optimizer_steps','initialization_revision'):
         if manifest.get(key)!=config[key]:raise ValueError(f'data/config {key} mismatch')
     validate_training_layout(config,manifest)
+    if config.get('batch_step_policy') is not None or manifest.get('batch_step_policy') is not None:
+        from followspec.matched_batches import POLICY
+        approval=config.get('batch_step_policy_approval',{})
+        if (config.get('batch_step_policy')!=POLICY or manifest.get('batch_step_policy')!=POLICY
+                or manifest.get('batch_step_policy_approval')!=approval or approval.get('policy')!=POLICY
+                or approval.get('approved') is not True or not approval.get('decision_id')
+                or config['epochs']!=1):
+            raise ValueError('matched batch policy/approval required, with one epoch')
     return dict(training_config=config,seed=seed,backend_revision=BACKEND,
                 evaluation_engine_version='0.31.0',dry_run=True,
                 feature_capture='online' if manifest['schema']=='followspec_online_tokens_v1' else 'offline')
@@ -159,6 +167,11 @@ def run(a,plan,manifest):
                         forbidden_hashes=set(manifest['forbidden_prompt_hashes']),noise_std=cfg['noise_std'] if split=='train' else 0.)
                 sampler=MultipackDistributedBatchSamplerV2(batch_max_length=cfg['total_seq_len'],lengths=ds.approx_lengths,
                     num_replicas=get_dp_size(),rank=get_dp_rank(),seed=a.seed)
+                if split=='train' and cfg.get('batch_step_policy') is not None:
+                    from followspec.matched_batches import StepMatchedSampler
+                    sampler=StepMatchedSampler(factory=MultipackDistributedBatchSamplerV2,target_steps=cfg['optimizer_steps'],
+                        batch_max_length=cfg['total_seq_len'],lengths=ds.approx_lengths,
+                        num_replicas=get_dp_size(),rank=get_dp_rank(),seed=a.seed)
                 collate=PairedCollator(cfg['total_seq_len'],model.config.transformer_layer_config.hidden_size,
                     len(taps),span)
                 loaders[split]=DataLoader(ds,batch_sampler=sampler,collate_fn=collate,num_workers=0)

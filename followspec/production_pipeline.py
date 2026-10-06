@@ -476,6 +476,7 @@ def main():
     a.add_argument('--code-repo')
     a=sub.add_parser('render-local');a.add_argument('--plan',required=True)
     a=sub.add_parser('assemble');a.add_argument('--plan',required=True);a.add_argument('--output',required=True)
+    a.add_argument('--batch-step-policy',choices=['native_split_max_v1'],help='explicit proposed batch subdivision; finalization requires an owner decision')
     a=sub.add_parser('finalize');a.add_argument('--assembly',required=True);a.add_argument('--evidence',required=True);a.add_argument('--output',required=True)
     args=vars(p.parse_args());stage=args.pop('stage')
     if stage=='prepare':args['spec_path']=args.pop('spec')
