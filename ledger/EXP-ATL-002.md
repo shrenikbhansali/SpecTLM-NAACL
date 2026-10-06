@@ -65,3 +65,12 @@ so timing is indicative only. Excluded runs: `A1-llama-eagle3-k4-s0-202610051757
 busy GPU, aborted, `OPERATOR_NOTE.txt`), `A1-llama-eagle-k4-s0-202610051805` and
 `A1-llama-eagle3-k4-s0-202610051806-mth018d-lora-s0` (HF 429 at engine init), `A1-llama-eagle-k4-s0-202610051807`
 (offline cache lacked EAGLE-v1 weights); all re-run with identical settings.
+
+**Addendum (2026-10-05 22:11 ET, wave 4; revision after codex-1 audit).** 10 more runs, fresh compile per run, settings as
+wave 1: child s0 LoRA × 5 (`A1-llama-eagle3-k4-s0-2026100522xx-mth018d-lora-s0-fresh-r01…r05`) = 2.851340, 2.860999,
+2.866934, 2.867170, 2.872315 (mean 2.86375, SD 0.00801, range 0.02098); child s0 merged × 5 (`…-mth018d-merged-s0-fresh-r01…r05`)
+= 2.865450, 2.866550, 2.868753, 2.868753, 2.871856 (mean 2.86827, SD 0.00246, range 0.00641). Seed-0 drift vs fresh A00
+mean: −0.1902; LoRA − merged (fresh means): −0.0045. Aggregate: `$WS/artifacts/A1_gate1_analysis_20261005_v2.json`
+(81 included cells). **Caveat added:** LoRA-target cells vary more across compiles than the base (SD 0.0080 vs 0.0046), so
+the base floor understates single-cell A10 noise for adapters. The B2 s0 LoRA value (2.8747) is 0.0024 above the
+5-repeat range. The original entry's run total ("74") should read 75 for waves 1–3.

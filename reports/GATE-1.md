@@ -1,7 +1,7 @@
 # Gate 1 — Engine (due Mon Oct 5, 11 pm ET)
 
-Prepared by claude-ops, 2026-10-05 18:32 ET. Evidence: `notes/A1.md`, `notes/B2.md`,
-`$WS/artifacts/A1_gate1_analysis_20261005.json` (every cell, recomputed from raw per-prompt counters),
+Prepared by claude-ops, 2026-10-05 18:32 ET; **revised 22:11 ET** after codex-1's audit (`notes/BUILD-AUDIT-20261005.md`) and the wave-4 child repeats (see "Revision"). Evidence: `notes/A1.md`, `notes/B2.md`,
+`$WS/artifacts/A1_gate1_analysis_20261005_v2.json` (every cell incl. wave 4, recomputed from raw per-prompt counters),
 ledger drafts `ledger/EXP-ATL-001.md` (B2 golden cells) and `ledger/EXP-ATL-002.md` (A1).
 `$WS = /home/heck2/sbhansali8/SpecTLM`.
 
@@ -35,7 +35,7 @@ vLLM compile cache, and which noise floor the atlas uses.
 | EAGLE-v1 runs | 2.5907 (A1), 2.5906 (B2); ledger 2.5951 | pass |
 | DFlash runs | 3.3951–3.4132 over 6 cells (5 fresh-compile + 1 wave-1) at K = 4 (trained block size 10); B2's cell 3.3951 | pass. Other K options were not tested (see caveats) |
 | Repeat runs agree | identical within one compiled graph (20/20 bit-identical); across fresh compiles range 0.0123 < ledger floor 0.0138 | pass |
-| LoRA = merged within noise | child s0: LoRA 2.8554 vs merged 2.8580, diff −0.0026 (B2: 2.8747 vs 2.8729, diff +0.0018); fresh-compile pairwise p95 = 0.0117 | pass |
+| LoRA = merged within noise | child s0, 5 fresh-compile repeats each: LoRA mean 2.8638 (SD 0.0080) vs merged 2.8683 (SD 0.0025), diff −0.0045 (≈1.2 SE). Single cells: A1 −0.0026, B2 +0.0018 | pass |
 | Known child's drift negative, near −0.248 | mean −0.257 over 3 seeds (ledger −0.248); per seed within 0.011 of the ledger (table below) | pass |
 
 ### Known child (EXP-MTH-018 cell D = EXP-MTH-002 math all-token LR 2e-4, window 3), A10 − A00
@@ -47,9 +47,16 @@ vLLM compile cache, and which noise floor the atlas uses.
 | 2 | 2.7555 | −0.3063 | −0.2985 | −0.2961 |
 | **Mean (sd)** | | **−0.2569 (0.050)** | **−0.2491 (0.050)** | **−0.2476** |
 
-One A10 cell per seed; each A10 value has between-compile uncertainty of about ±0.006 (SD 0.0046). B2's own s0
-LoRA cell (separate compile) gave 2.8747 (drift −0.175 against its base 3.0495). That B2 pair is two single
-draws from the compile distribution; the 3-seed comparison above uses the 20-replicate A00.
+Seeds 1 and 2 have one A10 cell each. For seed 0, wave 4 added 5 fresh-compile LoRA repeats: mean 2.8638 (values
+2.8513, 2.8610, 2.8669, 2.8672, 2.8723; SD 0.0080), giving drift **−0.1902** against the fresh-compile A00 mean
+(ledger −0.1998).
+
+**Revision (22:11).** The 18:32 version said each A10 cell carried the base's between-compile uncertainty (SD 0.0046)
+and treated B2's s0 LoRA cell (2.8747) and A1's (2.8554) as two draws from the compile distribution. That was untested.
+Wave 4 shows LoRA-target cells vary more under fresh compiles than the base (SD 0.0080, range 0.0210, n = 5, against base
+SD 0.0046), so base noise understates A10 noise for LoRA targets. A1's 2.8554 lies inside the LoRA repeat range; B2's
+2.8747 lies 0.0024 above its maximum. Compile variation is consistent with most of the B2–A1 gap, but n = 5 cannot
+establish that it explains all of it. Merged-child repeats vary about as much as the base (SD 0.0025).
 
 ## Noise floor (new engine)
 
@@ -59,6 +66,8 @@ draws from the compile distribution; the 3-seed comparison above uses the 20-rep
 | **Fresh compile per run, 128 tok** (wave 2) | 20 | 3.05398 | 0.00458 | **0.01234** | 0.00592 / **0.01173** | 6 |
 | **Fresh compile per run, 512 tok** (wave 3) | 20 | 3.10503 | 0.00291 | **0.00859** | 0.00195 / 0.00840 | 7 |
 | DFlash, 5 fresh-compile + 1 wave-1 cell, 128 tok | 6 | 3.4096 | — | 0.0181 | — | 5 |
+| Child s0 LoRA (A10), fresh compile, 128 tok (wave 4) | 5 | 2.86375 | 0.00801 | 0.02098 | — | 5 |
+| Child s0 merged (A10), fresh compile, 128 tok (wave 4) | 5 | 2.86827 | 0.00246 | 0.00641 | — | 4 |
 | Ledger EXP-MTH-031 (vLLM 0.17.1) | 89 | — | — | — | median spread 0.0138 | — |
 
 **Finding (observation for the owner).** Within one compiled graph the engine is deterministic: 20 replicates on 3
@@ -94,7 +103,7 @@ Observation: the same child served as LoRA ran at 67.2 tok/s against 75.2 merged
    architectures or quantizations) compile their own graphs, so A00 vs A10 still carries between-compile variation
    while the replicates hide it.
    **Recommended default: (a).** It matches how the noise floor is measured.
-3. **Noise floor used for atlas comparisons.** Recommended: at the atlas length (512 tokens), use the fresh-compile
+3. **Noise floor used for atlas comparisons.** (Revised: LoRA-target cells vary more than the base, SD 0.0080 vs 0.0046 at 128 tokens, n = 5. A single base floor understates A10 noise for adapters. Options: replicate LoRA A10 cells (≥3 fresh compiles), or use a type-specific floor measured on a few derivatives per type.) Recommended: at the atlas length (512 tokens), use the fresh-compile
    values: SD 0.0029, range 0.0086 (n = 20). Keep the ledger's 0.0138 for comparisons against historical 128-token cells.
    The 512-token estimate is on GSM8K only; noise on other workloads is unmeasured. Option: repeat 5 fresh-compile
    base cells on the SPEED-Bench general set once B4 lands.
@@ -107,10 +116,11 @@ Observation: the same child served as LoRA ran at 67.2 tok/s against 75.2 merged
 - One target family and one workload (GSM8K, 128 prompts) at 128 tokens for the golden checks. The 512-token floor
   is one extra measurement, not the atlas workloads.
 - EAGLE-v1 n = 1 in A1 (plus B2's cell, which agrees to 1e-4). DFlash K options untested.
-- Child A10 cells ran on the shared default compile cache; the drift is reported against both A00 estimates.
+- Child A10 cells for seeds 1–2 ran once on the shared default compile cache; seed 0 also has 5 fresh-compile repeats. Child noise is measured for one LoRA child only.
+- Run count: 85 A1 run directories = 75 (waves 1–3 and retries) + 10 (wave 4); 81 included, 4 excluded. The 18:32 text said "74"; corrected.
 - Launch incidents (no effect on included numbers; details in `notes/A1.md`): a duplicate replicate started by the
   operator on a busy GPU (aborted, excluded, marked with `OPERATOR_NOTE.txt`); two cells failed on HF 429 rate
   limits and one on a missing cached weight file, all re-run under identical settings (retry run IDs in the journal).
 - Timing is from shared A40 nodes (other users' jobs on heck-srv1), not exclusive GPUs.
-- Validation (§8.4): all 71 included cells: config complete with pinned revisions, engine 0.31.0, clean tagged commit,
+- Validation (§8.4): all 81 included cells: config complete with pinned revisions, engine 0.31.0, clean tagged commit,
   128/128 golden prompt IDs, every per-prompt AL in [1, K+1], macro recomputed from raw counters equal to results.json.

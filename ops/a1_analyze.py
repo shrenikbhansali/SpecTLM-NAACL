@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import itertools
 import json
+import re
 import statistics as st
 from pathlib import Path
 
@@ -104,8 +105,9 @@ def main():
         a00 = st.mean(rv)
         drift = {}
         for k, v in cells.items():
-            if v["tag"] and v["tag"].startswith("mth018d-lora-s"):
-                s = int(v["tag"][-1])
+            m = re.fullmatch(r"mth018d-lora-s(\d)", v["tag"] or "")
+            if m:
+                s = int(m.group(1))
                 drift[s] = dict(a10=v["macro"], drift=v["macro"] - a00, ledger=LEDGER["child_drift_seed"][s])
         if drift:
             ds = [d["drift"] for d in drift.values()]
