@@ -1,5 +1,6 @@
 """Native DFlash blocks with independently crossed base/child output heads."""
 import torch
+from pathlib import Path
 
 
 def load_dflash(path,base):
@@ -8,6 +9,7 @@ def load_dflash(path,base):
     from speculators.convert.utils import load_checkpoint_config,load_checkpoint_weights
     from speculators.models.dflash import DFlashDraftModel
     if git_commit!='261a82dd44ca05ff73006938c0614111bb2dd2b7':raise ValueError('wrong pinned native backend')
+    path=Path(path)
     source=load_checkpoint_config(path);body=load_checkpoint_weights(path)
     converter=DFlashConverter();cfg=converter._build_config(source,base,None)
     cfg.transformer_layer_config._attn_implementation='eager'
