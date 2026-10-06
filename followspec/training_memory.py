@@ -29,3 +29,14 @@ def checkpoint_dflash_layers(model):
     # Native DFlash passes both trainable hidden inputs by keyword. Reentrant
     # checkpointing cannot track those inputs and would silently lose gradients.
     model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
+
+
+def serial_adamw(trainer):
+    """Avoid AdamW's all-parameter foreach temporaries with unchanged updates."""
+    if not trainer.optimizers or any(not isinstance(opt,torch.optim.AdamW) for opt in trainer.optimizers):
+        raise ValueError('serial AdamW requires the native AdamW optimizer')
+    if any(group.get('fused') for opt in trainer.optimizers for group in opt.param_groups):
+        raise ValueError('cannot change a fused optimizer implementation')
+    for opt in trainer.optimizers:
+        opt.defaults['foreach']=False
+        for group in opt.param_groups:group['foreach']=False
