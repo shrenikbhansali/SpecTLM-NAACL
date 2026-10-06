@@ -23,3 +23,7 @@ on the critical path (A2 → A3 → A4/A7) and beyond an operator script, so it 
    hybrids, or a non-standard format) is reported `loadable=false` without crashing the run; 5 decoded samples in the journal.
 
 The 2× ratio and the 10-prompt check are MASTER's thresholds; any other threshold needs an owner decision.
+
+## 2026-10-05T22:13:11-04:00 — codex-1 — Claim
+
+Read operator spec, MASTER §6.1 A2/§7 B2, and audit. No remote for pull/rebase. Claim FIX-1 on codex/FIX-1; tests first. B1 corrected curation runs independently. No pause marker; GPU acceptance allowed, full per-pool fanout remains operator-owned. Perplexity will use identical fixed reference text (general prompt tokens, teacher-forced from token2 onward) for base and derivative; masks/scored tokens and definition will be recorded. Generation check uses first10 general prompts and max128 tokens. Exact repetitive-4gram threshold will be a required explicit argument with no silent default, since only the owner may approve additional thresholds.
