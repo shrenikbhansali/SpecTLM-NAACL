@@ -106,3 +106,14 @@ def test_detached_run_tag_on_main_allowed(L):
     subprocess.run(["git", "tag", "-d", "run-test"], cwd=L._repo, check=True, capture_output=True)
     with pytest.raises(L.LaunchError, match="run-\\* tag"):
         L.check_guards(ns)
+
+
+def test_d26_explicit_m3_h200_opt_in(L):
+    args=base_args(L,'--dry-run','--allow-h200-training');args[args.index('heck-srv3')]='heck-srv6';args[args.index('A1')]='M3'
+    assert L.main(args)==0
+
+
+def test_d26_opt_in_cannot_move_acceptance_to_h200(L):
+    args=base_args(L,'--dry-run','--allow-h200-training');args[args.index('heck-srv3')]='heck-srv6';args[args.index('A1')]='M4'
+    assert L.main(args)==2
+    assert not (L.WS/'artifacts').exists()

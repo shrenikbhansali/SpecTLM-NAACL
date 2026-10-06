@@ -14,7 +14,7 @@ Usage:
   ops/launch.py list [--n 20] [--no-poll]   # registry with live state per run
 
 Guards: refuses real launches while EXPERIMENTS_PAUSED.json exists (use
---dry-run); refuses heck-srv6 (dedicated H200s) for anything but A9; refuses an
+--dry-run); refuses heck-srv6 except A9 or explicitly opted-in M3 training (D-26); refuses an
 existing artifact directory; refuses a dirty or non-main checkout for real runs.
 """
 from __future__ import annotations
@@ -128,13 +128,14 @@ def build_config(a, run_id: str, out_dir: Path) -> dict:
             "cwd": str(Path(a.code_repo).resolve()), "launched_at_et": now_et().isoformat(timespec="seconds"),
             "launched_by": "claude-ops", "dry_run": a.dry_run, "env": a.env,
             "pause_marker_present": PAUSE_MARKER.exists(),
+            "allow_h200_training_d26": getattr(a, "allow_h200_training", False),
         },
         "notes": a.note,
     }
 
 
 def check_guards(a):
-    if a.node in DEDICATED_H200 and a.task != "A9":
+    if a.node in DEDICATED_H200 and a.task != "A9" and not (a.task == "M3" and getattr(a, "allow_h200_training", False)):
         raise LaunchError(f"{a.node} is the dedicated H200 box: A9 timing only (MASTER §8.2)")
     if not a.dry_run:
         if PAUSE_MARKER.exists():
@@ -258,6 +259,7 @@ def main(argv=None) -> int:
     r.add_argument("--python", help="interpreter of the pinned env (its bin/ is prepended to PATH)")
     r.add_argument("--code-repo", default=str(REPO), help="checkout the job runs from (default: this repo)")
     r.add_argument("--allow-branch", action="store_true", help="permit a non-main checkout (verification only)")
+    r.add_argument("--allow-h200-training", action="store_true", help="D-26: permit M3 training on free H200s; never acceptance evaluation")
     r.add_argument("--config-name", default="config.json")
     r.add_argument("--env", action="append", default=[], help="extra KEY=VALUE exported in the job (repeatable)")
     r.add_argument("--note", default="")
