@@ -82,14 +82,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-05 22:08 ET (claude-ops) |
+| Last updated | 2026-10-05 22:24 ET (claude-ops) |
 | Sprint day | Day 1 of 8 (Mon Oct 5) |
-| Next gate | Gate 1 (engine): **report ready 18:32**, `reports/GATE-1.md`, recommends PASS (vLLM 0.31.0); owner records D-08. Then Gate 2 (Wed noon) |
+| Next gate | Gate 1 **PASSED** (§13 D-08, vLLM 0.31.0; fresh compile per cell D-14). Next: Gate 2 (verification, Wed noon). Per D-15, downstream work starts as soon as dependencies pass |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
 | Jobs running | A1 wave 4: 10 fresh-compile child repeats (claude-ops, 22:05, A40 heck-srv2/5), testing the Gate 1 child-noise attribution. B1 staging finished ~20:40 (200/200). codex-1 active again from 21:55 (audit, B1 fixes) |
 | Blockers | Shared-cluster (H100/H200) access details unknown: blocks M2/M3 placement (needed Tue). B11 blocked on EAGLE 3.1 recipe/data gaps (notes/B11.md) |
-| Owner action needed | (G1) **Gate 1** (reports/GATE-1.md): record D-08 (recommended pass, lock vLLM 0.31.0); choose the compile-cache policy for atlas cells (recommended: fresh compile per cell) and the atlas noise floor (recommended: 512-tok fresh-compile SD 0.0029 / range 0.0086, n=20); DFlash replicates per cell in A7. (1) **B3 bf16 validation (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.3125/0.375/0.3125 in logits, failing codex-1's pre-set atol 0.125; in fp32 all cases match within 9.1e-5. A single real adapter vs its own bf16 merge already differs by 0.28125. **Correction (22:08):** the rule the operator suggested earlier (mixture error ≤ single-adapter control) would still **fail** this evidence (0.3125 and 0.375 > 0.28125), so it does not unblock M1. The operator withdraws it as a default and proposes none chosen after seeing results. A revised validation protocol is the owner's decision. Evidence: notes/B3.md, notes/BUILD-AUDIT-20261005.md item 3. (2) **Shared storage `/home/heck2`: 1.5 TB free (99%) at 22:00** after B1 staged both sampled pools (~2.2 TB); B1 bank staging and B5 feature capture still need space (B5 needs a storage estimate before running). (3) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
+| Owner action needed | (G1) Gate 1 follow-ups (reports/GATE-1.md): choose the atlas noise floor (base 512-tok fresh-compile SD 0.0029 / range 0.0086, n=20; LoRA A10 cells vary more, SD 0.0080, n=5, so replicate LoRA cells or use type-specific floors) and DFlash replication in A7. (1) **B3 bf16 validation (blocks M1 mixtures):** mixture vs directly merged weights in bf16 differ by up to 0.3125/0.375/0.3125 in logits, failing codex-1's pre-set atol 0.125; in fp32 all cases match within 9.1e-5. A single real adapter vs its own bf16 merge already differs by 0.28125. **Correction (22:08):** the rule the operator suggested earlier (mixture error ≤ single-adapter control) would still **fail** this evidence (0.3125 and 0.375 > 0.28125), so it does not unblock M1. The operator withdraws it as a default and proposes none chosen after seeing results. A revised validation protocol is the owner's decision. Evidence: notes/B3.md, notes/BUILD-AUDIT-20261005.md item 3. (2) **Shared storage `/home/heck2`: 1.5 TB free (99%) at 22:00** after B1 staged both sampled pools (~2.2 TB); B1 bank staging and B5 feature capture still need space (B5 needs a storage estimate before running). (3) **Shared H100/H200 cluster**: give cluster host, account and partition (Slurm client on heck-srv2 cannot parse `/etc/slurm/slurm.conf`); book allocation for Tue M2. (4) Home quota resolved at 17:37 (7.38 of 15.36 GB). **codex-1: point `PIP_CACHE_DIR` at /home/heck2 for env builds.** (5) ARR registrations. (6) Confirm §13 D-04 cutoffs |
 
 ---
 
@@ -202,7 +202,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
 | M8 | Delta-KD objective; online adaptation curves | P2 | claude-ops | Gate 3 | Fri | todo | | |
-| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | in progress | claude-ops / 2026-10-05T18:32-04:00 | G1: [reports/GATE-1.md](reports/GATE-1.md) (ready 18:32, owner decision D-08) |
+| G1–G4 | Gate reports (`reports/GATE-n.md`) | P0 | claude-ops | see §3.1 | §3 | in progress | claude-ops / 2026-10-05T18:32-04:00 | G1: [reports/GATE-1.md](reports/GATE-1.md) (18:32, revised 22:11) → **PASS** (D-08) |
 | R1 | Daily reports (`reports/YYYY-MM-DD.md`) | P0 | claude-ops | — | daily 7 am | todo | | |
 
 *Add `FIX-n` rows below as needed (Agent `codex`, Depends on the failing run).*
@@ -919,12 +919,14 @@ citing where it was stated.*
 | D-05 | — | Predictions in §6.3 recorded in the ledger before A4 and M3 launch | **Pending owner** |
 | D-06 | — | FollowSpec starting hyperparameters (§5.4) accepted | **Pending owner** |
 | D-07 | 2026-10-05 | The TTCL workshop paper (EXP-SUB-001) was never submitted or published; no conflict | Decided |
-| D-08 | — | Gate 1 outcome | Pending |
+| D-08 | 2026-10-05 | **Gate 1 PASS**: engine locked to vLLM 0.31.0 (`atlas/env/requirements.lock`, sha256 deb579cd…) for all sprint numbers. Owner reply to codex-1 ~22:10 ET: "Approve PASS and fresh compilation per cell" (notes/B2.md, 22:11 entry); evidence reports/GATE-1.md. Entered by claude-ops | Decided |
 | D-09 | — | Gate 2 outcome | Pending |
 | D-10 | — | Gate 3 outcome and framing | Pending |
 | D-11 | 2026-10-05 | Delta-consistency term (§5.4): renormalize the child's p_c within the top-k set V_k for both d̄ and the variance weights, so the term is invariant to additive log constants (§7 B6 test (b)). Owner reply to codex-1 in chat, "Normalize within top-k (recommended)", recorded in notes/B6.md at 17:18 ET; entered here by claude-ops. No other §5.4 default changes; D-06 is still pending | Decided |
 | D-12 | 2026-10-05 | Lift the Sep 11 experiment pause for the NAACL sprint (small builder acceptance runs and operator jobs whose dependencies and preflight pass; no restart of historical campaigns). Owner message to codex-1: "if there are pause markers we can lift, lift them so we can begin running GPU jobs ... if the relevant code ... has been built". Recorded before removal in `notes/PAUSE-LIFT-20261005.json`; marker archived at `artifacts/pause_archive/20261005/`; marker absent from 17:32 ET. Entered here by claude-ops | Decided |
 | D-13 | 2026-10-05 | Use the existing write-capable Hugging Face token for reads/downloads only; never upload or mutate Hub resources (AGENTS rule 9 amended). Owner to codex-1: "Just use the token with write access, and change the AGENTS.md accordingly" (cited in notes/B1.md 16:5x and notes/BUILD-AUDIT-20261005.md item 7; AGENTS.md commit ff2ef3c). Entered here by claude-ops | Decided |
+| D-14 | 2026-10-05 | Atlas cells use a **fresh vLLM compile per cell** (`VLLM_CACHE_ROOT=<run>/vllm_cache`); child/derivative repeats are reported separately. Same owner reply as D-08. The noise-floor choice (GATE-1 decision 3) and DFlash replication (decision 4) remain open. Entered by claude-ops | Decided |
+| D-15 | 2026-10-05 | Work as fast as possible: do not wait for gate calendar dates or another "continue"; advance as soon as dependency checks pass. Failed acceptance tests are not waived and thresholds are unchanged. Owner to codex-1 (notes/B2.md, 22:11 entry). Entered by claude-ops | Decided |
 
 ---
 
