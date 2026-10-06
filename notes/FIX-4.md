@@ -59,3 +59,11 @@ Full pipeline CPU fixture (`FIX4_fixture_20261006`) uses synthetic token IDs and
 ```json
 {"sample_id": "alpaca-18926", "decoded_prompt": "<|begin_of_text|><|start_header_id|>user<|end_header_id|>Read the following descriptions and identify the type of cuisine being described.\nA dish of ground lamb, onions and spices, wrapped in pastry, and baked or deep-fried.<|eot_id|><|start_header_id|>assistant<|end_header_id|>", "decoded_answer": "Based on the description, the type of cuisine being described is Middle Eastern or Mediterranean, specifically a traditional dish known as a \"Kibbeh\". Kibbeh is a popular dish in countries such as Turkey, Lebanon, and Iran.<|eot_id|>", "response_start": 42, "mask_summary": "0x42,1x48"}
 ```
+
+## 2026-10-06T03:41-04:00 — claude-ops — Operator verification: PASS → done
+
+Fresh checkout of main c185c3d: `python3 -m pytest -q followspec/tests` → **98 passed**. Independent re-run of the real A40 bank-switch check
+(`followspec.tests.native_bank_check`, `.venv-transport`, heck-srv2:6, same registry/responses) → `artifacts/FIX4_operator_switch_recheck_20261006/`:
+passed; base exact after all switches; reloaded child exact; 1 resident adapter; one target weight copy; peak 15.09 GiB; identical to codex-1's run.
+Planner evidence (33 bank identities, 60 pre-score candidates, 64 launch dry runs, vLLM view equivalence) reviewed from the acceptance JSON.
+Next: operator M1 (baseline + 63 filter jobs on the training-general reference, then admission), per followspec/PRODUCTION_DATA.md.
