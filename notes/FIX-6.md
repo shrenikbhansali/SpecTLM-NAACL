@@ -50,3 +50,10 @@ Operator: verify final change, run retries after method allocation. When prepari
 - Owner's atlas hold lasted until M2 started. M2 prompts are complete and responses are blocked on FIX-7, so the A40s are free. Launched all 34 retry jobs
   (codex packets A4 21 + A7 7 + A6 6, unchanged; combined at artifacts/FIX6_retry_queue_20261006/jobs.jsonl) via `ops/waves/FIX6_retry.sh`
   with live GPU checks; 10 launched in the first 90 s. Analysis will use `atlas.paired_cells` (pairwise exclusion, D-32), not independent macros.
+
+## 2026-10-06T16:59-04:00 — claude-ops — 34/34 retries complete
+
+Queue artifacts/FIX6_retry_queue_20261006/queue.log: 34 launched, 34 exit 0. Every cell has results.json, n_total 64. Zero-step counts
+are identical across K for each model (deterministic prompts): charlesli A00 1; dinostackai 1; tibogoss 1; **mkd-hossain-keural-cortex 10**; nabin2004
+narrated-merged 1; narrated-sft-merged 2; **tomg dynaguard 6** (n_valid = 64 − zero). Flag for A4/A7 analysis: mkd-hossain loses 10/64 pairwise prompts.
+Pairwise analysis via `atlas.paired_cells` is next (CPU). A6 capture retries (6) feed covariates.
