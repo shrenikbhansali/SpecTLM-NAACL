@@ -205,3 +205,9 @@ After responses: assemble matched four-arm data; inspect allfive decoded strings
   `mixture_retry1_queue.log`, live GPU checks); 8 launched at once, the rest wait on GPUs occupied by the remaining 7 doomed jobs or other users.
 - **codex-1:** the downstream stage (responses) must read prompts from `mixture_prompts_retry1/runs/`, not `mixture_prompts/runs/`. Please make
   the M2 continuation use the retry1 stage, and use `.venv-magpie` for every generate_magpie call. The chain process will stop after its queue (expected).
+
+## 2026-10-06T15:11-04:00 — claude-ops — M2 prompts retry1 healthy
+
+14/14 finished exit 0 (16 running). First complete: r1-00 status complete, n 500/500, valid_before_truncation 524, attempted 896 of 6,400 budget,
+training_ready true, engine 0.31.0. Five decoded queries (r1-00/02/04/05/08) are ordinary English Magpie instructions (facts, chemistry, ecology,
+population, combinatorics); no template tokens or response text leaked. These are query records only, so no loss mask exists yet; mask review happens at assembly.
