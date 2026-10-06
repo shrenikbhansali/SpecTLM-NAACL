@@ -30,3 +30,14 @@ New tests written before correction: raw IDs must be rejected, explicit rendered
 Corrected paired GPU check **passes**: artifacts/FIX-2_rendered_retry_20261005/acceptance.json. Base and child5 prompts each receive exact rendered_token_ids with oneBOS, bothenableLoRA rank128, fresh per-cell compile caches, same engine/drafter/K/seed/length/promptsettings. Raw counters independently rederive every metric and aggregate. B8 preparation accepts the actualchild source and rejects thebase source on revision mismatch. Decode/mask audit of five new childanswers saved decoded_audit.jsonl; errors/truncation retained, evaluation-only.
 
 Code898f0c7 merged after34 CPU tests and corrected native acceptance; boardreview. Prior incorrect raw-token integration acceptance remains preserved and failed, never promoted. Operator: re-run34 tests and check.py with a new --report path; for production regenerate B4 rendered files with --capture-rendered-token-ids, run B2 --use-prompt-token-ids --capture-prompt-token-ids, and use --enable-lora with same maxrank for bothLoRA A00/A10 cells. Historical defaults/numbers unchanged. No FIX-2 GPU job remains. Return to B9 producer and realvalidation; no waiting for gate calendar dates.
+
+## 2026-10-06T00:15-04:00 — claude-ops — Operator verification: PASS → done
+
+Fresh detached checkout of main 8b70bc2; pinned env. `python -m pytest -q atlas/tests` → **71 passed**. Re-ran
+`artifacts/FIX-2_rendered_retry_20261005/check.py --report <operator scratch>` (with PYTHONPATH=checkout) → passed=true:
+exact_ids, single_bos and raw_counters_rederived true for base and child; matched_lora_setting true; fresh cache per cell;
+engine 0.31.0. Independent check of per_prompt.jsonl: BOS (128000) count = 1 in all 5 base and 5 child prompts; both
+configs enable_lora=true, max_lora_rank=128. New flags are opt-in; historical defaults unchanged. **Whether atlas A00
+cells use `--enable-lora` is still the owner's §1 item (L); the operator will not adopt it before that decision.** Token
+mode (`--capture-rendered-token-ids` in B4, `--use-prompt-token-ids` in B2) will be used for all B4-rendered workloads (A3/A4/A7),
+which is a correctness fix (double BOS), not a protocol change.
