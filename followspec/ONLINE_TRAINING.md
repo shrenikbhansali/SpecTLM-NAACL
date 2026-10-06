@@ -158,3 +158,11 @@ source files or acceptance flags. `--acceptance-smoke` permits only at most64
 acceptance-only records per arm for builder checks; its output cannot establish
 production readiness. A failing audit requires explicit data assembly changes;
 it never silently drops, repeats or truncates samples to make counts match.
+
+D-26's longer pre-M3 check uses `followspec.overfit_acceptance --epochs 30`
+with the same audited64-example inputs. It is exactly30 optimizer steps on
+one native batch; default acceptance remains3 steps and production remains
+one epoch. The earlier3-step run used8.6GB for its checkpoints, so budget
+roughly86GB for30 checkpoints. Preserve every run/checkpoint; use a fresh
+output directory. This check still does not establish capacity on long or
+fully occupied batches.
