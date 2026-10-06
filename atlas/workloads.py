@@ -94,7 +94,7 @@ def magpie_prefix(tokenizer,family):
     return rendered.split(sentinel)[0]
 
 
-def render_evaluation(rows,tokenizer,family):
+def render_evaluation(rows,tokenizer,family,capture_token_ids=False):
     """Render once, keeping raw queries available for cross-split hash auditing."""
     if family not in {'llama','qwen3'}:raise ValueError('unsupported model family')
     result=[];seen=set()
@@ -107,8 +107,12 @@ def render_evaluation(rows,tokenizer,family):
         rendered=tokenizer.apply_chat_template([{'role':'user','content':raw}],tokenize=False,
                                                add_generation_prompt=True,enable_thinking=False)
         if not isinstance(rendered,str) or not rendered:raise ValueError('empty rendered prompt')
-        result.append(row|dict(raw_prompt=raw,prompt=rendered,raw_prompt_sha256=prompt_hash(raw),
-                               format='chat_template_rendered'))
+        output=row|dict(raw_prompt=raw,prompt=rendered,raw_prompt_sha256=prompt_hash(raw),
+                        format='chat_template_rendered')
+        if capture_token_ids:
+            output['rendered_token_ids']=tokenizer.encode(rendered,add_special_tokens=False)
+            if not output['rendered_token_ids']:raise ValueError('empty rendered token sequence')
+        result.append(output)
     return result
 
 
@@ -119,7 +123,7 @@ def render(args):
     if not source.is_dir():raise ValueError('local tokenizer snapshot required')
     tokenizer=AutoTokenizer.from_pretrained(source,local_files_only=True,trust_remote_code=False)
     rows=[json.loads(line) for line in Path(args.input).read_text().splitlines() if line.strip()]
-    rendered=render_evaluation(rows,tokenizer,args.family)
+    rendered=render_evaluation(rows,tokenizer,args.family,args.capture_rendered_token_ids)
     out=Path(args.output);out.mkdir(parents=True,exist_ok=False)
     write_jsonl(out/'prompts.jsonl',rendered)
     config=dict(input=str(Path(args.input).resolve()),input_sha256=file_hash(args.input),n=len(rows),
@@ -127,6 +131,7 @@ def render(args):
                 tokenizer_sha256=file_hash(source/'tokenizer.json'),
                 chat_template_sha256=hashlib.sha256(json.dumps(tokenizer.chat_template,sort_keys=True).encode()).hexdigest(),
                 family=args.family,enable_thinking=False,add_generation_prompt=True,
+                capture_rendered_token_ids=args.capture_rendered_token_ids,
                 prompts_sha256=file_hash(out/'prompts.jsonl'),acceptance_only=any(r.get('acceptance_only',False) for r in rows))
     (out/'config.json').write_text(json.dumps(config,indent=2)+'\n')
     print(json.dumps(config,indent=2))
@@ -187,6 +192,7 @@ def main():
     b.add_argument('--speed-provenance');b.add_argument('--seed',type=int,default=20261005);b.add_argument('--near-threshold',type=float,default=.9);b.add_argument('--output',required=True)
     a=sub.add_parser('audit');a.add_argument('--training',nargs='+',required=True);a.add_argument('--evaluation',nargs='+',required=True)
     r=sub.add_parser('render-evaluation');r.add_argument('--input',required=True);r.add_argument('--tokenizer',required=True)
+    r.add_argument('--capture-rendered-token-ids',action='store_true',help='save distinct chat-rendered IDs without adding special tokens twice')
     r.add_argument('--tokenizer-revision',required=True);r.add_argument('--family',choices=['llama','qwen3'],required=True);r.add_argument('--output',required=True)
     args=p.parse_args();{'build-public':public,'audit':audit,'render-evaluation':render}[args.command](args)
 

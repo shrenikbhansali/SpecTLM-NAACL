@@ -61,3 +61,9 @@ the engine receives the saved rendered IDs exactly (text retokenization adds
 a second BOS for Llama). Add `--capture-prompt-token-ids` for B8/A6. Both
 paired cells use the same prompt file and input mode. For LoRA A10, enable
 LoRA support on A00 too with `--enable-lora` and the same max rank.
+
+Use `atlas.workloads render-evaluation --capture-rendered-token-ids` when
+rendering new B4 evaluation files. This adds a distinct `rendered_token_ids`
+field using `add_special_tokens=False`; the original `token_ids` still denotes
+the raw query. Exact B2 input mode refuses raw query IDs. Older rendered files
+must be regenerated from their original raw queries into a new output directory.

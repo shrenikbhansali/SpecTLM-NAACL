@@ -62,3 +62,9 @@ their assistant masks for every new data path before downstream use.
 Outputs are new directories with config, per-prompt metrics, weight covariates,
 results/runtime, quantization backend details where applicable, and a pilot
 ledger draft. The operator assigns a ledger ID and verifies acceptance.
+
+Use `atlas.workloads render-evaluation --capture-rendered-token-ids` when
+rendering new B4 evaluation files. This adds a distinct `rendered_token_ids`
+field using `add_special_tokens=False`; the original `token_ids` still denotes
+the raw query. Exact B2 input mode refuses raw query IDs. Older rendered files
+must be regenerated from their original raw queries into a new output directory.

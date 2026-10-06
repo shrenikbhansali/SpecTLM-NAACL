@@ -45,9 +45,9 @@ def engine_prompts(rows,use_token_ids=False):
     if not use_token_ids:return [r['prompt'] for r in rows]
     result=[]
     for row in rows:
-        ids=row.get('token_ids')
+        ids=row.get('rendered_token_ids')
         if not isinstance(ids,list) or not ids or any(type(i) is not int or i<0 for i in ids):
-            raise ValueError('explicit token input requires nonempty integer token_ids')
+            raise ValueError('explicit token input requires nonempty integer rendered_token_ids; raw token_ids are not chat context')
         result.append({'prompt_token_ids':list(ids)})
     return result
 
@@ -135,7 +135,7 @@ def parser():
     p.add_argument('--gpu-memory-utilization',type=float,default=0.75)
     p.add_argument('--max-lora-rank',type=int,default=64)
     p.add_argument('--capture-prompt-token-ids',action='store_true',help='save engine prompt IDs for exact offline covariates')
-    p.add_argument('--use-prompt-token-ids',action='store_true',help='use saved token_ids without text retokenization')
+    p.add_argument('--use-prompt-token-ids',action='store_true',help='use saved rendered_token_ids without text retokenization')
     p.add_argument('--enable-lora',action='store_true',help='enable LoRA engine setting on a matched base/control cell')
     p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
     return p
@@ -203,7 +203,7 @@ def main():
                 wall=time.perf_counter()-t;generation_wall+=wall
                 if len(outputs)!=len(batch): raise RuntimeError('engine omitted outputs')
                 for record,output in zip(batch,outputs):
-                    if a.use_prompt_token_ids and list(output.prompt_token_ids)!=record['token_ids']:
+                    if a.use_prompt_token_ids and list(output.prompt_token_ids)!=record['rendered_token_ids']:
                         raise RuntimeError('engine changed explicit prompt token IDs')
                     if len(output.outputs)!=1: raise RuntimeError('one completion required')
                     completion=output.outputs[0]
