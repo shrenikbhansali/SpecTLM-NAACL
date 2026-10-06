@@ -67,3 +67,23 @@ Fresh checkout of main c185c3d: `python3 -m pytest -q followspec/tests` → **98
 passed; base exact after all switches; reloaded child exact; 1 resident adapter; one target weight copy; peak 15.09 GiB; identical to codex-1's run.
 Planner evidence (33 bank identities, 60 pre-score candidates, 64 launch dry runs, vLLM view equivalence) reviewed from the acceptance JSON.
 Next: operator M1 (baseline + 63 filter jobs on the training-general reference, then admission), per followspec/PRODUCTION_DATA.md.
+
+## 2026-10-06T04:18:28-04:00 — codex-1 — Claim immutable filter retry overlay
+
+Accepted originalFIX-4 pipeline remainsverified. ConcreteM1 failures005/009 exposedrecoverygap: filter_runs.json points atfailedartifactdirs, and rerunningtherewouldoverwritehistoricalartifacts. Reopenownrow for explicit retry-filters stage: requireselectedfailedtargets, writefreshroundoverlay referencingunchangedregistry/plan/reference/baseline andalluntouchedruns; emitonlyselectedretryjobswithfreshpaths; admissionusesoverlay. Oldfailedoutputs retained. Nochangedcandidate/seed/admissionthreshold; nonewGPUjoblaunchedbybuilder. Testsfirstrejectsuccessful/unknown/activecells, unchangedoriginalbytes, subsetretryandadmissionmapping. P0preemptsB10; B6nativecapacitypasses,freshmixtureexportawaitsM1slots.
+
+## 2026-10-06T04:24:40-04:00 — codex-1 — Retry overlay PASS → review / Handoff
+
+Tests firstmissingretry_filters; now130testsPASS (FIX4_retry_before/after_20261006.log). Explicitretry-filters commandrefusessuccessful/active/unknown/duplicatetargets, verifiesoldstagehashes, preservesoriginalbytes, changesonlyselectedrunpathsandjobtags, keepsalljobdefinitionsforlaterchainedretries. Sourceed3f905mergedmain/pushed. No seed, candidate, model, reference, baseline or admissionthreshold changes.
+
+RealM1overlay: artifacts/FIX4_M1_retry_overlay_20261006, exactly2retryjobs for CharlesLi/llama_3_gsm8k_cot_simplest (005) and CharlesLi/llama_3_gsm8k_helpful (009);61otherpathsunchanged. Bothactual atlas.filter_pool CLI --dry-run passed; acceptance artifacts/FIX4_retry_acceptance_20261006/acceptance.json. Originalfailedcellshaveconfig/results/failure preserved. M1initial63jobsfinished,admitexit1asexpectedforfailedcells. NoCPUplannerclaimedadmission.
+
+Handoff: operatorrunnew filter_jobs.jsonl (existing spec usesvalidrun-M1 tag andunchangedfiltercode), then `python -m followspec.production admit --round-dir /home/heck2/sbhansali8/SpecTLM/artifacts/FIX4_M1_retry_overlay_20261006 --output NEW_ADMISSION`. No need rebuild/re-run61successfulcells. Verifythisextensionthendone; originalFIX4productionacceptance remainsvalid. BuilderB6exportrunningonheck-srv3:2, B10boundedfull64onheck-srv3:1; exclude those2slotsfromanyretryqueueuntiltheyfinish. AllotherM1queueassignmentscompleted.
+
+## 2026-10-06T04:45:54-04:00 — codex-1 — Claim D-28 reduced-bank integration
+
+Read latestmain3068513: operator started nine Llama training prompt retries and two M1 filter retries. D-28 drops banks still below500 after6400attempts and recomputes MVD1000*n_bank / FS round(1000*n_bank/n_targets). Current allocate_queries hardcodes33/33000; strict registry also couples mixture source bank and admission universe. Reopen FIX-4 to implement strict evidence-backed eligibility and count recomputation; preserve existing frozen pool, plans and artifacts. Asked owner whether already sampled mixtures using dropped banks stay with original admission proof or require fresh plan; do not choose a research policy implicitly. Tests and eligibility/count implementation can proceed independently.
+
+## 2026-10-06T04:52:58-04:00 — codex-1 — D-28 partial build / Handoff
+
+Branch e1e70fd pushed, not merged: evidence-backed bank-eligibility stage and explicit reduced allocation.11 new tests firstfailed thenpassed;143 integrated PASS. Real24 legacy workloads passed72 evidence-file hashes (FIX4_D28_legacy_audit_20261006). Remaining9 retries running. Full integration requires owner clarification on sampled mixtures whose sources are dropped; asked in chat, no answer yet. Mark blocked on that policy, continue B10. Do not discard or redraw candidate mixtures implicitly, nor edit frozen pool. Existing retry-overlay on main remains accepted/usable. Full details in branch journal.
