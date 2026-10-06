@@ -6,7 +6,7 @@ num_workers=0, before B6's shift_paired/PairedCollator. Explicit projected
 labels preserve a child's changed LM head; verifier_last_hidden_states are
 the pre-final-norm states expected by the pinned native trainer.
 """
-from contextlib import nullcontext
+from contextlib import nullcontext,contextmanager
 import threading
 import torch
 from atlas.generate_magpie import unpaused
@@ -34,8 +34,15 @@ class OnlinePairCapture:
         self.taps=list(tap_indices);self.tokens=draft_token_ids.detach().clone()
         self.pause_check=pause_check;self.chunk=projection_chunk;self.lock=threading.Lock()
 
+    @contextmanager
     def _base_context(self):
-        return self.model.disable_adapter() if hasattr(self.model,'disable_adapter') else nullcontext()
+        try:
+            with (self.model.disable_adapter() if hasattr(self.model,'disable_adapter') else nullcontext()):
+                yield
+        finally:
+            # PEFT restoring an adapter also re-enables its requires_grad flags.
+            # This instance is an owned frozen teacher, including on exceptions.
+            self.model.requires_grad_(False)
 
     def _forward(self,ids):
         self.pause_check();last=[]

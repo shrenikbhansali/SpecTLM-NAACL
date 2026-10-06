@@ -19,9 +19,10 @@ from atlas.workloads import audit_disjoint,prompt_hash
 def read(path):return [json.loads(s) for s in Path(path).read_text().splitlines() if s.strip()]
 
 
-def validate_queries(rows,forbidden,smoke,*,prompt_target=None):
+def validate_queries(rows,forbidden,smoke,*,prompt_target=None,acceptance_limit=5):
     if not rows or len({r['prompt_id'] for r in rows})!=len(rows):raise ValueError('nonempty unique prompts required')
-    if smoke and len(rows)>5:raise ValueError('response acceptance limited to five prompts')
+    if acceptance_limit not in (5,64) or (acceptance_limit!=5 and not smoke):raise ValueError('overfit64 requires explicit acceptance mode')
+    if smoke and len(rows)>acceptance_limit:raise ValueError('response acceptance exceeds bounded prompt limit')
     for row in rows:
         if row.get('split')!='training':raise ValueError('training queries required; no evaluation prompts')
         if row.get('acceptance_only') and not smoke:raise ValueError('acceptance data cannot enter production training')
@@ -47,6 +48,7 @@ def main():
     p.add_argument('--prompt-target',default='base',help='bank origin of Magpie prompts; may differ for PO-D base responses')
     p.add_argument('--forbidden-files',nargs='+',required=True);p.add_argument('--seed',type=int,required=True)
     p.add_argument('--allow-a40-production',action='store_true');p.add_argument('--acceptance-smoke',action='store_true');p.add_argument('--dry-run',action='store_true')
+    p.add_argument('--acceptance-limit',type=int,choices=[5,64],default=5,help='64 only for B6 bounded overfit acceptance; still max64 response tokens')
     p.add_argument('--batch-size',type=int,default=32);p.add_argument('--max-model-len',type=int,default=4096)
     p.add_argument('--gpu-memory-utilization',type=float,default=.7)
     a=p.parse_args();a.adapter=None;a.adapter_revision=None
@@ -64,7 +66,7 @@ def main():
         if Path(a.tokenizer)!=Path(a.base_snapshot) or a.tokenizer_revision!=a.base_revision:raise ValueError('base tokenizer must match base')
         hashes={}
     rows=read(a.prompts);forbidden=[r for path in a.forbidden_files for r in read(path)]
-    audit=validate_queries(rows,forbidden,a.acceptance_smoke,prompt_target=a.prompt_target)
+    audit=validate_queries(rows,forbidden,a.acceptance_smoke,prompt_target=a.prompt_target,acceptance_limit=a.acceptance_limit)
     rank=int(row['r']) if adapter else 1;cap=next((n for n in (8,16,32,64,128,256,320,512) if n>=rank),None)
     if cap is None or a.batch_size<=0:raise ValueError('unsupported adapter rank or batch size')
     cfg=vars(a)|dict(schema='followspec_response_tokens_v1',engine_version='0.31.0',K=None,drafter=None,
