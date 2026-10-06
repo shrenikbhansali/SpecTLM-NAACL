@@ -50,6 +50,9 @@ def validate_registry(registry,*,allow_acceptance=False):
         if not r.get('revision') or not r.get('path') or not r.get('files_sha256'):raise ValueError('pinned adapter files required')
         if any(Path(p).is_absolute() or '..' in Path(p).parts for p in r['files_sha256']):raise ValueError('invalid adapter file path')
         if r['kind']=='mixture':validate_mixture(name,registry,allow_acceptance=allow_acceptance)
+        elif r.get('normalization'):
+            from followspec.adapter_views import validate_view
+            validate_view(r)
 
 
 def collect_admission(name,registry,mixture_run,bank_runs,pool_manifest):
