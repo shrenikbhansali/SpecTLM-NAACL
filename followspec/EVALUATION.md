@@ -47,3 +47,38 @@ and review `GATE-3.md`; the operator publishes it to `reports/GATE-3.md`.
 
 Every aggregate carries an input-index hash, code commit and source run IDs.
 Synthetic acceptance fixtures are tests only, never paper evidence.
+
+## Production M3-to-M4 handoff (FIX-9)
+
+Once all twelve runs in a `followspec.training_jobs` stage complete, use:
+
+```bash
+python -m followspec.evaluation_jobs --training M3_JOB_STAGE \
+  --targets TARGET_SPEC.json --python /path/to/pinned-vllm/bin/python \
+  --code-repo CLEAN_TAGGED_MAIN_CHECKOUT --output NEW_M4_STAGE
+```
+
+`TARGET_SPEC.json` has a `targets` list in the B7 format above, including an
+explicit `model_id: "base"` entry. Full-weight derivatives may additionally
+supply `snapshot`; LoRA derivatives must supply `adapter` and `max_lora_rank`.
+All workload files must contain exact `rendered_token_ids`. Base workload labels
+must cover the derivative labels so parent-retention cells exist. Record own-domain
+unavailability in the input spec; never silently remove a derivative based on its
+results. Use the frozen test pool and separately identified ledger children.
+
+The handoff checks actual training configs, seeds, pins, completed budgets/steps,
+memory flags and nonempty native exports before writing any output. It records
+checkpoint hashes. It emits `jobs.jsonl`, `index_k4.json` (all four trained arms
+and Frozen), and `index_k2_k8.json` (FS and Frozen only, per M4). All cells use
+exact input tokens, greedy seed 0, 512 new tokens, batch 8, memory utilization
+0.70 and a fresh compile directory, matching the sprint's atlas cell settings.
+Both sides of every LoRA pair enable LoRA with the same rank capacity. H200
+training permission is never included in these evaluation jobs.
+
+Run both actual cell and launcher preflights, then dispatch on A40s. A nonempty
+export is only a planning prerequisite: its first real vLLM cell still has to
+establish loadability. Pass the completed K4 index to B7 aggregation. K2/8 contain
+only FS/Frozen and must stay separate from the complete-arm Gate 3 aggregator.
+The owner still chooses the primary workload and makes the Gate 3 call; emitting
+jobs or reporting numerical criteria does not make that decision. The stage
+records NumPy/SciPy versions for the CPU planning/analysis environment.
