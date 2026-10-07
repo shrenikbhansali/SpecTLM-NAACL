@@ -6,11 +6,32 @@ K4 is the complete comparison matrix; K2/8 contain FS and Frozen only.
 import argparse
 import importlib.metadata
 import re
+import shutil
 from pathlib import Path
 from atlas.run_cell import sha256, write_new
 from followspec.evaluate import schedule, pin
 from followspec.production import ARMS, launcher_job
 from followspec.production_pipeline import checked_stage, execution_spec, finish, jsonl, lines, new_output, read
+
+
+def immutable_export(source, output):
+    """Copy inference files once; validation/optimizer metadata stays native."""
+    source=Path(source);out=Path(output)
+    files=[source/name for name in ('config.json','model.safetensors','config.py') if (source/name).is_file()]
+    hashes={p.name:sha256(p) for p in files}
+    if not {'config.json','model.safetensors'}<=set(hashes):raise ValueError('inference export files missing')
+    if out.exists():
+        if not (out/'export_proof.json').is_file() or read(out/'export_proof.json')!=dict(source=str(source),files_sha256=hashes):
+            raise ValueError('inference export changed or incomplete')
+        if {p.name for p in out.iterdir()}!=set(hashes)|{'export_proof.json'} or any(sha256(out/name)!=digest for name,digest in hashes.items()):
+            raise ValueError('inference export changed')
+        return out
+    out.mkdir(parents=True)
+    for p in files:shutil.copyfile(p,out/p.name)
+    if any(sha256(out/name)!=digest or sha256(source/name)!=digest for name,digest in hashes.items()):
+        raise ValueError('source changed during inference export')
+    write_new(out/'export_proof.json',dict(source=str(source),files_sha256=hashes))
+    return out
 
 
 def evaluation_jobs(training, targets, output, *, python, code_repo=None, completed_only=False, previous=None, training_seeds=None, allow_validation_pending=False, reuse_frozen=None, job_prefix=None):
@@ -77,7 +98,9 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
         if read(files[0]).get('speculators_config',{}).get('algorithm') != 'eagle3':
             raise ValueError('M3 EAGLE-3 export required')
         pin(actual['code_commit'])
-        checkpoints.append(dict(arm=arm,seed=seed,model_id=str(checkpoint),revision=actual['code_commit']))
+        inference=immutable_export(checkpoint,root/'evaluation_exports'/f'{arm}-s{seed}') if allow_validation_pending else checkpoint
+        if allow_validation_pending:evidence.update({str(p):sha256(p) for p in inference.iterdir() if p.is_file()})
+        checkpoints.append(dict(arm=arm,seed=seed,model_id=str(inference),revision=actual['code_commit']))
         evidence.update({str(p):sha256(p) for p in [run/'config.json',*([run/'results.json'] if result is not None else []),*files]})
     if seen != {(a,s) for a in ARMS for s in declared}:
         raise ValueError('complete declared M3 matrix required')
@@ -179,7 +202,7 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
              n_validation_pending=len(validation_pending),validation_pending=validation_pending,
              n_excluded_training=len(excluded),excluded_training=excluded,exploratory_single_seed=len(selected)==1,
              checkpoint_loadability='pending first vLLM cells',owner_gate_decision='pending',
-             next='Preflight and dispatch to free A40s. Aggregate index_k4 with B7; K2/8 are separate FS/Frozen diagnostics.'))
+             next=('Preflight K4 only; use followspec.pilot_report for descriptive single-seed evidence, not Gate3.' if len(selected)==1 else 'Preflight and dispatch to free A40s. Aggregate index_k4 with B7; K2/8 are separate FS/Frozen diagnostics.')))
     return out
 
 

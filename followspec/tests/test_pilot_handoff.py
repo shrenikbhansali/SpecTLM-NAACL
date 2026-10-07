@@ -96,3 +96,18 @@ def test_reuse_rejects_changed_decoding_python(tmp_path):
     old,new,targets=pilot(tmp_path);prior=evaluation_jobs(old,targets,tmp_path/'prior',python='python')
     with pytest.raises(ValueError,match='controls'):
         evaluation_jobs(new,targets,tmp_path/'bad',python='different-python',reuse_frozen=prior)
+
+
+def test_evaluation_export_is_immutable_when_native_validation_adds_metadata(tmp_path):
+    from followspec.evaluation_jobs import immutable_export
+    src=tmp_path/'source';src.mkdir();write_new(src/'config.json',{'model':'fixture'})
+    (src/'model.safetensors').write_bytes(b'model');(src/'config.py').write_text('# native config')
+    (src/'optimizer_state_dict.pt').write_bytes(b'optimizer')
+    out=immutable_export(src,tmp_path/'export')
+    before={p.name:p.read_bytes() for p in out.iterdir()}
+    write_new(src/'val_metrics.json',{'loss':1})
+    assert immutable_export(src,out)==out
+    assert {p.name:p.read_bytes() for p in out.iterdir()}==before
+    assert 'optimizer_state_dict.pt' not in before and 'val_metrics.json' not in before
+    (out/'model.safetensors').write_bytes(b'tampered')
+    with pytest.raises(ValueError,match='export changed'):immutable_export(src,out)
