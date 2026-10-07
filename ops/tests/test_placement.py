@@ -26,3 +26,12 @@ def test_all_launcher_jobs_propagate_site_and_relocation(monkeypatch,tmp_path):
     job=launcher_job(spec,'test','M3','/ice/prompts',['-m','followspec.train_eagle3'])
     assert job['allowed_nodes']==['slurm']
     assert 'SPECTLM_RELOCATION='+str(f) in job['args'] and 'SITE=ice' in job['args']
+
+
+def test_operational_append_preserves_ice_placement(monkeypatch,tmp_path):
+    import json
+    from ops.method_recovery import append_jobs
+    monkeypatch.setenv('SITE','ice');p=tmp_path/'dispatch.jsonl';p.write_text('')
+    job=place_job(dict(name='ice',args=['--task','M4','--','true']))
+    assert append_jobs(p,[job])==1
+    saved=json.loads(p.read_text());assert saved['allowed_nodes']==['slurm'] and saved['args']==job['args']

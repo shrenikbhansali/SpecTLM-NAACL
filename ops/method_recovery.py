@@ -102,7 +102,7 @@ def append_jobs(path,jobs):
         if job['name'] in known:
             if known[job['name']]['args']!=job['args']:raise ValueError('dispatch identity changed')
             continue
-        j=copy.deepcopy(job);j['allowed_nodes']=SAFE_NODES.copy();new.append(j);known[j['name']]=j
+        j=place_job(copy.deepcopy(job),heck_nodes=SAFE_NODES);new.append(j);known[j['name']]=j
     if new:
         temp=path.with_name(path.name+f'.{os.getpid()}.tmp')
         with temp.open('x') as f:
