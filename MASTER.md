@@ -260,6 +260,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-12 | Explicit deterministic native-batch subdivision option for exact matched tokens/steps; default unchanged, adoption owner-gated | P0 | codex | M2 | now | done | claude-ops / 2026-10-06T19:24-04:00 | [journal](notes/FIX-12.md);235 tests + actual12-run native/runtime replay PASS;10320835tokens/1294steps,15splits;20sample masks reviewed; [acceptance](artifacts/FIX12_acceptance_20261006/acceptance.json); owner adoption pending; operator re-run 2026-10-06T19:24: 338 pass (+1 env-only) at a3492fa; adopted by D-36 |
 
+| FIX-13 | D-37 explicit single-seed M3→M4 feasibility handoff, reuse existing Frozen controls, retain full default validation | P0 | codex | FIX-9 | now | in progress | codex-1 / 2026-10-07T01:02:29.808985-04:00 | [journal](notes/FIX-13.md); tests first; no evaluation metric or Gate3 threshold changes |
+
 ---
 
 ## 5. Research context (what agents need to know)
