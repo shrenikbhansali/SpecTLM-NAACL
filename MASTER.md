@@ -263,6 +263,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | FIX-13 | D-37 explicit single-seed M3→M4 feasibility handoff, reuse existing Frozen controls, retain full default validation | P0 | codex | FIX-9 | now | review | codex-1 / 2026-10-07T01:08:01.839478-04:00 | [journal](notes/FIX-13.md);243 full tests+23 targeted pass; actual single-seed stage reuses202primary references, zero newjobs; merged301a6a6/c7c69cc |
 
 | FIX-14 | D-38 sealed reduced-budget four-arm data and single-seed training jobs with unique run identities | P0 | codex | M2, FIX-13 | now | in progress | codex-1 / 2026-10-07T01:22:38.379669-04:00 | [journal](notes/FIX-14.md); tests first; inherited data checks and exact budget audit |
+| FIX-15 | D-38 checkpoint-ready pilot evaluation, Frozen reference reuse, unique evaluation identities and automatic handoff | P0 | codex | FIX-14 | now | in progress | codex-1 / 2026-10-07T01:29:13.305461-04:00 | [journal](notes/FIX-15.md); tests first; sealed complete training exports, validation status explicit |
 
 ---
 
