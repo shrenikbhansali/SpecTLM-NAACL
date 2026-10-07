@@ -90,7 +90,7 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
 | Jobs running | **M3 full-budget seed 0** (D-37): FS 674, MVD 950, PO-D 716, PO-T 717 / 1,294 at 09:04; ETA training MVD ≈ 12:45, others ≈ 19:00 (+ validation). D-38 pilot done → EXP-ATL-006. **Protocol frozen 09:00** (evaluation-code changes now need §13 + reruns). |
 | Blockers | No runtime failure in selected seed0 runs. Full-budget training remains slow on A40s; H200s occupied. B9 transport validity blocked; B11/M7 deprioritized. |
-| Owner action needed | Reduced-budget matched pilot versus continuing full-budget seed0: preference pending. Concrete pilot proposal1991138tokens/250steps perarm verified; no new budget adopted yet. |
+| Owner action needed | No launch approval pending. D-38 pilot completed (EXP-ATL-006); full-budget seed0 evaluation proceeds automatically under D-37. Owner framing decision remains pending matched results. |
 
 ---
 
@@ -230,8 +230,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
 | M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | done | claude-ops / 2026-10-06T23:08-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md); operator verified 2026-10-06T23:08: assembly batch_audit passed (1,294 steps × 12, 10,320,835 tokens/arm), 20/20 decoded masks valid, finalized_D36 under D-36 |
-| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-07T01:41:47.978304-04:00 | D-38 pilot launched:4arms seed0,1991138tokens/250steps, heck-srv3:0–3; allfinite; fullseed0continues; [health](artifacts/M3_pilot_D38_20261007/health_start.json); [Handoff](notes/M3.md) |
-| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-07T01:41:47.978304-04:00 | D-38 fixed9target+base panel;38FrozenK4references verified/reused;152newtrainedcells autoqueue onsealedexports; watcher2500854/queue2500786; [Handoff](notes/M4.md) |
+| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-07T13:23:48.808790-04:00 | D-38 pilot evaluated (EXP-ATL-006); full seed0 MVD1294/1294 validating, FS957, PO-D/PO-T1016 at13:21; allfinite; [health](artifacts/FIX16_operations_20261007/health_1320.json); [Handoff](notes/M3.md) |
+| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-07T13:23:48.808790-04:00 | Pilot report independently reproduced; full MVD80/202 cells validated at13:21; FIX16 automatic remaining-arm handoff/retry active; single canonical queue2972698/controller2981571; [Handoff](notes/M4.md) |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
@@ -264,7 +264,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-14 | D-38 sealed reduced-budget four-arm data and single-seed training jobs with unique run identities | P0 | codex | M2, FIX-13 | now | done | claude-ops / 2026-10-07T02:03-04:00 | [journal](notes/FIX-14.md);252 tests + actual matched native audit +8 dry runs PASS; [preflight](artifacts/M3_pilot_D38_20261007/preflight.json); merged0502703; operator re-run 2026-10-07T02:03: 379 CPU pass (+1 env-only) at 6da2e42; pilot batch_audit 250 steps × 12 / 1,991,138 tokens |
 | FIX-15 | D-38 checkpoint-ready pilot evaluation, Frozen reference reuse, unique evaluation identities and automatic handoff | P0 | codex | FIX-14 | now | done | claude-ops / 2026-10-07T02:03-04:00 | [journal](notes/FIX-15.md);276 tests + actual immutable export and real Frozen reuse PASS; merged6da2e42; automatic pilot watcher/queue active; operator re-run 2026-10-07T02:03: 379 CPU pass (+1 env-only); panel.json fixed 01:24:58 before pilot launch 01:32 (10 targets, hash-selected) |
-| FIX-16 | Operational retry overlays and continuous full-budget M4 handoff using frozen evaluation code | P0 | codex | FIX-15 | now | in progress | codex-1 / 2026-10-07T13:09:56.408642-04:00 | [journal](notes/FIX-16.md); preserve all failed attempts; identical evaluation argv; one canonical dispatcher |
+| FIX-16 | Operational retry overlays and continuous full-budget M4 handoff using frozen evaluation code | P0 | codex | FIX-15 | now | review | codex-1 / 2026-10-07T13:23:48.808790-04:00 | [journal](notes/FIX-16.md);288 tests, actual collision plans and controller dry-run PASS; mergedbd19324; frozen evaluation6da2e42 unchanged; canonical queue/controller live |
 
 ---
 
