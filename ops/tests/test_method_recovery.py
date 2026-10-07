@@ -55,3 +55,10 @@ def test_existing_dispatch_never_changes_or_duplicates(tmp_path):
     recovery.append_jobs(p,jobs);recovery.append_jobs(p,jobs)
     assert [j['name'] for j in recovery.lines(p)]==['one','two']
     with pytest.raises(ValueError):recovery.append_jobs(p,[dict(name='one',args=['changed'])])
+
+
+def test_startup_free_memory_collision_is_retryable(tmp_path):
+    r,j,l,p=fixture(tmp_path)
+    (l/'launch.log').write_text('ValueError: Free memory on device cuda:0 (13.75/44.42 GiB) on startup is less than desired GPU memory utilization (0.7, 31.09 GiB).')
+    rr,jj,proof=recovery.retry_plan(r,j,l,tmp_path/'retry',attempt=1,expected_prompt_sha=recovery.sha(p),expected_source_sha='source')
+    assert rr['retry_of']==r['run_id']

@@ -38,7 +38,9 @@ def retry_plan(record,job,launcher,output,*,attempt,expected_prompt_sha,expected
     if (run/'results.json').exists() or not (run/'failure.json').is_file():raise ValueError('retry requires failed cell without results')
     if not (launcher/'exit_code').is_file() or (launcher/'exit_code').read_text().strip()=='0':raise ValueError('failed launcher must have terminated')
     log=(launcher/'launch.log').read_text(errors='replace')
-    if 'No available memory for the cache blocks' not in log:raise ValueError('not an identified GPU-cache collision')
+    cache_collision='No available memory for the cache blocks' in log
+    startup_collision='Free memory on device cuda:' in log and 'on startup is less than desired GPU memory utilization' in log
+    if not (cache_collision or startup_collision):raise ValueError('not an identified GPU-memory collision')
     cfg=read(run/'config.json')
     if cfg.get('code_dirty') is not False or cfg.get('engine_version')!='0.31.0' or cfg.get('source_sha256')!=expected_source_sha:raise ValueError('failed evaluation source/pin differs')
     argv=record['argv'];prompt=argv[argv.index('--prompts')+1]
