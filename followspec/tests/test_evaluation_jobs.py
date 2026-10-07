@@ -219,3 +219,15 @@ def test_invalid_training_seed_scope_rejected(tmp_path,seeds):
     with pytest.raises(ValueError,match='training seeds'):
         evaluation_jobs(training,targets,tmp_path/'bad',python='python',training_seeds=seeds)
     assert not (tmp_path/'bad').exists()
+
+
+@pytest.mark.parametrize('actual_steps', [0, 2])
+def test_single_seed_rejects_interrupted_status_with_unmatched_budget(tmp_path,actual_steps):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path)
+    p=training/'runs/m3-fs-s0/results.json';result=read(p)
+    # Native graceful shutdown can return normally with a generic trained status.
+    result['optimizer_steps']=actual_steps;p.write_text(json.dumps(result))
+    with pytest.raises(ValueError,match='budget/step'):
+        evaluation_jobs(training,targets,tmp_path/'pilot',python='python',training_seeds=[0],completed_only=True)
+    assert not (tmp_path/'pilot').exists()
