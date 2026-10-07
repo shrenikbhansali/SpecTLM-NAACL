@@ -2,6 +2,12 @@
 
 No metrics, decoding, workload selection or training recipe is implemented here.
 """
+import sys
+from pathlib import Path
+# Direct script execution must not shadow the stdlib queue with ops/queue.py.
+if __package__ in (None, ""):
+    sys.path[0] = str(Path(__file__).resolve().parents[1])
+
 import argparse
 import copy
 from concurrent.futures import ThreadPoolExecutor

@@ -62,3 +62,11 @@ def test_startup_free_memory_collision_is_retryable(tmp_path):
     (l/'launch.log').write_text('ValueError: Free memory on device cuda:0 (13.75/44.42 GiB) on startup is less than desired GPU memory utilization (0.7, 31.09 GiB).')
     rr,jj,proof=recovery.retry_plan(r,j,l,tmp_path/'retry',attempt=1,expected_prompt_sha=recovery.sha(p),expected_source_sha='source')
     assert rr['retry_of']==r['run_id']
+
+
+def test_direct_script_import_does_not_shadow_standard_queue():
+    import subprocess,sys
+    path=Path(recovery.__file__).resolve()
+    script='import sys,runpy;sys.path.insert(0,sys.argv[1]);runpy.run_path(sys.argv[2],run_name="probe");from concurrent.futures import ThreadPoolExecutor;pool=ThreadPoolExecutor(1);assert pool.submit(lambda:7).result()==7;pool.shutdown()'
+    result=subprocess.run([sys.executable,'-c',script,str(path.parent),str(path)],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
