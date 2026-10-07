@@ -273,6 +273,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-20 | Serialize shared lambda inference export planning; restart failed public-panel controller without altering frozen evaluation | P0 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:27:30.385759-04:00 | [journal](notes/FIX-20.md); merged633b4a0,317 tests +12 actual exports verified; [audit](artifacts/FIX20_recovery_20261007/export_audit.json); repaired3269112 passed76 dry runs and queued38 public lambda0 cells |
 
+| FIX-21 | D-39 K8 stress follow-up: all four trained arms plus Frozen, all approved lambda values, same fixed development panel and frozen harness | P1 | codex | FIX-17, FIX-18 | now | in progress | codex-1 / 2026-10-07T19:32:47.085974-04:00 | [spec/journal](notes/FIX-21.md); controlled K-only job derivation and automatic reports; no retraining |
+
 ---
 
 ## 5. Research context (what agents need to know)
