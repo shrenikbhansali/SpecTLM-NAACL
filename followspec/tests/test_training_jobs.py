@@ -61,3 +61,20 @@ def test_existing_output_is_preserved(tmp_path):
     stage=final_stage(tmp_path);out=tmp_path/'jobs';out.mkdir();(out/'sentinel').write_text('keep')
     with pytest.raises(FileExistsError):training_jobs(stage,out,python='/native/bin/python')
     assert [p.name for p in out.iterdir()]==['sentinel']
+
+
+def test_explicit_four_job_pilot_has_unique_ids_and_selected_seed(tmp_path):
+    from followspec.training_jobs import training_jobs
+    stage=final_stage(tmp_path,alter=lambda a,c:c.update(seeds=[0],pilot={'decision_id':'D-38','scope':'exploratory'}))
+    out=training_jobs(stage,tmp_path/'pilot',python='/native/python',training_seeds=[0],job_prefix='m3-d38')
+    jobs=[json.loads(l) for l in (out/'jobs.jsonl').read_text().splitlines()]
+    assert len(jobs)==4 and all(j['name'].startswith('m3-d38-') and j['name'].endswith('-s0') for j in jobs)
+    assert read(out/'config.json')['training_seeds']==[0]
+    assert all('--offload-saved-tensors' in j['args'] for j in jobs)
+
+
+def test_single_seed_config_needs_explicit_scope(tmp_path):
+    from followspec.training_jobs import training_jobs
+    stage=final_stage(tmp_path,alter=lambda a,c:c.update(seeds=[0]))
+    with pytest.raises(ValueError,match='seeds'):
+        training_jobs(stage,tmp_path/'bad',python='python')
