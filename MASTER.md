@@ -83,12 +83,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-06T22:29:10.136664-04:00 (codex-1, authorized method operations) |
+| Last updated | 2026-10-06T22:35:27.442540-04:00 (codex-1, authorized method operations) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | All12 M3 production training jobs launched on A40s; initial model loading underway. M4 Frozen K4 preflights preparing overlap. |
+| Jobs running | All12 M3 A40 training runs producing finite initial losses; 11 M4 Frozen K4 references launched, remaining primary preflights/continuation active. |
 | Blockers | No remaining M2/M3 prerequisite blocker after D-36. H200s occupied; sufficient free A40s. B9 transport validity blocked; B11/M7 deprioritized. |
 | Owner action needed | None for M3 launch; D-36 subdivision approved. Gate 3 framing remains with owner when held-out results exist. |
 
@@ -230,8 +230,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
 | M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | review | codex-1 / 2026-10-06T22:29:10.136664-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md) |
-| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T22:31:08.374414-04:00 | All12 production jobs launched on A40s; [24/24 preflights PASS](artifacts/M3_D36_20261006/preflight.json); [launches](artifacts/M3_D36_20261006/launches.json); startup monitoring |
-| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-06T22:30:14.149894-04:00 | Preparing matched Frozen K4 references while M3 trains; [journal](notes/M4.md); trained evaluations follow completed exports |
+| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T22:35:27.442540-04:00 | All12 A40 production runs active; actual configs12/12PASS, finite initial losses all12; [startup](artifacts/M3_D36_20261006/startup_acceptance.json); [Handoff](notes/M3.md) |
+| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-06T22:35:27.442540-04:00 | Frozen K4 references running (11 launched); full606 preflight/automatic queue continuation active; [Handoff](notes/M4.md); trained exports pending |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
