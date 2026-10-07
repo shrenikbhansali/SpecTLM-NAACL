@@ -9,7 +9,7 @@ from followspec.production_pipeline import checked_stage, execution_spec, finish
 from followspec.train_eagle3 import resolve_plan
 
 
-def training_jobs(finalized, output, *, python, code_repo=None, training_seeds=None, job_prefix="m3"):
+def training_jobs(finalized, output, *, python, code_repo=None, training_seeds=None, job_prefix="m3", fs_delta_lambda=None, ablation_decision=None):
     selected=[0,1,2] if training_seeds is None else list(training_seeds)
     if not selected or len(set(selected))!=len(selected) or any(type(s) is not int or s not in range(3) for s in selected):raise ValueError("invalid training seeds")
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*",job_prefix):raise ValueError("invalid job prefix")
@@ -20,7 +20,7 @@ def training_jobs(finalized, output, *, python, code_repo=None, training_seeds=N
         raise ValueError('M2 data and training capacity readiness required')
     spec = execution_spec(cfg['spec'], code_repo or cfg['spec']['code_repo'])
     configs = {a: read(root/a/'training_config.json') for a in ARMS}
-    differences = check_matched(configs)
+    differences = check_matched(configs,fs_delta_lambda=fs_delta_lambda,ablation_decision=ablation_decision)
     plans = []
     for arm, config in configs.items():
         manifest = read(root/arm/'manifest.json')
@@ -46,6 +46,7 @@ def training_jobs(finalized, output, *, python, code_repo=None, training_seeds=N
                 '--drafter-snapshot', spec['drafter_snapshot'], '--seed', str(seed),
                 '--output', str(out/'runs'/name), '--allow-a40-production',
                 '--release-grad-before-forward', '--offload-saved-tensors']
+            if ablation_decision:command += ['--fs-delta-lambda',str(fs_delta_lambda),'--ablation-decision',ablation_decision]
             job = launcher_job(spec | dict(seed=seed), name, 'M3', root/arm/'manifest.json', command, python=python)
             args = job['args']; args[args.index('--drafter')+1] = 'fs-eagle3'
             split = args.index('--')
@@ -56,7 +57,8 @@ def training_jobs(finalized, output, *, python, code_repo=None, training_seeds=N
     write_new(out/'resolved_plans.json', plans)
     write_new(out/'config_diff.json', differences)
     finish(out, dict(stage='training-jobs', finalized=str(root), spec=spec, python=python,
-        finalized_stage_sha256=sha256(root/'stage_files.json'),training_seeds=selected,job_prefix=job_prefix),
+        finalized_stage_sha256=sha256(root/'stage_files.json'),training_seeds=selected,job_prefix=job_prefix,
+        **({'ablation':dict(decision_id=ablation_decision,fs_delta_lambda=fs_delta_lambda)} if ablation_decision else {})),
         dict(n_jobs=len(jobs), production_ready=True, submitted=False,
              next='Run actual trainer and launcher dry runs, then dispatch to free A40/H200 GPUs'))
     return out

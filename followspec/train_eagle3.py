@@ -223,9 +223,11 @@ def main():
     p.add_argument('--release-grad-before-forward',action='store_true',help='free previous-step gradients before native training forward; use consistently across matched arms')
     p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19; retain matched training defaults')
     p.add_argument('--seed',type=int,required=True);p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
+    p.add_argument('--fs-delta-lambda',type=float);p.add_argument('--ablation-decision')
     a=p.parse_args();arms={c['arm']:c for c in [json.loads(Path(path).read_text()) for path in a.configs]}
-    check_matched(arms);manifest=json.loads(Path(a.manifest).read_text())
+    check_matched(arms,fs_delta_lambda=a.fs_delta_lambda,ablation_decision=a.ablation_decision);manifest=json.loads(Path(a.manifest).read_text())
     plan=resolve_plan(arms[a.arm],manifest,a.seed)
+    if a.ablation_decision:plan['ablation']=dict(decision_id=a.ablation_decision,fs_delta_lambda=a.fs_delta_lambda)
     if a.dry_run:print(json.dumps(plan,indent=2));return
     run(a,plan,manifest)
 

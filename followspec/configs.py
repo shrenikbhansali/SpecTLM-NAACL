@@ -34,13 +34,17 @@ def validate_eagle_family(family,base_config,drafter_config):
         raise ValueError('drafter verifier family differs')
 
 
-def check_matched(arms):
+def check_matched(arms, *, fs_delta_lambda=None, ablation_decision=None):
+    override = fs_delta_lambda is not None or ablation_decision is not None
+    if override and (ablation_decision != 'D-39' or type(fs_delta_lambda) not in (int,float) or fs_delta_lambda not in (0.,.03,.1,.3)):
+        raise ValueError('explicit D-39 approved lambda grid required')
     if set(arms)!=set(EXPECTED):raise ValueError('exactly FS, MVD, PO-D, PO-T required')
     keys=set(arms['FS'])
     if any(set(v)!=keys for v in arms.values()):raise ValueError('config schema mismatch')
     for name,cfg in arms.items():
         if cfg['arm']!=name:raise ValueError('arm identity mismatch')
         for key,value in EXPECTED[name].items():
+            if override and name=='FS' and key=='delta_lambda':value=fs_delta_lambda
             if cfg[key]!=value:raise ValueError(f'{name}: wrong intended field {key}')
     differences={}
     for key in sorted(keys):
