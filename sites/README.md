@@ -1,5 +1,7 @@
 # Sites and repository protocol
 
+> **2026-10-07: ICE returns early. Clone-and-run steps: `ops/ice/README.md` (O2). Sealed followspec stages on ICE wait for FIX-19.**
+>
 > **Status 2026-10-06: ICE is down until Thu Oct 8 (D-19). All agents and jobs run on heck until then; see MASTER §3.2.
 > `codex-ice` starts only when ICE returns; until then codex-1 builds the A40 paths (FIX-3, B5, B6 GPU acceptance).**
 

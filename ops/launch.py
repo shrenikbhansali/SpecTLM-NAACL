@@ -13,6 +13,9 @@ Usage:
       --python /path/to/env/bin/python -- python atlas/run_cell.py ... --out {out_dir}
   ops/launch.py list [--n 20] [--no-poll]   # registry with live state per run
 
+ICE (Slurm, sites/ice.env sourced): pass `--node slurm --gpus slurm`; the same launch_script.sh is wrapped in
+<out_dir>/sbatch.sh with #SBATCH directives from SLURM_* variables and submitted with sbatch (ops/ice/README.md).
+
 Guards: refuses real launches while EXPERIMENTS_PAUSED.json exists (use
 --dry-run); refuses heck-srv6 except A9 or explicitly opted-in M3 training (D-26); refuses an
 existing artifact directory; refuses a dirty or non-main checkout for real runs.
@@ -126,7 +129,7 @@ def build_config(a, run_id: str, out_dir: Path) -> dict:
         "launch": {
             "node": a.node, "gpus": a.gpus, "python": a.python, "command": cmd,
             "cwd": str(Path(a.code_repo).resolve()), "launched_at_et": now_et().isoformat(timespec="seconds"),
-            "launched_by": "claude-ops", "dry_run": a.dry_run, "env": a.env,
+            "launched_by": os.environ.get("OPERATOR", "claude-ops"), "site": os.environ.get("SITE", "heck"), "dry_run": a.dry_run, "env": a.env,
             "pause_marker_present": PAUSE_MARKER.exists(),
             "allow_h200_training_d26": getattr(a, "allow_h200_training", False),
         },
@@ -135,6 +138,8 @@ def build_config(a, run_id: str, out_dir: Path) -> dict:
 
 
 def check_guards(a):
+    if a.node == "slurm" and a.gpus != "slurm":
+        raise LaunchError("--node slurm requires --gpus slurm (Slurm assigns CUDA_VISIBLE_DEVICES)")
     if a.node in DEDICATED_H200 and a.task != "A9" and not (a.task == "M3" and getattr(a, "allow_h200_training", False)):
         raise LaunchError(f"{a.node} is the dedicated H200 box: A9 timing only (MASTER §8.2)")
     if not a.dry_run:
@@ -151,6 +156,25 @@ def check_guards(a):
             raise LaunchError("--engine-lock is required for real runs (AGENTS rule 2)")
         if not a.prompts:
             raise LaunchError("--prompts is required for real runs (prompt-file hash, AGENTS rule 5)")
+
+
+SLURM_KEYS = {"SLURM_ACCOUNT": "--account", "SLURM_PARTITION": "--partition", "SLURM_QOS": "--qos",
+              "SLURM_GRES": "--gres", "SLURM_TIME": "--time", "SLURM_CPUS": "--cpus-per-task", "SLURM_MEM": "--mem"}
+
+
+def slurm_script(out_dir: Path, run_id: str) -> str:
+    """sbatch wrapper around launch_script.sh; directives come from sites/ice.env (unset/TODO values are skipped)."""
+    lines = ["#!/usr/bin/env bash", f"#SBATCH --job-name={run_id[:120]}", "#SBATCH --nodes=1", "#SBATCH --ntasks=1",
+             f"#SBATCH --output={out_dir / 'launch.log'}"]
+    for var, flag in SLURM_KEYS.items():
+        v = os.environ.get(var, "")
+        if v and not v.startswith("TODO"):
+            lines.append(f"#SBATCH {flag}={v}")
+    q = shlex.quote
+    lines += [f"nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader > {q(str(out_dir / 'hardware.txt'))} 2>&1 || true",
+              f"echo \"$(hostname) CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES SLURM_JOB_ID=$SLURM_JOB_ID\" >> {q(str(out_dir / 'hardware.txt'))}",
+              f"bash {q(str(out_dir / 'launch_script.sh'))}"]
+    return "\n".join(lines) + "\n"
 
 
 def append_registry(rec: dict):
@@ -170,7 +194,8 @@ def cmd_run(a) -> int:
     out_dir.mkdir(parents=True, exist_ok=False)
     (out_dir / a.config_name).write_text(json.dumps(cfg, indent=2) + "\n")
     inner = " ".join(shlex.quote(c) for c in cfg["launch"]["command"])
-    env = f"export CUDA_VISIBLE_DEVICES={shlex.quote(a.gpus)} HF_HOME={shlex.quote(os.environ.get('HF_HOME', ''))}\n"
+    env = (f"export HF_HOME={shlex.quote(os.environ.get('HF_HOME', ''))}\n" if a.node == "slurm" else
+           f"export CUDA_VISIBLE_DEVICES={shlex.quote(a.gpus)} HF_HOME={shlex.quote(os.environ.get('HF_HOME', ''))}\n")
     if a.python:
         env += f"export PATH={shlex.quote(str(Path(a.python).parent))}:$PATH\n"
     for kv in a.env:
@@ -186,6 +211,22 @@ def cmd_run(a) -> int:
               f"> {shlex.quote(str(out_dir / 'launch.log'))} 2>&1 < /dev/null")
     rec = {"run_id": run_id, "task": a.task, "node": a.node, "gpus": a.gpus, "out_dir": str(out_dir),
            "launched_at_et": cfg["launch"]["launched_at_et"], "dry_run": a.dry_run, "pid": None}
+    if a.node == "slurm":
+        # ICE (sites/ice.env): the same launch_script.sh runs inside one Slurm allocation; Slurm sets
+        # CUDA_VISIBLE_DEVICES, so --gpus must be "slurm". The GPU model is recorded per run (hardware.txt).
+        sb = slurm_script(out_dir, run_id)
+        (out_dir / "sbatch.sh").write_text(sb)
+        if a.dry_run:
+            print(f"[dry-run] {run_id}\n  config: {out_dir / a.config_name}\n  would submit: sbatch {out_dir / 'sbatch.sh'}")
+        else:
+            res = subprocess.run(["sbatch", "--parsable", str(out_dir / "sbatch.sh")], capture_output=True, text=True, timeout=120)
+            if res.returncode != 0:
+                raise LaunchError(f"sbatch failed: {res.stderr.strip()}")
+            rec["slurm_job_id"] = res.stdout.strip().split(";")[0]
+            (out_dir / "slurm_job_id").write_text(rec["slurm_job_id"] + "\n")
+            print(f"submitted {run_id} slurm_job_id={rec['slurm_job_id']}\n  {out_dir}")
+        append_registry(rec)
+        return 0
     if a.dry_run:
         print(f"[dry-run] {run_id}\n  config: {out_dir / a.config_name}\n  would run on {a.node}: {remote}")
     else:
@@ -216,6 +257,10 @@ def run_state(rec: dict) -> str:
         return "done" if code == "0" else f"failed(exit {code})"
     if rec.get("dry_run"):
         return "dry-run"
+    if rec.get("node") == "slurm":
+        jid = rec.get("slurm_job_id")
+        r = subprocess.run(["squeue", "-h", "-j", str(jid), "-o", "%T"], capture_output=True, text=True)
+        return (r.stdout.strip().lower() or "vanished(no exit_code)") if r.returncode == 0 else "unknown(squeue)"
     try:
         pid = rec.get("pid") or ((out / "pid").read_text().strip() if (out / "pid").exists() else None)
         if not pid:

@@ -117,3 +117,49 @@ def test_d26_opt_in_cannot_move_acceptance_to_h200(L):
     args=base_args(L,'--dry-run','--allow-h200-training');args[args.index('heck-srv3')]='heck-srv6';args[args.index('A1')]='M4'
     assert L.main(args)==2
     assert not (L.WS/'artifacts').exists()
+
+
+def slurm_args(L, *extra):
+    args = base_args(L, *extra)
+    args[args.index("heck-srv3")] = "slurm"
+    args[args.index("--gpus") + 1] = "slurm"
+    return args
+
+
+def test_slurm_dry_run_writes_sbatch_with_site_directives(L, monkeypatch):
+    for k, v in {"SLURM_ACCOUNT": "acct", "SLURM_PARTITION": "gpu-h100", "SLURM_GRES": "gpu:H100:1",
+                 "SLURM_QOS": "TODO", "SLURM_TIME": "04:00:00", "SITE": "ice"}.items():
+        monkeypatch.setenv(k, v)
+    assert L.main(slurm_args(L, "--dry-run")) == 0
+    (d,) = (L.WS / "artifacts" / "_dryrun").iterdir()
+    sb = (d / "sbatch.sh").read_text()
+    assert "#SBATCH --account=acct" in sb and "#SBATCH --gres=gpu:H100:1" in sb and "#SBATCH --time=04:00:00" in sb
+    assert "--qos" not in sb  # TODO placeholders are skipped
+    assert "hardware.txt" in sb and "launch_script.sh" in sb
+    script = (d / "launch_script.sh").read_text()
+    assert "CUDA_VISIBLE_DEVICES=" not in script  # Slurm assigns GPUs
+    cfg = json.loads((d / "config.json").read_text())
+    assert cfg["launch"]["node"] == "slurm" and cfg["launch"]["site"] == "ice"
+    rec = json.loads(L.REGISTRY.read_text().splitlines()[-1])
+    assert rec["node"] == "slurm" and rec["dry_run"]
+
+
+def test_slurm_requires_slurm_gpus(L):
+    args = slurm_args(L, "--dry-run")
+    args[args.index("--gpus") + 1] = "0"
+    assert L.main(args) == 2
+    assert not (L.WS / "artifacts" / "_dryrun").exists()
+
+
+def test_slurm_real_submit_records_job_id(L, monkeypatch):
+    calls = []
+    real = subprocess.run
+    def fake(cmd, *a, **k):
+        if cmd[0] == "sbatch":
+            calls.append(cmd)
+            return subprocess.CompletedProcess(cmd, 0, stdout="12345;cluster\n", stderr="")
+        return real(cmd, *a, **k)
+    monkeypatch.setattr(L.subprocess, "run", fake)
+    assert L.main(slurm_args(L)) == 0
+    (d,) = [p for p in (L.WS / "artifacts").iterdir() if p.name != "_dryrun"]
+    assert (d / "slurm_job_id").read_text().strip() == "12345" and calls[0][:2] == ["sbatch", "--parsable"]
