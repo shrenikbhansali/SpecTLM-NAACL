@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-06T19:04:05.185409-04:00 (codex-1, authorized method operations) |
+| Last updated | 2026-10-06T22:29:10.136664-04:00 (codex-1, authorized method operations) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | M2 generation and proposed matched assembly complete; no M3 production jobs yet. FIX12 code/tests/native audit pass; explicit batching-policy owner decision is the remaining Gate2 blocker. |
-| Blockers | Original native packing cannot match both tokens and steps under permitted suffix cuts. FIX12 verified deterministic subdivision option needs owner approval before M3. H200s occupied at last check; validated A40 training fallback available. B9 blocked; B11/M7 deprioritized. |
-| Owner action needed | Approve/reject proposed native-batch subdivision (10,320,835 tokens,1,294 steps;0–3splits/run), async question pending. Gate3framing remains with owner when results exist; ARR submission items remain. |
+| Jobs running | M2 finalized with all data/capacity checks PASS; M3 twelve-job preflights running before single-queue dispatch. |
+| Blockers | No remaining M2/M3 prerequisite blocker after D-36. H200s occupied; sufficient free A40s. B9 transport validity blocked; B11/M7 deprioritized. |
+| Owner action needed | None for M3 launch; D-36 subdivision approved. Gate 3 framing remains with owner when held-out results exist. |
 
 ---
 
@@ -229,7 +229,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
-| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | in progress | codex-1 / 2026-10-06T22:26:00.442198-04:00 | D-36 owner approval recorded; verified corpus finalization running; [journal](notes/M2.md) |
+| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | review | codex-1 / 2026-10-06T22:29:10.136664-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md) |
 | M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T22:26:00.442198-04:00 | D-36 approved; finalize → 12 preflights → owner-locked GPU dispatch; [journal](notes/M3.md) |
 | M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
