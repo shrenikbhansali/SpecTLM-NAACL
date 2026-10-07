@@ -168,3 +168,54 @@ def test_incremental_reuse_refuses_changed_prompts(tmp_path):
     first=evaluation_jobs(training,targets,tmp_path/'first',python='python')
     (tmp_path/'eval.jsonl').write_text('{"prompt_id":"eval-1","prompt":"hi","rendered_token_ids":[3,4]}\n')
     with pytest.raises(ValueError,match='prompt'):evaluation_jobs(training,targets,tmp_path/'second',python='python',previous=first)
+
+
+def test_single_seed_feasibility_ignores_only_unselected_runs(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training, targets = completed_training(tmp_path)
+    for p in (training/'runs').iterdir():
+        if not p.name.endswith('-s0'):
+            write_new(p/'failure.rank0.json', {'error': 'owner stopped repetition'})
+    out = evaluation_jobs(training, targets, tmp_path/'pilot', python='python', training_seeds=[0])
+    primary = read(out/'index_k4.json')
+    assert len(primary) == 15
+    assert {r['seed'] for r in primary} == {0}
+    assert {r['arm'] for r in primary} == {'FS','MVD','PO-D','PO-T','Frozen'}
+    assert read(out/'results.json')['n_excluded_training'] == 8
+    assert read(out/'results.json')['exploratory_single_seed'] is True
+    assert read(out/'results.json')['training_complete'] is True
+
+
+def test_single_seed_still_refuses_selected_failure(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training, targets = completed_training(tmp_path)
+    write_new(training/'runs/m3-fs-s0/failure.rank0.json', {'error':'failed'})
+    with pytest.raises(ValueError, match='completed M3'):
+        evaluation_jobs(training, targets, tmp_path/'pilot', python='python', training_seeds=[0])
+
+
+def test_single_seed_reuses_only_selected_prior_frozen_cells(tmp_path):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training, targets = completed_training(tmp_path)
+    saved={}
+    for p in (training/'runs').glob('*/results.json'):
+        saved[p]=p.read_bytes();p.unlink()
+    prior = evaluation_jobs(training, targets, tmp_path/'prior', python='python', completed_only=True)
+    for p, data in saved.items():
+        if p.parent.name.endswith('-s0'):p.write_bytes(data)
+    out = evaluation_jobs(training, targets, tmp_path/'pilot', python='python', previous=prior, training_seeds=[0])
+    old = {r['run_id']:r['run_dir'] for r in read(prior/'index_k4.json')}
+    assert all(r['run_dir']==old[r['run_id']] for r in read(out/'index_k4.json') if r['arm']=='Frozen')
+    assert len(read(out/'index_k4.json'))==15
+    jobs=[json.loads(l) for l in (out/'effective_jobs.jsonl').read_text().splitlines()]
+    assert len(jobs)==27
+    assert len((out/'jobs.jsonl').read_text().splitlines())==18
+
+
+@pytest.mark.parametrize('seeds', [[],[0,0],[3],[-1],[True]])
+def test_invalid_training_seed_scope_rejected(tmp_path,seeds):
+    from followspec.evaluation_jobs import evaluation_jobs
+    training,targets=completed_training(tmp_path)
+    with pytest.raises(ValueError,match='training seeds'):
+        evaluation_jobs(training,targets,tmp_path/'bad',python='python',training_seeds=seeds)
+    assert not (tmp_path/'bad').exists()

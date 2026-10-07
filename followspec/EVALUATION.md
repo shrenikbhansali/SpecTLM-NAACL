@@ -101,3 +101,20 @@ dispatcher interval; never submit a second method queue. M4 jobs carry
 `allowed_nodes` for heck-srv1–5. The queue skips incompatible jobs without
 removing them, so a free H200 can take a training job while evaluations stay on
 A40s. Jobs without `allowed_nodes` retain the existing FIFO behavior.
+
+### Single-seed feasibility (D-37)
+
+For an explicitly exploratory comparison, add `--training-seeds 0` to the
+handoff. It validates all four seed-0 arms with the same budget/export guards,
+records the eight excluded training runs, and ignores their intentional stops.
+The default still requires all three seeds. With `--completed-only`, pending
+selected runs remain explicit; selected failures still abort planning.
+
+Passing the existing Frozen-only stage as `--previous` reuses its seed-0 cells
+and excludes the other seed slots from the new dispatch list. It does not erase
+prior results or launch new copies of completed reference cells. Dispatch K=4
+first; secondary K=2/8 files remain plans until explicitly queued.
+
+A single-seed result is directional evidence. The original B7 Gate 3 aggregator
+still requires three seeds and cannot certify that gate from this pilot. Retain
+negative results and describe the evaluated scope when focusing a later study.
