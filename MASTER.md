@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-06T23:08-04:00 (claude-ops) |
+| Last updated | 2026-10-07T01:08:01.839478-04:00 (codex-1, D-37 feasibility priority) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | **M3**: 12 runs on heck-srv2/3 A40s since 22:29; at 23:07, 37–56 of 1,294 steps (~1 step/min FS/PO, ~1.5 MVD → ETA Wed ~14:00–21:00); GPUs at 44–45/46 GB. M4 Frozen references (codex-1). A6 covariate retries done. |
-| Blockers | None on the method path. Risk: M3 finishes late Wed → M4 compressed before Gate 3. FIX-8 (A6 quantized loaders, P2). B9 blocked; B11/M7 deprioritized. |
-| Owner action needed | Optional: EXP-ATL-005 sensitivity analysis (degenerate/short outputs), proposed not applied. Gate 3 framing Thu. |
+| Jobs running | Four seed0 M3 arms continue; eight repeat seeds stopped with partial checkpoints preserved. No new reference/secondary jobs queued; all202 seed0 K4 Frozen cells complete. |
+| Blockers | No runtime failure in selected seed0 runs. Full-budget training remains slow on A40s; H200s occupied. B9 transport validity blocked; B11/M7 deprioritized. |
+| Owner action needed | Reduced-budget matched pilot versus continuing full-budget seed0: preference pending. Concrete pilot proposal1991138tokens/250steps perarm verified; no new budget adopted yet. |
 
 ---
 
@@ -230,8 +230,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
 | M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | done | claude-ops / 2026-10-06T23:08-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md); operator verified 2026-10-06T23:08: assembly batch_audit passed (1,294 steps × 12, 10,320,835 tokens/arm), 20/20 decoded masks valid, finalized_D36 under D-36 |
-| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-07T00:58:26.472288-04:00 | All12 A40 production runs active; actual configs12/12PASS, finite initial losses all12; [startup](artifacts/M3_D36_20261006/startup_acceptance.json); [Handoff](notes/M3.md) |
-| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-07T00:58:26.472288-04:00 | Frozen K4 references running (11 launched); full606 preflight/automatic queue continuation active; [Handoff](notes/M4.md); trained exports pending |
+| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-07T01:08:01.839478-04:00 | D-37: four seed0 arms active with finite losses; eight repeats stopped/preserved; [health](artifacts/M3_feasibility_20261007/health_audit.json); [Handoff](notes/M3.md) |
+| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-07T01:08:01.839478-04:00 | All202 seed0 K4 Frozen references complete; repeats/secondary queue stopped; FIX13 single-seed handoff ready, selected exports pending; [Handoff](notes/M4.md) |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
@@ -260,7 +260,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-12 | Explicit deterministic native-batch subdivision option for exact matched tokens/steps; default unchanged, adoption owner-gated | P0 | codex | M2 | now | done | claude-ops / 2026-10-06T19:24-04:00 | [journal](notes/FIX-12.md);235 tests + actual12-run native/runtime replay PASS;10320835tokens/1294steps,15splits;20sample masks reviewed; [acceptance](artifacts/FIX12_acceptance_20261006/acceptance.json); owner adoption pending; operator re-run 2026-10-06T19:24: 338 pass (+1 env-only) at a3492fa; adopted by D-36 |
 
-| FIX-13 | D-37 explicit single-seed M3→M4 feasibility handoff, reuse existing Frozen controls, retain full default validation | P0 | codex | FIX-9 | now | in progress | codex-1 / 2026-10-07T01:02:29.808985-04:00 | [journal](notes/FIX-13.md); tests first; no evaluation metric or Gate3 threshold changes |
+| FIX-13 | D-37 explicit single-seed M3→M4 feasibility handoff, reuse existing Frozen controls, retain full default validation | P0 | codex | FIX-9 | now | review | codex-1 / 2026-10-07T01:08:01.839478-04:00 | [journal](notes/FIX-13.md);243 full tests+23 targeted pass; actual single-seed stage reuses202primary references, zero newjobs; merged301a6a6/c7c69cc |
 
 ---
 
