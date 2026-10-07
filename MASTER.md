@@ -83,12 +83,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-07T01:08:01.839478-04:00 (codex-1, D-37 feasibility priority) |
+| Last updated | 2026-10-07T09:04-04:00 (claude-ops) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | Four seed0 M3 arms continue; eight repeat seeds stopped with partial checkpoints preserved. No new reference/secondary jobs queued; all202 seed0 K4 Frozen cells complete. |
+| Jobs running | **M3 full-budget seed 0** (D-37): FS 674, MVD 950, PO-D 716, PO-T 717 / 1,294 at 09:04; ETA training MVD ≈ 12:45, others ≈ 19:00 (+ validation). D-38 pilot done → EXP-ATL-006. **Protocol frozen 09:00** (evaluation-code changes now need §13 + reruns). |
 | Blockers | No runtime failure in selected seed0 runs. Full-budget training remains slow on A40s; H200s occupied. B9 transport validity blocked; B11/M7 deprioritized. |
 | Owner action needed | Reduced-budget matched pilot versus continuing full-budget seed0: preference pending. Concrete pilot proposal1991138tokens/250steps perarm verified; no new budget adopted yet. |
 

@@ -85,3 +85,8 @@ Total 40 A40s (heck-srv1–5); 33 free at 16:42. Local root disks: 400–735 GB 
   - Lessons: never `git config` in a worktree (shared); run `git rebase` as its own step; take every timestamp from `date`;
     pkill patterns must not match their own command line.
 - 2026-10-06T00:01 — **D-19: ICE down until Thu Oct 8; heck-only operation (MASTER §3.2).** Method data path prioritized on A40s (B5 generation in the background, online capture since offline features ≈ 6 TB vs ~2 TB free). FIX-3 filed for codex (A40 production path + online capture). Default split: srv2 + srv3 method, srv5 + srv1:6–7 atlas.
+
+## 2026-10-07T09:04-04:00 — claude-ops
+
+Protocol freeze in effect (09:00). From now on, evaluation-code changes need a MASTER §13 decision and reruns of every affected cell.
+The M4 operator fallback uses only frozen code (run-FIX15 6da2e42 / run-FIX13 301a6a6).
