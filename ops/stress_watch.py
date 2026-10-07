@@ -5,6 +5,8 @@ import fcntl
 import importlib.util
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 import time
 from ops.method_recovery import (read,lines,sha,write,frozen_modules,preflight,append_jobs,retry_plan,apply_overlay)
@@ -50,7 +52,17 @@ def prepare(a,m):
     return out
 
 
-def watch(out,m):
+def lambda_command(out,cfg,campaign):
+    command=[sys.executable,'-m','ops.lambda_watch','--campaign',str(campaign),
+        '--reference',cfg['evaluation_stage'],'--reference-index',str(out/'report/index_k4.json'),
+        '--targets',str(Path(cfg['panel'])/'targets.json'),'--output',str(out/'lambda_watch'),
+        '--lock-name','lambda_stress_watch.lock']
+    for name in ('frozen_code','frozen_commit','dispatch_jobs','queue_log','python'):
+        command += ['--'+name.replace('_','-'),cfg[name]]
+    return command
+
+
+def watch(out,m,lambda_campaign=None):
     cfg=read(out/'config.json');code=Path(cfg['frozen_code']).resolve()
     for p,h in read(out/'prepared_sha256.json').items():
         if sha(p)!=h:raise ValueError('prepared plan changed')
@@ -62,6 +74,8 @@ def watch(out,m):
     handle=(out/'watch.lock').open('a+');fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
     quality_path=Path(__file__).resolve().parents[1]/'followspec/stress_quality.py'
     spec=importlib.util.spec_from_file_location('d39_quality',quality_path);quality=importlib.util.module_from_spec(spec);spec.loader.exec_module(quality)
+    runtime=out/('watch-runtime-'+str(time.time_ns())+'.json')
+    write(runtime,dict(operation_source_sha256=sha(__file__),quality_source_sha256=sha(quality_path),lambda_campaign=lambda_campaign,pid=os.getpid(),frozen_commit=cfg['frozen_commit']))
     jobs=read(out/'jobs.json');byname={j['name']:j for j in jobs};records=read(stage/'index_k4.json')
     filters=read(out/'filters.json');overlays={p.stem[len('overlay-'):]:read(p) for p in out.glob('overlay-*.json')};blocked=set()
     def event(**row):
@@ -99,11 +113,11 @@ def watch(out,m):
                 pair=paired(parent,child);per_arm={}
                 for arm in ('FS','MVD','PO-D','PO-T'):
                     r=bykey[key,domain,arm,'A11'];ap=paired(r,child)
-                    per_arm[arm]=dict(gain_over_frozen=ap['values'][0]-ap['values'][1],paired=ap)
-                comparisons={arm:paired(bykey[key,domain,'FS','A11'],bykey[key,domain,arm,'A11']) for arm in ('MVD','PO-D','PO-T')}
+                    per_arm[arm]=dict(gain_over_frozen=ap['values'][0]-ap['values'][1],paired=ap,uncertainty=quality.acceptance_interval(r,child))
+                comparisons={arm:paired(bykey[key,domain,'FS','A11'],bykey[key,domain,arm,'A11'])|dict(uncertainty=quality.acceptance_interval(bykey[key,domain,'FS','A11'],bykey[key,domain,arm,'A11'])) for arm in ('MVD','PO-D','PO-T')}
                 q=quality.compare(lines(t['workloads'][domain]),lines(Path(parent['run_dir'])/'per_prompt.jsonl'),lines(Path(child['run_dir'])/'per_prompt.jsonl'))
                 rows.append(dict(target=key,domain=domain,target_training_steps=t['target_training_steps'],frozen_pair=pair,
-                    frozen_retention=pair['values'][1]/pair['values'][0],quality=q,coherence_filter=filter_results[key],arms=per_arm,fs_vs_controls=comparisons))
+                    frozen_retention=pair['values'][1]/pair['values'][0],frozen_uncertainty=quality.acceptance_interval(parent,child),quality=q,coherence_filter=filter_results[key],arms=per_arm,fs_vs_controls=comparisons))
             report=out/'report';report.mkdir(exist_ok=False)
             result=dict(status='pilot',decision_id='D-39',n_conditions=len(rows),n_independent_training_trajectories=len({r['domain'] for r in rows}),
                 rows=rows,confirmation_evaluated=False,gate_certified=False,
@@ -114,19 +128,26 @@ def watch(out,m):
             write(report/'ledger_draft.json',dict(id='EXP-ATL-UNASSIGNED',title='D-39 controlled target-update stress screen',landed=str(datetime.now().date()),status='pilot',
                 what_why='Measure acceptance and task usefulness across fixed target SFT strengths with matched drafters',new='Fixed development panel; original frozen acceptance implementation',
                 artifacts=str(report),config_results=dict(config=proof,results=result),caveats=result['scope']))
-            event(event='report_ready',report=str(report));return
+            event(event='report_ready',report=str(report))
+            if lambda_campaign:
+                command=lambda_command(out,cfg,lambda_campaign)
+                with (out/'lambda_watch.log').open('x') as log:
+                    proc=subprocess.Popen(command,cwd=Path(__file__).resolve().parents[1],stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+                write(out/'lambda_continuation.json',dict(pid=proc.pid,argv=command))
+                event(event='lambda_continuation',pid=proc.pid)
+            return
         time.sleep(60)
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--resume');p.add_argument('--prepare-only',action='store_true')
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--resume');p.add_argument('--prepare-only',action='store_true');p.add_argument('--lambda-campaign')
     for name in ('panel','training','reference','baseline','frozen-code','frozen-commit','output','dispatch-jobs','queue-log','python'):p.add_argument('--'+name)
     a=p.parse_args()
     if a.resume:
-        out=Path(a.resume).resolve();cfg=read(out/'config.json');code=Path(cfg['frozen_code']).resolve();m=frozen_modules(code,cfg['frozen_commit']);os.chdir(code);watch(out,m)
+        out=Path(a.resume).resolve();cfg=read(out/'config.json');code=Path(cfg['frozen_code']).resolve();m=frozen_modules(code,cfg['frozen_commit']);os.chdir(code);watch(out,m,lambda_campaign=a.lambda_campaign)
     else:
         if any(getattr(a,n) is None for n in ('panel','training','reference','baseline','frozen_code','frozen_commit','output','dispatch_jobs','queue_log','python')):p.error('all preparation arguments required')
         code=Path(a.frozen_code).resolve();m=frozen_modules(code,a.frozen_commit);os.chdir(code);out=prepare(a,m)
-        if not a.prepare_only:watch(out,m)
+        if not a.prepare_only:watch(out,m,lambda_campaign=a.lambda_campaign)
 
 if __name__=='__main__':main()

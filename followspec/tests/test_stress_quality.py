@@ -16,3 +16,11 @@ def test_sandbox_runs_correct_incorrect_timeout_and_cannot_read_workspace(tmp_pa
     p=tmp_path/'secret';p.write_text('not exposed')
     assert not code_pass('open('+repr(str(p))+').read()',['assert True'])['passed']
     assert not code_pass('while True: pass',['assert True'])['passed']
+
+
+def test_acceptance_uncertainty_uses_shared_valid_prompts():
+    from followspec.stress_quality import acceptance_interval
+    a={'prompt_values':{'x':3.,'y':2.,'z':None}}
+    b={'prompt_values':{'x':2.,'y':1.,'z':3.}}
+    r=acceptance_interval(a,b)
+    assert r['n_paired']==2 and r['left_minus_right_ci95']==[1.,1.]

@@ -52,12 +52,12 @@ def watch(a):
     campaign,cfg=checked(a.campaign)
     if cfg.get('decision_id')!='D-39':raise ValueError('D-39 campaign required')
     reference,rcfg=checked(a.reference)
-    reference_records=read(reference/'index_k4.json')
+    reference_records=read(a.reference_index) if a.reference_index else read(reference/'index_k4.json')
     # Frozen and three control cells must already exist and independently validate.
     controls=[r for r in reference_records if r['arm']!='FS']
     m['followspec.evaluate'].load_measurements(controls)
     out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=False)
-    handle=(campaign/'lambda_watch.lock').open('a+');fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    handle=(campaign/a.lock_name).open('a+');fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
     os.chdir(code)
     write(out/'config.json',vars(a)|dict(operation_source_sha256=sha(__file__),campaign_sha256=sha(campaign/'stage_files.json'),
         frozen_sources_sha256={k:sha(v.__file__) for k,v in m.items()}))
@@ -110,6 +110,12 @@ def watch(a):
             result=m['followspec.pilot_report'].summarize(m['followspec.evaluate'].load_measurements(effective))
             result.update(decision_id='D-39',fs_delta_lambda=v['value'],scope='Exploratory lambda development comparison; all variants retained. Fresh confirmation required after selection.',
                 validation_pending_at_handoff=read(state['stage']/'results.json').get('validation_pending',[]))
+            target_rows=read(a.targets)['targets']
+            if any('target_training_steps' in t for t in target_rows):
+                result['uncertainty']='Update strengths share target training trajectories. Model-level bootstrap intervals suppressed; use per-condition paired prompt uncertainty in the stress report.'
+                result['n_independent_training_trajectories']=len({t['domain'] for t in target_rows if t['model_id']!='base'})
+                for workload in result['workloads']:
+                    for comparison in workload['comparisons'].values():comparison['ci95_targets_conditional_on_seed']=None
             report=out/label/'report';report.mkdir();write(report/'index_k4.json',effective)
             config=dict(decision_id='D-39',fs_delta_lambda=v['value'],frozen_commit=a.frozen_commit,training=str(training),
                 inputs_sha256={str(Path(r['run_dir'])/n):sha(Path(r['run_dir'])/n) for r in effective for n in ('config.json','results.json','per_prompt.jsonl')})
@@ -126,6 +132,7 @@ def watch(a):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('campaign','reference','targets','frozen-code','frozen-commit','output','dispatch-jobs','queue-log','python'):p.add_argument('--'+name,required=True)
+    p.add_argument('--reference-index');p.add_argument('--lock-name',choices=['lambda_watch.lock','lambda_stress_watch.lock'],default='lambda_watch.lock')
     p.add_argument('--poll',type=float,default=60);p.add_argument('--once',action='store_true');watch(p.parse_args())
 
 if __name__=='__main__':main()

@@ -73,3 +73,17 @@ def compare(prompts,parent,child):
         parent_score=float(np.mean([r['parent'] for r in details])),child_score=float(np.mean([r['child'] for r in details])),
         delta=float(delta.mean()),delta_ci95_paired_prompts=interval,per_prompt=details,
         caveat='Small fixed development subset; uncertainty conditional on this trained target. Historical prompt includes MBPP visible tests.')
+
+
+def acceptance_interval(left,right):
+    a,b=left['prompt_values'],right['prompt_values']
+    if set(a)!=set(b):raise ValueError('prompt sets differ')
+    ids=sorted(i for i in a if a[i] is not None and b[i] is not None)
+    if not ids:raise ValueError('no shared valid prompts')
+    x=np.array([a[i] for i in ids]);y=np.array([b[i] for i in ids])
+    if not np.isfinite(x).all() or not np.isfinite(y).all() or min(x.min(),y.min())<1:raise ValueError('invalid acceptance values')
+    sampled=np.random.default_rng(20261007).integers(0,len(ids),size=(10000,len(ids)))
+    l=x[sampled].mean(1);r=y[sampled].mean(1)
+    return dict(n_paired=len(ids),left_minus_right_ci95=np.quantile(l-r,[.025,.975]).tolist(),
+        right_over_left_ci95=np.quantile(r/l,[.025,.975]).tolist(),
+        uncertainty='Paired prompt bootstrap, conditional on fixed targets and one training seed; no between-run uncertainty.')
