@@ -267,7 +267,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | FIX-16 | Operational retry overlays and continuous full-budget M4 handoff using frozen evaluation code | P0 | codex | FIX-15 | now | done | claude-ops / 2026-10-07T13:46-04:00 | [journal](notes/FIX-16.md);288 tests, actual collision plans and controller dry-run PASS; mergedbd19324; frozen evaluation6da2e42 unchanged; canonical queue/controller live; operator re-run 2026-10-07T13:46: 391 CPU pass (+1 env-only) at bd19324; atlas/ and followspec/ identical to frozen 6da2e42 (empty diff) |
 
 | FIX-17 | D-39 matched short lambda ablation: explicit opt-in, sealed data reuse, unique jobs and automatic frozen-harness evaluation | P0 | codex | FIX-14, FIX-15 | now | review | codex-1 / 2026-10-07T14:06:19.475934-04:00 | [journal](notes/FIX-17.md);303 CPU tests +6 actual dry runs + frozen-controller reference check PASS; merged79a13ed; [preflight](artifacts/M5_D39_20261007/preflight/results.json) |
-| FIX-18 | D-39 controlled target-update stress panel: provenance, disjoint discovery/confirmation, quality and Frozen screening | P0 | codex | B2, B4, FIX-17 | now | in progress | codex-1 / 2026-10-07T13:54:44.818801-04:00 | [spec/journal](notes/FIX-18.md) |
+| FIX-18 | D-39 controlled target-update stress panel: provenance, disjoint discovery/confirmation, quality and Frozen screening | P0 | codex | B2, B4, FIX-17 | now | review | codex-1 / 2026-10-07T14:21:10.081315-04:00 | [journal](notes/FIX-18.md);312 CPU tests, actual360 weight comparisons/43478 prompt audit,32 sandbox reference checks,152 dry runs PASS; [panel](artifacts/D39_stress_20261007/panel/audit.json); [preflight](artifacts/D39_stress_20261007/prepared/preflight/results.json) |
 
 ---
 
