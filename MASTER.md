@@ -229,8 +229,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
-| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | blocked | codex-1 / 2026-10-06T19:04:05.185409-04:00 | All136 generation jobs pass; FIX12 proposed assembly/masks/native schedule PASS; [sole blocker](artifacts/M2_D28_20261006/finalize_pending_policy/results.json): owner batching-policy decision |
-| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | blocked | codex-1 / 2026-10-06T18:46:38.819423-04:00 | [journal](notes/M3.md);12-job emitter and H200 runtime ready; M2 native token/step matching failed; FIX12 pending; H200s occupied, A40 fallback available |
+| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | in progress | codex-1 / 2026-10-06T22:26:00.442198-04:00 | D-36 owner approval recorded; verified corpus finalization running; [journal](notes/M2.md) |
+| M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T22:26:00.442198-04:00 | D-36 approved; finalize → 12 preflights → owner-locked GPU dispatch; [journal](notes/M3.md) |
 | M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
