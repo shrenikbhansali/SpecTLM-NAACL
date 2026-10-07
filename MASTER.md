@@ -262,6 +262,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-13 | D-37 explicit single-seed M3→M4 feasibility handoff, reuse existing Frozen controls, retain full default validation | P0 | codex | FIX-9 | now | review | codex-1 / 2026-10-07T01:08:01.839478-04:00 | [journal](notes/FIX-13.md);243 full tests+23 targeted pass; actual single-seed stage reuses202primary references, zero newjobs; merged301a6a6/c7c69cc |
 
+| FIX-14 | D-38 sealed reduced-budget four-arm data and single-seed training jobs with unique run identities | P0 | codex | M2, FIX-13 | now | in progress | codex-1 / 2026-10-07T01:22:38.379669-04:00 | [journal](notes/FIX-14.md); tests first; inherited data checks and exact budget audit |
+
 ---
 
 ## 5. Research context (what agents need to know)
@@ -1004,6 +1006,8 @@ citing where it was stated.*
 | D-36 | 2026-10-06 | **M3 batch-step policy: approve `native_split_max_v1` (FIX-12).** Native packing gives 1,291–1,294 optimizer steps across the 12 arm×seed runs; matched controls require equal steps. Approved: deterministic subdivision of existing packed batches to the maximum native count (1,294 everywhere; 15 splits total, ≤ 3 per run, < 0.25% of steps). Selected data, native sample order, 8,192-token ceiling, optimizer, objectives and token budget (10,320,835 per arm) unchanged; no resampling, duplication or truncation. Alternative (keep native packing and hold M3, or unmatched steps) rejected. Operator verified: 338 CPU tests pass at a3492fa (+1 env-only), batch_audit passed, 20 decoded samples/masks valid (FS/PO-D/PO-T paired, PO-D base text). Owner-delegated (chat: 'make the best decision… keep the bar low'). Entered by claude-ops 2026-10-06 19:24 | Decided |
 
 | D-37 | 2026-10-07 | **Feasibility-first method exploration (owner direct):** prioritize a single-seed comparison to decide whether the method direction is worth pursuing; repeated runs/multiple seeds are unnecessary for this exploratory phase. Stop additional Frozen repetitions and defer K2/8 diagnostics; retain seed0 as the fixed pilot seed, independent of outcomes. Preserve existing artifacts and negative findings; focus claims on supported settings with exploratory scope stated. This does not certify the original Gate3 multi-seed criterion. Reduced-budget matched pilot versus full-budget seed0 is being clarified separately. Entered by codex-1 2026-10-07T01:01:14.577600-04:00 | Decided |
+
+| D-38 | 2026-10-07 | **Reduced-budget method pilot approved (owner direct):** run a separate single-seed four-arm pilot with matched tokens/steps and a small fixed K4 held-out panel. Concrete verified budget:1991138tokens/250steps perarm, seed0, same presets and D-36 subdivision, same initial released drafter; existing full-budget seed0 runs continue. Implementation selects a fixed stratified panel by type and seeded identity hash before pilot outcomes, with original prompts/decoding. Exploratory evidence, no Gate3 certification. Native validation may overlap evaluation of a fully trained, sealed checkpoint; validation status remains explicit. Entered codex-1 2026-10-07T01:22:38.379669-04:00 | Decided |
 
 ---
 
