@@ -264,6 +264,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-14 | D-38 sealed reduced-budget four-arm data and single-seed training jobs with unique run identities | P0 | codex | M2, FIX-13 | now | done | claude-ops / 2026-10-07T02:03-04:00 | [journal](notes/FIX-14.md);252 tests + actual matched native audit +8 dry runs PASS; [preflight](artifacts/M3_pilot_D38_20261007/preflight.json); merged0502703; operator re-run 2026-10-07T02:03: 379 CPU pass (+1 env-only) at 6da2e42; pilot batch_audit 250 steps × 12 / 1,991,138 tokens |
 | FIX-15 | D-38 checkpoint-ready pilot evaluation, Frozen reference reuse, unique evaluation identities and automatic handoff | P0 | codex | FIX-14 | now | done | claude-ops / 2026-10-07T02:03-04:00 | [journal](notes/FIX-15.md);276 tests + actual immutable export and real Frozen reuse PASS; merged6da2e42; automatic pilot watcher/queue active; operator re-run 2026-10-07T02:03: 379 CPU pass (+1 env-only); panel.json fixed 01:24:58 before pilot launch 01:32 (10 targets, hash-selected) |
+| FIX-16 | Operational retry overlays and continuous full-budget M4 handoff using frozen evaluation code | P0 | codex | FIX-15 | now | in progress | codex-1 / 2026-10-07T13:09:56.408642-04:00 | [journal](notes/FIX-16.md); preserve all failed attempts; identical evaluation argv; one canonical dispatcher |
 
 ---
 
