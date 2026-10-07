@@ -12,7 +12,11 @@ from followspec.production import ARMS, launcher_job
 from followspec.production_pipeline import checked_stage, execution_spec, finish, jsonl, lines, new_output, read
 
 
-def evaluation_jobs(training, targets, output, *, python, code_repo=None, completed_only=False, previous=None):
+def evaluation_jobs(training, targets, output, *, python, code_repo=None, completed_only=False, previous=None, training_seeds=None):
+    selected = [0, 1, 2] if training_seeds is None else list(training_seeds)
+    if not selected or any(type(s) is not int or s not in range(3) for s in selected) or len(set(selected)) != len(selected):
+        raise ValueError('training seeds must be a nonempty unique subset of 0,1,2')
+    selected = sorted(selected)
     root, cfg = checked_stage(training)
     if cfg['stage'] != 'training-jobs' or read(root/'results.json').get('n_jobs') != 12:
         raise ValueError('complete twelve-job M3 plan required')
@@ -20,13 +24,16 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
     if sha256(final/'stage_files.json') != cfg['finalized_stage_sha256']:
         raise ValueError('finalized data stage changed')
     spec = execution_spec(cfg['spec'], code_repo or cfg['spec']['code_repo'])
-    checkpoints = []; evidence = {}; seen = set(); pending = []
+    checkpoints = []; evidence = {}; seen = set(); pending = []; excluded = []
     for job in lines(root/'jobs.jsonl'):
         argv = job['args']; cmd = argv[argv.index('--')+1:]
         arm = cmd[cmd.index('--arm')+1]; seed = int(cmd[cmd.index('--seed')+1])
         if (arm, seed) in seen or arm not in ARMS or seed not in range(3):
             raise ValueError('duplicate or invalid M3 arm/seed')
         seen.add((arm, seed)); run = Path(cmd[cmd.index('--output')+1])
+        if seed not in selected:
+            excluded.append(dict(arm=arm,seed=seed,run=str(run),reason='outside explicit training seed scope'))
+            continue
         if list(run.glob('failure*.json')):
             raise ValueError(f'completed M3 run required, failed run: {run}')
         if not (run/'results.json').is_file():
@@ -54,7 +61,7 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
         evidence.update({str(p):sha256(p) for p in [run/'config.json',run/'results.json',*files]})
     if seen != {(a,s) for a in ARMS for s in range(3)}:
         raise ValueError('complete twelve-job M3 matrix required')
-    checkpoints += [dict(arm='Frozen',seed=s,model_id=spec['drafter_snapshot'],revision=spec['drafter_revision']) for s in range(3)]
+    checkpoints += [dict(arm='Frozen',seed=s,model_id=spec['drafter_snapshot'],revision=spec['drafter_revision']) for s in selected]
     target_spec = read(targets); target_rows = target_spec['targets']
     bank_ids = set(read(final/'FS/manifest.json').get('registry',{}))
     names = [t['model_id'] for t in target_rows]
@@ -91,8 +98,8 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
         for path,digest in read(previous_path/'checkpoint_inputs_sha256.json').items():
             if evidence.get(path) != digest:
                 raise ValueError('previous checkpoint changed or is no longer complete')
-        prior_records = {r['run_id']:r for name in ('index_k4.json','index_k2_k8.json') for r in read(previous_path/name)}
-        prior_jobs = lines(previous_path/('effective_jobs.jsonl' if (previous_path/'effective_jobs.jsonl').exists() else 'jobs.jsonl'))
+        prior_records = {r['run_id']:r for name in ('index_k4.json','index_k2_k8.json') for r in read(previous_path/name) if r['seed'] in selected}
+        prior_jobs = [j for j in lines(previous_path/('effective_jobs.jsonl' if (previous_path/'effective_jobs.jsonl').exists() else 'jobs.jsonl')) if j['name'] in prior_records]
     # Do not choose workloads/targets based on observed checkpoint results.
     plan_spec = dict(base_id=spec['base_id'],base_revision=spec['base_revision'],targets=target_rows,
                      checkpoints=checkpoints,K=[4],evaluation_seed=0,max_new_tokens=512)
@@ -136,10 +143,11 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
     write_new(out/'checkpoint_inputs_sha256.json',evidence)
     finish(out,dict(stage='evaluation-jobs',training=str(root),spec=spec,targets=str(Path(targets).resolve()),
         targets_sha256=sha256(targets),prompt_sha256=prompt_hashes,python=python,
-        completed_only=completed_only,previous=str(previous_path) if previous_path else None,
+        completed_only=completed_only,previous=str(previous_path) if previous_path else None,training_seeds=selected,
         analysis_versions={p:importlib.metadata.version(p) for p in ('numpy','scipy')}),
         dict(n_jobs=len(jobs),n_effective_jobs=len(prior_jobs)+len(jobs),n_primary=len(primary),n_secondary=len(secondary),submitted=False,
              training_complete=not pending,n_pending_training=len(pending),pending_training=pending,
+             n_excluded_training=len(excluded),excluded_training=excluded,exploratory_single_seed=len(selected)==1,
              checkpoint_loadability='pending first vLLM cells',owner_gate_decision='pending',
              next='Preflight and dispatch to free A40s. Aggregate index_k4 with B7; K2/8 are separate FS/Frozen diagnostics.'))
     return out
@@ -149,8 +157,9 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('training','targets','output','python'):p.add_argument('--'+name,required=True)
     p.add_argument('--code-repo');p.add_argument('--completed-only',action='store_true');p.add_argument('--previous')
+    p.add_argument('--training-seeds',type=int,nargs='+',help='explicit exploratory seed scope; defaults to all three seeds')
     a=p.parse_args()
-    print(evaluation_jobs(a.training,a.targets,a.output,python=a.python,code_repo=a.code_repo,completed_only=a.completed_only,previous=a.previous))
+    print(evaluation_jobs(a.training,a.targets,a.output,python=a.python,code_repo=a.code_repo,completed_only=a.completed_only,previous=a.previous,training_seeds=a.training_seeds))
 
 
 if __name__=='__main__':main()
