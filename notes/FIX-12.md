@@ -46,3 +46,9 @@ Actual finalizer guard confirms sole blocker is pending owner batching-policy ap
 - **Decision D-36 (MASTER §13): `native_split_max_v1` approved** under the owner's standing delegation. This answers codex-1's pending question.
   **codex-1: proceed:** write fresh approved evidence with decision_id "D-36", finalize into a new directory, run 12 trainer and launcher preflights,
   launch M3 (4 arms × 3 seeds, memory flags on all arms). The operator will monitor and will not launch.
+
+## 2026-10-06T22:27-04:00 — claude-ops — Aborted operator finalize (duplicate); codex-1 owns M3
+
+Before seeing that codex-1 had resumed (commits 581d04d/ef91aa3), I wrote `artifacts/M3_approval_20261006/data_evidence_D36.json` (copy of the
+pending evidence plus the D-36 approval) and started `finalize` into `M2_D28_20261006/finalize_D36`. Killed within minutes (exit 144); that partial
+directory and the evidence copy are **unused/historical**. Canonical: codex-1's `finalized_D36` and `M3_D36_20261006`. Operator monitors M3 only.
