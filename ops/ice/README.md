@@ -14,8 +14,8 @@ Prepared by claude-ops 2026-10-07 (task O2). One `main` for both sites (D-18); e
 | Pinned model manifest + stager: `ops/ice/models.json`, `ops/ice/stage_models.py` (tiers core / bank / atlas) | ready |
 | Engine validation vs heck: `ops/ice/validate.sh` + `validate_compare.py` (vendored 128-prompt file, sha-checked) | ready |
 | Artifact copy from heck: `ops/ice/sync_from_heck.sh` | ready (copy only) |
-| **Running sealed followspec stages (M2/M3/M4/D-39) on ICE** | **blocked on FIX-19**: sealed manifests store absolute heck paths + hashes; needs a verified path-relocation layer (codex) |
-| `followspec` job planners place jobs on `heck-srv*` (`allowed_nodes`) | FIX-19 (site-aware placement) |
+| **Running sealed followspec stages (M2/M3/M4/D-39) on ICE** | FIX-19 provides opt-in verified path views; prepare inventory and copy all dependencies below before running |
+| `followspec` job planners place jobs on `heck-srv*` (`allowed_nodes`) | FIX-19 emits Slurm placement when SITE=ice |
 
 ## 1. Clone and fill the site file (owner, ~10 min)
 
@@ -51,10 +51,60 @@ $ATLAS_PY ops/ice/stage_models.py --check --tier core bank
 ```
 `--tier atlas` (174 models, multi-TB) only if atlas sweeps move to ICE, which is not planned.
 
-## 5. Copy sealed inputs from heck (optional until FIX-19)
+## 5. Copy sealed inputs from heck and verify relocation
 ```bash
 bash ops/ice/sync_from_heck.sh --dry-run && bash ops/ice/sync_from_heck.sh     # ~21 GB
 ```
+
+Sealed files retain their original bytes, including historical absolute paths. A hash-pinned
+sidecar supplies a read-time metadata view. Prompt text, completions, token IDs and masks
+stay unchanged. All copied files are verified before the view is activated. Source and
+destination prefixes must be disjoint; incomplete or changed copies fail.
+
+For M3, generate a complete dependency inventory **on heck** once the real ICE workspace
+path is known. This includes response records (not just manifests), masks, adapters,
+base/drafter snapshots, and the original engine lock:
+
+```bash
+python -m ops.ice.relocation_inputs \
+  --workspace "$HECK_WS" --destination "$ICE_WS" \
+  --finalized "$HECK_WS/artifacts/M3_pilot_D38_20261007/finalized" \
+  --output "$HECK_WS/artifacts/ICE_method_copy_v1"
+```
+
+On ICE, copy `ICE_method_copy_v1/` into `$WS/artifacts/` first, then:
+
+```bash
+rsync -aL --files-from="$WS/artifacts/ICE_method_copy_v1/files.txt" \
+  "$HECK_HOST:$HECK_WS/" "$WS/"
+export SPECTLM_RELOCATION="$WS/artifacts/ICE_method_copy_v1/relocation.json"
+# Set to relocation_sha256 printed on heck, preserving that independent pin:
+export SPECTLM_RELOCATION_SHA256=<printed-sha256>
+python -m atlas.relocation verify --manifest "$SPECTLM_RELOCATION"
+SITE=ice "$TRANSPORT_PY" -m followspec.training_jobs \
+  --finalized "$WS/artifacts/M3_pilot_D38_20261007/finalized" \
+  --output "$WS/artifacts/ICE_new_training_plan" --python "$TRANSPORT_PY" \
+  --code-repo "$WS" --training-seeds 0 --job-prefix ice-m3
+```
+
+Planning is CPU-only. Run the actual trainer and launcher dry runs before submitting.
+For other sealed stages, `python -m atlas.relocation inventory --prefix OLD NEW
+--include FILE_OR_DIRECTORY ... --output MAP.json` creates the same sidecar. Include
+all transitive input dependencies, not only the stage envelope. Repeated `--prefix`
+arguments support separately staged HF snapshots; the longest source prefix wins,
+and destination collisions are rejected. Never hand-edit sealed manifests to fix paths.
+
+New jobs propagate the relocation path and its hash through the launcher. Use a new,
+clean ICE run tag containing FIX-19 for planners/controllers and runtime training. Its
+acceptance metric, pairing, and decoding modules remain byte-identical to the frozen
+heck harness. Do not point a relocation-enabled controller at the old heck tag, which
+predates this input layer. Existing heck processes and artifacts keep their original tags.
+
+`SITE=ice` planners include `--node slurm --gpus slurm`; `ops/ice/submit.py` accepts
+these without duplicating placement arguments. Regenerate new evaluation jobs and
+all matched controls on ICE; copying a heck report does not create an ICE measurement.
+No automatic gate approval or submission occurs here. The site configuration and the
+engine check below remain prerequisites for real ICE work.
 
 ## 6. Validate the engine on ICE GPUs (~20 min of GPU)
 ```bash

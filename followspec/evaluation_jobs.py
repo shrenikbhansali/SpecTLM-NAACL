@@ -3,6 +3,8 @@
 Uses B7's scheduler without changing historical cell defaults or statistics.
 K4 is the complete comparison matrix; K2/8 contain FS and Frozen only.
 """
+from ops.placement import place_job
+import os
 import argparse
 import importlib.metadata
 import re
@@ -176,7 +178,7 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
             record.clear();record.update(prior)
             continue
         job = launcher_job(spec | dict(seed=0),record['run_id'],'M4',record['prompt_file'],command,python=python)
-        job['allowed_nodes']=[f'heck-srv{i}' for i in range(1,6)]
+        job=place_job(job,heck_nodes=[f'heck-srv{i}' for i in range(1,6)])
         args=job['args'];args[args.index('--drafter')+1]='eagle3';args[args.index('--k')+1]=str(record['K'])
         args[args.index('--target')+1]=command[ti];args[args.index('--target-rev')+1]=command[command.index('--target-revision')+1]
         extra=['--drafter-model',command[command.index('--drafter')+1],'--drafter-rev',command[command.index('--drafter-revision')+1]]
@@ -184,7 +186,7 @@ def evaluation_jobs(training, targets, output, *, python, code_repo=None, comple
         split=args.index('--');args[split:split]=extra
         record['argv']=[python,*command]
         # The actual launcher path carries its own timestamp; per-cell artifacts retain B7 IDs.
-        record['hardware_policy']='A40 only; D-26 training exemption does not apply'
+        record['hardware_policy']='ICE-only matched comparisons; site engine validation required' if os.environ.get('SITE')=='ice' else 'A40 only; D-26 training exemption does not apply'
         jobs.append(job)
     if not set(prior_records) <= {r['run_id'] for r in primary+secondary}:
         raise ValueError('previous evaluation cells lost from continuation')

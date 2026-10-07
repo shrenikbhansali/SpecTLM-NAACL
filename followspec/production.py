@@ -177,6 +177,9 @@ def match_tails(lengths, *, batch_check, allowed_ends=None):
 
 
 def launcher_job(spec, name, task, prompts, command, *, python=None):
+    from atlas.relocation import environment
+    from ops.placement import place_job
+    import os
     py = python or spec['python']
     args = ['--task', task, '--base', 'llama', '--drafter', 'method-data', '--k', '0',
             '--seed', str(spec['seed']), '--no-resolve', '--tag', name,
@@ -185,7 +188,8 @@ def launcher_job(spec, name, task, prompts, command, *, python=None):
             '--target', spec['base_id'], '--target-rev', spec['base_revision']]
     for value in ('HF_HUB_OFFLINE=1', 'OMP_NUM_THREADS=4', 'MKL_NUM_THREADS=4', 'VLLM_CACHE_ROOT={out_dir}/vllm_cache'):
         args += ['--env', value]
-    return dict(name=name, args=args+['--', py, '-u', *map(str, command)])
+    for value in environment()+(['SITE=ice'] if os.environ.get('SITE')=='ice' else []):args += ['--env',value]
+    return place_job(dict(name=name, args=args+['--', py, '-u', *map(str, command)]))
 
 
 def validate_spec(spec):

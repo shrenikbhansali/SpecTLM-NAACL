@@ -16,6 +16,10 @@ import sys
 import time
 from pathlib import Path
 
+# Direct script invocation must resolve the repository package.
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from ops.placement import launcher_placement
+
 LAUNCH = Path(__file__).resolve().parents[1] / "launch.py"
 
 
@@ -46,7 +50,7 @@ def main() -> int:
             continue
         if "/home/heck2" in json.dumps(j["args"]) and not (a.allow_heck_paths and a.dry_run):
             sys.exit(f"{j['name']}: args contain heck paths; regenerate the job on ICE (see ops/ice/README.md)")
-        cmd = [sys.executable, str(LAUNCH), "run", "--node", "slurm", "--gpus", "slurm", *j["args"]]
+        cmd = [sys.executable, str(LAUNCH), "run", *launcher_placement(j["args"])]
         if a.dry_run and "--dry-run" not in cmd:
             cmd.insert(3, "--dry-run")
         r = subprocess.run(cmd, capture_output=True, text=True, env=env)

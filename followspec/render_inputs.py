@@ -1,4 +1,5 @@
 """Render training queries once for matched child/base response controls."""
+from atlas.relocation import read_json
 import argparse
 import json
 from pathlib import Path
@@ -30,7 +31,7 @@ def write_bundle(output,rows,metadata):
 
 
 def load_bundle(path,rows,*,prompt_target,base_tokenizer_sha256,prompt_sha256):
-    path=Path(path);cfg=json.loads((path.parent/'config.json').read_text())
+    path=Path(path);cfg=read_json(path.parent/'config.json')
     if cfg.get('schema')!='followspec_rendered_training_v1' or cfg['rendered_sha256']!=sha256(path):raise ValueError('rendered bundle changed')
     if cfg['prompt_target_id']!=prompt_target or cfg['tokenizer_sha256']!=base_tokenizer_sha256 or cfg['prompt_sha256']!=prompt_sha256:
         raise ValueError('wrong prompt origin, vocabulary or raw query source')

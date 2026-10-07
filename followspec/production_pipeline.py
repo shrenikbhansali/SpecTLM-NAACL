@@ -7,6 +7,7 @@ from pathlib import Path
 import random
 import subprocess
 
+from atlas.relocation import read_json, read_jsonl, relocate_path
 from atlas.run_cell import sha256, write_new
 from atlas.workloads import prompt_hash
 from followspec.production import (ARMS, admission_selection, allocate_queries, checked_queries,
@@ -14,11 +15,11 @@ from followspec.production import (ARMS, admission_selection, allocate_queries, 
 
 
 def read(path):
-    return json.loads(Path(path).read_text())
+    return read_json(path)
 
 
 def lines(path):
-    return [json.loads(s) for s in Path(path).read_text().splitlines() if s.strip()]
+    return read_jsonl(path)
 
 
 def jsonl(path, rows):
@@ -39,7 +40,7 @@ def finish(out, config, result):
 
 
 def checked_stage(path):
-    root = Path(path).resolve()
+    root = relocate_path(path).resolve()
     for name, digest in read(root/'stage_files.json').items():
         if Path(name).is_absolute() or '..' in Path(name).parts or sha256(root/name) != digest:
             raise ValueError('production stage changed')

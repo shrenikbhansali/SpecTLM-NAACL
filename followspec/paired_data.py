@@ -4,6 +4,7 @@ Manifest records have sample_id, target_id, split, prompt_sha256, path, sha256,
 and raw token length. Safetensors store an entire single sequence before the
 native EAGLE shift. Shared input_ids guarantee identical child/base prefixes.
 """
+from atlas.relocation import read_json
 import hashlib
 import json
 from pathlib import Path
@@ -55,7 +56,7 @@ class PairedFeatureDataset(Dataset):
     def __init__(self,manifest_path,*,split,allowed_targets,forbidden_hashes=(),noise_std=0.):
         self.noise_std=noise_std
         self.root=Path(manifest_path).resolve().parent
-        self.manifest=json.loads(Path(manifest_path).read_text())
+        self.manifest=read_json(manifest_path)
         if self.manifest.get('schema')!='followspec_paired_features_v1':raise ValueError('wrong paired manifest schema')
         self.rows=[r for r in self.manifest['samples'] if r['split']==split]
         if not self.rows:raise ValueError('empty split')

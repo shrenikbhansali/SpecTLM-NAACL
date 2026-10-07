@@ -1,4 +1,6 @@
 """Parallel parent responses with original batches, global seeds and strict join."""
+from ops.placement import place_job
+import os
 import argparse
 import copy
 import hashlib
@@ -92,7 +94,7 @@ def parallel_parent(plan, output, *, count, code_repo):
         args[args.index('--engine-lock')+1]=str(Path(spec['code_repo'])/'atlas/env/requirements.lock')
         args[split+1+command.index('--output')+1]=str(dest)
         args+=['--shard-index',str(index),'--shard-count',str(count)]
-        job['allowed_nodes']=[f'heck-srv{i}' for i in range(1,6)];jobs.append(job)
+        job=place_job(job,heck_nodes=[f'heck-srv{i}' for i in range(1,6)]);jobs.append(job)
     inputs=cfg.get('input_sha256',{})|{str(prompts):sha256(prompts),str(rendered):sha256(rendered)}
     out=new_output(out);joined=out/'joined-parent';runs['base']={'child':str(joined),'base':str(joined)}
     write_new(out/'response_runs.json',runs);write_new(out/'assignment.json',read(root/'assignment.json'))

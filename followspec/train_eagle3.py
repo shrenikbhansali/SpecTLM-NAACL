@@ -3,6 +3,7 @@
 Requires resolved matched configs and audited B5 data. Native B6 acceptance
 passed; production data and research-decision prerequisites remain enforced.
 """
+from atlas.relocation import read_json
 import argparse
 from contextlib import contextmanager
 import importlib.metadata
@@ -224,8 +225,8 @@ def main():
     p.add_argument('--allow-a40-production',action='store_true',help='owner decision D-19; retain matched training defaults')
     p.add_argument('--seed',type=int,required=True);p.add_argument('--output',required=True);p.add_argument('--dry-run',action='store_true')
     p.add_argument('--fs-delta-lambda',type=float);p.add_argument('--ablation-decision')
-    a=p.parse_args();arms={c['arm']:c for c in [json.loads(Path(path).read_text()) for path in a.configs]}
-    check_matched(arms,fs_delta_lambda=a.fs_delta_lambda,ablation_decision=a.ablation_decision);manifest=json.loads(Path(a.manifest).read_text())
+    a=p.parse_args();arms={c['arm']:c for c in [read_json(path) for path in a.configs]}
+    check_matched(arms,fs_delta_lambda=a.fs_delta_lambda,ablation_decision=a.ablation_decision);manifest=read_json(a.manifest)
     plan=resolve_plan(arms[a.arm],manifest,a.seed)
     if a.ablation_decision:plan['ablation']=dict(decision_id=a.ablation_decision,fs_delta_lambda=a.fs_delta_lambda)
     if a.dry_run:print(json.dumps(plan,indent=2));return

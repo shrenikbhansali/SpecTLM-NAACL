@@ -8,6 +8,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path[0] = str(Path(__file__).resolve().parents[1])
 
+from ops.placement import launcher_placement, place_job
 import argparse
 from ops.planning_lock import locked_evaluation
 import copy
@@ -26,8 +27,14 @@ import time
 SAFE_NODES=['heck-srv1','heck-srv3','heck-srv4','heck-srv5']
 
 
-def read(path):return json.loads(Path(path).read_text())
-def lines(path):return [json.loads(s) for s in Path(path).read_text().splitlines() if s.strip()]
+def read(path):
+    if not os.environ.get('SPECTLM_RELOCATION'):return json.loads(Path(path).read_text())
+    from atlas.relocation import read_json
+    return read_json(path)
+def lines(path):
+    if not os.environ.get('SPECTLM_RELOCATION'):return [json.loads(s) for s in Path(path).read_text().splitlines() if s.strip()]
+    from atlas.relocation import read_jsonl
+    return read_jsonl(path)
 def sha(path):
     h=hashlib.sha256()
     with Path(path).open('rb') as f:
@@ -67,7 +74,7 @@ def retry_plan(record,job,launcher,output,*,attempt,expected_prompt_sha,expected
     new['argv'][new['argv'].index('--output')+1]=str(dest)
     new['env']['VLLM_CACHE_ROOT']=str(dest/'vllm_cache')
     retry['name']=name;retry['args'][retry['args'].index('--tag')+1]=name
-    idx=retry['args'].index('--output',split+1);retry['args'][idx+1]=str(dest);retry['allowed_nodes']=SAFE_NODES.copy()
+    idx=retry['args'].index('--output',split+1);retry['args'][idx+1]=str(dest);retry=place_job(retry,heck_nodes=SAFE_NODES)
     proof=dict(retry_of=record['run_id'],failed_run=str(run),launcher=str(launcher),reason='terminated GPU-cache allocation failure',
         expected_prompt_sha256=expected_prompt_sha,expected_source_sha256=expected_source_sha,
         failed_attempt_sha256={str(p):sha(p) for p in [run/'config.json',run/'failure.json',launcher/'exit_code',launcher/'launch.log']})
@@ -110,7 +117,7 @@ def preflight(jobs,code,output):
     for job in jobs:
         args=job['args'];cmd=args[args.index('--')+1:]
         checks.extend([(job['name']+'-cell',cmd+['--dry-run']),
-            (job['name']+'-launcher',[sys.executable,str(code/'ops/launch.py'),'run','--dry-run','--node','heck-srv4','--gpus','0',*args])])
+            (job['name']+'-launcher',[sys.executable,str(code/'ops/launch.py'),'run','--dry-run',*launcher_placement(args)])])
     def run(item):
         name,cmd=item
         with (output/(name+'.log')).open('x') as f:

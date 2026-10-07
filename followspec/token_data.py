@@ -4,6 +4,7 @@ Assembly reports actual token counts. Explicit paired response views use the
 owner-approved shorter response prefix while preserving full prompts and sources.
 No repeated/resampled records or inferred total-budget matching are added.
 """
+from atlas.relocation import read_json, read_jsonl
 import argparse
 import json
 import math
@@ -28,8 +29,8 @@ def layout_spec(name):
 def response_run(path):
     path=Path(path).resolve()
     if (path/'failure.json').exists():raise ValueError('failed response source')
-    cfg=json.loads((path/'config.json').read_text());result=json.loads((path/'results.json').read_text())
-    rows=[json.loads(s) for s in (path/'per_prompt.jsonl').read_text().splitlines() if s.strip()]
+    cfg=read_json(path/'config.json');result=read_json(path/'results.json')
+    rows=read_jsonl(path/'per_prompt.jsonl')
     if cfg.get('schema')!='followspec_response_tokens_v1' or cfg['engine_version']!='0.31.0':raise ValueError('wrong response schema/engine')
     if len(rows)!=result['n'] or len({r['sample_id'] for r in rows})!=len(rows):raise ValueError('response count/identity mismatch')
     for r in rows:

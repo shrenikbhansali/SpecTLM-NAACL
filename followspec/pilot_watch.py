@@ -1,4 +1,5 @@
 """Preflight and append completed pilot checkpoint evaluations to one live queue."""
+from ops.placement import launcher_placement
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime,timezone
@@ -53,7 +54,7 @@ def preflight(stage,code,output):
     for job in jobs:
         a=job['args'];cmd=a[a.index('--')+1:]
         checks.extend([(job['name']+'-cell',cmd+['--dry-run']),
-            (job['name']+'-launcher',[sys.executable,str(code/'ops/launch.py'),'run','--dry-run','--node','heck-srv4','--gpus','0',*a])])
+            (job['name']+'-launcher',[sys.executable,str(code/'ops/launch.py'),'run','--dry-run',*launcher_placement(a)])])
     def run(item):
         name,cmd=item
         with (output/(name+'.log')).open('x') as f:
