@@ -13,3 +13,7 @@ Tests-first failures preserved in `artifacts/FIX19_acceptance_20261007/tests_fir
 Initial local-copy acceptance used a destination inside its source prefix and exposed repeated remapping. Added explicit rejection of overlapping source/destination namespaces; reran with `/tmp/SpecTLM-FIX19-copy-20261007`, PASS. First log/code retained; the v2 test inadvertently reused the preliminary failed sidecar filename before final evidence was written. Preserved a reconstruction of that preliminary map as `failed_initial_map_reconstructed.json`; no experimental artifacts or numbers were changed. Future copy inventories use fresh output directories.
 
 ICE execution remains operationally unvalidated: site file has real workspace/account/partition TODOs and the five-cell engine check has not run. This change submits no jobs or gate decisions; heck queue and frozen running checkouts untouched.
+
+## 2026-10-07T19:35:57.070005-04:00 — codex-1 — Handoff / review
+
+Mergedc741792/pushed; taggedrun-FIX19-portability-20261007, cleancheckoutin `/tmp/SpecTLM-FIX19-code-20261007`. ActualrelocatedD38trainingplanner emitted4Slurm jobs; all4native trainer plus4launcher dryruns PASS (`native_preflight/results.json`). Sourcebytesandmetricmodulesunchanged. Operator can re-run325tests plus8nativechecks and fillICEsiteconfiguration/runenginecheck; noactualICElaunch. Verifiedcopy `/tmp/SpecTLM-FIX19-copy-20261007` is temporary, persistent evidenceinartifacts/FIX19_acceptance_20261007. NextbuildertaskFIX21 addsalreadyapprovedmatchedK8stressfollowupwhilecurrentK4jobscontinue.
