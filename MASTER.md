@@ -231,7 +231,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
 | M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | review | codex-1 / 2026-10-06T22:29:10.136664-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md) |
 | M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T22:26:00.442198-04:00 | D-36 approved; finalize → 12 preflights → owner-locked GPU dispatch; [journal](notes/M3.md) |
-| M4 | Held-out evaluation + Gate 3 report | P0 | claude-ops | B7, M3, A4 | Thu | todo | | |
+| M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-06T22:30:14.149894-04:00 | Preparing matched Frozen K4 references while M3 trains; [journal](notes/M4.md); trained evaluations follow completed exports |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
 | M6 | FollowSpec on DFlash and on Qwen3-8B | P1 | claude-ops | B10 | Fri | todo | | |
 | M7 | EAGLE 3.1 baseline, then FollowSpec on it | P1 | claude-ops | B11 | Fri | todo | | |
