@@ -1,5 +1,6 @@
 """D-39 operational handoff; all evaluations/statistics come from frozen code."""
 import argparse
+from ops.planning_lock import locked_evaluation
 import copy
 import fcntl
 from datetime import datetime,timezone
@@ -76,7 +77,7 @@ def watch(a):
             if label not in states:
                 if not sealed(run,expected['optimizer_steps']):continue
                 stage=out/label/'evaluation'
-                m['followspec.evaluation_jobs'].evaluation_jobs(training,a.targets,stage,python=a.python,code_repo=code,
+                locked_evaluation(m['followspec.evaluation_jobs'].evaluation_jobs,training,a.targets,stage,python=a.python,code_repo=code,
                     completed_only=True,allow_validation_pending=True,training_seeds=[0],reuse_frozen=reference,job_prefix='m5-d39-l'+label)
                 if not read(stage/'results.json')['checkpoints_ready']:raise ValueError('reused controls unexpectedly incomplete')
                 records=reuse_controls(read(stage/'index_k4.json'),reference_records)

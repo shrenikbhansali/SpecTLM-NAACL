@@ -1,5 +1,6 @@
 """D-39 stress cells and task-quality reports around the frozen evaluation engine."""
 import argparse
+from ops.planning_lock import locked_evaluation
 from datetime import datetime,timezone
 import fcntl
 import importlib.util
@@ -31,7 +32,7 @@ def prepare(a,m):
     panel,pcfg=checked(a.panel);source,scfg=checked(a.training)
     out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=False)
     code=Path(a.frozen_code).resolve();stage=out/'evaluation'
-    m['followspec.evaluation_jobs'].evaluation_jobs(source,panel/'targets.json',stage,python=a.python,code_repo=code,
+    locked_evaluation(m['followspec.evaluation_jobs'].evaluation_jobs,source,panel/'targets.json',stage,python=a.python,code_repo=code,
         completed_only=True,allow_validation_pending=True,training_seeds=[0],job_prefix='d39-stress')
     if not read(stage/'results.json')['checkpoints_ready']:raise ValueError('all four pilot checkpoints required')
     records=read(stage/'index_k4.json');ids={r['run_id'] for r in records}

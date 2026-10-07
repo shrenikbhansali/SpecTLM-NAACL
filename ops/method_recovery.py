@@ -9,6 +9,7 @@ if __package__ in (None, ""):
     sys.path[0] = str(Path(__file__).resolve().parents[1])
 
 import argparse
+from ops.planning_lock import locked_evaluation
 import copy
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime,timezone
@@ -145,7 +146,7 @@ def watch(a):
             current=modules['followspec.pilot_watch'].checkpoint_signature(a.training)
             if current!=signature:
                 stage=out/f'stage-{time.time_ns()}'
-                modules['followspec.evaluation_jobs'].evaluation_jobs(a.training,a.targets,stage,python=a.python,code_repo=code,
+                locked_evaluation(modules['followspec.evaluation_jobs'].evaluation_jobs,a.training,a.targets,stage,python=a.python,code_repo=code,
                     completed_only=True,previous=previous,allow_validation_pending=True,training_seeds=[0])
                 ids={r['run_id'] for r in read(stage/'index_k4.json')}
                 jobs=[j for j in lines(stage/'jobs.jsonl') if j['name'] in ids]
