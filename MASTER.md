@@ -262,8 +262,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-13 | D-37 explicit single-seed M3→M4 feasibility handoff, reuse existing Frozen controls, retain full default validation | P0 | codex | FIX-9 | now | review | codex-1 / 2026-10-07T01:08:01.839478-04:00 | [journal](notes/FIX-13.md);243 full tests+23 targeted pass; actual single-seed stage reuses202primary references, zero newjobs; merged301a6a6/c7c69cc |
 
-| FIX-14 | D-38 sealed reduced-budget four-arm data and single-seed training jobs with unique run identities | P0 | codex | M2, FIX-13 | now | review | codex-1 / 2026-10-07T01:32:48.948865-04:00 | [journal](notes/FIX-14.md);252 tests + actual matched native audit +8 dry runs PASS; [preflight](artifacts/M3_pilot_D38_20261007/preflight.json); merged0502703 |
-| FIX-15 | D-38 checkpoint-ready pilot evaluation, Frozen reference reuse, unique evaluation identities and automatic handoff | P0 | codex | FIX-14 | now | review | codex-1 / 2026-10-07T01:41:47.978304-04:00 | [journal](notes/FIX-15.md);276 tests + actual immutable export and real Frozen reuse PASS; merged6da2e42; automatic pilot watcher/queue active |
+| FIX-14 | D-38 sealed reduced-budget four-arm data and single-seed training jobs with unique run identities | P0 | codex | M2, FIX-13 | now | done | claude-ops / 2026-10-07T02:03-04:00 | [journal](notes/FIX-14.md);252 tests + actual matched native audit +8 dry runs PASS; [preflight](artifacts/M3_pilot_D38_20261007/preflight.json); merged0502703; operator re-run 2026-10-07T02:03: 379 CPU pass (+1 env-only) at 6da2e42; pilot batch_audit 250 steps × 12 / 1,991,138 tokens |
+| FIX-15 | D-38 checkpoint-ready pilot evaluation, Frozen reference reuse, unique evaluation identities and automatic handoff | P0 | codex | FIX-14 | now | done | claude-ops / 2026-10-07T02:03-04:00 | [journal](notes/FIX-15.md);276 tests + actual immutable export and real Frozen reuse PASS; merged6da2e42; automatic pilot watcher/queue active; operator re-run 2026-10-07T02:03: 379 CPU pass (+1 env-only); panel.json fixed 01:24:58 before pilot launch 01:32 (10 targets, hash-selected) |
 
 ---
 
