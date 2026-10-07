@@ -70,6 +70,22 @@ def acquire_owner_lock(owner, directory=None):
     return handle
 
 
+def reload_pending(path, known, attempted):
+    """Read an atomically replaced dispatch list; preserve every known identity."""
+    jobs=[json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
+    names=set()
+    for job in jobs:
+        name=job['name']
+        if name in names:raise ValueError('duplicate job name')
+        names.add(name)
+        if 'allowed_nodes' in job and (not isinstance(job['allowed_nodes'],list) or not job['allowed_nodes'] or any(not isinstance(n,str) for n in job['allowed_nodes'])):
+            raise ValueError('allowed_nodes must be a nonempty node list')
+        if name in known and known[name]!=job:raise ValueError('known job identity changed')
+    if not set(known)<=names:raise ValueError('known jobs removed from reload list')
+    known.update({j['name']:j for j in jobs})
+    return [j for j in jobs if j['name'] not in attempted]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--slots", required=True)
@@ -78,6 +94,7 @@ def main():
     ap.add_argument("--poll", type=float, default=20)
     ap.add_argument("--owner", default="", help="this queue may use reserved slots tagged for this owner (reservations: {\"slots\": [...], \"owner\": NAME})")
     ap.add_argument('--exclusive-owner',action='store_true',help='refuse a second dispatcher with the same owner; required for method queues')
+    ap.add_argument('--reload-jobs',action='store_true',help='watch atomically updated job list; stay alive until explicitly stopped')
     a = ap.parse_args()
     lock=acquire_owner_lock(a.owner) if a.exclusive_owner else None
     try:
@@ -107,7 +124,11 @@ def dispatch(a):
         with log.open("a") as f:
             f.write(json.dumps(e) + "\n")
 
-    while pending or busy:
+    reload=getattr(a,'reload_jobs',False)
+    known={j['name']:j for j in jobs}
+    attempted=set(done_names)
+    while pending or busy or reload:
+        if reload:pending=reload_pending(a.jobs,known,attempted)
         for slot in slots:
             od = busy.get(slot)
             if od and not (Path(od) / "exit_code").exists():
@@ -122,6 +143,7 @@ def dispatch(a):
             if index is None or gpu_busy(node, gpu):
                 continue
             job = pending.pop(index)
+            attempted.add(job["name"])
             res = subprocess.run([sys.executable, str(LAUNCH), "run", "--node", node, "--gpus", gpu, *job["args"]],
                                  capture_output=True, text=True)
             m = re.search(r"\n  (/\S+)", res.stdout)
