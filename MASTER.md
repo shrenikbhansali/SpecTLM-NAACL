@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-06T22:35:27.442540-04:00 (codex-1, authorized method operations) |
+| Last updated | 2026-10-06T23:08-04:00 (claude-ops) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | All12 M3 A40 training runs producing finite initial losses; 11 M4 Frozen K4 references launched, remaining primary preflights/continuation active. |
-| Blockers | No remaining M2/M3 prerequisite blocker after D-36. H200s occupied; sufficient free A40s. B9 transport validity blocked; B11/M7 deprioritized. |
-| Owner action needed | None for M3 launch; D-36 subdivision approved. Gate 3 framing remains with owner when held-out results exist. |
+| Jobs running | **M3**: 12 runs on heck-srv2/3 A40s since 22:29; at 23:07, 37–56 of 1,294 steps (~1 step/min FS/PO, ~1.5 MVD → ETA Wed ~14:00–21:00); GPUs at 44–45/46 GB. M4 Frozen references (codex-1). A6 covariate retries done. |
+| Blockers | None on the method path. Risk: M3 finishes late Wed → M4 compressed before Gate 3. FIX-8 (A6 quantized loaders, P2). B9 blocked; B11/M7 deprioritized. |
+| Owner action needed | Optional: EXP-ATL-005 sensitivity analysis (degenerate/short outputs), proposed not applied. Gate 3 framing Thu. |
 
 ---
 
@@ -222,14 +222,14 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | done | claude-ops / 2026-10-05T22:45-04:00 | [journal](notes/A2.md); [proposal](reports/A2-proposal.md); manifests atlas/pools/ (sha256 Llama ecd8814b1340…, Qwen3 25f19d6c7355…) |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | done | claude-ops / 2026-10-06T01:36-04:00 | [journal](notes/A3.md); rendered workloads artifacts/A3_rendered_20261006 (index.json own-domain 163; index_speed128.json general 174); audit overlap 0 |
-| A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | in progress | claude-ops / 2026-10-06T06:52-04:00 | [journal](notes/A4.md); 1,038/1,059 cells ok; 21 zero-step cells await FIX-6 rerun |
+| A4 | Atlas EAGLE-3 sweep, both bases, K = 2/4/8 | P0 | claude-ops | A1, A3 | Wed | done | claude-ops / 2026-10-06T23:08-04:00 | [journal](notes/A4.md); 1,038/1,059 cells ok; 21 zero-step cells await FIX-6 rerun; census complete: 87/87 per base at K 2/4/8 after FIX-6 retries; [EXP-ATL-005](ledger/EXP-ATL-005.md) |
 | A5 | Ledger children re-measured (dose-response) | P0 | claude-ops | A1 | Tue | todo | | |
 | A6 | Covariates for every derivative | P0 | claude-ops | B8, A2 | Wed | in progress | claude-ops / 2026-10-06T12:15-04:00 | [journal](notes/A6.md); capture + covariates chain running |
-| A7 | Atlas DFlash sweep, both bases | P0 | claude-ops | A1, A3 | Wed | in progress | claude-ops / 2026-10-06T10:43-04:00 | [journal](notes/A7.md); sweep complete; zero-step cells await FIX-6 |
+| A7 | Atlas DFlash sweep, both bases | P0 | claude-ops | A1, A3 | Wed | done | claude-ops / 2026-10-06T23:08-04:00 | [journal](notes/A7.md); sweep complete; zero-step cells await FIX-6; census complete: native K 87/87 per base + K4 subset 10/10; [EXP-ATL-005](ledger/EXP-ATL-005.md) |
 | A8 | Transport decomposition, ~20 derivatives | P1 | claude-ops | B9 | Thu | todo | | |
 | A9 | Wall-clock speedups, dedicated H200s | P1 | claude-ops | A4 | Fri | todo | | |
 | M1 | Bank manifest + sampled mixtures | P0 | claude-ops | A2, B3 | Tue | done | claude-ops / 2026-10-06T14:23-04:00 | [journal](notes/M1.md); fresh D-33 plan: 30 bank + **30 admitted mixtures** (round 1 29/30 after 34 collision retries; round 2 fills to 30; 60/60 filters results, 0 failures); `artifacts/M1_D28_20261006/admission2` (ready) |
-| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | review | codex-1 / 2026-10-06T22:29:10.136664-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md) |
+| M2 | Bank data generation (all arms’ data) | P0 | codex / claude-ops | B5, M1 | Tue | done | claude-ops / 2026-10-06T23:08-04:00 | D-36 approved; [finalized data PASS](artifacts/M2_D28_20261006/finalized_D36/results.json), no blockers; [Gate 2 method verification](reports/GATE-2-method-20261006.md); operator verified 2026-10-06T23:08: assembly batch_audit passed (1,294 steps × 12, 10,320,835 tokens/arm), 20/20 decoded masks valid, finalized_D36 under D-36 |
 | M3 | Train four arms × 3 seeds (Llama, EAGLE-3) | P0 | codex / claude-ops | B6, M2 | Wed | in progress | codex-1 / 2026-10-06T22:35:27.442540-04:00 | All12 A40 production runs active; actual configs12/12PASS, finite initial losses all12; [startup](artifacts/M3_D36_20261006/startup_acceptance.json); [Handoff](notes/M3.md) |
 | M4 | Held-out evaluation + Gate 3 report | P0 | codex / claude-ops | B7, M3, A4 | Thu | in progress | codex-1 / 2026-10-06T22:35:27.442540-04:00 | Frozen K4 references running (11 launched); full606 preflight/automatic queue continuation active; [Handoff](notes/M4.md); trained exports pending |
 | M5 | Ablations: λ = 0, bank only, s_max = 1, λ sweep | P1 | claude-ops | M3 | Fri | todo | | |
