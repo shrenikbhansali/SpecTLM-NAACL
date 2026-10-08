@@ -156,3 +156,6 @@ Free 567 GB. Asked codex to stop writing intermediate optimizer state in the DFl
 
 ### 2026-10-08T15:44:52.220101-04:00 — codex-1 — automated D48 health observation
 CPU observer `artifacts/D48_analysis_20261008_1528/watch.py`: completed cells {'seed': 8, 'generality': 16, 'scaling': 0, 'dflash': 18, 'timing': 15}; generation counts {'self-shard-0-retry1': 584, 'self-shard-1-retry1': 592, 'self-shard-2-retry1': 584, 'self-shard-3-retry1': 624, 'generic-4k-retry1': 1528}; free disk 607.1GB. Canonical queue present=True; launches hold below350GB, runtime guard250GB. Independent acceptance/timing snapshots and errors (if any) are append-only under the observer artifact directory. This observer makes no scientific selection or new GPU launch.
+
+### 2026-10-08T16:24:25.471540-04:00 — codex-1 — D48 progress
+Canonicalqueue4129996only; nofailedGPUevents since16:00; self4k/generic4k and16generalitydatashardsactive/publishingevaluations. Disk580GBat16:21,350GBadmissionfloor/250GBruntimeguard. Initialseeds,generality256,DFlash24,timing30completeandreported. Source/continuationdetails inlatest notes/P3.md liveHandoff. Noadditionaldownloads.
