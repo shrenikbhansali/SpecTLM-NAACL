@@ -73,3 +73,5 @@ The1k result is less clear: SPEED p1 contrasts against256 include zero for both 
 - Generic4k is pending. Larger self4k seeds and transfer runs are parallel provisional replication of this self-elicited recipe, not a declaration that it beats the generic alternative.
 
 Acceptance source: [artifacts/D48_analysis_20261008_1528/snapshot-20261008_165630/results.json](../artifacts/D48_analysis_20261008_1528/snapshot-20261008_165630/results.json); independent256/full-fc contrasts and data audits: [artifacts/P3_D48_scaling_report_20261008_1615/snapshot-20261008_165611/results.json](../artifacts/P3_D48_scaling_report_20261008_1615/snapshot-20261008_165611/results.json). Scripts analyze_v3.py and contrasts.py rederive metrics from raw counters; all frozen-engine/hardware/prompt hashes and matched-training checks pass. Artifacts are immutable.
+
+[Self-elicited scaling figure](figures/P3-self-scaling-D48-20261008.pdf). Serving-time results for these4k exports are pending in the separate P6 follow-up; completed256-export timing must not be presented as measured4k speed.
