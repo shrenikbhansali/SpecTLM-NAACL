@@ -5,6 +5,7 @@ from followspec.independent_kd import read,write,jsonl,filter_training_queries
 from followspec.generate_responses import make_sample
 from atlas.generate_magpie import unpaused,managed_engine,request_seeds
 from atlas.workloads import file_hash,magpie_prefix
+from followspec.disk_guard import require_free
 
 
 def tokenizer_for(path):
@@ -44,13 +45,14 @@ def main():
     for key in ['target-row','forbidden','output']:p.add_argument('--'+key,required=True)
     p.add_argument('--elicitation',choices=['magpie','instruction'],default='magpie');p.add_argument('--public-queries');p.add_argument('--count',type=int,default=520)
     p.add_argument('--seed',type=int,default=7001);p.add_argument('--max-new-tokens',type=int,default=512)
+    p.add_argument('--min-free-gb',type=float,default=0)
     p.add_argument('--query-rounds',type=int,default=64);p.add_argument('--dry-run',action='store_true');a=p.parse_args()
     row=json.loads(Path(a.target_row).read_text());target=Path(row['path'])
     if target.name!=row['revision'] or not row['license']:raise ValueError('pinned licensed target required')
     if a.count<5 or a.max_new_tokens<4:raise ValueError('five examples and nonempty answers required')
     cfg=vars(a)|dict(target=row,engine_version='0.31.0',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),forbidden_sha256=file_hash(a.forbidden),public_sha256=file_hash(a.public_queries) if a.public_queries else None,query_temperature=.8,response_temperature=0.,batch_size=8,max_model_len=4096,enable_thinking=False)
     if a.dry_run:print(json.dumps(cfg,indent=2));return
-    unpaused()
+    unpaused();require_free(a.output,a.min_free_gb)
     if importlib.metadata.version('vllm')!='0.31.0':raise ValueError('wrong engine')
     import torch
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('A40 required')
@@ -72,7 +74,7 @@ def main():
             candidates=[]
             with (out/'raw_queries.jsonl').open('x') as raw:
                 for iteration in range(a.query_rounds):
-                    unpaused();seeds=request_seeds(a.seed,iteration,32)
+                    unpaused();require_free(out,a.min_free_gb);seeds=request_seeds(a.seed,iteration,32)
                     inputs=[dict(prompt_token_ids=prefix_ids)]*32
                     if a.elicitation=='instruction':
                         inputs=[dict(prompt_token_ids=render(tok,'Invent one new, specific user request about '+topics[(iteration*32+j)%len(topics)]+'. Make it self-contained and answerable. Do not solve it. Output only a JSON object with a single string field named prompt.')) for j in range(32)]
@@ -93,7 +95,7 @@ def main():
         jsonl(out/'queries.jsonl',queries);samples=[]
         with (out/'per_prompt.jsonl').open('x') as f:
             for offset in range(0,len(queries),8):
-                unpaused();batch=queries[offset:offset+8]
+                unpaused();require_free(out,a.min_free_gb);batch=queries[offset:offset+8]
                 outputs=llm.generate([dict(prompt_token_ids=r['rendered_token_ids']) for r in batch],SamplingParams(temperature=0.,top_p=1.,max_tokens=a.max_new_tokens,seed=a.seed),use_tqdm=False)
                 for r,o in zip(batch,outputs,strict=True):
                     if list(o.prompt_token_ids)!=r['rendered_token_ids']:raise ValueError('prompt IDs changed')
