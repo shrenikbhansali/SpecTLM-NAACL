@@ -159,13 +159,27 @@ def conditional_counts(accepted,drafted,k):
             [sum(a>=i and d>=i+1 for a,d in zip(accepted,drafted)) for i in range(k)])
 
 
+def is_queue_command(argv):
+    return bool(argv) and 'python' in Path(argv[0]).name and any(x.endswith('/queue.py') or x=='queue.py' for x in argv[1:])
+
+
+def queue_processes():
+    proc=subprocess.run(['pgrep','-af','[q]ueue.py'],capture_output=True,text=True)
+    print(proc.stdout,flush=True);found={}
+    for line in proc.stdout.splitlines():
+        pid=int(line.split()[0])
+        try:argv=Path(f'/proc/{pid}/cmdline').read_bytes().decode().strip('\0').split('\0')
+        except FileNotFoundError:continue
+        if is_queue_command(argv):found[pid]=argv
+    return found
+
+
 def launch_guard(stage):
     # Required operator check before every handoff; never starts another queue.
-    proc=subprocess.run(['pgrep','-af','[q]ueue.py'],capture_output=True,text=True)
-    print(proc.stdout,flush=True)
+    processes=queue_processes()
     subprocess.run(['ls','-la',str(stage)],check=True)
-    if len(proc.stdout.strip().splitlines())!=1:raise ValueError('exactly one canonical queue required')
-    if str(DISPATCH) not in proc.stdout:raise ValueError('unexpected queue')
+    if len(processes)!=1:raise ValueError('exactly one canonical queue required')
+    if str(DISPATCH) not in next(iter(processes.values())):raise ValueError('unexpected queue')
     for parent in [WS,*WS.parents]:
         for rel in ['EXPERIMENTS_PAUSED.json','tlm-spec-maintenance/EXPERIMENTS_PAUSED.json']:
             if (parent/rel).exists():raise ValueError('pause marker present')

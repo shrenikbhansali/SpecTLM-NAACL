@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import time
-from ops.track_t import DISPATCH,QUEUE_LOG,read,lines,sha,write,launch_guard
+from ops.track_t import DISPATCH,QUEUE_LOG,read,lines,sha,write,launch_guard,queue_processes
 from ops.method_recovery import apply_overlay,retry_plan,preflight
 from ops.raw_acceptance_audit import load,matched_configs,t1
 
@@ -19,8 +19,9 @@ def validate_slots(slots):
 
 def publish(jobs,stage):
     launch_guard(stage)
-    pid=int(subprocess.check_output(['pgrep','-f','[q]ueue.py'],text=True).strip())
-    argv=Path(f'/proc/{pid}/cmdline').read_bytes().decode().strip('\0').split('\0');validate_slots(argv[argv.index('--slots')+1])
+    processes=queue_processes()
+    if len(processes)!=1:raise ValueError('exactly one queue required')
+    argv=next(iter(processes.values()));validate_slots(argv[argv.index('--slots')+1])
     old=lines(DISPATCH);before=sha(DISPATCH);known={j['name']:j for j in old};add=[]
     for j in jobs:
         if j['allowed_nodes']!=['heck-srv4','heck-srv2']:raise ValueError('I1 placement changed')

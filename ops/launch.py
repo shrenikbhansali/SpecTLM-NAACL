@@ -183,6 +183,14 @@ def append_registry(rec: dict):
         f.write(json.dumps(rec) + "\n")
 
 
+def collect_pid(out_dir,wait=True):
+    for _ in range(50 if wait else 1):
+        p=Path(out_dir)/'pid'
+        if p.exists() and p.read_text().strip():return int(p.read_text())
+        if wait:time.sleep(.2)
+    return None
+
+
 def cmd_run(a) -> int:
     check_guards(a)
     run_id = make_run_id(a.task, a.base, a.drafter, a.k, a.seed, rep=a.rep, tag=a.tag)
@@ -234,11 +242,8 @@ def cmd_run(a) -> int:
                              timeout=60)
         if res.returncode != 0:
             raise LaunchError(f"ssh launch failed: {res.stderr.strip()}")
-        for _ in range(50):
-            if (out_dir / "pid").exists() and (out_dir / "pid").read_text().strip():
-                rec["pid"] = int((out_dir / "pid").read_text())
-                break
-            time.sleep(0.2)
+        rec['pid']=collect_pid(out_dir,wait=not getattr(a,'no_wait_pid',False))
+        if getattr(a,'no_wait_pid',False):rec['pid_collection']='asynchronous; read artifact pid file'
         print(f"launched {run_id} on {a.node} gpus={a.gpus} pid={rec['pid']}\n  {out_dir}")
     append_registry(rec)
     return 0
@@ -306,6 +311,7 @@ def main(argv=None) -> int:
     r.add_argument("--allow-branch", action="store_true", help="permit a non-main checkout (verification only)")
     r.add_argument("--allow-h200-training", action="store_true", help="D-26: permit M3 training on free H200s; never acceptance evaluation")
     r.add_argument("--config-name", default="config.json")
+    r.add_argument('--no-wait-pid',action='store_true',help='opt-in: return after SSH launch; job still writes pid and exit_code files')
     r.add_argument("--env", action="append", default=[], help="extra KEY=VALUE exported in the job (repeatable)")
     r.add_argument("--note", default="")
     r.add_argument("--dry-run", action="store_true")

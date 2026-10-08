@@ -102,6 +102,7 @@ def main():
     ap.add_argument('--exclusive-owner',action='store_true',help='refuse a second dispatcher with the same owner; required for method queues')
     ap.add_argument('--reload-jobs',action='store_true',help='watch atomically updated job list; stay alive until explicitly stopped')
     ap.add_argument('--cancel-file',help='optional JSON list of pending job names to cancel; logged permanently, no running process is stopped')
+    ap.add_argument('--no-wait-launch-pid',action='store_true',help='opt-in: skip launcher PID visibility wait; still track artifact exit_code')
     a = ap.parse_args()
     lock=acquire_owner_lock(a.owner) if a.exclusive_owner else None
     try:
@@ -159,7 +160,8 @@ def dispatch(a):
                 continue
             job = pending.pop(index)
             attempted.add(job["name"])
-            res = subprocess.run([sys.executable, str(LAUNCH), "run", "--node", node, "--gpus", gpu, *job["args"]],
+            extra=['--no-wait-pid'] if getattr(a,'no_wait_launch_pid',False) else []
+            res = subprocess.run([sys.executable, str(LAUNCH), "run", "--node", node, "--gpus", gpu, *extra,*job["args"]],
                                  capture_output=True, text=True)
             m = re.search(r"\n  (/\S+)", res.stdout)
             if res.returncode != 0 or not m:
