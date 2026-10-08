@@ -14,6 +14,7 @@ import os
 import socket
 import json
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -92,6 +93,21 @@ def cancel_pending(jobs, names):
     return [j for j in jobs if j['name'] not in names],[j['name'] for j in jobs if j['name'] in names]
 
 
+def disk_free_gb(path):
+    parent = Path(path).resolve()
+    while not parent.exists():
+        parent = parent.parent
+    return shutil.disk_usage(parent).free / 10**9
+
+
+def disk_admission(path, minimum_gb):
+    """Return insufficient free GB; None admits. Disabled by default."""
+    if minimum_gb <= 0:
+        return None
+    free = disk_free_gb(path)
+    return free if free < minimum_gb else None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--slots", required=True)
@@ -103,6 +119,8 @@ def main():
     ap.add_argument('--reload-jobs',action='store_true',help='watch atomically updated job list; stay alive until explicitly stopped')
     ap.add_argument('--cancel-file',help='optional JSON list of pending job names to cancel; logged permanently, no running process is stopped')
     ap.add_argument('--no-wait-launch-pid',action='store_true',help='opt-in: skip launcher PID visibility wait; still track artifact exit_code')
+    ap.add_argument('--min-free-gb',type=float,default=0,help='opt-in decimal GB floor before each launch; holds pending jobs without cancelling them')
+    ap.add_argument('--disk-path',help='filesystem to check; defaults to job-list directory')
     a = ap.parse_args()
     lock=acquire_owner_lock(a.owner) if a.exclusive_owner else None
     try:
@@ -157,6 +175,12 @@ def dispatch(a):
             node, gpu = slot.split(":")
             index=eligible_job_index(pending,node)
             if index is None or gpu_busy(node, gpu):
+                continue
+            disk_path=getattr(a,'disk_path',None) or Path(a.jobs).parent
+            minimum=getattr(a,'min_free_gb',0)
+            low=disk_admission(disk_path,minimum)
+            if low is not None:
+                emit(event='disk_hold',free_gb=low,minimum_gb=minimum,path=str(disk_path),pending=len(pending))
                 continue
             job = pending.pop(index)
             attempted.add(job["name"])
