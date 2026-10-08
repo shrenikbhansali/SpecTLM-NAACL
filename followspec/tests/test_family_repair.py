@@ -50,3 +50,15 @@ def test_data_contract_rejects_overlap_or_wrong_masks():
     validate_rows([row],set(),max_length=10)
     with pytest.raises(ValueError):validate_rows([row],{row['prompt_sha256']},max_length=10)
     with pytest.raises(ValueError):validate_rows([row|dict(loss_mask=[True]*3)],set(),max_length=10)
+
+
+def test_query_role_boundaries_and_thought_rejection():
+    from followspec.repair_data import query_stops, usable_query
+    class Tok:
+        eos_token_id=9
+        def get_vocab(self):return {'<｜Assistant｜>':7,'<|eot_id|>':8}
+        def convert_tokens_to_ids(self,x):return self.get_vocab()[x]
+    assert set(query_stops(Tok()))=={7,8,9}
+    assert not usable_query('<think>Let me answer.</think> Hello!')
+    assert not usable_query('A question </think> followed by an answer')
+    assert usable_query('Explain how a rainbow forms.')

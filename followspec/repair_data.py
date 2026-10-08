@@ -18,12 +18,22 @@ def render(tok,text):
     return tok.encode(text,add_special_tokens=False)
 
 
+def query_stops(tok):
+    # DeepSeek ends the user turn with Assistant, rather than an eot token.
+    tokens=['<|eot_id|>','<|im_end|>','<｜end▁of▁sentence｜>','<｜Assistant｜>']
+    return sorted(set([tok.convert_tokens_to_ids(t) for t in tokens if t in tok.get_vocab()]+([tok.eos_token_id] if tok.eos_token_id is not None else [])))
+
+
+def usable_query(text):
+    return bool(text.strip()) and not any(t in text for t in ['<think>','</think>','<｜Assistant｜>','<|start_header_id|>assistant'])
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','forbidden','output']:p.add_argument('--'+key,required=True)
     p.add_argument('--public-queries');p.add_argument('--count',type=int,default=520)
     p.add_argument('--seed',type=int,default=7001);p.add_argument('--max-new-tokens',type=int,default=512)
-    p.add_argument('--dry-run',action='store_true');a=p.parse_args()
+    p.add_argument('--query-rounds',type=int,default=64);p.add_argument('--dry-run',action='store_true');a=p.parse_args()
     row=json.loads(Path(a.target_row).read_text());target=Path(row['path'])
     if target.name!=row['revision'] or not row['license']:raise ValueError('pinned licensed target required')
     if a.count<5 or a.max_new_tokens<4:raise ValueError('five examples and nonempty answers required')
@@ -46,19 +56,17 @@ def main():
         else:
             prefix_ids=tok.encode(magpie_prefix(tok,row['base']),add_special_tokens=False)
             # Native user-turn terminator from the template, not a family-token assumption.
-            stop=[]
-            for token in ['<|eot_id|>','<|im_end|>','<｜end▁of▁sentence｜>']:
-                if token in tok.get_vocab():stop.append(tok.convert_tokens_to_ids(token))
+            stop=query_stops(tok)
             candidates=[]
             with (out/'raw_queries.jsonl').open('x') as raw:
-                for iteration in range(64):
+                for iteration in range(a.query_rounds):
                     unpaused();seeds=request_seeds(a.seed,iteration,32)
                     outputs=llm.generate([dict(prompt_token_ids=prefix_ids)]*32,[SamplingParams(temperature=.8,top_p=1.,max_tokens=256,stop_token_ids=stop,seed=s) for s in seeds],use_tqdm=False)
                     for j,o in enumerate(outputs):
                         c=o.outputs[0];text=tok.decode(list(c.token_ids),skip_special_tokens=True).strip()
                         r=dict(prompt=text,prompt_id=f'P3-magpie-{a.seed}-{iteration}-{j}',split='training',derivative_id=row['id'],seed=a.seed)
                         raw.write(json.dumps(r|dict(finish_reason=c.finish_reason,token_ids=list(c.token_ids)))+'\n');raw.flush()
-                        if c.finish_reason!='length':candidates.append(r)
+                        if c.finish_reason!='length' and usable_query(text):candidates.append(r)
                     queries,report=filter_training_queries(candidates,forbidden)
                     if len(queries)>=a.count:break
             write(out/'query_filter.json',report);queries=queries[:a.count]
