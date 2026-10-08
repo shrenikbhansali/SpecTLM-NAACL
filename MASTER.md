@@ -83,8 +83,8 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-07T23:33-04:00 (claude-ops) |
-| Sprint day | Day 3 of 8 (Thu Oct 8) begins; ARR deadline Mon Oct 12 23:59 AoE |
+| Last updated | 2026-10-07T23:34-04:00 (codex-1; builder/operator) |
+| Sprint day | Day 3 of 8 (Wed Oct 7); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | **Motivation decision Thu ~14:00 ET** (Track T decision rule, [plan](reports/TRACK-T-plan.md)); Gate 3 framing call follows. Gates 1 and 2 passed. |
 | Paper framing | **Reopened by owner (D-40):** FollowSpec not clearly working (EXP-ATL-009/010). Robust motivation first: Track T (target-conditioned failure modes) ∥ Track I (independent drafters). Fallback: analysis paper (census). |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
@@ -277,7 +277,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | FIX-20 | Serialize shared lambda inference export planning; restart failed public-panel controller without altering frozen evaluation | P0 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:27:30.385759-04:00 | [journal](notes/FIX-20.md); merged633b4a0,317 tests +12 actual exports verified; [audit](artifacts/FIX20_recovery_20261007/export_audit.json); repaired3269112 passed76 dry runs and queued38 public lambda0 cells |
 
 | FIX-21 | D-39 K8 stress follow-up: all four trained arms plus Frozen, all approved lambda values, same fixed development panel and frozen harness | P1 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:43:05.071350-04:00 | [journal](notes/FIX-21.md); mergede39c8cb;330 tests +224 actual dry runs PASS; [preflight](artifacts/D39_K8_20261007/preflight/results.json);112K8 jobs dispatched, watcher3298174 reports4lambda variants automatically |
-| T1 | Track T phase 1: stage + evaluate public lineage/reasoning/RL checkpoints (H1–H3) with EAGLE-3 K4 and DFlash native K, general workload; per-position acceptance | P0 | claude-ops / codex | A4, A7 | Thu noon | in progress | claude-ops / 2026-10-07T22:57-04:00 | [plan](reports/TRACK-T-plan.md); downloads started |
+| T1 | Track T phase 1: stage + evaluate public lineage/reasoning/RL checkpoints (H1–H3) with EAGLE-3 K4 and DFlash native K, general workload; per-position acceptance | P0 | claude-ops / codex | A4, A7 | Thu noon | in progress | codex-1 / 2026-10-07T23:34-04:00 | [plan](reports/TRACK-T-plan.md); [journal](notes/T1.md); 18 downloads complete; verifying renders and preparing 72 paired cells |
 | T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep on heck A40s (LoRA/high-rank or A40-feasible full FT, increasing steps; D-41) | P1 | codex | T1 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
 | I1 | Track I: independent-drafter census on heck A40s (D-41) (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex | — | Thu | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
 | I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex | I1 | Fri | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
