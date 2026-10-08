@@ -20,3 +20,26 @@ Existing child‖parent KL is available on only ten included checkpoints with id
 Artifacts: `artifacts/P5_triage_20261008_1533/analyze_v2.py` and `analysis-v2/{plan.json,results.json}`; the disjoint KL comparator is `compare_kl_disjoint.py` / `KL-disjoint-results.json`. The initial KL comparison overlapped eight label queries and is superseded by this disjoint recomputation (same AUROCs). AUROC implementation passed synthetic perfect/reversed/tied/single-class checks before analysis; runtime assertions verify prompt pairing, frozen settings, unique batches and raw counters. The first script correctly stopped on the immediate-EOS case; the new version records effective paired n rather than treating undefined acceptance as zero. Ten thousand checkpoint bootstrap draws, seed0; one-class draws excluded and counted.
 
 The archived 174-checkpoint census remains separate until exact frozen-harness compatibility is verified. This probe uses SPEED prompts rather than newly self-elicited deployment requests, and no held-out checkpoint validation has been performed. Those gaps remain open.
+
+## 2026-10-08T16:28:57.414669-04:00 — retrospective prefix budgets and query uncertainty
+
+The same fixed 16 probe / 112 disjoint label queries were reanalyzed at 16, 32, 64 and 128 speculative iterations, plus the full records. All 21 eligible checkpoints per drafter are retained; no cutoff or threshold was fitted. The retention label and prediction threshold remain 0.9. Immediate-EOS records retain the paired exclusions documented above.
+
+These intervals resample both checkpoints and paired query IDs, recomputing the noisy probe scores and held-out labels. The earlier checkpoint-only intervals conditioned on those query estimates. In particular, the full EAGLE-3 AUROC remains 1.0, but its interval becomes [0.75, 1.0] when query uncertainty is included. Original full/prefix-16 central estimates and labels are independently reproduced exactly.
+
+| Drafter | Prefix iterations | AUROC [paired query + checkpoint 95% CI] | Median fraction of full-probe iterations | TP / FP / FN / TN at fixed 0.9 |
+|---|---:|---|---:|---|
+| eagle3 | 16 | 0.602 [0.250, 0.959] | 0.089 | 4 / 3 / 3 / 11 |
+| eagle3 | 32 | 0.592 [0.250, 0.967] | 0.177 | 4 / 4 / 3 / 10 |
+| eagle3 | 64 | 0.735 [0.357, 1.000] | 0.343 | 4 / 4 / 3 / 10 |
+| eagle3 | 128 | 0.980 [0.653, 1.000] | 0.664 | 7 / 2 / 0 / 12 |
+| eagle3 | Full | 1.000 [0.750, 1.000] | 1.000 | 7 / 3 / 0 / 11 |
+| dflash | 16 | 0.773 [0.442, 1.000] | 0.125 | 8 / 3 / 2 / 8 |
+| dflash | 32 | 0.882 [0.538, 1.000] | 0.240 | 7 / 3 / 3 / 8 |
+| dflash | 64 | 0.945 [0.709, 1.000] | 0.447 | 10 / 2 / 0 / 9 |
+| dflash | 128 | 0.991 [0.764, 1.000] | 0.775 | 10 / 3 / 0 / 8 |
+| dflash | Full | 0.945 [0.731, 1.000] | 1.000 | 9 / 3 / 1 / 8 |
+
+Short EAGLE-3 prefixes remain weak; longer prefixes rank this cohort better but consume more of the full-probe iterations. DFlash improves earlier, with wide uncertainty. The iteration fractions are retrospective work proxies, **not measured wall-clock savings**. Cold target-loading costs would remain. These results do not select a deployment cutoff or establish performance on new checkpoints; the cohort is small, related and enriched for known failures.
+
+[Prefix budget figure](figures/P5-prefix-curve-D48-20261008.pdf). Source, raw input hashes, complete scores and prespecified budget list: `artifacts/P5_prefix_curve_20261008_1627/`. No GPU jobs or acceptance-harness changes were used.

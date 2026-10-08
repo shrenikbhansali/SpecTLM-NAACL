@@ -16,3 +16,6 @@
 
 ### 2026-10-08T15:48:50.558182-04:00 — KL comparator overlap correction
 InitialKLscoreused8contextsfrom112labelqueries. `compare_kl_disjoint.py` nowremovesthose8; bothKL/directscorescomparedagainstsame104disjointlabelqueries,n10models,4degraded. AUROCstill1forbothfamilies/probes,degenerateempiricalCIsretained. Primarydirect16/112analysisunchanged. Source `artifacts/P5_triage_20261008_1533/KL-disjoint-results.json`; originalcomparisonpreserved,superseded.
+
+### 2026-10-08T16:28:57.414669-04:00 — codex-1 — CPU prefix budget curve
+Script artifacts/P5_prefix_curve_20261008_1627/analyze.py runs noGPUjobs. Same16/112querysplit/21checkpoints, fixed.9threshold; budgets16/32/64/128/full allreported. AUROCedgecaseasserts and exactreproductionofpriorfull/prefix16scores/labels pass. Addedpairedquery+checkpointbootstrap, propagatinguncertainlabels: fullEAGLE1.0CI[.75,1], instead ofdegenerateconditionalcheckpoint-onlyCI. EAGLE16/32/64 weak;128 .980[.653,1] uses66.4%iterations. DFlash64 .945[.709,1] uses44.7%,128 .991[.764,1] uses77.5%. No shortwallclockclaim or newcheckpointvalidation. Figureinspected andreportappended; EXP022 addendum.
