@@ -42,3 +42,17 @@ Early independent-drafter median loss is small; these results do not establish a
 T1 snapshot:12 completed cells,8 architecture-incompatible planned cells excluded before execution. allenai/Llama-3.1-Tulu-3-8B-DPO / dflash: position1 retention 0.832, τ retention 0.698; allenai/Llama-3.1-Tulu-3-8B-DPO / eagle3: position1 retention 0.810, τ retention 0.819; allenai/Llama-3.1-Tulu-3-8B-SFT / dflash: position1 retention 0.937, τ retention 0.884; allenai/Llama-3.1-Tulu-3-8B-SFT / eagle3: position1 retention 0.915, τ retention 0.913; meta-llama/Llama-3.1-8B / dflash: position1 retention 1.158, τ retention 1.922; meta-llama/Llama-3.1-8B / eagle3: position1 retention 1.216, τ retention 1.355; all128prompts/pair. Full output lengths and uncertainty are in the artifact. No class-level conclusion yet.
 
 Handoff: censuses continue under sole queue3531265; I1/T1 report processes3518990/3518508. D-43 now authorizes I3–I5 exploration; four pre-cutoff I3 data jobs published after8 dry-run checks. Existing post-cutoff census outcomes are kept in this census summary but excluded from repair selection. Update this Q1 snapshot when more pairs finish and again by the noon checkpoint.
+
+## 2026-10-08T00:47:08-04:00 — codex-1 — Q1 Llama census complete / Handoff
+
+All30 selected Llama targets now paired with EAGLE3/DFlash on identical atlas prompts (64each), frozen greedy vLLM0.31, no input/config mismatches. Raw re-derivation: `artifacts/I1_Q1_20261008_0045/`; Qwen census continues.
+
+| Drafter | Median position1 retention | Range | Below.90 | Median τ retention | Median-of-target lengths A00→A10 |
+| --- | ---: | --- | ---: | ---: | --- |
+| 1B K4 | 0.9731 | 0.731–1.010 | 4/30 | 0.9806 | 209.75→156.75 |
+| EAGLE3 K4 | 0.9974 | 0.742–1.123 | 3/30 | 0.9962 | 201.75→151.5 |
+| DFlash K10 | 0.9886 | 0.601–1.109 | 6/30 | 0.9831 | 206.75→153.25 |
+
+Most targets have small losses. The larger pre-cutoff failures are shared across drafter families. Storytelling (tohur): position1 retention .731 (95%prompt-bootstrap .693–.769), EAGLE3 .742, DFlash .614; 1B τ retention .701 and median lengths142→144, so this example is not explained by large output shortening. GSM8K: .823/.747/.601, but lengths193.5→9 for1B. Vikhr: .864/.874/.860, with1B lengths158.5→471.5. No broad independent-only failure established. Full paired uncertainty/lengths and nulls retained. Pre-cutoff subset18targets separately reported; no test-pool repair tuning.
+
+T1 snapshot18cells/9pairs at this read; all n128, raw per-position/τ/length records embedded in the Q1artifact. Sole dispatcher3546069 and report processes3518990/3518508 continue; six obsolete post-training validators stopped to free srv3 forT1. I3 firstfour matched child/base greedy response jobs live/queued; expanded toward8donors using new degraded pre-cutoff tohur/Vikhr/agentlans plus a near-null grimjim control. Repair evidence remains exploratory and outcome-selected; owner direction checkpoints unchanged.
