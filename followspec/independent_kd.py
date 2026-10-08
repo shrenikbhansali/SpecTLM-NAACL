@@ -67,6 +67,19 @@ def paired_training(child,base,n):
     return aa,bb,log
 
 
+def head_only(model):
+    import torch
+    for p in model.parameters():p.requires_grad_(False)
+    old=model.get_output_embeddings()
+    head=torch.nn.Linear(old.in_features,old.out_features,bias=old.bias is not None,
+        device=old.weight.device,dtype=old.weight.dtype)
+    with torch.no_grad():
+        head.weight.copy_(old.weight)
+        if old.bias is not None:head.bias.copy_(old.bias)
+    model.set_output_embeddings(head);model.config.tie_word_embeddings=False
+    return model
+
+
 def train(a):
     import importlib.metadata
     import torch
@@ -95,9 +108,11 @@ def train(a):
     write(out/'five_decoded_masks.json',samples)
     model=AutoModelForCausalLM.from_pretrained(a.model,local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='sdpa').to('cuda')
     model.config.use_cache=False
-    model=get_peft_model(model,LoraConfig(r=a.rank,lora_alpha=2*a.rank,lora_dropout=0.,bias='none',task_type='CAUSAL_LM',
+    if a.mode=='head':model=head_only(model)
+    else:
+        model=get_peft_model(model,LoraConfig(r=a.rank,lora_alpha=2*a.rank,lora_dropout=0.,bias='none',task_type='CAUSAL_LM',
         target_modules=['q_proj','k_proj','v_proj','o_proj','gate_proj','up_proj','down_proj']))
-    model.enable_input_require_grads();model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
+        model.enable_input_require_grads();model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False})
     model.train();params=[p for p in model.parameters() if p.requires_grad]
     optimizer=torch.optim.AdamW(params,lr=a.lr,weight_decay=0.)
     start=time.monotonic();step=0;losses=[];order=list(range(len(rows)));rng=random.Random(a.seed)
@@ -115,7 +130,11 @@ def train(a):
                     (loss*weight).backward();total+=float(loss.detach())*weight
                 torch.nn.utils.clip_grad_norm_(params,1.);optimizer.step();step+=1;losses.append(total)
                 log.write(json.dumps(dict(step=step,epoch=epoch,loss=total,answer_tokens=tokens,elapsed_s=time.monotonic()-start))+'\n');log.flush()
-    model.eval();model.save_pretrained(out/'adapter');merged=model.merge_and_unload();merged.config.use_cache=True
+    model.eval()
+    if a.mode=='lora':
+        model.save_pretrained(out/'adapter');merged=model.merge_and_unload()
+    else:merged=model
+    merged.config.use_cache=True
     merged.save_pretrained(out/'merged',safe_serialization=True);tokenizer.save_pretrained(out/'merged')
     write(out/'results.json',dict(status='pilot',n=len(rows),steps=step,wall_s=time.monotonic()-start,
         initial_loss=losses[0],final_loss=losses[-1],trainable_parameters=sum(p.numel() for p in params),
@@ -125,6 +144,7 @@ def train(a):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['data','model','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--mode',choices=['lora','head'],default='lora')
     p.add_argument('--n',type=int,required=True);p.add_argument('--epochs',type=int,default=2)
     p.add_argument('--rank',type=int,default=8);p.add_argument('--lr',type=float,default=2e-4)
     p.add_argument('--accumulate',type=int,default=8);p.add_argument('--max-length',type=int,default=2048)

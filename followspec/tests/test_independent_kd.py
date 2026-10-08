@@ -64,3 +64,23 @@ def test_paired_trim_keeps_contexts_and_originals():
     assert sum(a[0]['loss_mask'])==sum(b[0]['loss_mask'])==2
     assert log[0]['child_trim']==1 and log[0]['base_trim']==0
     with pytest.raises(ValueError):paired_training(child,[dict(base[0],prompt_sha256='other')],1)
+
+
+def test_head_only_unties_without_changing_input_embeddings(tmp_path):
+    torch=pytest.importorskip('torch')
+    from transformers import LlamaConfig,LlamaForCausalLM
+    from followspec.independent_kd import head_only
+    torch.set_num_threads(1);torch.manual_seed(0)
+    model=LlamaForCausalLM(LlamaConfig(vocab_size=24,hidden_size=16,intermediate_size=32,num_hidden_layers=1,
+        num_attention_heads=2,num_key_value_heads=2,tie_word_embeddings=True))
+    original=model.get_input_embeddings().weight.detach().clone();head_only(model)
+    assert not model.config.tie_word_embeddings
+    assert model.lm_head.weight.data_ptr()!=model.get_input_embeddings().weight.data_ptr()
+    assert [n for n,p in model.named_parameters() if p.requires_grad]==['lm_head.weight']
+    ids=torch.tensor([[1,2,3,4,5]]);opt=torch.optim.AdamW([model.lm_head.weight],lr=.01)
+    model(input_ids=ids,labels=torch.tensor([[-100,-100,-100,4,5]])).loss.backward();opt.step()
+    torch.testing.assert_close(original,model.get_input_embeddings().weight)
+    assert not torch.equal(original,model.lm_head.weight)
+    model.save_pretrained(tmp_path);loaded=LlamaForCausalLM.from_pretrained(tmp_path)
+    assert loaded.lm_head.weight.data_ptr()!=loaded.get_input_embeddings().weight.data_ptr()
+    torch.testing.assert_close(original,loaded.get_input_embeddings().weight)
