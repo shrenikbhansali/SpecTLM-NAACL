@@ -53,6 +53,11 @@ def token_diagnostics(logits, support):
                 prob_margin=(values[:,0]-normalizer).exp()-(values[:,1]-normalizer).exp())
 
 
+def validate_shared_context(rows,parent_vocab,child_vocab):
+    if any(max(r['input_ids'])>=min(parent_vocab,child_vocab) for r in rows):
+        raise ValueError('context contains IDs outside a teacher vocabulary; no remapping')
+
+
 def read_sequences(path):
     path = Path(path)
     cfg = json.loads((path.parent/'config.json').read_text())
@@ -81,6 +86,8 @@ def main():
     for path in [a.parent,a.child,a.drafter]:
         if len(Path(path).name) != 40 or not Path(path).is_dir():
             raise ValueError('local pinned snapshot required')
+    vocab_sizes=[json.loads((Path(path)/'config.json').read_text())['vocab_size'] for path in [a.parent,a.child]]
+    validate_shared_context(rows,*vocab_sizes)
     config = vars(a)|dict(source=source,n=len(rows),seed=0,dtype='bfloat16',attention='eager',
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         source_sha256=sha256(__file__),backend={k:importlib.metadata.version(k) for k in ['torch','transformers','speculators']},
@@ -107,8 +114,6 @@ def main():
     try:
         teachers=[AutoModelForCausalLM.from_pretrained(x,local_files_only=True,torch_dtype=torch.bfloat16,
             attn_implementation='eager').to('cuda').eval().requires_grad_(False) for x in [a.parent,a.child]]
-        if teachers[0].config.vocab_size != teachers[1].config.vocab_size:
-            raise ValueError('shared token vocabulary required')
         taps=tap_layers(json.loads((Path(a.drafter)/'config.json').read_text()),teachers[0].config.num_hidden_layers)
         dc=SpeculatorModelConfig.from_pretrained(a.drafter,local_files_only=True)
         dc.eagle_aux_hidden_state_layer_ids=taps;dc.speculators_config.verifier.name_or_path=a.parent

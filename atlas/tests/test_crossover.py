@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 import torch
-from atlas.crossover import effects, paired_summary, swap_tap, token_diagnostics
+from atlas.crossover import effects, paired_summary, swap_tap, token_diagnostics, validate_shared_context
 
 
 def test_factorial_effects_known_cases():
@@ -35,3 +35,8 @@ def test_full_vocab_oov_is_greedy_ceiling_not_renormalized_prediction():
     assert d['oov'].tolist()==[True,False]
     assert d['logit_margin'].tolist()==[6.,1.]
     assert torch.all(d['prob_margin']>0)
+
+
+def test_unequal_teacher_vocab_preserves_common_prefix_and_rejects_unshared_ids():
+    validate_shared_context([dict(input_ids=[0,1,3])],4,7)
+    with pytest.raises(ValueError):validate_shared_context([dict(input_ids=[0,4])],4,7)
