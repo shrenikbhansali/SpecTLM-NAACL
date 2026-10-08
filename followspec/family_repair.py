@@ -52,6 +52,20 @@ def merged_state(model):
     return state
 
 
+def initialize_scratch(model):
+    """HF 5.x marks loaded tensors initialized; explicitly clear that guard."""
+    changed=0
+    for name,module in model.named_children():
+        if name in {'embed_tokens','verifier_norm','verifier_lm_head'}:continue
+        before={n:p.detach().clone() for n,p in module.named_parameters()}
+        for p in list(module.parameters())+list(module.buffers()):
+            if hasattr(p,'_is_hf_initialized'):p._is_hf_initialized=False
+        module.apply(model._init_weights)
+        changed+=sum(not torch.equal(p,before[n]) for n,p in module.named_parameters())
+    if not changed:raise ValueError('scratch initialization changed no parameters')
+    return dict(changed_parameters=changed,scope='fc/layers/head/norm; fixed embeddings and vocabulary mapping')
+
+
 def step_batches(rows,steps,ceiling,seed):
     lengths=[len(r['input_ids'])-1 for r in rows]
     if not rows or min(lengths)<1 or max(lengths)>ceiling:raise ValueError('invalid lengths; no truncation')
@@ -137,9 +151,7 @@ def main():
     conf.transformer_layer_config._attn_implementation='eager'
     model=SpeculatorModel.from_pretrained(a.drafter,config=conf,local_files_only=True,torch_dtype=torch.float32)
     if a.scratch:
-        # Match native initialization only for trainable drafter blocks.
-        for name,module in model.named_children():
-            if name not in {'embed_tokens','verifier_norm','verifier_lm_head'}:module.apply(model._init_weights)
+        write(out/'scratch_initialization.json',initialize_scratch(model))
     proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha);write(out/'parameters.json',proof)
     teacher=AutoModelForCausalLM.from_pretrained(target['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda').eval().requires_grad_(False)
     tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(base_config['vocab_size'])

@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-08T02:45-04:00 (claude-ops) |
+| Last updated | 2026-10-08T03:44:27.255649-04:00 (codex-1) |
 | Sprint day | Day 4 of 8 (Thu Oct 8); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | Owner checkpoints: Thu ~12:00 (does cheap repair recover a large share of the oracle gap?), Fri ~18:00 (freeze method + final experiment list). |
-| Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap data-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
+| Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | Sole queue3546069; I1 154/180 cells continues on srv4/srv2:0–3. T1 phase1 and runnable D44phase1b complete: [report](reports/T1-phase1b-20261008.md). I3–I5 complete23exports/44nativepairs: [report](reports/I3-pilot-complete-20261008.md). M4 complete1010/1010. |
-| Blockers | ICE unavailable (D-41). T5 extended Llama RL ladder: empty Hub repos or missing/invalid explicit licenses; eligible DAPO14k run complete. Two original T1 models are incompatible Qwen2. Heck disk~893GB free; new downloads17.23GB/200GB cap. Third parties occupy srv1 and srv5:0; retain assigned placement. |
-| Owner action needed | External research brief (ASTRA handoff) → method/experiment input; checkpoints Thu 12:00 and Fri 18:00. |
+| Jobs running | Sole queue3546069. I1 complete180/180 ([report](reports/I1-census-complete-20261008.md)); T1/T1b complete. P3 D45 ten trainings complete,38 frozen evals running; D46 self-elicited generation and four component export smokes running. P2 crossover tests pass; P1 eight-model D46 panel rendered. |
+| Blockers | ICE unavailable (D-41). Old P3 scratch control invalid due to HF initialization guards; corrected before new D46 scratch. New expansion downloads243.7GB of250GB cap; disk521GB free at03:39. Third-party GPUs excluded. |
+| Owner action needed | No operational approval pending; method checkpoints Thu 12:00 and Fri 18:00. |
 
 ---
 
@@ -285,7 +285,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | T5 | Track T C3 (exploratory): on-policy RL vs distillation vs KL: more RL checkpoints (step ladders, arch-compatible), Tülu ladder, child‖base KL for all T1 models, retention-vs-KL plot with the atlas | P0 | codex | T1, A6 | Thu 12:00 | blocked | codex-1 / 2026-10-08T02:03:46-04:00 | [journal](notes/T5.md);17KL diagnostics +TMLR paired cells and atlas plot complete; longer Llama ladder blocked: empty repos/missing licenses;[report](reports/T1-phase1b-20261008.md);EXP-ATL-015 |
 | P1 | Pivot: population expansion: (a) label 174 atlas + T1 derivatives by post-training type from cards, retention by type × drafter; (b) add 6–10 distilled/reasoning + 2–3 on-policy RL derivatives per base (compatible, licensed), SPEED-128 + MATH-500 subset | P0 | codex | T1 | Thu pm | in progress | codex-1 / 2026-10-08T03:32:18.003132-04:00 | [journal](notes/P1.md);192card records;15expansions staged243.7GB;D46typed panel8new rendering |
 | P2 | Pivot (P0 per D-46): mechanism: fixed-prefix 2×2 crossover (taps parent/derivative × verifier parent/derivative) on parent/derivative/public texts; per-layer tap swaps; top-1 disagreement + margin; top-1 OOV bound; targets R1-Distill-Llama, Nemotron-Nano, R1-0528-Qwen3, Tülu-3 DPO, one GRPO control; Nemotron reasoning on/off cells | P0 | codex | T3 | Fri | in progress | codex-1 / 2026-10-08T03:32:18.003132-04:00 | [journal](notes/P2.md);D46P0 crossover implementation active;64contexts/source and tap/OOV diagnostics |
-| P3 | Pivot: repair (EAGLE-3) per D-46 matrix: calibration / fc-only / fc-LoRA / decoder-LoRA / fc+decoder-LoRA / full warm-start / scratch once; ckpts 50/150/300; 3 seeds on winner; R1-Distill first (oracle), then top-2 on Nemotron + R1-0528-Qwen3 + 1 RL negative control; recovery vs oracle; GPU-hours incl. data gen | P0 | codex | T4 | Thu 12:00 | in progress | codex-1 / 2026-10-08T03:32:18.003132-04:00 | [journal](notes/P3.md);3native+3frozen exportsmokes pass;D45generic10trainruns active;D46component matrix being added |
+| P3 | Pivot: repair (EAGLE-3) per D-46 matrix: calibration / fc-only / fc-LoRA / decoder-LoRA / fc+decoder-LoRA / full warm-start / scratch once; ckpts 50/150/300; 3 seeds on winner; R1-Distill first (oracle), then top-2 on Nemotron + R1-0528-Qwen3 + 1 RL negative control; recovery vs oracle; GPU-hours incl. data gen | P0 | codex | T4 | Thu 12:00 | in progress | codex-1 / 2026-10-08T03:44:27.255649-04:00 | [journal](notes/P3.md);16 calibration/variant tests pass;owner approved HF-affine/RMS-online;D45ten trainings complete;D46self-data and export smokes active;old scratch excluded |
 | P4 | Pivot: DFlash repair (B10 path; DFlash also exposes `fc`) on the two Llama targets | P1 | codex | P3, B10 | Fri | in progress | codex-1 / 2026-10-08T02:55:42-04:00 | [journal](notes/P4.md); D45 claimed; scheduled after P3 checkpoint unless idle GPUs |
 | P5 | Pivot: triage probe validated on census + P1 (AUROC for retention < 0.9; cost vs a direct short measurement) | P1 | codex | P1 | Sat | in progress | codex-1 / 2026-10-08T02:55:42-04:00 | [journal](notes/P5.md); D45 claimed; scheduled after P3 checkpoint unless idle GPUs |
 | P6 | Pivot: economics: A40 wall-clock for reused vs repaired vs dedicated; repair GPU-hours vs dedicated-drafter training cost | P1 | codex | P3 | Sat | in progress | codex-1 / 2026-10-08T02:55:42-04:00 | [journal](notes/P6.md); D45 claimed; scheduled after P3 checkpoint unless idle GPUs |
@@ -1084,3 +1084,7 @@ The full research proposal and literature grounding live in the owner's
 "FollowSpec proposal" document; the Spec-TLM archive (`00_START_HERE.md`,
 `02_METHODS_AND_PROTOCOLS.md`, `03_ALL_EXPERIMENTS.md`) holds the prior
 evidence and protocols.
+
+### D-46 implementation addendum — owner direct, 2026-10-08T03:44:27.255649-04:00
+
+Owner approved full affine calibration as an HF diagnostic and RMS-only calibration for frozen-harness evaluation. Exact mean shifting cannot be represented by the frozen bias-free EAGLE-3 fc. This preserves the frozen engine and distinguishes the two treatments. Recorded by codex-1.

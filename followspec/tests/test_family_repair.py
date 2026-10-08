@@ -79,3 +79,23 @@ def test_self_elicited_question_parser_preserves_question_and_rejects_reasoning_
     assert elicited_query('<think>draft reasoning</think>\n{"prompt": "Explain entropy in plain English."}')=='Explain entropy in plain English.'
     assert elicited_query('<think>not done') is None
     assert elicited_query('{"prompt": "<think>answer contamination"}') is None
+
+
+def test_scratch_clears_hf_initialization_guards_only_for_requested_modules():
+    from followspec.family_repair import initialize_scratch
+    from transformers import initialization
+    m=Tiny()
+    for p in m.parameters():p._is_hf_initialized=True
+    before={k:v.clone() for k,v in m.state_dict().items()}
+    def init(module):
+        if isinstance(module,torch.nn.Linear):
+            with torch.no_grad():initialization.normal_(module.weight,std=.02)
+    m._init_weights=init
+    proof=initialize_scratch(m)
+    assert not torch.equal(m.fc.weight,before['fc.weight'])
+    assert not torch.equal(m.lm_head.weight,before['lm_head.weight'])
+    assert torch.equal(m.embed_tokens.weight,before['embed_tokens.weight'])
+    assert torch.equal(m.verifier_lm_head.weight,before['verifier_lm_head.weight'])
+    assert torch.equal(m.d2t,before['d2t'])
+    assert m.embed_tokens.weight._is_hf_initialized
+    assert proof['changed_parameters']>0
