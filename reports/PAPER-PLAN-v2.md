@@ -29,6 +29,7 @@ reuse and economics, not adaptation itself.
 | Q3 | Do repairs transfer between derivatives? | Small bank (about 8 donors): evaluate each donor's repair on a few *other* degraded children, plus a cached greedy-agreement probe to see if it ranks donors sensibly | Some donor recovers much of a new child's loss and beats D_pool; the probe roughly finds it |
 | Q4 | Is the output head enough? | Head-only KD vs LoRA KD on about 4 children (short, capped) | Head-only gets a good fraction of the gain, which would make a shared head basis worth a look |
 | Q5 | Does anything break target-conditioned drafters? | T1 (lineage, reasoning, RL checkpoints × EAGLE-3/DFlash), continues in parallel | Any shift class with large losses for both drafter families |
+| Q5b | **Interim (01:30):** reasoning distillation and off-lineage post-training cost 15–28% per token for both families; GRPO from the target ≈ 0. Real and novel? | Checks C1 (domain vs model), C2 (dedicated-drafter oracle), C3 (RL vs distillation vs KL); see TRACK-T-plan Phase 1b | Model shift plus the RL/distillation contrast → shift repair to target-conditioned drafters; mostly domain → population paper |
 
 Out of scope for now (revisit only if the owner asks): weight-space transfer, online verification-feedback updates, damage-directed data
 selection, Qwen3 replication, multi-family generality. Possible later steps once a direction is chosen: Qwen3-0.6B replication, 1.7B capacity check,
@@ -50,7 +51,7 @@ Light hygiene that keeps later options open:
 
 | When | What we bring | Owner chooses |
 | --- | --- | --- |
-| Thu ~12:00 | Q1 census picture (+ T1 so far) | Continue Track I repair, switch emphasis, or write a population/analysis paper |
+| Thu ~12:00 | Q1 census picture, T1, **C1–C3** | Which motivation leads: target-conditioned drafters on distilled derivatives, independent drafters, or a population/analysis paper |
 | Thu ~22:00 | Q2 pilot (+ Q4 if quick) | Whether repair is worth building on |
 | Fri ~12:00 | Q3 transfer picture | Main direction for the paper and what (if anything) to run as a confirmation on the untouched test pool over the weekend |
 

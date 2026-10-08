@@ -35,3 +35,24 @@ robustness finding (census) as the motivation for Track I.
 - codex-1 (heck): stage, filter, render and cells for the H1–H3 list (reuse B1/A2/A3/A4 code); record licenses (AGENTS rule 9).
 - claude-ops (heck): downloads tonight, launch and verify, per-position analysis, ledger.
 - ICE: unavailable (D-41). Track I also runs on heck (heck-srv4 + heck-srv2:0–3).
+
+## Phase 1b (owner, 2026-10-08 ~01:45): is the reasoning-distillation failure real, novel and significant? (exploratory)
+
+T1 interim (operator re-derived, n = 128 prompts per pair): position-1 retention for EAGLE-3 / DFlash is R1-Distill-Llama-8B .75 / .72,
+Nemotron-Nano-8B .77 / .75, R1-0528-Qwen3-8B .86 / .80, Tülu-3 DPO/RLVR .78–.81 / .82; GRPO from the drafter's own target (Qwen3 50–250 steps)
+≈ 1.0. Context: drafters trained on chat data are known to lose acceptance on reasoning traces (practitioner reports; arXiv 2509.04474,
+2604.14682). RL's Razor (arXiv 2509.04259, ICLR 2026) shows on-policy RL stays KL-close to the base, whereas SFT can drift far. A dedicated EAGLE-3
+exists for R1-Distill-Llama-8B (`yuhuili/EAGLE3-DeepSeek-R1-Distill-LLaMA-8B`), but none was found for R1-0528-Qwen3-8B, Nemotron-Nano-8B or
+Hermes-3, and no DFlash drafter exists for any R1 distill.
+
+Three checks decide whether this can carry the paper:
+
+| Check | Question | Probe | Reading |
+| --- | --- | --- | --- |
+| **C1 domain vs model** | Is the loss caused by reasoning *text* (known) or by the derivative's *model shift* (more novel)? | (a) Teacher-forced on R1-Distill's and Nemotron's own A10 traces: per-position top-1 agreement of the EAGLE-3 drafter (fed the target's own taps) with (i) the derivative and (ii) Llama-3.1-8B-Instruct, on the same token contexts; same on Instruct's own A00 outputs as the reference. (b) vLLM cells: Qwen3-8B thinking vs non-thinking with its own EAGLE-3/DFlash drafters on identical raw queries. | Agreement vs Instruct also drops on reasoning text, or the thinking-mode drop is large → mostly a domain effect. Agreement vs Instruct stays high on reasoning text while agreement vs the derivative drops → model shift |
+| **C2 oracle** | How much does a dedicated drafter recover? | R1-Distill-Llama-8B + `yuhuili/EAGLE3-DeepSeek-R1-Distill-LLaMA-8B` (pinned, license recorded) on the same T1-rendered prompts, EAGLE-3 K4, beside the Instruct-drafter A10 and the Instruct A00 | Sets the reference any cheap repair must approach; its training cost (model card) sets the economics |
+| **C3 RL vs distillation** | Does "on-policy RL keeps drafters, distillation breaks them" hold beyond short runs, and does it track KL? | Add 2–4 longer or larger-drift RL checkpoints from the same base (prefer step ladders; check architecture compatibility first). Use the Tülu-3 SFT → DPO → RLVR ladder as a within-lineage series. Compute child‖base KL (atlas.covariates) for every T1 model and plot position-1 retention vs KL together with the atlas | RL points at low KL with high retention and distillation at high KL with low retention → supports the RL's Razor framing. Mixed → report as is |
+
+Outcomes map to directions for the owner: model shift plus RL/distillation contrast → strong motivation for repair of target-conditioned
+drafters on distilled derivatives (with C2 as the reference). Mostly domain → population paper with "what post-training breaks speculators" as the
+headline and repair as a measured baseline.
