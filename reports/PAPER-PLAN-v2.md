@@ -1,4 +1,4 @@
-# Paper plan v2: measure, repair, reuse (proposed; owner to confirm)
+# Paper plan v2: measure, repair, reuse (D-43, proposed; owner to confirm)
 
 claude-ops, Thu 2026-10-08 ~00:30 ET. Interprets the owner's external brainstorm ("astra") against our evidence and constraints:
 heck A40s only (D-41), deadline Mon Oct 12 23:59 AoE (≈ Tue 08:00 ET), about 2.5 days of experiments plus 1.5 days of writing.
@@ -27,7 +27,7 @@ claim that adaptation or transfer is new.
 
 | Item | Status | Why |
 | --- | --- | --- |
-| **G1 census**: Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives (same tokenizer; stratified 40 from the atlas: all types, both pools, plus the known EAGLE tail) | **run first** | Without large, common degradation there is no repair paper |
+| **G1 census**: Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives (same tokenizer; codex-1 I1 stratified 60 of 174 (D-42, already running)) | **run first** | Without large, common degradation there is no repair paper |
 | **M0 per-child KD** (reference): Magpie queries from the child → child greedy responses → rank-8 LoRA on the drafter, answer-only, hard labels (= the child's greedy tokens; our decoding is greedy/greedy), 128 and 512 examples, ≤ 256 answer tokens | **run** | The baseline and the bank-construction procedure |
 | Controls: D₀ (stock), D_B (distilled once on the base), D_pool (one LoRA on a balanced donor mixture) | **run** | D_pool is the decisive control: our FollowSpec null showed pooled training may already capture everything general |
 | **M1 repair bank + cached-probe selection** (main): 8 pre-cutoff donors → 12–16; shared probe set of 16–32 synthetic sequences × 128–256 tokens; score = greedy top-1 agreement between child and candidate on teacher-forced prefixes; pick the argmax; report the pure selector and an optional 8-prompt finalist check separately | **run** | Highest value; directly tests reuse; cheap after caching |
@@ -51,7 +51,7 @@ in one split.
 
 | Gate | When | Pass criterion | If it fails |
 | --- | --- | --- | --- |
-| **G1 motivation** | Thu ~12:00 | Independent drafter loses ≥ 10% position-1 acceptance on ≥ 30% of the 40, or ≥ 20% on ≥ 15% (vs EAGLE-3: 17/87 below 0.95) | Paper = population analysis across drafter families (+ T1) and the FollowSpec negative result; no repair method |
+| **G1 motivation** | Thu ~12:00 | Independent drafter loses ≥ 10% position-1 acceptance on ≥ 30% of the census, or ≥ 20% on ≥ 15% (vs EAGLE-3: 17/87 below 0.95) | Paper = population analysis across drafter families (+ T1) and the FollowSpec negative result; no repair method |
 | **G2 repairability** | Thu ~22:00 | M0 KD (512 examples) recovers ≥ 50% of the lost acceptance on ≥ 5/8 failures, beats D_B on the child, and the gain is child-specific (D_i on child − D_i on base > 0) | Paper = population + "zero-data KD repairs X%" as a measured baseline |
 | **G3 reuse** | Fri ~12:00 | On 4 unseen development children, the best bank candidate reaches ≥ 50% of own-KD gain, beats D_pool by > 1 point, and the selector picks within 1 point of the best | Best candidate fails → bank lacks coverage (report it); selector fails → report the oracle and the probe gap. Main method falls back to M0 + triage |
 | **Freeze** | Fri ~20:00 | Probes, donors, selector, thresholds | — |
@@ -60,8 +60,7 @@ in one split.
 
 ## 4. Build list for codex (heck)
 
-1. **I1** `draft_model` mode in the frozen harness (new flag, defaults unchanged, tests first); stage pinned Llama-3.2-1B-Instruct, Qwen3-0.6B/1.7B;
-   G1 census jobs (stratified 40, Llama first).
+1. **I1**: done by codex-1 (D-42: opt-in `draft_model` mode, stratified census of 60 running). G1 reads its results.
 2. **I3** small-drafter KD: Magpie training split for any derivative (reuse atlas.generate_magpie with forbidden-file dedup against every evaluation
    prompt) → child greedy responses (reuse followspec.generate_responses) → LoRA KD trainer for a 1B HF model (hard-label answer-only; forward-KL
    variant behind a flag) → merged checkpoint export loadable by vLLM `draft_model`. Five decoded samples and masks per new data path.
