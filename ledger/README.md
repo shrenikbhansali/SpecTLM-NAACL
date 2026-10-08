@@ -19,3 +19,7 @@ owner decides whether to merge these into a master ledger.
 | [EXP-ATL-008](EXP-ATL-008.md) | D-39 controlled target-update stress screen (six code/math conditions) | 2026-10-07 | pilot |
 | [EXP-ATL-009](EXP-ATL-009.md) | Full-budget seed0 on original fixed panel | 2026-10-07 | pilot |
 | [EXP-ATL-010](EXP-ATL-010.md) | Lambda and matched K8 feasibility follow-ups | 2026-10-07 | pilot |
+| [EXP-ATL-011](EXP-ATL-011.md) | Track T public lineage/reasoning/RL screening | 2026-10-08 | pilot |
+| [EXP-ATL-012](EXP-ATL-012.md) | Full-budget seed0 M4 and independent raw audit | 2026-10-08 | pilot |
+| [EXP-ATL-013](EXP-ATL-013.md) | Track I independent census and matched Q1 comparison | 2026-10-08 | pilot |
+| [EXP-ATL-014](EXP-ATL-014.md) | Exploratory independent-drafter repair and reuse | 2026-10-08 | pilot |
