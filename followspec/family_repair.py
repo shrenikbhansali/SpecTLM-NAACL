@@ -22,7 +22,7 @@ class RepairLinear(torch.nn.Module):
         return self.base(x)+torch.nn.functional.linear(torch.nn.functional.linear(x,self.lora_A),self.lora_B)*self.scale
 
 
-def configure_variant(model,variant,rank=16,alpha=32):
+def configure_variant(model,variant,rank=16,alpha=32,algorithm="eagle3"):
     if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head'}:raise ValueError('unknown repair variant')
     model.requires_grad_(False)
     if variant in {'fc','fc_lora','full','fc_decoder_lora'}:model.fc.requires_grad_(True)
@@ -40,6 +40,7 @@ def configure_variant(model,variant,rank=16,alpha=32):
             if name.startswith('layers.') and isinstance(module,torch.nn.Linear) and name.rsplit('.',1)[-1] in ({'q_proj','k_proj','v_proj','o_proj','gate_proj','up_proj','down_proj'} if variant=='fc_lora' else {'q_proj','v_proj','gate_proj','up_proj','down_proj'}):
                 parent,leaf=name.rsplit('.',1);model.get_submodule(parent)._modules[leaf]=RepairLinear(module,rank,alpha);found.append(name)
         if not found:raise ValueError('no drafter layer projections found')
+    if algorithm=='dflash' and not model.use_draft_vocab:model.lm_head.requires_grad_(False)
     names=[n for n,p in model.named_parameters() if p.requires_grad]
     return dict(variant=variant,rank=rank if 'lora' in variant or variant=='fc_lowrank' else None,alpha=alpha if 'lora' in variant or variant=='fc_lowrank' else None,trainable_names=names,trainable_parameters=sum(p.numel() for p in model.parameters() if p.requires_grad),frozen_parameters=sum(p.numel() for p in model.parameters() if not p.requires_grad))
 
@@ -67,8 +68,8 @@ def initialize_scratch(model):
     return dict(changed_parameters=changed,scope='fc/layers/head/norm; fixed embeddings and vocabulary mapping')
 
 
-def step_batches(rows,steps,ceiling,seed):
-    lengths=[len(r['input_ids'])-1 for r in rows]
+def step_batches(rows,steps,ceiling,seed,shift=1):
+    lengths=[len(r['input_ids'])-shift for r in rows]
     if not rows or min(lengths)<1 or max(lengths)>ceiling:raise ValueError('invalid lengths; no truncation')
     if steps<1:raise ValueError('positive steps required')
     rng=random.Random(seed);batches=[]
@@ -82,8 +83,8 @@ def step_batches(rows,steps,ceiling,seed):
     return batches[:steps]
 
 
-def epoch_batches(rows,ceiling,seed):
-    lengths=[len(r['input_ids'])-1 for r in rows]
+def epoch_batches(rows,ceiling,seed,shift=1):
+    lengths=[len(r['input_ids'])-shift for r in rows]
     if not rows or min(lengths)<1 or max(lengths)>ceiling:raise ValueError('invalid lengths; no truncation')
     indices=list(range(len(rows)));random.Random(seed).shuffle(indices)
     batches=[];batch=[];length=0
@@ -103,14 +104,17 @@ def validate_rows(rows,forbidden,max_length):
 
 
 class RepairDataset(torch.utils.data.Dataset):
-    def __init__(self,rows,capture):
-        self.rows=rows;self.capture=capture;self.hidden_states_dtype=torch.bfloat16
+    def __init__(self,rows,capture,algorithm="eagle3"):
+        self.rows=rows;self.capture=capture;self.algorithm=algorithm;self.hidden_states_dtype=torch.bfloat16
     def __len__(self):return len(self.rows)
     def __getitem__(self,i):
         from followspec.paired_data import shift_paired
         row=self.rows[i]
         raw=self.capture(torch.tensor(row['input_ids']),torch.tensor(row['loss_mask']),feature_target='base')
-        data=shift_paired(raw)
+        if self.algorithm=='dflash':
+            from followspec.dflash_extension import prepare_block_sample
+            data=prepare_block_sample(raw)
+        else:data=shift_paired(raw)
         # One single-target native pass, with explicit child projected labels.
         return {k:v for k,v in data.items() if not k.startswith('base_')}
 
@@ -132,20 +136,25 @@ def main():
     p.add_argument('--scratch',action='store_true');p.add_argument('--offload-saved-tensors',action='store_true');p.add_argument('--release-grad-before-forward',action='store_true');p.add_argument('--dry-run',action='store_true')
     p.add_argument('--min-free-gb',type=float,default=0);p.add_argument('--compact-checkpoints',action='store_true');p.add_argument('--shared-export-root')
     p.add_argument('--one-epoch',action='store_true',help='derive steps and quarter/half/final exports from one complete shuffled pass')
+    p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
+    p.add_argument('--checkpoint-dflash-layers',action='store_true')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
     forbidden={prompt_hash(r.get('raw_prompt',r.get('prompt'))) for r in read(a.forbidden)}
-    validate_rows(rows,forbidden,a.batch_tokens+1)
+    validate_rows(rows,forbidden,a.batch_tokens+(a.algorithm=='eagle3'))
+    shift=int(a.algorithm=='eagle3')
+    if a.algorithm=='dflash' and (a.variant not in {'fc','full'} or a.scratch):raise ValueError('D48 DFlash fc/full warm-start only')
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
     if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):raise ValueError('wrong response teacher')
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
     if a.one_epoch:
-        one_epoch=epoch_batches(rows,a.batch_tokens,a.seed);a.steps=len(one_epoch)
+        one_epoch=epoch_batches(rows,a.batch_tokens,a.seed,shift=shift);a.steps=len(one_epoch)
         a.export_steps=sorted({max(1,math.ceil(a.steps*f)) for f in [.25,.5,1.]})
     if a.steps not in a.export_steps or any(x<1 or x>a.steps for x in a.export_steps):raise ValueError('invalid export budget')
     schedule_steps=a.schedule_steps or a.steps
     if schedule_steps<a.steps:raise ValueError('schedule horizon shorter than run')
-    batches=step_batches(rows,a.steps,a.batch_tokens,a.seed)
-    cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-1 for b in batches for i in b),batch_plan=batches,ttt_steps=3,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
+    batches=step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
+    cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-shift for b in batches for i in b),batch_plan=batches,ttt_steps=3,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
+    if a.algorithm=='dflash':cfg.update(ttt_steps=None,ttt_step_loss_decay=None,loss='native DFlash fused KL; gamma4 fixed-exp-decay; answer positions',max_anchors=a.max_anchors)
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     ensure_unpaused();ensure_unpaused(Path.cwd());require_free(a.output,a.min_free_gb)
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('A40 required')
@@ -163,22 +172,35 @@ def main():
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);write(out/'config.json',cfg)
     torch.manual_seed(a.seed);start=time.monotonic()
     base_config=json.loads((Path(target['path'])/'config.json').read_text())
-    taps=tap_layers(read_drafter_config(a.drafter,Path(a.drafter).name),base_config['num_hidden_layers'])
-    conf=SpeculatorModelConfig.from_pretrained(a.drafter,local_files_only=True)
-    conf.speculators_config.verifier.name_or_path=target['path'];conf.eagle_aux_hidden_state_layer_ids=taps
-    conf.transformer_layer_config._attn_implementation='eager'
-    model=SpeculatorModel.from_pretrained(a.drafter,config=conf,local_files_only=True,torch_dtype=torch.float32)
+    if a.algorithm=='dflash':
+        from followspec.dflash_loader import load_released_dflash
+        model=load_released_dflash(a.drafter,target['path'],attention='eager',device='cpu');taps=list(model.target_layer_ids)
+    else:
+        taps=tap_layers(read_drafter_config(a.drafter,Path(a.drafter).name),base_config['num_hidden_layers'])
+        conf=SpeculatorModelConfig.from_pretrained(a.drafter,local_files_only=True)
+        conf.speculators_config.verifier.name_or_path=target['path'];conf.eagle_aux_hidden_state_layer_ids=taps
+        conf.transformer_layer_config._attn_implementation='eager'
+        model=SpeculatorModel.from_pretrained(a.drafter,config=conf,local_files_only=True,torch_dtype=torch.float32)
     if a.scratch:
         write(out/'scratch_initialization.json',initialize_scratch(model))
-    proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha);write(out/'parameters.json',proof)
+    proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm);write(out/'parameters.json',proof)
     teacher=AutoModelForCausalLM.from_pretrained(target['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda').eval().requires_grad_(False)
     tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(base_config['vocab_size'])
     capture=OnlinePairCapture(teacher,taps,tokens,pause_check=ensure_unpaused)
-    loader=torch.utils.data.DataLoader(RepairDataset(rows,capture),batch_sampler=batches,collate_fn=RepairCollator(a.batch_tokens,base_config['hidden_size'],len(taps)),num_workers=0)
+    loader=torch.utils.data.DataLoader(RepairDataset(rows,capture,a.algorithm),batch_sampler=batches,collate_fn=RepairCollator(a.batch_tokens,base_config['hidden_size'],len(taps)),num_workers=0)
     # Substitute the exact single-target projected logits (the child head can differ).
     native=model.forward
     def forward(*args,child_target_logits=None,**kwargs):
         ensure_unpaused();require_free(out,a.min_free_gb)
+        if a.algorithm=='dflash':
+            from followspec.dflash_extension import align_targets
+            backbone=model._backbone_forward
+            def projected(*ba,**bk):
+                hidden,q,p,mask,indices=backbone(*ba,**bk)
+                return hidden,q,align_targets(child_target_logits,indices,sample_from_anchor=model.config.sample_from_anchor),mask,indices
+            model._backbone_forward=projected
+            try:return native(*args,**kwargs)
+            finally:model._backbone_forward=backbone
         h=model.verifier_lm_head.register_forward_hook(lambda _m,_a,_o:child_target_logits.detach())
         try:return native(*args,**kwargs)
         finally:h.remove()
@@ -188,6 +210,11 @@ def main():
             with (out/'training_metrics.jsonl').open('a') as f:f.write(json.dumps({k:float(v.detach().cpu()) for k,v in result[2].items() if v.numel()==1})+'\n')
     model.register_forward_hook(metrics_hook)
     call=dict(ttt_steps=3,ttt_step_loss_decay=1.,loss_config=resolve_loss_config('kl_div','fused'))
+    if a.algorithm=='dflash':call=dict(max_anchors=a.max_anchors,gamma=4.,per_position_loss_weight='fixed-exp-decay',loss_config=resolve_loss_config('kl_div','fused'))
+    if a.checkpoint_dflash_layers:
+        if a.algorithm!='dflash':raise ValueError('layer checkpointing is DFlash only')
+        from followspec.training_memory import checkpoint_dflash_layers
+        checkpoint_dflash_layers(model)
     trainer=Trainer(model,TrainerConfig(lr=a.lr,num_epochs=1,save_path=str(out/'checkpoints'),optimizer='adamw',weight_decay=.01,scheduler_type='cosine',scheduler_warmup_ratio=.03,scheduler_total_steps=schedule_steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,val_call_kwargs=call,log_freq=10),loader,None)
     serial_adamw(trainer)
     if a.release_grad_before_forward:release_grad_before_forward(trainer)
