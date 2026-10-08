@@ -48,7 +48,7 @@ your journal.
   defaults or the paper's framing, or writes paper conclusions. Those are
   owner decisions, recorded in MASTER §13.
 
-Owner instruction 2026-10-07: codex-1 now acts as builder AND operator; claude-ops has stopped. Approved T1 and I1 jobs run on heck (D-40–D-42); inspect `pgrep -af "[q]ueue.py"` and the target stage directory before every launch. T1 uses srv1/3; I1 uses srv4 and srv2:0–3. No I2 repair jobs before owner brainstorm. Research decisions and the pause contract remain owner-controlled.
+Owner instruction 2026-10-07: codex-1 now acts as builder AND operator; claude-ops has stopped. Approved T1 and I1 jobs run on heck (D-40–D-42); inspect `pgrep -af "[q]ueue.py"` and the target stage directory before every launch. T1 uses srv1/3; I1 uses srv4 and srv2:0–3. D-43 subsequently approved the owner brainstorm and exploratory I3–I5 repair/probe/head pilots; I2 is superseded. Keep those pilots small, pre-cutoff, and report nulls and regressions. Research decisions and the pause contract remain owner-controlled.
 
 ## 3. Progress tracking (mandatory)
 
