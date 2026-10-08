@@ -31,3 +31,9 @@ Nemotron same-weight reasoning on/off frozen-vLLM cells are dispatched separatel
 | shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | parent | 64 | -0.0007 [-0.0018,+0.0005] | -0.0016 [-0.0031,-0.0000] | +0.0005 [+0.0002,+0.0011] | 0.014 | 0.0816/0.0822 |
 | shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | child | 64 | -0.0003 [-0.0019,+0.0012] | -0.0002 [-0.0016,+0.0015] | +0.0005 [+0.0002,+0.0009] | 0.012 | 0.0758/0.0763 |
 | shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | public-reference | 64 | +0.0016 [-0.0013,+0.0047] | +0.0021 [-0.0001,+0.0044] | +0.0017 [+0.0005,+0.0032] | 0.020 | 0.0154/0.0152 |
+
+## Full affine calibration diagnostic (completion addendum)
+
+Owner-approved HF-only full affine calibration is also complete. The fit uses256 separate self-elicited training sequences, with one mean/RMS affine transform per tap layer. On64 held-out R1 child-generated contexts, calibrated child taps versus unchanged child taps, scored against the child verifier, give Δagreement −.00151 [−.00314,+.00012]. RMS-only gives −.00223 [−.00373,−.00077]. On parent-generated text, full affine gives +.00017 [−.00223,+.00268]; on public-reference text, −.00073 [−.00358,+.00219]. These diagnostics show no positive child-verifier improvement from this scalar moment correction. They do not rule out richer transformations.
+
+`artifacts/P2_calibration_report_20261008_1542/{analyze.py,results.json}` reaggregates saved per-query agreement, with10,000 paired-query draws, rather than independently reconstructing missing raw calibrated draft IDs. Source `artifacts/P3_D46_20261008_0335/calibration-HF64/`. HF agreement is not online acceptance; only the separately evaluated RMS export enters the frozen online table. Calibration-summary rows denote uncalibrated/calibrated **child** taps, not the parent/child source rows of the main crossover.

@@ -29,3 +29,5 @@ Nulls and exceptions matter: the two direct-child teacher-distilled Qwen checkpo
 Semantic inventory: `artifacts/P1_typed_20261008_1515/{label.py,refine.py,typed-v2.json,inventory-v2.md}`. Frozen raw-counter analysis: `analyze_v3.py`, `analysis-v3/{results.json,checkpoint-table.md,class-table.md}`. It verifies commit, engine, A40, paired prompt hashes and settings, and reconstructs metrics from per-step counters. Card sources are under `artifacts/P1_population_20261008_0305/`. The T1b verified-weight retry index is applied explicitly. Initial analysis accidentally selected the dedicated oracle as a family A10 and failed its matching assertion; v2 then omitted two successful retry cells. Both attempts are preserved; v3 resolves both issues.
 
 This is a pilot synthesis, with provisional labels where cards are incomplete. No gate, threshold or paper framing was changed.
+
+![Typed population](figures/P1-typed-population-D48-20261008.png)

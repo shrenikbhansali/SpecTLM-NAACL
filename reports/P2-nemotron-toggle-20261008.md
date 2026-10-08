@@ -10,3 +10,7 @@ Same Nemotron weights and 128 raw SPEED queries, system-prompt reasoning on vers
 The intervention lowers p1 for both drafters. It also changes output length and content. Only 35–36% of on-arm completions contain the literal `<think>` marker, versus 0.8% off; the system toggle is not a perfect reasoning-text classifier. This is evidence about the specified prompt intervention, not an isolated causal effect of reasoning text or a replacement for the fixed-prefix crossover.
 
 Independent counter reconstruction and 10,000 paired-query bootstrap draws (seed 0): `artifacts/P2_toggle_report_20261008_1512/{analyze.py,results.json,table.md}`. Code checks target/drafter/engine settings and identical raw-query identities. Per-query lengths, paired uncertainty and source hashes are retained. Study figures, with source hashes and PDF/SVG/PNG exports: `artifacts/STUDY_figures_20261008_1530/`. The companion P2 figure reports HF agreement, not online acceptance; the P3 figure explicitly labels RMS calibration as training-free.
+
+![Nemotron toggle](figures/P2-nemotron-toggle-D48-20261008.png)
+
+![HF crossover](figures/P2-crossover-child-D48-20261008.png)

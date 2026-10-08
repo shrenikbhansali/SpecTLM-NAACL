@@ -16,3 +16,6 @@
 
 ### 2026-10-08T15:30:07.989954-04:00 — Nemotron frozen toggle completion
 Fourcells,n128pairedqueries; EAGLEΔp1−.0296[−.0437,−.0157],DFlash−.0278[−.0448,−.0113];τ/lengths andlimitations in [report](../reports/P2-nemotron-toggle-20261008.md). Raw independent10kpairedbootstrap; frozen6da2e42/vLLM0.31/A40. Promptinterventionchangeslength/content; notreasoningtextcausalproof.
+
+### 2026-10-08T15:48:50.558182-04:00 — full affine HF diagnostic complete
+Full256training-sequence momentfit, threeheldoutoriginsn64each. Child-textchild-verifierΔagreement affine−.00151[−.00314,+.00012],RMS−.00223[−.00373,−.00077]. Noaffineonlineexport; null/negativekept. Reaggregationofstoredqueryscores (calibratedrawIDsnotstored),10kpairedCI, `artifacts/P2_calibration_report_20261008_1542/`; reportaddendum.
