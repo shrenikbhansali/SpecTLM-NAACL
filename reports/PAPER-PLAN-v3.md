@@ -77,3 +77,50 @@ Track I work. FollowSpec (M3/M4) is archived as a negative result (bank training
 | Fri 18:00 | Owner checkpoint: freeze the method and the final experiment list |
 | Sat | Final runs with more prompts; P5 triage; P6 wall-clock; figures/ledger |
 | Sun–Mon | Writing |
+
+## 6. Decisions after external review (D-46, claude-ops, Thu ~04:00 ET)
+
+External review (astra) was read critically: its experimental-design advice is adopted, its preference for scoping down to an analysis paper is
+not. **This remains a method paper with a study as motivation.** The dedicated drafter proves the gap is learnable (×1.65 τ); we build the story
+around the repair that wins and its mechanism. Contemporary work (EDA, H-Spec, Draft-OPD, EAGLE 3.1, EvoSpec, the vLLM DFlash-LoRA RFC) is cited
+as concurrent and positioned against, not avoided.
+
+**Story template (final wording after the Thu 12:00 checkpoint):**
+1. Family drafters transfer to most derivatives (174-model census, paired A00/A10). Acceptance-length comparisons are distorted by output length.
+2. A predictable class breaks them: reasoning distillation and off-lineage post-training (associated, with lineage and training history labelled
+   separately; on-policy RL largely preserves compatibility, consistent with RL's Razor and successors).
+3. Mechanism via a fixed-prefix 2×2 crossover (feature source × verifier policy) and per-layer feature swaps.
+4. Method: training-set-free repair localized to the component the mechanism points at (`fc` interface if it wins; otherwise the smallest
+   winning component), recovering X% of the dedicated-drafter gap at Y GPU-hours, with real speedups.
+5. Triage: a 16–32-prompt probe decides when to repair.
+
+**P3 matrix (replaces the earlier variant list).** R1-Distill-Llama-8B first (oracle exists), EAGLE-3 K4, family-drafter init, native multi-step
+(TTT) objective unchanged, held-out SPEED-128 + MATH-500 subset:
+| Variant | Trainable | Note |
+| --- | --- | --- |
+| Calibration | none (per-layer mean/RMS affine on taps, fit on paired forwards) | training-free baseline |
+| fc-only | `fc` | primary hypothesis |
+| fc-LoRA | low-rank residual on `fc` (r 8/32) | cheaper interface variant |
+| decoder-LoRA | LoRA on the drafter layer (q/v + MLP), `fc` frozen | EDA/RFC-style proxy; label honestly |
+| fc + decoder-LoRA | both | capacity control |
+| full warm-start | all drafter params | matched steps, data and wall-clock |
+| scratch (once) | all, random init | budget-matched cold-start lower bound |
+| head-only (optional) | `lm_head` | diagnostic |
+One run per variant with checkpoints at 50 / 150 / 300 steps (extend only the winner). Data: self-elicited first; generic-prompt and mixed data as
+an ablation on the top two variants. **Three seeds** on the winning configuration. Primary outputs: absolute Δp1, τ, per-depth conditional acceptance,
+**recovery = (τ_repair − 1.73) / (2.85 − 1.73)** on R1-Distill, GPU-hours including data generation. Then the top two variants on Nemotron-Nano and
+R1-0528-Qwen3, plus one on-policy RL derivative as a negative control (repair should be unnecessary there).
+
+**P2 mechanism (now P0, cheap).** Fixed-prefix 2×2 crossover on parent-, derivative- and public-generated texts: first-draft top-1 agreement
+with {parent, derivative} verifier × {parent, derivative} taps, giving feature-source effect, verifier-policy effect and interaction. Plus
+per-layer tap swaps, parent/derivative top-1 disagreement and margin, and top-1 OOV bound. Targets: R1-Distill-Llama, Nemotron-Nano, R1-0528-Qwen3,
+Tülu-3 DPO, and one GRPO control. Nemotron reasoning on/off toggle cells (same weights).
+
+**P1 taxonomy.** Two labels per checkpoint: lineage (direct child of the drafter's target / sibling from the pretrained base / composite) and
+training history (SFT, teacher distillation, on-policy RL, offline preference, CPT, merge, quantization, combinations), with card evidence. Target
+about 24 typed checkpoints, prioritizing direct-child reasoning models and same-start SFT vs RL pairs over raw count. Class results reported as
+associations with checkpoint-level bootstrap (hierarchical by family/lineage); census provenance and filter counts documented.
+
+**Reporting rules added.** Absolute Δp1 is the primary compatibility metric (retention secondary). Wall-clock vs the same derivative without
+speculation (batch 8, plus a small batch-1 panel). "Training-set-free / self-elicited", never "data-free". Repaired drafters are evaluated only
+on held-out prompts, never on training prompts.
