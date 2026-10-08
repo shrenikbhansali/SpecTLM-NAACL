@@ -124,3 +124,29 @@ associations with checkpoint-level bootstrap (hierarchical by family/lineage); c
 **Reporting rules added.** Absolute Δp1 is the primary compatibility metric (retention secondary). Wall-clock vs the same derivative without
 speculation (batch 8, plus a small batch-1 panel). "Training-set-free / self-elicited", never "data-free". Repaired drafters are evaluated only
 on held-out prompts, never on training prompts.
+
+## 7. Decisions after the P3 component pilot (D-48, claude-ops under owner delegation, Thu ~14:50 ET)
+
+**Result (R1-Distill-Llama, 256 self-elicited examples, seed 0, SPEED-128, oracle-gap recovery at 50/150/300 steps):** dense fc 24/34/35.5%;
+fc + decoder-LoRA 24/35/37%; full warm-start 38/43/46%; decoder-LoRA only 9.6% at 300; fc low-rank r8/r32 5/15%; RMS calibration null; scratch poor.
+MATH-64: fc 22%, full 28%. Cost ≈ 0.45 GPU-h including data. The generic-prompt pilot at 200 steps gave fc 33% and full 46%, so the data source matters
+little at this scale.
+
+**Reading.** The cheap repair is localized to the **target-feature interface**: a dense fc update captures almost all of what fc + decoder-LoRA gets, while
+the decoder-side adapter (the EDA/RFC-style proxy) gets about a quarter of it, and low-rank fc updates are too weak. Recovery is plateauing in *steps*
+with only 256 examples (~19 steps per epoch), so the limiting factor is most likely **data scale**, not optimization.
+
+**Method framing (working):** *interface-first repair*. Re-fit the dense target-feature interface of the family drafter on self-elicited
+derivative data; full warm-start is the higher-recovery, higher-cost option on the same Pareto frontier. Final title at the Fri 18:00 checkpoint.
+
+**Next experiments, in priority order:**
+1. **Data scaling (decisive):** self-elicited 256 → 1k → 4k examples (plus 4k generic for the data-source ablation), fc-only and full warm-start, about
+   one epoch at 4k (≈1–1.5k steps) with intermediate exports. Question: does recovery approach the oracle?
+2. **Seeds:** 3 seeds of the best fc-only and full configurations at the chosen data/budget.
+3. **Generality:** same two variants on Nemotron-Nano and R1-0528-Qwen3 (no oracle: absolute Δp1/τ), plus one on-policy RL derivative as a negative
+   control (repair should do little), and one well-transferring derivative to check the repair does not hurt.
+4. **DFlash (P4):** fc-only vs full on R1-Distill-Llama and Nemotron via the B10 path (DFlash also has `fc`). Cross-architecture interface repair is a
+   strong claim if it holds.
+5. **Wall-clock (P6):** reused vs fc vs full vs oracle vs no speculation, A40 batch 8 plus a batch-1 panel, repeated runs.
+6. **Triage (P5)** on the census (CPU-first), and **P1/P2 synthesis** into the study figures.
+GPUs must not sit idle: queue items 1–4 now in parallel within the disk guard.
