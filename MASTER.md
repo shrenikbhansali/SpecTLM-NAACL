@@ -83,12 +83,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-08T16:06:47.569147-04:00 (codex-1) |
+| Last updated | 2026-10-08T16:18:50.189668-04:00 (codex-1) |
 | Sprint day | Day 4 of 8 (Thu Oct 8); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | Fri ~18:00 ET: freeze method + final experiment list (data-scaling result decides the title/claim strength). Thu 12:00 checkpoint passed without owner input; decisions taken under delegation (D-48). |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | D48 self1k/self4k fc/full training + frozen evaluation active; generic4k generation continues; timing27/30 done. Seeds/generalization and DFlash complete. Canonicalqueue4129996,350GBlaunchfloor. |
+| Jobs running | Self4k training/frozen scaling evaluations, generic4k and transferdata generation active; seeds/generality256,DFlash,timing30/30 complete. OptionalD46headcontrol gatedonsmokes. Canonicalqueue4129996,350GBlaunchfloor. |
 | Blockers | ICE down; allD48 onA40. Disk~600GBfree,250GBruntimeguard; no newdownloads. Genericresponsegeneration pending; bestscale extensions follow evidence. |
 | Owner action needed | No operational approval pending; method checkpoints Thu 12:00 and Fri 18:00. |
 
@@ -288,7 +288,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | P3 | Pivot: repair (EAGLE-3) per D-46 matrix: calibration / fc-only / fc-LoRA / decoder-LoRA / fc+decoder-LoRA / full warm-start / scratch once; ckpts 50/150/300; 3 seeds on winner; R1-Distill first (oracle), then top-2 on Nemotron + R1-0528-Qwen3 + 1 RL negative control; recovery vs oracle; GPU-hours incl. data gen | P0 | codex | T4 | Thu 12:00 | in progress | codex-1 / 2026-10-08T16:06:47.569147-04:00 | [journal](notes/P3.md); [seeds/generality complete](reports/P3-D48-seeds-generality-20261008.md); self1k329/self4k1315step training active; generic4k generating; EXP018 |
 | P4 | Pivot: DFlash repair (B10 path; DFlash also exposes `fc`) on the two Llama targets | P1 | codex | P3, B10 | Fri | review | codex-1 / 2026-10-08T15:54:44.534927-04:00 | [journal](notes/P4.md); [completed24-cell report](reports/P4-DFlash-repair-20261008.md);fc/fullpositivebothLlamatargets;pairedCIs/nulls/lengths/costs;EXP019 |
 | P5 | Pivot: triage probe validated on census + P1 (AUROC for retention < 0.9; cost vs a direct short measurement) | P1 | codex | P1 | Sat | in progress | codex-1 / 2026-10-08T15:37:38.886282-04:00 | [journal](notes/P5.md); CPU retrospectiveprobe21frozencheckpoints complete;16probe/112disjointqueries;shortprefixweak;[report](reports/P5-triage-pilot-20261008.md) |
-| P6 | Pivot: economics: A40 wall-clock for reused vs repaired vs dedicated; repair GPU-hours vs dedicated-drafter training cost | P1 | codex | P3 | Sat | in progress | codex-1 / 2026-10-08T15:07:56.934414-04:00 | [journal](notes/P6.md); Timingnospec/reusedsmokespass;30A40cellsdispatched;[EXP020](ledger/EXP-ATL-020.md) |
+| P6 | Pivot: economics: A40 wall-clock for reused vs repaired vs dedicated; repair GPU-hours vs dedicated-drafter training cost | P1 | codex | P3 | Sat | review | codex-1 / 2026-10-08T16:18:50.189668-04:00 | [journal](notes/P6.md); [30-cell timing complete](reports/P6-A40-timing-20261008.md);3processes/condition;warm/cold,pairedCIs,outputidentitycaveat,costamortization;EXP020 |
 | T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep on heck A40s (LoRA/high-rank or A40-feasible full FT, increasing steps; D-41) | P1 | codex | T1 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
 | I1 | Track I: independent-drafter census on heck A40s (D-41) (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex | — | Thu | review | codex-1 / 2026-10-08T03:17:45.597459-04:00 | [complete report](reports/I1-census-complete-20261008.md);180/180cells;90pairs;all60targets;[journal](notes/I1.md);EXP-ATL-013 |
 | I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex | I1 | Fri | superseded | | [brief](reports/TRACK-I-independent-drafters-problem.md); superseded by I3–I5 (D-43 plan) |
