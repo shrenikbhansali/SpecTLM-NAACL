@@ -10,6 +10,7 @@ import torch
 from followspec.independent_kd import read,write,jsonl,answer_labels
 from followspec.train_eagle3 import BACKEND,ensure_unpaused
 from atlas.workloads import file_hash,prompt_hash
+from followspec.disk_guard import require_free
 
 class RepairLinear(torch.nn.Module):
     def __init__(self,base,rank,alpha):
@@ -81,6 +82,18 @@ def step_batches(rows,steps,ceiling,seed):
     return batches[:steps]
 
 
+def epoch_batches(rows,ceiling,seed):
+    lengths=[len(r['input_ids'])-1 for r in rows]
+    if not rows or min(lengths)<1 or max(lengths)>ceiling:raise ValueError('invalid lengths; no truncation')
+    indices=list(range(len(rows)));random.Random(seed).shuffle(indices)
+    batches=[];batch=[];length=0
+    for i in indices:
+        if batch and length+lengths[i]>ceiling:batches.append(batch);batch=[];length=0
+        batch.append(i);length+=lengths[i]
+    if batch:batches.append(batch)
+    return batches
+
+
 def validate_rows(rows,forbidden,max_length):
     if len({r['sample_id'] for r in rows})!=len(rows):raise ValueError('duplicate training samples')
     if len({r['prompt_sha256'] for r in rows})!=len(rows):raise ValueError('duplicate training prompts')
@@ -117,19 +130,24 @@ def main():
     p.add_argument('--schedule-steps',type=int,help='shared schedule horizon for a shorter scratch control');p.add_argument('--seed',type=int,default=0);p.add_argument('--batch-tokens',type=int,default=2048)
     p.add_argument('--lr',type=float,default=2e-5);p.add_argument('--lora-rank',type=int,default=16);p.add_argument('--lora-alpha',type=int,default=32)
     p.add_argument('--scratch',action='store_true');p.add_argument('--offload-saved-tensors',action='store_true');p.add_argument('--release-grad-before-forward',action='store_true');p.add_argument('--dry-run',action='store_true')
+    p.add_argument('--min-free-gb',type=float,default=0);p.add_argument('--compact-checkpoints',action='store_true');p.add_argument('--shared-export-root')
+    p.add_argument('--one-epoch',action='store_true',help='derive steps and quarter/half/final exports from one complete shuffled pass')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
     forbidden={prompt_hash(r.get('raw_prompt',r.get('prompt'))) for r in read(a.forbidden)}
     validate_rows(rows,forbidden,a.batch_tokens+1)
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
     if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):raise ValueError('wrong response teacher')
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
+    if a.one_epoch:
+        one_epoch=epoch_batches(rows,a.batch_tokens,a.seed);a.steps=len(one_epoch)
+        a.export_steps=sorted({max(1,math.ceil(a.steps*f)) for f in [.25,.5,1.]})
     if a.steps not in a.export_steps or any(x<1 or x>a.steps for x in a.export_steps):raise ValueError('invalid export budget')
     schedule_steps=a.schedule_steps or a.steps
     if schedule_steps<a.steps:raise ValueError('schedule horizon shorter than run')
     batches=step_batches(rows,a.steps,a.batch_tokens,a.seed)
     cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-1 for b in batches for i in b),batch_plan=batches,ttt_steps=3,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
     if a.dry_run:print(json.dumps(cfg,indent=2));return
-    ensure_unpaused();ensure_unpaused(Path.cwd())
+    ensure_unpaused();ensure_unpaused(Path.cwd());require_free(a.output,a.min_free_gb)
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('A40 required')
     from speculators.version import git_commit
     if git_commit!=BACKEND:raise ValueError('wrong native backend')
@@ -160,7 +178,7 @@ def main():
     # Substitute the exact single-target projected logits (the child head can differ).
     native=model.forward
     def forward(*args,child_target_logits=None,**kwargs):
-        ensure_unpaused()
+        ensure_unpaused();require_free(out,a.min_free_gb)
         h=model.verifier_lm_head.register_forward_hook(lambda _m,_a,_o:child_target_logits.detach())
         try:return native(*args,**kwargs)
         finally:h.remove()
@@ -174,13 +192,32 @@ def main():
     serial_adamw(trainer)
     if a.release_grad_before_forward:release_grad_before_forward(trainer)
     original_step=trainer._optimizers_step;completed=0
+    mutable=set(proof['trainable_names'])
+    for name in list(mutable):
+        if '.lora_' in name:mutable.add(name.rsplit('.',1)[0]+'.weight')
+    def compact_checkpoint(label):
+        from followspec.checkpoint_storage import save_trainable_checkpoint
+        dest=out/'checkpoints'/str(label)
+        save_trainable_checkpoint(model,dest,trainer.optimizers,dict(initialization=a.drafter,config_sha256=file_hash(out/'config.json'),step=completed),a.min_free_gb)
+        if trainer.schedulers:torch.save([x.state_dict() for x in trainer.schedulers],dest/'scheduler_state_dict.pt')
+    if a.compact_checkpoints:
+        # The native trainer otherwise writes another full model at epoch end.
+        # New flag replaces persistence only; forward/loss/optimizer are unchanged.
+        trainer.maybe_save_checkpoint=lambda epoch,local_step=0:compact_checkpoint(f'epoch-{epoch}-step-{completed}')
+
     def step():
         nonlocal completed
         if any(p.grad is not None and not torch.isfinite(p.grad).all() for p in model.parameters()):raise ValueError('nonfinite drafter gradient')
         original_step();completed+=1
         if completed in a.export_steps:
-            dest=out/f'export-{completed}';dest.mkdir(exist_ok=False)
-            model.save_pretrained(dest,state_dict=merged_state(model),safe_serialization=True)
+            dest=out/f'export-{completed}'
+            require_free(out,a.min_free_gb)
+            if a.shared_export_root:
+                from followspec.checkpoint_storage import shared_export
+                shared_export(model,dest,a.shared_export_root,merged_state(model),mutable,a.min_free_gb)
+            else:
+                dest.mkdir(exist_ok=False);model.save_pretrained(dest,state_dict=merged_state(model),safe_serialization=True)
+            if a.compact_checkpoints and completed<a.steps:compact_checkpoint(f'step-{completed}')
             write(dest/'repair_provenance.json',dict(config_sha256=file_hash(out/'config.json'),step=completed,variant=a.variant,elapsed_s=time.monotonic()-start,trainable=proof,export_format='native released state keys; LoRA merged'))
     trainer._optimizers_step=step
     with saved_tensor_context(a.offload_saved_tensors):trainer.run_training()

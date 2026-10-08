@@ -99,3 +99,12 @@ def test_scratch_clears_hf_initialization_guards_only_for_requested_modules():
     assert torch.equal(m.d2t,before['d2t'])
     assert m.embed_tokens.weight._is_hf_initialized
     assert proof['changed_parameters']>0
+
+
+def test_one_epoch_uses_every_sample_once_and_same_seed_order():
+    from followspec.family_repair import epoch_batches
+    rows=[dict(input_ids=list(range(k))) for k in [12,18,21,19]]
+    plan=epoch_batches(rows,40,3)
+    assert sorted(i for b in plan for i in b)==list(range(4))
+    assert plan==step_batches(rows,len(plan),40,3)
+    assert all(sum(len(rows[i]['input_ids'])-1 for i in b)<=40 for b in plan)
