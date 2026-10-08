@@ -123,6 +123,35 @@ def build_jobs(models, index, out):
     return jobs,records
 
 
+def repair_tokenizers(index_path,out):
+    """Preserve templates; fix AutoTokenizer's erroneous Llama/SP conversion of DeepSeek BPE JSON."""
+    from transformers import PreTrainedTokenizerFast
+    import unicodedata
+    index=read(index_path);out.mkdir(parents=True,exist_ok=False);models={r['id']:r for r in lines(MANIFEST)}
+    raw=lines(SPEED)
+    for model in ['deepseek-ai/DeepSeek-R1-Distill-Llama-8B','deepseek-ai/DeepSeek-R1-0528-Qwen3-8B']:
+        r=models[model];source=Path(index[model]['rendered']);cfg=read(source.parent/'config.json')
+        tok=PreTrainedTokenizerFast.from_pretrained(cfg['tokenizer'],local_files_only=True)
+        rows=lines(source);changes=0
+        for row in rows:
+            ids=tok.encode(row['prompt'],add_special_tokens=False);changes+=ids!=row['rendered_token_ids'];row['rendered_token_ids']=ids
+            decoded=tok.decode(ids,skip_special_tokens=False)
+            if unicodedata.normalize('NFC',decoded)!=unicodedata.normalize('NFC',row['prompt']):raise ValueError('canonical tokenizer roundtrip corrupts text')
+        dest=out/r['base']/slug(model);dest.mkdir(parents=True,exist_ok=False)
+        with (dest/'prompts.jsonl').open('x') as f:
+            for row in rows:f.write(json.dumps(row,ensure_ascii=False)+'\n')
+        vocab=min(read(Path(r['path'])/'config.json')['vocab_size'],read(snapshot(*BASE[r['base']])/'config.json')['vocab_size'])
+        audit=validate_render(rows,raw,tok,vocab)
+        cfg.update(prompts_sha256=sha(dest/'prompts.jsonl'),supersedes=str(source),superseded_sha256=sha(source),
+                   tokenizer_loader='PreTrainedTokenizerFast.from_pretrained; preserve pinned tokenizer.json BPE and tokenizer_config added tokens',
+                   repair_reason='AutoTokenizer selects LlamaTokenizer (SentencePiece) for DeepSeek BPE JSON under transformers 5.17; loses whitespace',
+                   changed_prompt_count=changes)
+        write(dest/'config.json',cfg);write(dest/'verification.json',audit|dict(config=cfg,model=r,roundtrip_verified=True))
+        index[model]=dict(rendered=str(dest/'prompts.jsonl'),template='own; canonical BPE loader repair',verification=str(dest/'verification.json'))
+        print(model,changes,'token arrays repaired; exact text roundtrip and five decoded samples saved',flush=True)
+    write(out/'index.json',index)
+
+
 def conditional_counts(accepted,drafted,k):
     if len(accepted)!=len(drafted) or any(type(a)!=int or type(d)!=int or not 0<=a<=d<=k or d==0 for a,d in zip(accepted,drafted)):
         raise ValueError('invalid counters')
@@ -200,9 +229,10 @@ def watch(stage):
 
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('command',choices=['render','plan','dispatch','watch']);p.add_argument('--output',required=True);p.add_argument('--render-index');a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('command',choices=['render','repair-tokenizers','plan','dispatch','watch']);p.add_argument('--output',required=True);p.add_argument('--render-index');a=p.parse_args()
     out=Path(a.output).resolve()
     if a.command=='render':render_all(out);return
+    if a.command=='repair-tokenizers':repair_tokenizers(a.render_index,out);return
     if a.command=='watch':watch(out);return
     if a.command=='dispatch':
         checks=read(out/'preflight/results.json')

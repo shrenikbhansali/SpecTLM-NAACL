@@ -70,7 +70,9 @@ def paired(a,b,*,resamples=2000):
 
 
 def matched_configs(a,b,*,same_drafter=True):
-    fields=['K','seed','engine_version','code_commit','source_sha256','prompt_sha256','temperature','top_p','batch_size','max_new_tokens',
+    # Older Frozen cells can have a different repository commit with byte-identical
+    # cell source. Verify source bytes, not unrelated repository history.
+    fields=['K','seed','engine_version','source_sha256','prompt_sha256','temperature','top_p','batch_size','max_new_tokens',
             'max_model_len','gpu_memory_utilization','use_prompt_token_ids','enable_prefix_caching','enable_lora','max_lora_rank']
     if same_drafter:fields+=['drafter','drafter_revision','drafter_files_sha256']
     for k in fields:
