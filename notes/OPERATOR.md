@@ -128,3 +128,8 @@ Handoff: T3/T4 ready for review. T5 completed runnable diagnostics but remains b
 
 ### 2026-10-08T04:08:02.719721-04:00 — codex-1 — Handoff / method operations
 Canonicalqueue3546069 only, owner method-M1/exclusiveowner, same28slots; no queue restart. Health ssh03:57: srv1allthirdparty44101MiB; srv2:4/6thirdparty,4–7excludedregardless; srv5:0thirdparty,1–7free but not added to canonicalqueue. srv3sevenmethodtrainings, srv4/srv2:0–3 take methodchecks/evals. Disk427GBfree04:06; newweights243.7GBcapused. P3watch3793063, rawanalysis3808464, health3803254. P2fullpanelcomplete15cells/EXP017; P3genericcomplete38cells/EXP016; D467/7trainings/10/44evals complete; P1expansion64queued;Nemo4togglequeued/running. Dailyreportupdated; no ownerapprovalpending. Beforelaunchpgrep/stagedir; append dispatch under publishlock; neverstartsecondqueue oroverwriteartifacts.
+
+## 2026-10-08T14:34-04:00 — claude-ops — Disk cleanup (owner-approved)
+
+Free space 413 GB at 04:15 (776 GB at 03:16). Owner: "free space as needed". Deleting finished runs' vllm_cache dirs (4,935 candidates, ~69 MB mean,
+est. ~340 GB) via `artifacts/OPS_disk_cleanup_20261008/clean_vllm_cache.py` (manifest.jsonl written before deletion; progress.log). Nothing else touched.
