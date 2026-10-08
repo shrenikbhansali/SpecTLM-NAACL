@@ -1,0 +1,33 @@
+# P2 fixed-prefix crossover — 2026-10-08
+
+Status: **pilot HF diagnostic**,15 cells,64 fixed contexts each. This is not frozen-vLLM online acceptance and must not be placed in an acceptance table as p1. All four feature-source ×verifier conditions use exactly the same token context within a sequence; the family drafter embeddings/head stay fixed. Family parent refers to the official Instruct/Qwen3 model used by the released drafter, not necessarily the derivative's immediate training ancestor.
+
+R1-Llama, Nemotron and R1-Qwen show negative average feature-source and verifier-policy effects on child-generated contexts. The positive interaction means effects depend on which verifier is used; they do not justify a purely additive mechanism. Nemotron's child-text feature effect is−.0693[−.0767,−.0617], versus−.0196[−.0250,−.0142] for R1-Llama. Tulu DPO's child-text feature effect is near zero,+.0002[−.0047,+.0053], despite a negative policy effect. The GRPO50 control is near zero on child text for both main effects (intervals include zero). These nulls and context dependence remain in the table.
+
+For matrix a(feature,verifier), P/C denote parent/child. Feature effect=½[(aCP−aPP)+(aCC−aPC)]; policy effect=½[(aPC−aPP)+(aCC−aCP)]; interaction=aCC−aCP−aPC+aPP. Means are per-sequence macro agreement. CIs:10,000 paired sequence resamples,seed0,all four cells resampled together. Six single-tap swaps are reported as paired changes for each verifier. Full-vocabulary greedy top1 is retained, including tokens outside draft support. Per-sequence OOV, parent/child top1 disagreement and top-two logit/probability margins have paired intervals in JSON. The ceiling1−OOV applies to this fixed-prefix greedy probe, not directly to online speculative block positions.
+
+Contexts: first64 SPEED128 prompts in their existing frozen order, with exact saved parent/child completion IDs; no re-tokenization of generated contexts. Third condition is the frozen MATH64 **public reference solution** text under the derivative template. Public-reference versus generated-origin comparisons also change questions and lengths; those origin contrasts are not a controlled text-source effect. Within each origin, all2×2 cells remain on identical prefixes. This public-reference condition is labeled explicitly rather than presented as a new model-generated corpus. All500MATH problems are reserved from training.
+
+Native backend261a82d; torch2.13.0/Transformers5.16.1,HFbf16/eager,A40,code0e8f033. Model revisions, source hashes and full per-token diagnostics are in [artifacts](../artifacts/P2_crossover_20261008_0348/full64/index.json). Independent reducer imports no atlas/followspec metric code: [script](../artifacts/P2_crossover_20261008_0348/analyze_full.py), [results, per-layer swaps and uncertainty](../artifacts/P2_crossover_20261008_0348/full64/report/results.json).
+
+Five decoded boundaries/start/end strings and complete masks were inspected per new path; full decoded samples are saved. Capped reasoning, factual mistakes, Tulu-parent repetition/role continuations and reserved-token outputs were retained and flagged. Tulu's output vocabulary has128264 tokens versus128256 for the parent: contexts contain only shared IDs, but teacher argmax remains over each full vocabulary, with no renormalization or remapping. Two-model memory fit was checked on an n8 actual A40 smoke before the n64 runs. Paired CIs are conditional on this panel and deterministic runs, not training-seed or population uncertainty.
+
+Nemotron same-weight reasoning on/off frozen-vLLM cells are dispatched separately, using documented system strings `detailed thinking on`/`detailed thinking off`, identical raw SPEED128, EAGLEK4 and DFlashK10. Card warns off can still produce reasoning; no extra assistant prefix is forced. Those online results remain pending. Full affine and RMS diagnostic repeats use a separate256-sequence training-only fit and are also separate from this uncalibrated table.
+
+| Target | Text origin | n | Feature effect [95% CI] | Policy effect [95% CI] | Interaction [95% CI] | Parent/child top1 disagreement | Parent/child OOV |
+|---|---|---:|---|---|---|---:|---:|
+| deepseek-ai/DeepSeek-R1-Distill-Llama-8B | parent | 64 | -0.0431 [-0.0527,-0.0329] | -0.0321 [-0.0468,-0.0151] | +0.0528 [+0.0429,+0.0642] | 0.266 | 0.0739/0.0735 |
+| deepseek-ai/DeepSeek-R1-Distill-Llama-8B | child | 64 | -0.0196 [-0.0250,-0.0142] | -0.0303 [-0.0347,-0.0258] | +0.0625 [+0.0568,+0.0683] | 0.306 | 0.0596/0.0603 |
+| deepseek-ai/DeepSeek-R1-Distill-Llama-8B | public-reference | 64 | -0.0504 [-0.0591,-0.0417] | -0.0020 [-0.0069,+0.0034] | +0.0518 [+0.0417,+0.0627] | 0.244 | 0.0373/0.0294 |
+| nvidia/Llama-3.1-Nemotron-Nano-8B-v1 | parent | 64 | -0.0924 [-0.1041,-0.0811] | -0.0247 [-0.0309,-0.0187] | +0.0494 [+0.0387,+0.0602] | 0.212 | 0.0818/0.0825 |
+| nvidia/Llama-3.1-Nemotron-Nano-8B-v1 | child | 64 | -0.0693 [-0.0767,-0.0617] | -0.0369 [-0.0432,-0.0306] | +0.0765 [+0.0670,+0.0860] | 0.300 | 0.0728/0.0736 |
+| nvidia/Llama-3.1-Nemotron-Nano-8B-v1 | public-reference | 64 | -0.1020 [-0.1131,-0.0913] | -0.0024 [-0.0074,+0.0029] | +0.0329 [+0.0244,+0.0416] | 0.201 | 0.0371/0.0400 |
+| deepseek-ai/DeepSeek-R1-0528-Qwen3-8B | parent | 64 | -0.0288 [-0.0345,-0.0233] | -0.0219 [-0.0276,-0.0159] | +0.0384 [+0.0315,+0.0451] | 0.208 | 0.0641/0.0658 |
+| deepseek-ai/DeepSeek-R1-0528-Qwen3-8B | child | 64 | -0.0209 [-0.0255,-0.0163] | -0.0361 [-0.0420,-0.0302] | +0.0631 [+0.0569,+0.0691] | 0.291 | 0.0676/0.0706 |
+| deepseek-ai/DeepSeek-R1-0528-Qwen3-8B | public-reference | 64 | -0.0216 [-0.0318,-0.0114] | -0.0082 [-0.0144,-0.0017] | +0.0241 [+0.0177,+0.0305] | 0.160 | 0.0162/0.0173 |
+| allenai/Llama-3.1-Tulu-3-8B-DPO | parent | 64 | -0.0214 [-0.0258,-0.0170] | -0.0334 [-0.0388,-0.0282] | +0.0467 [+0.0395,+0.0539] | 0.207 | 0.0593/0.0801 |
+| allenai/Llama-3.1-Tulu-3-8B-DPO | child | 64 | +0.0002 [-0.0047,+0.0053] | -0.0193 [-0.0239,-0.0149] | +0.0264 [+0.0202,+0.0329] | 0.210 | 0.0721/0.0913 |
+| allenai/Llama-3.1-Tulu-3-8B-DPO | public-reference | 64 | -0.0066 [-0.0164,+0.0038] | -0.0035 [-0.0091,+0.0024] | +0.0548 [+0.0454,+0.0650] | 0.275 | 0.0373/0.0303 |
+| shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | parent | 64 | -0.0007 [-0.0018,+0.0005] | -0.0016 [-0.0031,-0.0000] | +0.0005 [+0.0002,+0.0011] | 0.014 | 0.0816/0.0822 |
+| shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | child | 64 | -0.0003 [-0.0019,+0.0012] | -0.0002 [-0.0016,+0.0015] | +0.0005 [+0.0002,+0.0009] | 0.012 | 0.0758/0.0763 |
+| shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | public-reference | 64 | +0.0016 [-0.0013,+0.0047] | +0.0021 [-0.0001,+0.0044] | +0.0017 [+0.0005,+0.0032] | 0.020 | 0.0154/0.0152 |
