@@ -8,3 +8,5 @@
 - 2026-10-08: [EXP-ATL-019](ledger/EXP-ATL-019.md), P4 D48 DFlash interface versus full repair; pilot in progress.
 
 - 2026-10-08: [EXP-ATL-020](ledger/EXP-ATL-020.md), P6 D48 A40 cold and warm timing; pilot in progress.
+
+- 2026-10-08: [EXP-ATL-021](ledger/EXP-ATL-021.md), P1 typed population, frozen66matchedpairs across25checkpoints, hierarchical CIs; pilot.
