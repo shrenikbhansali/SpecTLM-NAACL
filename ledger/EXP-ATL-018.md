@@ -16,3 +16,6 @@
 
 ### 2026-10-08T15:48:50.558182-04:00 — 256-example seeds/generality completion
 [Report](../reports/P3-D48-seeds-generality-20261008.md). ThreeR1trainingseeds,SPEED128: fcΔp1+.1518[.1405,.1624],τ2.1286,recovery35.6%[33.4,37.7]; full+.1746[.1631,.1854],τ2.2333,recovery45.0%[42.7,47.4]. MATH64recovery21.9%/27.8%. Jointseed/pairedquery10kbootstrap; seed0D46reused. Fourtargetgenerality16cells: NEMOSPEEDfc/fullΔp1+.1375/+.1502;R1Qwen+.0361/+.0554;GRPO150+.0122/+.0161;Hermes3+.0727/+.0764,allpairedintervalspositive,fullCI/τ/lengths/costs inreport. Controlnotnull; nooracleassumedfortransfers. Rawsource `artifacts/D48_analysis_20261008_1528/snapshot-20261008_154409/`; matchedtrainingauditspass. Scalingandbestscaleextensionspending.
+
+### 2026-10-08T15:54:44.534927-04:00 — direct scope comparison
+Pairedfull-minus-fcR1across3seedsΔp1SPEED+.0228[.0162,.0294],MATH+.0232[.0138,.0328]. HermesbothworkloadsandGRPOSPEEDfull-minus-fcp1null, preservedinreport. Source `artifacts/D48_scope_comparison_20261008_1553/`.

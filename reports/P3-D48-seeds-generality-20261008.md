@@ -51,3 +51,7 @@ P3 component verdict at the current budget: dense fc repair captures a substanti
 Original seed0 component pilot, retained for comparison (not the three-seed average):
 
 ![Component pilot](figures/P3-component-pilot-D48-20261008.png)
+
+## Direct scope comparison
+
+Across the three matched R1 seeds, full-minus-fc Δp1 is+.0228 [.0162,.0294] onSPEED128 and+.0232 [.0138,.0328] onMATH64 (paired seed/query bootstrap). Full improves further on Nemotron and R1-Qwen. On the Hermes control, full-minus-fc is uncertain on both workloads: SPEED+.0037 [−.0083,+.0160], MATH+.0015 [−.0146,+.0180]. GRPO150 SPEED also has a null p1 contrast,+.0039 [−.0033,+.0111], although its MATH contrast is positive. These null scope differences are retained. Source: `artifacts/D48_scope_comparison_20261008_1553/results.json`;10,000 paired draws, one seed for transfer targets.
