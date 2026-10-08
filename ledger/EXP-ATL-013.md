@@ -56,3 +56,17 @@ All30 selected Llama targets now paired with EAGLE3/DFlash on identical atlas pr
 Most targets have small losses. The larger pre-cutoff failures are shared across drafter families. Storytelling (tohur): position1 retention .731 (95%prompt-bootstrap .693–.769), EAGLE3 .742, DFlash .614; 1B τ retention .701 and median lengths142→144, so this example is not explained by large output shortening. GSM8K: .823/.747/.601, but lengths193.5→9 for1B. Vikhr: .864/.874/.860, with1B lengths158.5→471.5. No broad independent-only failure established. Full paired uncertainty/lengths and nulls retained. Pre-cutoff subset18targets separately reported; no test-pool repair tuning.
 
 T1 snapshot18cells/9pairs at this read; all n128, raw per-position/τ/length records embedded in the Q1artifact. Sole dispatcher3546069 and report processes3518990/3518508 continue; six obsolete post-training validators stopped to free srv3 forT1. I3 firstfour matched child/base greedy response jobs live/queued; expanded toward8donors using new degraded pre-cutoff tohur/Vikhr/agentlans plus a near-null grimjim control. Repair evidence remains exploratory and outcome-selected; owner direction checkpoints unchanged.
+
+## 2026-10-08T03:17:45.597459-04:00 — codex-1 — census complete / Handoff
+
+All **180/180 cells**, 90 paired comparisons over 60 stratified atlas targets, finished. Single seed, greedy, A40, vLLM0.31.0, K4; exact existing atlas rendered prompts. This is the historical D41/D42 independent-drafter harness **959b003**, distinct from D45's frozen 6da2e42 target-conditioned comparisons. No new Track I runs are planned.
+
+| Drafter | Targets | Prompt n per pair | Median p1 retention | p1 range | Below .90 | Median τ retention |
+| --- | ---: | --- | ---: | --- | ---: | ---: |
+| llama-3.2-1b-instruct | 30 | [64] | 0.9731 | 0.731–1.010 | 4 | 0.9806 |
+| qwen3-0.6b | 30 | [64, 128] | 1.0122 | 0.908–1.508 | 0 | 1.0231 |
+| qwen3-1.7b | 30 | [64, 128] | 1.0010 | 0.888–1.338 | 2 | 0.9945 |
+
+These are descriptive medians/ranges over the stratified targets, not representative unweighted estimates of all174. Prompt-paired bootstrap95% intervals, per-position counters, τ and lengths for every target (including nulls/regressions) are in `artifacts/I1_census_20261007_2355/report/results.json`; source/config provenance is in the adjacent config.json. Matched Llama EAGLE/DFlash contrast was independently audited in `artifacts/I1_Q1_20261008_0045`. Qwen independent-drafter median losses are small; do not infer a repair benefit from the completed census.
+
+All data and failure/retry history retained. D45 concludes this as a secondary contrast; no new I1/I3–I5 work.
