@@ -84,3 +84,15 @@ def test_head_only_unties_without_changing_input_embeddings(tmp_path):
     model.save_pretrained(tmp_path);loaded=LlamaForCausalLM.from_pretrained(tmp_path)
     assert loaded.lm_head.weight.data_ptr()!=loaded.get_input_embeddings().weight.data_ptr()
     torch.testing.assert_close(original,loaded.get_input_embeddings().weight)
+
+
+def test_query_render_uses_explicit_text_then_exact_tokens():
+    from followspec.independent_data import render_query
+    class Tokenizer:
+        def apply_chat_template(self,messages,*,tokenize,add_generation_prompt):
+            assert tokenize is False and add_generation_prompt is True
+            return '<bos>user:'+messages[0]['content']+'assistant:'
+        def encode(self,text,*,add_special_tokens):
+            assert add_special_tokens is False
+            return [ord(c) for c in text]
+    assert render_query(Tokenizer(),'hi')==[ord(c) for c in '<bos>user:hiassistant:']

@@ -12,6 +12,11 @@ from atlas.generate_magpie import unpaused,managed_engine,request_seeds
 from atlas.workloads import magpie_prefix,file_hash
 
 
+def render_query(tokenizer,text):
+    rendered=tokenizer.apply_chat_template([dict(role='user',content=text)],tokenize=False,add_generation_prompt=True)
+    return tokenizer.encode(rendered,add_special_tokens=False)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','base','drafter','forbidden','output']:p.add_argument('--'+key,required=True)
@@ -28,7 +33,7 @@ def main():
     weights=base if a.teacher=='base' or adapter else target
     tokenizer_path=base if row.get('tokenizer_source')=='inherited_base' or row['type']=='lora_adapter' else target
     cfg=vars(a)|dict(target=row,weights=str(weights),adapter=str(adapter) if adapter else None,
-        tokenizer=str(tokenizer_path),engine_version='0.31.0',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        tokenizer=str(tokenizer_path),enable_lora=row['type']=='lora_adapter',engine_version='0.31.0',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         target_row_sha256=file_hash(a.target_row),forbidden_sha256=file_hash(a.forbidden),source_sha256=file_hash(__file__),
         query_temperature=.8,response_temperature=0.,response_top_p=1.,batch_size=8,max_model_len=4096,
         query_sha256=file_hash(a.queries) if a.queries else None,status='pilot')
@@ -51,7 +56,7 @@ def main():
         kw['lora_request']=LoRARequest(row['model_id'],1,str(adapter))
     start=time.monotonic()
     with managed_engine(lambda:LLM(model=str(weights),tokenizer=str(tokenizer_path),dtype='bfloat16',seed=a.seed,
-        enable_lora=bool(adapter),max_lora_rank=max_rank,enable_prefix_caching=False,max_model_len=4096,gpu_memory_utilization=.7)) as llm:
+        enable_lora=cfg['enable_lora'],max_lora_rank=max_rank,enable_prefix_caching=False,max_model_len=4096,gpu_memory_utilization=.7)) as llm:
         if a.queries:
             queries=read(a.queries)
             if len(queries)!=a.count:raise ValueError('query count mismatch')
@@ -75,7 +80,7 @@ def main():
                 jsonl(out/'partial_queries.jsonl',queries);raise ValueError(f'query shortfall {len(queries)}/{a.count}')
             queries=queries[:a.count]
             for r in queries:
-                r['rendered_token_ids']=tok.apply_chat_template([dict(role='user',content=r['prompt'])],tokenize=True,add_generation_prompt=True)
+                r['rendered_token_ids']=render_query(tok,r['prompt'])
         jsonl(out/'queries.jsonl',queries)
         samples=[]
         with (out/'per_prompt.jsonl').open('x') as f:
