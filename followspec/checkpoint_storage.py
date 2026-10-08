@@ -61,10 +61,14 @@ def shared_export(model, dest, shared_root, state, mutable_keys, minimum_gb=0):
     _json(dest/'storage.json',dict(format='immutable shared HF shards',mutable_keys=sorted(changed),shared_keys=sorted(fixed),shared_root=str(root.resolve())))
 
 
-def save_trainable_checkpoint(model,dest,optimizers,metadata,minimum_gb=0):
+def save_trainable_checkpoint(model,dest,optimizers,metadata,minimum_gb=0,save_optimizer=True):
     require_free(dest,minimum_gb);dest=Path(dest);dest.mkdir(parents=True,exist_ok=False)
     state={k:v.detach().cpu().contiguous().clone() for k,v in model.named_parameters() if v.requires_grad}
     save_file(state,dest/'trainable.safetensors',metadata={'format':'pt'})
+    metadata=metadata|dict(format='trainable-only; requires recorded pinned initialization',keys=sorted(state),optimizer_saved=save_optimizer)
+    if not save_optimizer:
+        _json(dest/'trainable_checkpoint.json',metadata)
+        return
     opts=list(optimizers) if isinstance(optimizers,(list,tuple)) else [optimizers]
     saved=[]
     names={id(p):n for n,p in model.named_parameters()}
@@ -77,4 +81,4 @@ def save_trainable_checkpoint(model,dest,optimizers,metadata,minimum_gb=0):
             groups.append(group|dict(params=ids))
         saved.append(payload|dict(param_groups=groups,state={k:v for k,v in payload['state'].items() if k in keep},parameter_names=parameter_names))
     torch.save(saved,dest/'optimizer_state_dict.pt')
-    _json(dest/'trainable_checkpoint.json',metadata|dict(format='trainable-only; requires recorded pinned initialization',keys=sorted(state)))
+    _json(dest/'trainable_checkpoint.json',metadata)

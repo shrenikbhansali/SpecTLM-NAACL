@@ -61,3 +61,20 @@ def test_native_optimizer_groups_may_include_frozen_parameters(tmp_path):
     assert sum(len(g['params']) for g in saved['param_groups'])==1
     assert len(saved['state'])==1
     assert sum(len(g['params']) for g in opt.param_groups)==4
+
+
+def test_intermediate_saves_weights_without_reading_optimizer(tmp_path):
+    from followspec.checkpoint_storage import save_trainable_checkpoint
+    import torch
+    class ForbiddenOptimizer:
+        def state_dict(self):
+            raise AssertionError('intermediate save must not serialize optimizer')
+    model=torch.nn.Linear(2,3)
+    model.bias.requires_grad_(False)
+    dest=tmp_path/'intermediate'
+    save_trainable_checkpoint(model,dest,[ForbiddenOptimizer()],{'step':50},save_optimizer=False)
+    from safetensors.torch import load_file
+    assert set(load_file(dest/'trainable.safetensors'))=={'weight'}
+    assert not (dest/'optimizer_state_dict.pt').exists()
+    import json
+    assert json.loads((dest/'trainable_checkpoint.json').read_text())['optimizer_saved'] is False

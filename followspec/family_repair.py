@@ -222,10 +222,10 @@ def main():
     mutable=set(proof['trainable_names'])
     for name in list(mutable):
         if '.lora_' in name:mutable.add(name.rsplit('.',1)[0]+'.weight')
-    def compact_checkpoint(label):
+    def compact_checkpoint(label, save_optimizer=True):
         from followspec.checkpoint_storage import save_trainable_checkpoint
         dest=out/'checkpoints'/str(label)
-        save_trainable_checkpoint(model,dest,trainer.optimizers,dict(initialization=a.drafter,config_sha256=file_hash(out/'config.json'),step=completed),a.min_free_gb)
+        save_trainable_checkpoint(model,dest,trainer.optimizers,dict(initialization=a.drafter,config_sha256=file_hash(out/'config.json'),step=completed),a.min_free_gb,save_optimizer=save_optimizer)
         if trainer.schedulers:torch.save([x.state_dict() for x in trainer.schedulers],dest/'scheduler_state_dict.pt')
     if a.compact_checkpoints:
         # The native trainer otherwise writes another full model at epoch end.
@@ -244,7 +244,7 @@ def main():
                 shared_export(model,dest,a.shared_export_root,merged_state(model),mutable,a.min_free_gb)
             else:
                 dest.mkdir(exist_ok=False);model.save_pretrained(dest,state_dict=merged_state(model),safe_serialization=True)
-            if a.compact_checkpoints and completed<a.steps:compact_checkpoint(f'step-{completed}')
+            if a.compact_checkpoints and completed<a.steps:compact_checkpoint(f'step-{completed}',save_optimizer=False)
             write(dest/'repair_provenance.json',dict(config_sha256=file_hash(out/'config.json'),step=completed,variant=a.variant,elapsed_s=time.monotonic()-start,trainable=proof,export_format='native released state keys; LoRA merged'))
     trainer._optimizers_step=step
     with saved_tensor_context(a.offload_saved_tensors):trainer.run_training()
