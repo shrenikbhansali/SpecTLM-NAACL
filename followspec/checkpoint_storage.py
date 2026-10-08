@@ -66,8 +66,15 @@ def save_trainable_checkpoint(model,dest,optimizers,metadata,minimum_gb=0):
     state={k:v.detach().cpu().contiguous().clone() for k,v in model.named_parameters() if v.requires_grad}
     save_file(state,dest/'trainable.safetensors',metadata={'format':'pt'})
     opts=list(optimizers) if isinstance(optimizers,(list,tuple)) else [optimizers]
+    saved=[]
+    names={id(p):n for n,p in model.named_parameters()}
     for opt in opts:
-        if any(not p.requires_grad for group in opt.param_groups for p in group['params']):
-            raise ValueError('optimizer contains frozen parameters')
-    torch.save([opt.state_dict() for opt in opts],dest/'optimizer_state_dict.pt')
+        payload=opt.state_dict();groups=[];keep=set();parameter_names={}
+        for group,live in zip(payload['param_groups'],opt.param_groups,strict=True):
+            ids=[]
+            for index,p in zip(group['params'],live['params'],strict=True):
+                if p.requires_grad:ids.append(index);keep.add(index);parameter_names[index]=names[id(p)]
+            groups.append(group|dict(params=ids))
+        saved.append(payload|dict(param_groups=groups,state={k:v for k,v in payload['state'].items() if k in keep},parameter_names=parameter_names))
+    torch.save(saved,dest/'optimizer_state_dict.pt')
     _json(dest/'trainable_checkpoint.json',metadata|dict(format='trainable-only; requires recorded pinned initialization',keys=sorted(state)))

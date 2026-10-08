@@ -52,3 +52,12 @@ def test_checkpoint_contains_trainable_weights_and_optimizer_only(tmp_path):
     assert (dest/'optimizer_state_dict.pt').exists()
     assert not (dest/'model.safetensors').exists()
     with pytest.raises(FileExistsError):save_trainable_checkpoint(m,dest,[opt],{})
+
+
+def test_native_optimizer_groups_may_include_frozen_parameters(tmp_path):
+    m=Model();opt=torch.optim.AdamW(m.parameters());m.fc(torch.ones(1,3)).sum().backward();opt.step()
+    save_trainable_checkpoint(m,tmp_path/'c',[opt],{})
+    saved=torch.load(tmp_path/'c/optimizer_state_dict.pt',weights_only=True)[0]
+    assert sum(len(g['params']) for g in saved['param_groups'])==1
+    assert len(saved['state'])==1
+    assert sum(len(g['params']) for g in opt.param_groups)==4
