@@ -19,3 +19,6 @@
 
 ### 2026-10-08T15:54:44.534927-04:00 — direct scope comparison
 Pairedfull-minus-fcR1across3seedsΔp1SPEED+.0228[.0162,.0294],MATH+.0232[.0138,.0328]. HermesbothworkloadsandGRPOSPEEDfull-minus-fcp1null, preservedinreport. Source `artifacts/D48_scope_comparison_20261008_1553/`.
+
+### 2026-10-08T16:06:47.569147-04:00 — scaling data and cost provenance
+Self1k launched15:57 before oversampling ended: exact planned deterministic prefix proven against sealed queries; all1000 masks validated. Both arms n1000,329steps,exports83/165/329,556908tokens. Self4k sources allsealed, globaldedup4656→4652→4000, first1000 exactlyequalsself1k; both arms n4000,1315steps,exports329/658/1315,2228270tokens. Pinned3ad9c0c, matchedfc/full configs; actualstep83checkpoints contain trainableweights and tiny scheduler only, nooptimizer. Watcher4151908 publishes exports to frozen6da2e42. Earlyself1k generationcost is a CONSERVATIVE ELAPSED-TIME UPPER BOUND through prefixsnapshot, including unused work; assembly.json records exact scope. Full4k source generationcost=4.7997GPUh, including oversampling. No generation interrupted. Commands: launch_early1k.py, watch_scaling_v3.py; nativeconfigs and exactprefix comparison checked. Timing27/30 complete at16:03; generic4k continues.
