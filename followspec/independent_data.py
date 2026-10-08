@@ -31,7 +31,7 @@ def main():
     if target.name!=row['revision'] or base.name!=row['base_revision']:raise ValueError('snapshot pins differ')
     adapter=target if row['type']=='lora_adapter' and a.teacher=='child' else None
     weights=base if a.teacher=='base' or adapter else target
-    tokenizer_path=base if row.get('tokenizer_source')=='inherited_base' or row['type']=='lora_adapter' else target
+    tokenizer_path=target if (target/'tokenizer.json').exists() and (target/'tokenizer_config.json').exists() else base
     cfg=vars(a)|dict(target=row,weights=str(weights),adapter=str(adapter) if adapter else None,
         tokenizer=str(tokenizer_path),enable_lora=row['type']=='lora_adapter',engine_version='0.31.0',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         target_row_sha256=file_hash(a.target_row),forbidden_sha256=file_hash(a.forbidden),source_sha256=file_hash(__file__),
