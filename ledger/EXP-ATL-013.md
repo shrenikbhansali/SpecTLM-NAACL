@@ -26,3 +26,19 @@
 ## 2026-10-08T00:10:14-04:00 — Census launch and prompt-count clarification
 
 All180censuscells passed360preflights and were dispatched after6/6smokes passed. Correction to prospectivecountabove: exactreusedatlas workloads have64prompts for168cells and128prompts for12cells, not128everywhere. Analysiscountcheck corrected; underlyingcells unchanged. Firstpartialreport is being independentlyderived. No repairmethod run.
+
+## 2026-10-08T00:29:23-04:00 — codex-1 — Q1 interim exploratory summary
+
+Snapshot:46/180 I1 cells,23 completed Llama pairs,64 prompts/target; paired with existing atlas raw counters on exactly matching prompt hashes and decoding settings (zero mismatches). Independent raw re-derivation and input hashes: `artifacts/I1_Q1_20261008_0032/`. One seed, partial scheduling-biased census; prompt bootstrap intervals and every target retained in results.json.
+
+| Drafter | n targets | Median position-1 retention | Range | Targets below0.90 | Median τ retention | Median target output length A00→A10 |
+| --- | ---: | ---: | --- | ---: | ---: | --- |
+| Llama3.2-1B K4 | 23 | 0.9788 | 0.823–1.010 | 1 | 0.9877 | 212.0→153.5 |
+| EAGLE3 K4 | 23 | 0.9986 | 0.747–1.123 | 1 | 0.9964 | 199.0→149.0 |
+| DFlash K10 | 23 | 0.9878 | 0.601–1.109 | 4 | 0.9824 | 209.5→152.0 |
+
+Early independent-drafter median loss is small; these results do not establish a broad or uniquely independent-drafter failure. Pre-cutoff subset n15 has median position1 retention .990/.997/.988 (1B/EAGLE3/DFlash). Selected development GSM8K adapter shows .823/.747/.601, so its failure is shared and larger for the target-conditioned drafters. Other pilot cases: CharlesLi alpaca .926/1.013/1.018; watt .931/1.102/.982; mlabonne .946/.918/.832. These contrasting cases motivate a small exploratory repair test, not a paper conclusion.
+
+T1 snapshot:12 completed cells,8 architecture-incompatible planned cells excluded before execution. allenai/Llama-3.1-Tulu-3-8B-DPO / dflash: position1 retention 0.832, τ retention 0.698; allenai/Llama-3.1-Tulu-3-8B-DPO / eagle3: position1 retention 0.810, τ retention 0.819; allenai/Llama-3.1-Tulu-3-8B-SFT / dflash: position1 retention 0.937, τ retention 0.884; allenai/Llama-3.1-Tulu-3-8B-SFT / eagle3: position1 retention 0.915, τ retention 0.913; meta-llama/Llama-3.1-8B / dflash: position1 retention 1.158, τ retention 1.922; meta-llama/Llama-3.1-8B / eagle3: position1 retention 1.216, τ retention 1.355; all128prompts/pair. Full output lengths and uncertainty are in the artifact. No class-level conclusion yet.
+
+Handoff: censuses continue under sole queue3531265; I1/T1 report processes3518990/3518508. D-43 now authorizes I3–I5 exploration; four pre-cutoff I3 data jobs published after8 dry-run checks. Existing post-cutoff census outcomes are kept in this census summary but excluded from repair selection. Update this Q1 snapshot when more pairs finish and again by the noon checkpoint.
