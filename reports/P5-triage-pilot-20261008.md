@@ -19,7 +19,7 @@ Existing child‖parent KL is available on only ten included checkpoints with id
 
 Artifacts: `artifacts/P5_triage_20261008_1533/analyze_v2.py` and `analysis-v2/{plan.json,results.json}`; the disjoint KL comparator is `compare_kl_disjoint.py` / `KL-disjoint-results.json`. The initial KL comparison overlapped eight label queries and is superseded by this disjoint recomputation (same AUROCs). AUROC implementation passed synthetic perfect/reversed/tied/single-class checks before analysis; runtime assertions verify prompt pairing, frozen settings, unique batches and raw counters. The first script correctly stopped on the immediate-EOS case; the new version records effective paired n rather than treating undefined acceptance as zero. Ten thousand checkpoint bootstrap draws, seed0; one-class draws excluded and counted.
 
-The archived 174-checkpoint census remains separate until exact frozen-harness compatibility is verified. This probe uses SPEED prompts rather than newly self-elicited deployment requests, and no held-out checkpoint validation has been performed. Those gaps remain open.
+The archived174-checkpoint census was subsequently audited under FIX23 and analyzed separately in [the census triage report](P5-census-triage-20261008.md); historical source commits and different query distributions remain explicit. This probe uses SPEED prompts rather than newly self-elicited deployment requests, and no held-out checkpoint validation has been performed. Those gaps remain open.
 
 ## 2026-10-08T16:28:57.414669-04:00 — retrospective prefix budgets and query uncertainty
 
