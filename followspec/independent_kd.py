@@ -50,6 +50,23 @@ def balanced_pool(donors,n):
     return rows
 
 
+def paired_training(child,base,n):
+    if min(len(child),len(base))<n:raise ValueError('paired data shortfall')
+    aa=[];bb=[];log=[]
+    for a,b in zip(child[:n],base[:n],strict=True):
+        for key in ['sample_id','prompt_sha256','prompt_token_ids','response_start']:
+            if a[key]!=b[key]:raise ValueError('paired prompt mismatch: '+key)
+        length=min(len(a['completion_token_ids']),len(b['completion_token_ids']))
+        if not length:raise ValueError('empty paired answer')
+        for row,dest in [(a,aa),(b,bb)]:
+            context=row['prompt_token_ids'];answer=row['completion_token_ids'][:length]
+            dest.append(row|dict(input_ids=context+answer,completion_token_ids=answer,
+                loss_mask=[False]*len(context)+[True]*length))
+        log.append(dict(sample_id=a['sample_id'],child_trim=len(a['completion_token_ids'])-length,
+            base_trim=len(b['completion_token_ids'])-length,kept=length))
+    return aa,bb,log
+
+
 def train(a):
     import importlib.metadata
     import torch

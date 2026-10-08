@@ -51,3 +51,16 @@ def test_native_lora_step_merge_preserves_logits(tmp_path):
     loaded=LlamaForCausalLM.from_pretrained(tmp_path).eval()
     with torch.no_grad():after=loaded(ids).logits
     torch.testing.assert_close(before,after,rtol=1e-5,atol=1e-6)
+
+
+def test_paired_trim_keeps_contexts_and_originals():
+    from followspec.independent_kd import paired_training
+    import copy
+    def row(answer):return dict(sample_id='x',prompt_sha256='p',input_ids=[1,2]+answer,prompt_token_ids=[1,2],
+        completion_token_ids=answer,response_start=2,loss_mask=[False,False]+[True]*len(answer))
+    child=[row([3,4,5])];base=[row([6,7])];before=copy.deepcopy(child)
+    a,b,log=paired_training(child,base,1)
+    assert child==before and a[0]['input_ids']==[1,2,3,4] and b[0]['input_ids']==[1,2,6,7]
+    assert sum(a[0]['loss_mask'])==sum(b[0]['loss_mask'])==2
+    assert log[0]['child_trim']==1 and log[0]['base_trim']==0
+    with pytest.raises(ValueError):paired_training(child,[dict(base[0],prompt_sha256='other')],1)
