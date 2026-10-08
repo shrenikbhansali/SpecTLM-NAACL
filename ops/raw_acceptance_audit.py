@@ -85,9 +85,14 @@ def bootstrap_median(values):
     return np.quantile(np.median(v[rng.integers(0,len(v),size=(10000,len(v)))],axis=1),[.025,.975]).tolist()
 
 
-def t1(index, out, partial=False, study='T1'):
+def t1(index, out, partial=False, study='T1', excluded=None):
+    excluded=excluded or {}
     records=read(index);groups=defaultdict(dict);pending=[];hashes={};allrows=[]
+    if not set(excluded)<={r['run_id'] for r in records}:raise ValueError('unknown excluded cell')
     for r in records:
+        if r['run_id'] in excluded:
+            if (Path(r['run_dir'])/'results.json').exists():raise ValueError('cannot exclude a completed outcome')
+            continue
         if not (Path(r['run_dir'])/'results.json').is_file():pending.append(r['run_id']);continue
         key=(r['model_id'],r['method'])
         if r['cell'] in groups[key]:raise ValueError('duplicate cell')
@@ -111,7 +116,8 @@ def t1(index, out, partial=False, study='T1'):
         h=rows['eagle3']['hypothesis']
         if all(r['position_retention'][0] is not None and r['position_retention'][0]<=.8 for r in rows.values()):hits[h].append(model)
         if all(r['mean_position_retention'] is not None and r['mean_position_retention']<=.8 for r in rows.values()):mean_hits[h].append(model)
-    result=dict(study=study,status='pilot',n_completed=len(records)-len(pending),n_planned=len(records),pending=pending,rows=allrows,
+    result=dict(study=study,status='pilot',n_completed=len(records)-len(pending)-len(excluded),n_planned=len(records),
+                n_excluded=len(excluded),excluded=excluded,pending=pending,rows=allrows,
                 position1_both_drafters_hits=dict(hits),mean_position_both_drafters_hits=dict(mean_hits),
                 uncertainty='Paired prompt bootstrap, 2000 draws; descriptive, conditional on fixed SPEED128 and one seed; no multiplicity correction.',
                 decision_caveat='Numeric screen only; realistic class, checkpoint independence, plausible mechanism and paper framing remain owner decisions. Keep all failures and regressions.',

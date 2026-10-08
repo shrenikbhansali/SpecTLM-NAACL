@@ -86,6 +86,12 @@ def reload_pending(path, known, attempted):
     return [j for j in jobs if j['name'] not in attempted]
 
 
+def cancel_pending(jobs, names):
+    """Explicit operational holds never terminate a running job or alter its args."""
+    names=set(names)
+    return [j for j in jobs if j['name'] not in names],[j['name'] for j in jobs if j['name'] in names]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--slots", required=True)
@@ -95,6 +101,7 @@ def main():
     ap.add_argument("--owner", default="", help="this queue may use reserved slots tagged for this owner (reservations: {\"slots\": [...], \"owner\": NAME})")
     ap.add_argument('--exclusive-owner',action='store_true',help='refuse a second dispatcher with the same owner; required for method queues')
     ap.add_argument('--reload-jobs',action='store_true',help='watch atomically updated job list; stay alive until explicitly stopped')
+    ap.add_argument('--cancel-file',help='optional JSON list of pending job names to cancel; logged permanently, no running process is stopped')
     a = ap.parse_args()
     lock=acquire_owner_lock(a.owner) if a.exclusive_owner else None
     try:
@@ -114,6 +121,7 @@ def dispatch(a):
     if log.exists():
         for l in log.read_text().splitlines():
             e = json.loads(l)
+            if e.get('event')=='cancelled':done_names.add(e['name'])
             if e.get("event") == "launched":
                 done_names.add(e["name"])
                 busy[e["slot"]] = e["out_dir"]
@@ -129,6 +137,13 @@ def dispatch(a):
     attempted=set(done_names)
     while pending or busy or reload:
         if reload:pending=reload_pending(a.jobs,known,attempted)
+        cancel_file=getattr(a,'cancel_file',None)
+        if cancel_file and Path(cancel_file).exists():
+            names=json.loads(Path(cancel_file).read_text())
+            if not isinstance(names,list) or any(not isinstance(n,str) for n in names):raise ValueError('cancel file must be a job-name list')
+            pending,cancelled=cancel_pending(pending,names)
+            for name in cancelled:
+                attempted.add(name);emit(event='cancelled',name=name,cancel_file=cancel_file)
         for slot in slots:
             od = busy.get(slot)
             if od and not (Path(od) / "exit_code").exists():

@@ -26,3 +26,12 @@ def test_pairwise_zero_step_and_zero_denominator_are_explicit():
 def test_bootstrap_retains_negative_gains():
     lo,hi=bootstrap_median([-3,-2,-1])
     assert lo<0 and hi<0
+
+
+def test_incompatible_cells_are_visible_and_never_counted_as_evaluated(tmp_path):
+    import json
+    from ops.raw_acceptance_audit import t1
+    rows=[dict(run_id='bad',run_dir=str(tmp_path/'absent'))]
+    p=tmp_path/'index.json';p.write_text(json.dumps(rows))
+    r=t1(p,tmp_path/'report',excluded={'bad':'different hidden width'})
+    assert r['n_planned']==1 and r['n_completed']==0 and r['n_excluded']==1 and r['pending']==[]

@@ -197,6 +197,7 @@ def watch(stage):
     records=read(stage/'index.json');jobs={j['name']:j for j in lines(stage/'jobs.jsonl')}
     overlays={read(p)['record']['retry_of']:read(p) for p in stage.glob('overlay-*.json')}
     blocked={};last=-1
+    excluded=read(stage/'exclusions.json') if (stage/'exclusions.json').exists() else {}
     def event(**kw):
         with (stage/'events.jsonl').open('a') as f:f.write(json.dumps(dict(time=time.strftime('%Y-%m-%dT%H:%M:%S%z'),**kw))+'\n')
     while True:
@@ -204,6 +205,7 @@ def watch(stage):
         effective=apply_overlay(records,overlays)
         for original,active in zip(records,effective):
             name=original['run_id'];launch=launches.get(active['run_id'])
+            if name in excluded:continue
             if name in blocked or not launch or not (Path(launch['out_dir'])/'exit_code').exists():continue
             exit_code=(Path(launch['out_dir'])/'exit_code').read_text().strip()
             if exit_code=='0':continue
@@ -220,11 +222,12 @@ def watch(stage):
         if done!=last:
             effective_path=stage/f'effective-{time.time_ns()}.json';write(effective_path,effective)
             if done:
-                report=stage/('report' if done==len(records) else f'partial-{done}-{time.time_ns()}')
-                result=t1(effective_path,report,partial=done<len(records))
-                event(event='report',complete=done,total=len(records),report=str(report),blocked=blocked)
+                all_resolved=done+len(excluded)==len(records)
+                report=stage/('report' if all_resolved else f'partial-{done}-{time.time_ns()}')
+                result=t1(effective_path,report,partial=not all_resolved,excluded=excluded)
+                event(event='report',complete=done,total=len(records),excluded=excluded,report=str(report),blocked=blocked)
             last=done
-        if done==len(records):return
+        if done+len(excluded)==len(records):return
         time.sleep(60)
 
 
