@@ -83,12 +83,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-07T23:34-04:00 (codex-1; builder/operator) |
+| Last updated | 2026-10-07T23:56:42-04:00 (codex-1; builder/operator) |
 | Sprint day | Day 3 of 8 (Wed Oct 7); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | **Motivation decision Thu ~14:00 ET** (Track T decision rule, [plan](reports/TRACK-T-plan.md)); Gate 3 framing call follows. Gates 1 and 2 passed. |
 | Paper framing | **Reopened by owner (D-40):** FollowSpec not clearly working (EXP-ATL-009/010). Robust motivation first: Track T (target-conditioned failure modes) ∥ Track I (independent drafters). Fallback: analysis paper (census). |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | M4 complete1010/1010, independently verified (EXP-ATL-012). T1 all18 renders audited; 2 DeepSeek tokenizer repairs saved separately;72-cell preflight running. I1 all3 drafters staged; opt-in harness tests passing. |
+| Jobs running | T1:72 cells dispatched on srv1/3, frozen6da2e42; watcher3494538. I1:6 smoke cells dispatched on srv4, then180 census cells/60targets after smoke+360preflights; watcher3499545, pinned959b003. M4 complete1010/1010, independently verified EXP-ATL-012. |
 | Blockers | **ICE unavailable (D-41): all work on heck A40s.** Heck disk 1.3 TB free (99% full). Third-party GPU users on heck-srv2:4–7 and heck-srv5 cause start-up collisions. B9 blocked; B11/M7 deprioritized. |
 | Owner action needed | Run external brainstorm on the [Track I brief](reports/TRACK-I-independent-drafters-problem.md); decide motivation at Thu ~14:00 from T1 results. |
 
@@ -279,9 +279,9 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | FIX-20 | Serialize shared lambda inference export planning; restart failed public-panel controller without altering frozen evaluation | P0 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:27:30.385759-04:00 | [journal](notes/FIX-20.md); merged633b4a0,317 tests +12 actual exports verified; [audit](artifacts/FIX20_recovery_20261007/export_audit.json); repaired3269112 passed76 dry runs and queued38 public lambda0 cells |
 
 | FIX-21 | D-39 K8 stress follow-up: all four trained arms plus Frozen, all approved lambda values, same fixed development panel and frozen harness | P1 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:43:05.071350-04:00 | [journal](notes/FIX-21.md); mergede39c8cb;330 tests +224 actual dry runs PASS; [preflight](artifacts/D39_K8_20261007/preflight/results.json);112K8 jobs dispatched, watcher3298174 reports4lambda variants automatically |
-| T1 | Track T phase 1: stage + evaluate public lineage/reasoning/RL checkpoints (H1–H3) with EAGLE-3 K4 and DFlash native K, general workload; per-position acceptance | P0 | claude-ops / codex | A4, A7 | Thu noon | in progress | codex-1 / 2026-10-07T23:34-04:00 | [plan](reports/TRACK-T-plan.md); [journal](notes/T1.md); 18 downloads complete; verifying renders and preparing 72 paired cells |
+| T1 | Track T phase 1: stage + evaluate public lineage/reasoning/RL checkpoints (H1–H3) with EAGLE-3 K4 and DFlash native K, general workload; per-position acceptance | P0 | claude-ops / codex | A4, A7 | Thu noon | in progress | codex-1 / 2026-10-07T23:56:42-04:00 | [journal](notes/T1.md); [verified renders](artifacts/T1_canonical_20261007_2347/index.json); [144 checks](artifacts/T1_cells_20261007_2350/preflight/results.json) PASS;72cells queued srv1/3; auto-retry/report watcher3494538 |
 | T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep on heck A40s (LoRA/high-rank or A40-feasible full FT, increasing steps; D-41) | P1 | codex | T1 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
-| I1 | Track I: independent-drafter census on heck A40s (D-41) (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex | — | Thu | in progress | codex-1 / 2026-10-07T23:42:03-04:00 | [journal](notes/I1.md); owner assigns heck census: 60 stratified atlas targets, independent draft_model behind new flag; srv4 + srv2:0–3 |
+| I1 | Track I: independent-drafter census on heck A40s (D-41) (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex | — | Thu | in progress | codex-1 / 2026-10-07T23:56:42-04:00 | [journal](notes/I1.md); merged959b003/e525ee5;154tests PASS;3 pinned drafters staged;6smokes queued,180census cells/60stratified targets after smoke+preflight; controller3499545 |
 | I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex | I1 | Fri | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
 
 ---

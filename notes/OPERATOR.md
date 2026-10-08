@@ -95,3 +95,7 @@ The M4 operator fallback uses only frozen code (run-FIX15 6da2e42 / run-FIX13 30
 
 Owner: ICE errors out frequently, so treat it as down (D-41). Updated MASTER §1/§3.2/§4 (O2 and FIX-19 blocked; T2/I1/I2 on heck, owner codex),
 TRACK-T plan, TRACK-I brief (compute), sites/README.md, ops/ice/README.md. Operator stopped per owner; codex-1 operates on heck.
+
+## 2026-10-07T23:56:42-04:00 — codex-1 — Operator takeover / Handoff
+
+**Now:** D40/D41 heckonly, owner assigns codex-1 builder+operator; dailyreport reports/2026-10-08.md prepared early. **Active jobs:** solequeue3495452; T1watch3494538 ontag2ab4fbf withfrozen6da2e42cells, stageT1_cells_20261007_2350 (72); I1watch3499545 ontage525ee5 with959b003cells, smokeI1_smoke_20261007_2355(6)→censusI1_census_20261007_2355(180). **Queue:** T1srv1/3; I1srv4/2:0–3; excluded2:4–7,all5. **Open incidents:** DeepSeekBPErenderfixvalidated beforelaunch; no I1/T1runtimefailures yet; mostT1capacityoccupied. **Recently verified:** M4full1010rawcells,all8medians,EXP012; I1all154tests. **Next:** inspectT1partialreports/I1smokes, correct anyloadfailure, finishcensuspreflights; noD39/M5/I2jobs.
