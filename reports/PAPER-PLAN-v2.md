@@ -1,71 +1,66 @@
-# Paper plan v2: measure, repair, reuse (D-43, proposed; owner to confirm)
+# Exploration plan v2: measure, repair, reuse (D-43, exploratory)
 
-claude-ops, Thu 2026-10-08 ~00:30 ET. Interprets the owner's external brainstorm ("astra") against our evidence and constraints:
-heck A40s only (D-41), deadline Mon Oct 12 23:59 AoE (≈ Tue 08:00 ET), about 2.5 days of experiments plus 1.5 days of writing.
+claude-ops, Thu 2026-10-08 ~00:45 ET. Interprets the owner's external brainstorm ("astra") against our evidence and constraints:
+heck A40s only (D-41), ARR deadline Mon Oct 12 23:59 AoE.
 
-## 1. Thesis (conditional on gate G1)
+**This is an exploratory phase.** The goal is to find out quickly which direction has real signal, not to certify a result. Use small n, fast
+pilots and short runs. Report what we see, including null and negative results, and let the owner choose the direction at each checkpoint.
+Nothing here is a preregistered test, a gate threshold or a paper claim. Numbers below are rough signals for discussion, not pass/fail rules.
 
-> Fine-tuned derivatives degrade **independent** (standalone) draft models far more than target-conditioned drafters. Zero-data,
-> per-derivative distillation repairs them. **A small bank of repairs learned on earlier derivatives covers much of the repair needed by
-> unseen derivatives.** One short cached probe selects the right repair, so new derivatives are onboarded with no drafter training.
+## 1. Working hypothesis (to probe, not to prove)
 
-Working title: *Repair Once, Reuse Often: Population-Scale Drafter Repair for Fine-Tuned LLMs.*
+> Fine-tuned derivatives may degrade **independent** (standalone) draft models much more than target-conditioned drafters. Zero-data,
+> per-derivative distillation may repair them, and a small **bank of repairs** from earlier derivatives might cover many new derivatives,
+> chosen by a cheap cached probe.
 
-The paper rests on three results (the astra structure, which we adopt):
-1. **Population.** How often and how badly each drafter family degrades across 174 public derivatives (EAGLE-3/DFlash: robust except a
-   tail, already measured; independent drafters: G1), and the mechanisms behind it.
-2. **Repairability and reuse.** Per-child zero-data repair as the reference. How much a donor bank covers on unseen (post-cutoff) derivatives;
-   whether the selector finds it; where coverage fails.
-3. **Economics.** Onboarding cost (target scoring, training, export) vs. measured serving speed on the same A40 configuration.
+If the signal is there, a paper could rest on three parts: **population** (how drafter families degrade across the 174 derivatives), **repair and
+reuse** (per-child repair vs reuse from a bank), and **economics** (onboarding cost vs speed). If not, the exploration tells us what to write instead.
 
-Novelty boundary (corrected from the earlier brief): per-target KD, Magpie draft data, adapter subspaces (EigenLoRAx), adapter composition
-(LoraHub), cross-model LoRA transfer (Cross-LoRA, CAST), delta distillation (OPD²) and online drafter adaptation (OSD, OmniDraft) all
-exist. Our claim is **population-scale evidence of repair reuse across unseen fine-tuned targets, with measured onboarding economics**. We do not
-claim that adaptation or transfer is new.
+Novelty context: per-target KD, Magpie draft data, adapter subspaces (EigenLoRAx), adapter composition (LoraHub), cross-model LoRA transfer (Cross-LoRA,
+CAST), delta distillation (OPD²) and online drafter adaptation (OSD, OmniDraft) all exist. Any eventual claim would be about population-scale
+reuse and economics, not adaptation itself.
 
-## 2. What we run, and what we cut
+## 2. Exploration questions, in order
 
-| Item | Status | Why |
-| --- | --- | --- |
-| **G1 census**: Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives (same tokenizer; codex-1 I1 stratified 60 of 174 (D-42, already running)) | **run first** | Without large, common degradation there is no repair paper |
-| **M0 per-child KD** (reference): Magpie queries from the child → child greedy responses → rank-8 LoRA on the drafter, answer-only, hard labels (= the child's greedy tokens; our decoding is greedy/greedy), 128 and 512 examples, ≤ 256 answer tokens | **run** | The baseline and the bank-construction procedure |
-| Controls: D₀ (stock), D_B (distilled once on the base), D_pool (one LoRA on a balanced donor mixture) | **run** | D_pool is the decisive control: our FollowSpec null showed pooled training may already capture everything general |
-| **M1 repair bank + cached-probe selection** (main): 8 pre-cutoff donors → 12–16; shared probe set of 16–32 synthetic sequences × 128–256 tokens; score = greedy top-1 agreement between child and candidate on teacher-forced prefixes; pick the argmax; report the pure selector and an optional 8-prompt finalist check separately | **run** | Highest value; directly tests reuse; cheap after caching |
-| **M2 head-only ceiling** (gate for a shared head basis): head-only low-rank KD vs internal LoRA KD on 4 failures | **4-hour test** | If head-only reaches ≥ 50% of LoRA-KD gain → shared head basis with a convex coefficient fit; otherwise drop |
-| Triage: signed top-1-agreement change on shared probes vs covariates vs 16 short real requests | **run (cheap, reuses probes)** | Supports the economics result |
-| Qwen3-0.6B → Qwen3-8B replication; 1.7B capacity check on 0.6B failures | **Fri if G3 passes** | Generality |
-| Weight-space transport, online verification-feedback updates, damage-directed data selection | **cut** (future work; damage-directed only as an ablation if time) | Close prior art, serving engineering, deadline |
-| Track T T1 (lineage/reasoning/RL checkpoints × EAGLE-3/DFlash) | **continue, low priority** | Feeds the Population result (does any shift break target-conditioned drafters?); no method work on Track T |
-
-Fixed settings (protocol frozen unless the owner changes them): pinned vLLM 0.31.0, `draft_model`, greedy target and draft, **K = 4**, batch 8, 512
-tokens, fresh compile, A00 vs A10 on identical rendered prompts, A40 only. Metrics: per-position conditional acceptance (position 1 = headline),
-prefix survival Pr(R ≥ j), accepted/proposed, τ (with bonus), output lengths; teacher-forced matched-prefix agreement for causal analysis;
-wall-clock on the same A40 configuration; adaptation GPU-seconds including Magpie, scoring and export. Recovered gain
-R_i = (α_method − α_D0) / (α_KD − α_D0), reported only when the denominator is meaningfully positive.
-
-Splits: donors and development children come from the **pre-cutoff** pool (atlas pre-cutoff + bank). Final evaluation is on the **post-cutoff test
-pool** (Llama 50), with probes, donors, hyperparameters and thresholds frozen first. Near-duplicates, quantized siblings and same-author series stay
-in one split.
-
-## 3. Gates (owner decides at each; times ET)
-
-| Gate | When | Pass criterion | If it fails |
+| # | Question | Quick probe | What would be interesting |
 | --- | --- | --- | --- |
-| **G1 motivation** | Thu ~12:00 | Independent drafter loses ≥ 10% position-1 acceptance on ≥ 30% of the census, or ≥ 20% on ≥ 15% (vs EAGLE-3: 17/87 below 0.95) | Paper = population analysis across drafter families (+ T1) and the FollowSpec negative result; no repair method |
-| **G2 repairability** | Thu ~22:00 | M0 KD (512 examples) recovers ≥ 50% of the lost acceptance on ≥ 5/8 failures, beats D_B on the child, and the gain is child-specific (D_i on child − D_i on base > 0) | Paper = population + "zero-data KD repairs X%" as a measured baseline |
-| **G3 reuse** | Fri ~12:00 | On 4 unseen development children, the best bank candidate reaches ≥ 50% of own-KD gain, beats D_pool by > 1 point, and the selector picks within 1 point of the best | Best candidate fails → bank lacks coverage (report it); selector fails → report the oracle and the probe gap. Main method falls back to M0 + triage |
-| **Freeze** | Fri ~20:00 | Probes, donors, selector, thresholds | — |
-| Final eval | Sat | Post-cutoff test pool + Qwen3 replication + wall-clock | — |
-| Writing | Sun–Mon | Atlas sections already evidenced (EXP-ATL-002/005/007/009/010) | — |
+| Q1 | Do independent drafters degrade on derivatives, and how much more than EAGLE-3/DFlash? | codex-1's I1 census (D-42: Llama-3.2-1B → Llama-3.1-8B derivatives, stratified 60), position-1 acceptance and τ vs the atlas | Large, common losses (e.g. 10%+ per-token on a sizable share) with a visible contrast to target-conditioned drafters |
+| Q2 | Does zero-data per-child repair work? | Magpie from the child → child greedy responses → small LoRA KD of the 1B drafter (128/512 examples) on a handful of degraded children; controls D₀ (stock), D_B (base-distilled), D_pool (pooled donors) | Most of the lost acceptance comes back, and more on the child than on the base (child-specific) |
+| Q3 | Do repairs transfer between derivatives? | Small bank (about 8 donors): evaluate each donor's repair on a few *other* degraded children, plus a cached greedy-agreement probe to see if it ranks donors sensibly | Some donor recovers much of a new child's loss and beats D_pool; the probe roughly finds it |
+| Q4 | Is the output head enough? | Head-only KD vs LoRA KD on about 4 children (short, capped) | Head-only gets a good fraction of the gain, which would make a shared head basis worth a look |
+| Q5 | Does anything break target-conditioned drafters? | T1 (lineage, reasoning, RL checkpoints × EAGLE-3/DFlash), continues in parallel | Any shift class with large losses for both drafter families |
 
-## 4. Build list for codex (heck)
+Out of scope for now (revisit only if the owner asks): weight-space transfer, online verification-feedback updates, damage-directed data
+selection, Qwen3 replication, multi-family generality. Possible later steps once a direction is chosen: Qwen3-0.6B replication, 1.7B capacity check,
+wall-clock economics.
 
-1. **I1**: done by codex-1 (D-42: opt-in `draft_model` mode, stratified census of 60 running). G1 reads its results.
-2. **I3** small-drafter KD: Magpie training split for any derivative (reuse atlas.generate_magpie with forbidden-file dedup against every evaluation
-   prompt) → child greedy responses (reuse followspec.generate_responses) → LoRA KD trainer for a 1B HF model (hard-label answer-only; forward-KL
-   variant behind a flag) → merged checkpoint export loadable by vLLM `draft_model`. Five decoded samples and masks per new data path.
-3. **I4** cached probe scorer: teacher-forced greedy top-1 agreement of child vs each candidate on fixed probe sequences (HF bf16; cache candidate
-   argmaxes once); selector; offline agreement vs measured acceptance correlation.
-4. **I5** (4-hour cap) head-only KD variant for the M2 ceiling test.
+## 3. Settings (keep simple and comparable)
 
-All jobs go through ops/queue.py on live-free A40s. Proposed split: Track I on heck-srv4 + heck-srv2:0–3 + heck-srv5 when free; T1 on heck-srv1 + heck-srv3.
+Pinned vLLM 0.31.0 `draft_model` mode (D-42); greedy target and draft; K = 4; batch 8; 512 tokens; fresh compile; A00 vs A10 on identical
+rendered prompts; A40 only. Look at position-1 conditional acceptance, τ and output length together (τ alone is length-confounded).
+
+Light hygiene that keeps later options open:
+- Draw donors and pilot children from the **pre-cutoff** pool. **Leave the post-cutoff test pool untouched** so a later confirmation stays possible.
+- Never evaluate on training prompts: Magpie data is deduplicated against evaluation prompts.
+- Five decoded samples and masks per new data path.
+- Never overwrite artifacts.
+- Record results as exploratory ledger entries (status `pilot`), with n and spread.
+
+## 4. Checkpoints with the owner (times are targets, ET)
+
+| When | What we bring | Owner chooses |
+| --- | --- | --- |
+| Thu ~12:00 | Q1 census picture (+ T1 so far) | Continue Track I repair, switch emphasis, or write a population/analysis paper |
+| Thu ~22:00 | Q2 pilot (+ Q4 if quick) | Whether repair is worth building on |
+| Fri ~12:00 | Q3 transfer picture | Main direction for the paper and what (if anything) to run as a confirmation on the untouched test pool over the weekend |
+
+## 5. Build list for codex (heck), lightweight
+
+1. **I1**: done by codex-1 (D-42: opt-in `draft_model` mode, stratified census of 60 running). Summarize it for Q1.
+2. **I3** (Q2): a small, working drafter-KD path is enough. Steps: Magpie training split for a derivative (dedup) → child greedy responses →
+   LoRA KD of the 1B drafter (answer-only hard labels) → merged checkpoint loadable by `draft_model`. Add D_B and D_pool controls.
+3. **I4** (Q3): cross-evaluate donor repairs on other children. Teacher-forced greedy top-1 agreement probe (16–32 synthetic sequences, cached
+   per candidate) as a cheap ranking signal.
+4. **I5** (Q4, capped at a few hours): head-only KD variant.
+
+Placement: Track I on heck-srv4 + heck-srv2:0–3 (+ heck-srv5 when live-free); T1 on heck-srv1 + heck-srv3.
