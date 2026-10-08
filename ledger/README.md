@@ -23,3 +23,4 @@ owner decides whether to merge these into a master ledger.
 | [EXP-ATL-012](EXP-ATL-012.md) | Full-budget seed0 M4 and independent raw audit | 2026-10-08 | pilot |
 | [EXP-ATL-013](EXP-ATL-013.md) | Track I independent census and matched Q1 comparison | 2026-10-08 | pilot |
 | [EXP-ATL-014](EXP-ATL-014.md) | Exploratory independent-drafter repair and reuse | 2026-10-08 | pilot |
+| [EXP-ATL-015](EXP-ATL-015.md) | Track T phase1b domain/model, dedicated drafter and KL | 2026-10-08 | pilot |
