@@ -153,3 +153,6 @@ Free 748 GB at 14:42 → 534 GB at 15:37, all ours: P4_D48 139 GB, P3_D48 71 GB.
 The waste is optimizer_state_dict.pt at every intermediate checkpoint (P4 DFlash full: 8.4 GB each; 16 files/72 GB in P4, 30 GB in P3_D48). Under D-47 scope I removed
 intermediate (checkpoints/step-*) optimizer states of runs with a final epoch checkpoint: 8 files, 36.2 GB, manifest `OPS_disk_cleanup_20261008/manifest_intermediate_optimizer.jsonl`.
 Free 567 GB. Asked codex to stop writing intermediate optimizer state in the DFlash/full paths.
+
+### 2026-10-08T15:44:52.220101-04:00 — codex-1 — automated D48 health observation
+CPU observer `artifacts/D48_analysis_20261008_1528/watch.py`: completed cells {'seed': 8, 'generality': 16, 'scaling': 0, 'dflash': 18, 'timing': 15}; generation counts {'self-shard-0-retry1': 584, 'self-shard-1-retry1': 592, 'self-shard-2-retry1': 584, 'self-shard-3-retry1': 624, 'generic-4k-retry1': 1528}; free disk 607.1GB. Canonical queue present=True; launches hold below350GB, runtime guard250GB. Independent acceptance/timing snapshots and errors (if any) are append-only under the observer artifact directory. This observer makes no scientific selection or new GPU launch.
