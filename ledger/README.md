@@ -17,3 +17,5 @@ owner decides whether to merge these into a master ledger.
 | [EXP-ATL-006](EXP-ATL-006.md) | D-38 reduced-budget method pilot (4 arms vs Frozen, K4, seed 0) | 2026-10-07 | pilot |
 | [EXP-ATL-007](EXP-ATL-007.md) | A6 covariates vs atlas retention (Spearman) | 2026-10-07 | pilot |
 | [EXP-ATL-008](EXP-ATL-008.md) | D-39 controlled target-update stress screen (six code/math conditions) | 2026-10-07 | pilot |
+| [EXP-ATL-009](EXP-ATL-009.md) | Full-budget seed0 on original fixed panel | 2026-10-07 | pilot |
+| [EXP-ATL-010](EXP-ATL-010.md) | Lambda and matched K8 feasibility follow-ups | 2026-10-07 | pilot |
