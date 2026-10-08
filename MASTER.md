@@ -83,7 +83,7 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-07T09:04-04:00 (claude-ops) |
+| Last updated | 2026-10-07T22:57-04:00 (claude-ops) |
 | Sprint day | Day 2 of 8 (Tue Oct 6) |
 | Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
 | Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
@@ -274,6 +274,10 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | FIX-20 | Serialize shared lambda inference export planning; restart failed public-panel controller without altering frozen evaluation | P0 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:27:30.385759-04:00 | [journal](notes/FIX-20.md); merged633b4a0,317 tests +12 actual exports verified; [audit](artifacts/FIX20_recovery_20261007/export_audit.json); repaired3269112 passed76 dry runs and queued38 public lambda0 cells |
 
 | FIX-21 | D-39 K8 stress follow-up: all four trained arms plus Frozen, all approved lambda values, same fixed development panel and frozen harness | P1 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:43:05.071350-04:00 | [journal](notes/FIX-21.md); mergede39c8cb;330 tests +224 actual dry runs PASS; [preflight](artifacts/D39_K8_20261007/preflight/results.json);112K8 jobs dispatched, watcher3298174 reports4lambda variants automatically |
+| T1 | Track T phase 1: stage + evaluate public lineage/reasoning/RL checkpoints (H1–H3) with EAGLE-3 K4 and DFlash native K, general workload; per-position acceptance | P0 | claude-ops / codex | A4, A7 | Thu noon | in progress | claude-ops / 2026-10-07T22:57-04:00 | [plan](reports/TRACK-T-plan.md); downloads started |
+| T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep (full FT, increasing steps) on ICE | P1 | codex-ice | T1, O2 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
+| I1 | Track I: independent-drafter census on ICE (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex-ice | O2 | Thu | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
+| I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex-ice | I1 | Fri | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
 
 ---
 
@@ -1021,6 +1025,7 @@ citing where it was stated.*
 | D-38 | 2026-10-07 | **Reduced-budget method pilot approved (owner direct):** run a separate single-seed four-arm pilot with matched tokens/steps and a small fixed K4 held-out panel. Concrete verified budget:1991138tokens/250steps perarm, seed0, same presets and D-36 subdivision, same initial released drafter; existing full-budget seed0 runs continue. Implementation selects a fixed stratified panel by type and seeded identity hash before pilot outcomes, with original prompts/decoding. Exploratory evidence, no Gate3 certification. Native validation may overlap evaluation of a fully trained, sealed checkpoint; validation status remains explicit. Entered codex-1 2026-10-07T01:22:38.379669-04:00 | Decided |
 
 | D-39 | 2026-10-07 | **Exploratory method strengthening approved (owner direct):** controlled target-update strength panel across code/math/language/domain tasks, chosen using Frozen degradation and useful target quality; short single-seed matched lambda ablation 0/0.03/0.1/0.3; compare K4/K8 consistently across arms; reserve fresh held-out prompts/models for confirmation after development selection. Reuse the D-38 250-step/1991138-token corpus and existing lambda0.1/control runs; preserve full-budget D-37 comparison and all exploratory outcomes. Existing frozen evaluation implementation and metric definitions remain unchanged. Separate exploratory settings do not certify Gate3 or establish a predetermined positive conclusion. Entered codex-1 2026-10-07T13:54:44.818801-04:00. | Decided |
+| D-40 | 2026-10-07 | **Reorientation (owner, direct, chat 23:xx):** FollowSpec (bank-level method) is not clearly working (EXP-ATL-009/010). Before any new method, establish a robust motivation. Two parallel tracks: **Track T** (heck): find a robust failure mode for target-conditioned drafters (EAGLE-3, DFlash): lineage/sibling post-training, reasoning distillation, RL drift via public checkpoints first, controlled heavy training only if needed ([plan](reports/TRACK-T-plan.md)). **Track I** (ICE): independent (standalone) drafters on fine-tuned derivatives: census, then zero-data / scalable repair; problem brief for external brainstorming ([brief](reports/TRACK-I-independent-drafters-problem.md)). Server assignment proposed by claude-ops (Track T needs the validated A40 atlas harness; Track I is greenfield). Existing atlas, M3/M4, D-38/D-39 results are preserved and reported. Entered by claude-ops 2026-10-07 22:57 | Decided |
 
 ---
 
