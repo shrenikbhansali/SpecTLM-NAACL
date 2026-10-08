@@ -146,3 +146,10 @@ Correction: the owner's approval came ~14:30 ET (not ~04:20 as first written in 
 
 ### 2026-10-08T15:07:56.934414-04:00 — codex-1 — D48 launch checkpoint
 D48 jobs active. Native compactfc/full and frozen8prompt export checks pass; four additionalseedruns published (twofc active, fullpending at15:05). Ninegenerationjobs: Nemo/GRPO/Hermes256done andfiveauditssealed; R1Qwen/scalepools continue. Generality repairs dispatchperreadytarget. DFlashfc/fulln5 native2steps pass,28.36/37.81GiB; frozenK10checksqueued. P6reused/no-specsmokespass;30timingcells published. Sources1ac5fee/834aa2c/738cd6b/215fb44/ef0b0db pushed. Storagefirstsmokefailednativeoptimizerfrozengroups; fixedserializationwithoutoptimizerchanges, preservedfailedoutputs. Canonicaldispatcher safelyrestarted4106129 fromsamelaunchlog underpublishlock toaddlivefree srv5:1–7; prior3546069stoppedonly atidleboundary, runningjobsuntouched. Previouslyrefusedunlaunchednamespersistentlycancelled toavoidrestartduplicates; D48pendingplacementextendedonly. Evidence artifacts/P3_D48_20261008_1455/queue-extension. Disk~700GB;250GBruntimeguard active, no newdownloads.
+
+## 2026-10-08T15:38-04:00 — claude-ops — Disk again (D-48 runs)
+
+Free 748 GB at 14:42 → 534 GB at 15:37, all ours: P4_D48 139 GB, P3_D48 71 GB. Shared export shards are true hardlinks (inode shared, nlink 9) and fine.
+The waste is optimizer_state_dict.pt at every intermediate checkpoint (P4 DFlash full: 8.4 GB each; 16 files/72 GB in P4, 30 GB in P3_D48). Under D-47 scope I removed
+intermediate (checkpoints/step-*) optimizer states of runs with a final epoch checkpoint: 8 files, 36.2 GB, manifest `OPS_disk_cleanup_20261008/manifest_intermediate_optimizer.jsonl`.
+Free 567 GB. Asked codex to stop writing intermediate optimizer state in the DFlash/full paths.
