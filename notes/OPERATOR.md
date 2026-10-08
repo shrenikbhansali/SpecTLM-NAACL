@@ -139,3 +139,7 @@ est. ~340 GB) via `artifacts/OPS_disk_cleanup_20261008/clean_vllm_cache.py` (man
 Correction: the owner's approval came ~14:30 ET (not ~04:20 as first written in D-47; fixed). The 03:16→04:15 drop (776→413 GB) did not continue: free space held
 ~410 GB until 14:30. The first sequential deleter was too slow on NFS (~20 dirs/min), so I killed it (PID 4077774) and ran `clean_parallel.py` (24 threads, same manifest/checks):
 3,653 ok + 97 already gone after 319 s; free space 681 GB at 14:40 and rising.
+
+## 2026-10-08T14:42-04:00 — claude-ops — Cleanup complete
+
+`clean_parallel.py` DONE: 4,838 caches deleted, 97 already gone, 0 errors, 411 s. Six vllm_cache dirs remain (runs without exit_code, i.e. active or new). Free space 748 GB at 14:42 (≈410 GB before).
