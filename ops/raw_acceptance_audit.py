@@ -85,14 +85,15 @@ def bootstrap_median(values):
     return np.quantile(np.median(v[rng.integers(0,len(v),size=(10000,len(v)))],axis=1),[.025,.975]).tolist()
 
 
-def t1(index, out, partial=False):
+def t1(index, out, partial=False, study='T1'):
     records=read(index);groups=defaultdict(dict);pending=[];hashes={};allrows=[]
     for r in records:
         if not (Path(r['run_dir'])/'results.json').is_file():pending.append(r['run_id']);continue
         key=(r['model_id'],r['method'])
         if r['cell'] in groups[key]:raise ValueError('duplicate cell')
         cfg,rows=load(r['run_dir'])
-        if len(rows)!=128 or cfg['code_commit']!='6da2e4265c0398ec0de5affaf23b0bd1df0be445':raise ValueError('T1 pin/count mismatch')
+        pin=r.get('frozen_commit','6da2e4265c0398ec0de5affaf23b0bd1df0be445')
+        if len(rows)!=128 or cfg['code_commit']!=pin:raise ValueError('study pin/count mismatch')
         if cfg['prompt_sha256']!=digest(r['prompt_file']):raise ValueError('prompt content changed')
         groups[key][r['cell']]=(r,cfg,rows)
         for name in ['config.json','results.json','per_prompt.jsonl']:
@@ -110,11 +111,14 @@ def t1(index, out, partial=False):
         h=rows['eagle3']['hypothesis']
         if all(r['position_retention'][0] is not None and r['position_retention'][0]<=.8 for r in rows.values()):hits[h].append(model)
         if all(r['mean_position_retention'] is not None and r['mean_position_retention']<=.8 for r in rows.values()):mean_hits[h].append(model)
-    result=dict(status='pilot',n_completed=len(records)-len(pending),n_planned=len(records),pending=pending,rows=allrows,
+    result=dict(study=study,status='pilot',n_completed=len(records)-len(pending),n_planned=len(records),pending=pending,rows=allrows,
                 position1_both_drafters_hits=dict(hits),mean_position_both_drafters_hits=dict(mean_hits),
                 uncertainty='Paired prompt bootstrap, 2000 draws; descriptive, conditional on fixed SPEED128 and one seed; no multiplicity correction.',
                 decision_caveat='Numeric screen only; realistic class, checkpoint independence, plausible mechanism and paper framing remain owner decisions. Keep all failures and regressions.',
                 metric='Macro conditional acceptance over shared nonzero-opportunity prompts at each position; A10/A00. Micro rates also reported. Length is descriptive, not matched trajectories.')
+    if study=='I1':
+        result.pop('position1_both_drafters_hits');result.pop('mean_position_both_drafters_hits')
+        result['decision_caveat']='Stratified outcome-independent subset of 60 atlas targets, not an unweighted census estimate of all174. No repair methods or owner framing decision.'
     out.mkdir(parents=True,exist_ok=False);write(out/'results.json',result);write(out/'config.json',dict(index=str(index),index_sha256=digest(index),inputs_sha256=hashes,analysis_source_sha256=digest(__file__)))
     return result
 

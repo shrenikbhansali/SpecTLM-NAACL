@@ -145,7 +145,8 @@ def parser():
     p.add_argument('--target',required=True);p.add_argument('--target-revision',required=True)
     p.add_argument('--adapter');p.add_argument('--adapter-revision')
     p.add_argument('--drafter',required=True);p.add_argument('--drafter-revision',required=True)
-    p.add_argument('--method',choices=['eagle3','eagle','dflash'],required=True)
+    p.add_argument('--method',choices=['eagle3','eagle','dflash','draft_model'],required=True)
+    p.add_argument('--draft-vocab-mapping',action='store_true',help='I1 opt-in token-level vocabulary mapping; requires --method draft_model')
     p.add_argument('--K',type=int,default=4);p.add_argument('--prompts',required=True)
     p.add_argument('--seed',type=int,default=0);p.add_argument('--max-new-tokens',type=int,default=512)
     p.add_argument('--batch-size',type=int,default=1);p.add_argument('--max-model-len',type=int,default=4096)
@@ -158,8 +159,17 @@ def parser():
     return p
 
 
+def speculative_options(a):
+    mapping=getattr(a,'draft_vocab_mapping',False)
+    if mapping and a.method!='draft_model':raise ValueError('--draft-vocab-mapping requires draft_model')
+    result=dict(model=a.drafter,revision=a.drafter_revision,method=a.method,num_speculative_tokens=a.K)
+    if mapping:result['use_heterogeneous_vocab']=True
+    return result
+
+
 def main():
     a=parser().parse_args()
+    speculative=speculative_options(a)
     for key in ('target_revision','drafter_revision'):
         if not re.fullmatch('[a-f0-9]{40}',getattr(a,key)): raise ValueError(f'{key} must be a commit hash')
     if min(a.K,a.batch_size,a.max_new_tokens,a.max_model_len)<=0: raise ValueError('positive counts required')
@@ -172,6 +182,7 @@ def main():
         per_request_spec_decode_metrics='detailed',metric_definition='1 + accepted draft tokens / speculative steps; macro over nonzero-step prompts',
         zero_step_policy='D32: null per-prompt AL; exclude from cell macro; pairwise shared nonzero IDs for comparisons',
         enable_lora_requested=a.enable_lora,enable_lora=lora_enabled(a.adapter,a.enable_lora))
+    if a.method!='draft_model':cfg.pop('draft_vocab_mapping',None)
     cfg['code_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     cfg['code_dirty']=bool(subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip())
     cfg['source_sha256']=sha256(__file__)
@@ -205,8 +216,7 @@ def main():
             gpu_memory_utilization=a.gpu_memory_utilization,
             enable_lora=cfg['enable_lora'],max_lora_rank=a.max_lora_rank,
             per_request_spec_decode_metrics='detailed',
-            speculative_config={'model':a.drafter,'revision':a.drafter_revision,
-                'method':a.method,'num_speculative_tokens':a.K})
+            speculative_config=speculative)
         startup=time.perf_counter()-started
         kwargs={}
         if a.adapter:
