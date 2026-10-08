@@ -35,3 +35,11 @@ def test_incompatible_cells_are_visible_and_never_counted_as_evaluated(tmp_path)
     p=tmp_path/'index.json';p.write_text(json.dumps(rows))
     r=t1(p,tmp_path/'report',excluded={'bad':'different hidden width'})
     assert r['n_planned']==1 and r['n_completed']==0 and r['n_excluded']==1 and r['pending']==[]
+
+
+def test_i1_uses_actual_atlas_workload_count_while_t1_requires_speed128():
+    from ops.raw_acceptance_audit import validate_study_count
+    validate_study_count(64,64,'I1')
+    validate_study_count(128,128,'T1')
+    with pytest.raises(ValueError):validate_study_count(64,128,'I1')
+    with pytest.raises(ValueError):validate_study_count(64,64,'T1')

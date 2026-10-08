@@ -85,6 +85,10 @@ def bootstrap_median(values):
     return np.quantile(np.median(v[rng.integers(0,len(v),size=(10000,len(v)))],axis=1),[.025,.975]).tolist()
 
 
+def validate_study_count(n,source_n,study):
+    if n!=source_n or n<=0 or (study=='T1' and n!=128):raise ValueError('study prompt count mismatch')
+
+
 def t1(index, out, partial=False, study='T1', excluded=None):
     excluded=excluded or {}
     records=read(index);groups=defaultdict(dict);pending=[];hashes={};allrows=[]
@@ -98,7 +102,8 @@ def t1(index, out, partial=False, study='T1', excluded=None):
         if r['cell'] in groups[key]:raise ValueError('duplicate cell')
         cfg,rows=load(r['run_dir'])
         pin=r.get('frozen_commit','6da2e4265c0398ec0de5affaf23b0bd1df0be445')
-        if len(rows)!=128 or cfg['code_commit']!=pin:raise ValueError('study pin/count mismatch')
+        validate_study_count(len(rows),len([s for s in Path(r['prompt_file']).read_text().splitlines() if s.strip()]),study)
+        if cfg['code_commit']!=pin:raise ValueError('study pin mismatch')
         if cfg['prompt_sha256']!=digest(r['prompt_file']):raise ValueError('prompt content changed')
         groups[key][r['cell']]=(r,cfg,rows)
         for name in ['config.json','results.json','per_prompt.jsonl']:

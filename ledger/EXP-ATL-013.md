@@ -22,3 +22,7 @@
 | Qwen/Qwen3-1.7B | pkhare/qwen3-8b-biomedical | A10 | 5 | 3.8000 |
 
 **Caveats:** Smoke numbers only, not census evidence or speedup. Five-prompt smoke output prefixes matched historical atlas output in27/30cases; three continuations differ, first divergence atpositions16/40/46. Historical runs used128queries/batches of8 and a different drafter, so this is not a controlled bitwise replay; mismatches retained in `historical_prefix_audit.json`, no exact-replay claim. Full census remains outcome-independent, includes all selected successes/failures/regressions, and is stratified rather than a representative unweighted estimate of174models. I2 awaits owner brainstorm.
+
+## 2026-10-08T00:10:14-04:00 — Census launch and prompt-count clarification
+
+All180censuscells passed360preflights and were dispatched after6/6smokes passed. Correction to prospectivecountabove: exactreusedatlas workloads have64prompts for168cells and128prompts for12cells, not128everywhere. Analysiscountcheck corrected; underlyingcells unchanged. Firstpartialreport is being independentlyderived. No repairmethod run.

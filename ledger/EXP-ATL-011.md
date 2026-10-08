@@ -17,3 +17,7 @@
 | meta-llama/Llama-3.1-8B | EAGLE-3 K4 |128|1.2158 [1.1619,1.2782]|2.7913→3.7814|285.5→512.0|
 
 **Caveats:** Partialmatrix, one seed, fixed promptpanel; promptbootstrap2000draws does not measure run-to-run uncertainty. This first checkpoint improves acceptance and does not meet the failure threshold; DFlash pair pending. Own-template post-training comparisons include template/trajectory effects even with identical paired inputIDs. DeepSeek AutoTokenizer whitespace bug repaired before any affected GPUlaunch; original malformed renders retained. Unknown/custom license labels in the supplied18model manifest remain flagged, not silently treated as standard. No quality or speedup claim, no owner framing decision.
+
+## 2026-10-08T00:08:07-04:00 — Eligibility audit update
+
+Two supplied OpenLearnLM checkpoints declare Qwen2/hidden3584/layers28 despite qwen3_8b repository names. Their8unlaunched pairedcells held as structurallyincompatible;16models/64cellsremaineligible, all18retained in originalplan. [Audit](../artifacts/T1_cells_20261007_2350/model_metadata_audit.json), [holds](../artifacts/T1_cells_20261007_2350/exclusions.json). This is inputvalidity, not acceptance degradation. Sixmanifestentries lacklicense metadata and3arecustom/other; labels remain visible.
