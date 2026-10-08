@@ -126,6 +126,13 @@ class RepairCollator:
     def __call__(self,rows):return self.native(rows)
 
 
+def epoch_export_steps(steps, fractions=None):
+    fractions = [.25, .5, 1.] if fractions is None else fractions
+    if steps < 1 or not fractions or any(not math.isfinite(f) or not 0 < f <= 1 for f in fractions) or 1. not in fractions:
+        raise ValueError('epoch export fractions must be finite, in (0, 1], and include 1')
+    return sorted({max(1, math.ceil(steps * f)) for f in fractions})
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
@@ -136,6 +143,7 @@ def main():
     p.add_argument('--scratch',action='store_true');p.add_argument('--offload-saved-tensors',action='store_true');p.add_argument('--release-grad-before-forward',action='store_true');p.add_argument('--dry-run',action='store_true')
     p.add_argument('--min-free-gb',type=float,default=0);p.add_argument('--compact-checkpoints',action='store_true');p.add_argument('--shared-export-root')
     p.add_argument('--one-epoch',action='store_true',help='derive steps and quarter/half/final exports from one complete shuffled pass')
+    p.add_argument('--epoch-export-fractions',nargs='+',type=float,help='explicit export fractions for --one-epoch; default remains .25 .5 1')
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
     p.add_argument('--checkpoint-dflash-layers',action='store_true')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
@@ -148,7 +156,9 @@ def main():
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
     if a.one_epoch:
         one_epoch=epoch_batches(rows,a.batch_tokens,a.seed,shift=shift);a.steps=len(one_epoch)
-        a.export_steps=sorted({max(1,math.ceil(a.steps*f)) for f in [.25,.5,1.]})
+        a.export_steps=epoch_export_steps(a.steps,a.epoch_export_fractions)
+    elif a.epoch_export_fractions is not None:
+        raise ValueError('--epoch-export-fractions requires --one-epoch')
     if a.steps not in a.export_steps or any(x<1 or x>a.steps for x in a.export_steps):raise ValueError('invalid export budget')
     schedule_steps=a.schedule_steps or a.steps
     if schedule_steps<a.steps:raise ValueError('schedule horizon shorter than run')

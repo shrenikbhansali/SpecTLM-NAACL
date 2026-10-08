@@ -108,3 +108,12 @@ def test_one_epoch_uses_every_sample_once_and_same_seed_order():
     assert sorted(i for b in plan for i in b)==list(range(4))
     assert plan==step_batches(rows,len(plan),40,3)
     assert all(sum(len(rows[i]['input_ids'])-1 for i in b)<=40 for b in plan)
+
+
+def test_one_epoch_export_fractions_are_explicit_and_preserve_legacy_default():
+    from followspec.family_repair import epoch_export_steps
+    assert epoch_export_steps(1315)==[329,658,1315]
+    assert epoch_export_steps(5259,[.25,.5,.75,1.])==[1315,2630,3945,5259]
+    assert epoch_export_steps(2,[.25,.5,.75,1.])==[1,2]
+    for fractions in [[],[0,1],[-.1,1],[.5],[.5,1.2],[float('nan'),1]]:
+        with pytest.raises(ValueError):epoch_export_steps(20,fractions)
