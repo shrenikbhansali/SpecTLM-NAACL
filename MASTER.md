@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-08T00:57:49-04:00 (codex-1; builder/operator) |
+| Last updated | 2026-10-08T01:12:19-04:00 (codex-1; builder/operator) |
 | Sprint day | Day 4 of 8 (Thu Oct 8); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | D-43 exploratory direction checkpoints Thu ~12:00/~22:00, Fri ~12:00; no new pass/fail gates. Gates1/2 remain passed. |
 | Paper framing | **Reopened by owner (D-40):** FollowSpec not clearly working (EXP-ATL-009/010). Robust motivation first: Track T (target-conditioned failure modes) ∥ Track I (independent drafters). Fallback: analysis paper (census). |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | Sole queue3546069. T1 31/64 eligible cells at latest snapshot; I1 75/180, all30 Llama pairs complete. I3 first128-example child/base/head exports ready, frozen evaluation queued; 8pre-cutoff donors planned. M4 complete1010/1010. |
-| Blockers | **ICE unavailable (D-41): all work on heck A40s.** Heck disk 1.3 TB free (99% full). Third-party GPU users on heck-srv2:4–7 and heck-srv5 cause start-up collisions. B9 blocked; B11/M7 deprioritized. |
-| Owner action needed | Run external brainstorm on the [Track I brief](reports/TRACK-I-independent-drafters-problem.md); decide motivation at Thu ~14:00 from T1 results. |
+| Jobs running | Sole queue3546069. T1 51/64 eligible cells; I1 93/180, all30 Llama pairs complete. I3 first native GSM8K128-example KD: p1+.0684, tau+.0798(n64; tau CI includes0); base/head regress. Eightprecutoff donors, pooled/transfer tests next. M4 complete1010/1010. |
+| Blockers | **ICE unavailable (D-41): all work on heck A40s.** Heck disk ~952GB free (99% full). Third-party GPU users on heck-srv2:4–7 and heck-srv5 cause start-up collisions. B9 blocked; B11/M7 deprioritized. |
+| Owner action needed | Choose direction at D-43 checkpoints from Q1 census, T1 and exploratory repair evidence; no implementation approval pending. |
 
 ---
 
@@ -283,9 +283,9 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep on heck A40s (LoRA/high-rank or A40-feasible full FT, increasing steps; D-41) | P1 | codex | T1 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
 | I1 | Track I: independent-drafter census on heck A40s (D-41) (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex | — | Thu | in progress | codex-1 / 2026-10-08T00:57:49-04:00 | [Q1 complete Llama30](notes/I1.md); [matched comparison](artifacts/I1_Q1_20261008_0045/results.json); full180-cell census continues |
 | I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex | I1 | Fri | superseded | | [brief](reports/TRACK-I-independent-drafters-problem.md); superseded by I3–I5 (D-43 plan) |
-| I3 | Track I Q2 (exploratory): small zero-data per-child drafter KD pilot (Magpie → child greedy responses → LoRA KD of 1B drafter → merged export) on a handful of degraded pre-cutoff children; controls D0/D_B/D_pool | P0 | codex | I1 | Thu ~22:00 checkpoint | in progress | codex-1 / 2026-10-08T00:57:49-04:00 | [journal](notes/I3.md); first128-example child/base exports complete; native evaluation queued;8pre-cutoff donors;EXP-ATL-014 |
-| I4 | Track I Q3 (exploratory): cross-evaluate ~8 donor repairs on other degraded children + cached greedy-agreement probe as a ranking signal | P0 | codex | I3 | Fri ~12:00 checkpoint | in progress | codex-1 / 2026-10-08T00:57:49-04:00 | [journal](notes/I4.md); cached32-query probe implemented/tested; native4-candidate integration queued; donor transfer pending |
-| I5 | Track I Q4 (exploratory, capped): head-only KD vs LoRA KD on ~4 children | P2 | codex | I3 | Fri | in progress | codex-1 / 2026-10-08T00:57:49-04:00 | [journal](notes/I5.md); opt-in head-only tests pass incl frozen tied embeddings; first128-example export complete, native evaluation queued |
+| I3 | Track I Q2 (exploratory): small zero-data per-child drafter KD pilot (Magpie → child greedy responses → LoRA KD of 1B drafter → merged export) on a handful of degraded pre-cutoff children; controls D0/D_B/D_pool | P0 | codex | I1 | Thu ~22:00 checkpoint | in progress | codex-1 / 2026-10-08T01:12:19-04:00 | [journal](notes/I3.md); first native repair n64 mixed; raw report artifacts/I3_native_20261008_0113;8donors;pool pending |
+| I4 | Track I Q3 (exploratory): cross-evaluate ~8 donor repairs on other degraded children + cached greedy-agreement probe as a ranking signal | P0 | codex | I3 | Fri ~12:00 checkpoint | in progress | codex-1 / 2026-10-08T01:12:19-04:00 | [journal](notes/I4.md); 32query probe complete;22other-donor paired tests planned on3precutoff recipients;no test pool |
+| I5 | Track I Q4 (exploratory, capped): head-only KD vs LoRA KD on ~4 children | P2 | codex | I3 | Fri | in progress | codex-1 / 2026-10-08T01:12:19-04:00 | [journal](notes/I5.md); first native head result negative;4target cap0/1/2/4;merged loading works |
 
 | FIX-22 | Remove optional launcher PID-file visibility wait from serial dispatch; distinguish actual queue processes from diagnostic shells | P0 | codex | T1, I1 | now | review | codex-1 / 2026-10-08T00:26:07-04:00 | [journal](notes/FIX-22.md);66 tests PASS; merged b262763; sole queue3531265 restarted preserving active jobs |
 
