@@ -287,7 +287,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | I4 | Track I Q3 (exploratory): cross-evaluate ~8 donor repairs on other degraded children + cached greedy-agreement probe as a ranking signal | P0 | codex | I3 | Fri ~12:00 checkpoint | todo | | [plan](reports/PAPER-PLAN-v2.md) (D-43, exploratory) |
 | I5 | Track I Q4 (exploratory, capped): head-only KD vs LoRA KD on ~4 children | P2 | codex | I3 | Fri | todo | | [plan](reports/PAPER-PLAN-v2.md) (D-43, exploratory) |
 
-| FIX-22 | Remove optional launcher PID-file visibility wait from serial dispatch; distinguish actual queue processes from diagnostic shells | P0 | codex | T1, I1 | now | in progress | codex-1 / 2026-10-08T00:16:47-04:00 | [journal](notes/FIX-22.md); repeated10s PID waits leave freeGPUs idle; defaults/enginecontrols unchanged |
+| FIX-22 | Remove optional launcher PID-file visibility wait from serial dispatch; distinguish actual queue processes from diagnostic shells | P0 | codex | T1, I1 | now | review | codex-1 / 2026-10-08T00:26:07-04:00 | [journal](notes/FIX-22.md);66 tests PASS; merged b262763; sole queue3531265 restarted preserving active jobs |
 
 ---
 

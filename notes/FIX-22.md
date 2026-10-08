@@ -7,3 +7,7 @@ Observed repeated12–13s launcherhandoffs while GPUs idle. ops/runs.jsonl recor
 ## 2026-10-08T00:20:30-04:00 — codex-1 — Tests and implementation
 
 Tests written first (`ops/tests/test_launch_pid.py`); initial missing-symbol failure retained in session output. `python -m pytest ops/tests -q`: **66 passed**. Added opt-in `--no-wait-launch-pid`/`--no-wait-pid`; normal launch behavior retains 50 visibility checks. Real jobs still write PID and exit files. Process guards now inspect actual Python argv, excluding diagnostic shells. No evaluation or model code changed. Next: merge, pin an operational checkout and restart the single dispatcher between launcher transactions.
+
+## 2026-10-08T00:26:07-04:00 — codex-1 — Deployed / Handoff
+
+Merged b262763 and pinned `run-FIX22-operations-20261008`. Safely stopped old queue3518506 between launcher transactions; resumed canonical log/owner/slots as sole queue3531265 with opt-in no-wait PID flag. Restart argv and log: `artifacts/FIX22_operations_20261008/`. In-flight cells preserved. Tests66PASS. Task ready for review; no evaluation changes.
