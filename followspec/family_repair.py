@@ -22,20 +22,25 @@ class RepairLinear(torch.nn.Module):
 
 
 def configure_variant(model,variant,rank=16,alpha=32):
-    if variant not in {'fc','fc_lora','full'}:raise ValueError('unknown repair variant')
-    model.requires_grad_(False);model.fc.requires_grad_(True)
+    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head'}:raise ValueError('unknown repair variant')
+    model.requires_grad_(False)
+    if variant in {'fc','fc_lora','full','fc_decoder_lora'}:model.fc.requires_grad_(True)
+    if variant=='head':model.lm_head.requires_grad_(True)
+    if variant=='fc_lowrank':
+        if rank<1:raise ValueError('positive LoRA rank required')
+        model.fc=RepairLinear(model.fc,rank,alpha)
     if variant=='full':
         for name,module in model.named_children():
             if name not in {'embed_tokens','verifier_lm_head','verifier_norm'}:module.requires_grad_(True)
-    if variant=='fc_lora':
+    if variant in {'fc_lora','decoder_lora','fc_decoder_lora'}:
         if rank<1:raise ValueError('positive LoRA rank required')
         found=[]
         for name,module in list(model.named_modules()):
-            if name.startswith('layers.') and isinstance(module,torch.nn.Linear) and name.rsplit('.',1)[-1] in {'q_proj','k_proj','v_proj','o_proj','gate_proj','up_proj','down_proj'}:
+            if name.startswith('layers.') and isinstance(module,torch.nn.Linear) and name.rsplit('.',1)[-1] in ({'q_proj','k_proj','v_proj','o_proj','gate_proj','up_proj','down_proj'} if variant=='fc_lora' else {'q_proj','v_proj','gate_proj','up_proj','down_proj'}):
                 parent,leaf=name.rsplit('.',1);model.get_submodule(parent)._modules[leaf]=RepairLinear(module,rank,alpha);found.append(name)
         if not found:raise ValueError('no drafter layer projections found')
     names=[n for n,p in model.named_parameters() if p.requires_grad]
-    return dict(variant=variant,rank=rank if variant=='fc_lora' else None,alpha=alpha if variant=='fc_lora' else None,trainable_names=names,trainable_parameters=sum(p.numel() for p in model.parameters() if p.requires_grad),frozen_parameters=sum(p.numel() for p in model.parameters() if not p.requires_grad))
+    return dict(variant=variant,rank=rank if 'lora' in variant or variant=='fc_lowrank' else None,alpha=alpha if 'lora' in variant or variant=='fc_lowrank' else None,trainable_names=names,trainable_parameters=sum(p.numel() for p in model.parameters() if p.requires_grad),frozen_parameters=sum(p.numel() for p in model.parameters() if not p.requires_grad))
 
 
 def merged_state(model):
@@ -93,7 +98,7 @@ class RepairCollator:
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
-    p.add_argument('--variant',choices=['fc','fc_lora','full'],required=True)
+    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head'],required=True)
     p.add_argument('--steps',type=int,default=200);p.add_argument('--export-steps',nargs='+',type=int,default=[50,200])
     p.add_argument('--schedule-steps',type=int,help='shared schedule horizon for a shorter scratch control');p.add_argument('--seed',type=int,default=0);p.add_argument('--batch-tokens',type=int,default=2048)
     p.add_argument('--lr',type=float,default=2e-5);p.add_argument('--lora-rank',type=int,default=16);p.add_argument('--lora-alpha',type=int,default=32)

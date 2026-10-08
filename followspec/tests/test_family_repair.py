@@ -62,3 +62,20 @@ def test_query_role_boundaries_and_thought_rejection():
     assert not usable_query('<think>Let me answer.</think> Hello!')
     assert not usable_query('A question </think> followed by an answer')
     assert usable_query('Explain how a rainbow forms.')
+
+@pytest.mark.parametrize('variant',['fc_lowrank','decoder_lora','fc_decoder_lora','head'])
+def test_d46_component_scopes(variant):
+    m=Tiny();before=set(m.state_dict());proof=configure_variant(m,variant,rank=2,alpha=4)
+    names=proof['trainable_names']
+    if variant=='fc_lowrank':assert set(names)=={'fc.lora_A','fc.lora_B'}
+    if variant=='decoder_lora':assert all(n.startswith('layers.') and 'lora_' in n for n in names)
+    if variant=='fc_decoder_lora':assert 'fc.weight' in names and all(n=='fc.weight' or n.startswith('layers.') and 'lora_' in n for n in names)
+    if variant=='head':assert names==['lm_head.weight']
+    assert set(merged_state(m))==before
+
+
+def test_self_elicited_question_parser_preserves_question_and_rejects_reasoning_only():
+    from followspec.repair_data import elicited_query
+    assert elicited_query('<think>draft reasoning</think>\n{"prompt": "Explain entropy in plain English."}')=='Explain entropy in plain English.'
+    assert elicited_query('<think>not done') is None
+    assert elicited_query('{"prompt": "<think>answer contamination"}') is None

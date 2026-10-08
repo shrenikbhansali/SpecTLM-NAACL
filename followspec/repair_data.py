@@ -1,5 +1,5 @@
 """D-45 target-own Magpie or public-query greedy responses, with evaluation exclusion."""
-import argparse,json,hashlib,importlib.metadata,subprocess,time
+import argparse,json,hashlib,importlib.metadata,subprocess,time,re
 from pathlib import Path
 from followspec.independent_kd import read,write,jsonl,filter_training_queries
 from followspec.generate_responses import make_sample
@@ -28,10 +28,21 @@ def usable_query(text):
     return bool(text.strip()) and not any(t in text for t in ['<think>','</think>','<｜Assistant｜>','<|start_header_id|>assistant'])
 
 
+def elicited_query(text):
+    if '<think>' in text and '</think>' not in text:return None
+    text=text.rsplit('</think>',1)[-1].strip()
+    match=re.search(r'\{.*\}',text,re.S)
+    if not match:return None
+    try:obj=json.loads(match.group())
+    except (ValueError,TypeError):return None
+    query=obj.get('prompt') if isinstance(obj,dict) else None
+    return query.strip() if isinstance(query,str) and usable_query(query) else None
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','forbidden','output']:p.add_argument('--'+key,required=True)
-    p.add_argument('--public-queries');p.add_argument('--count',type=int,default=520)
+    p.add_argument('--elicitation',choices=['magpie','instruction'],default='magpie');p.add_argument('--public-queries');p.add_argument('--count',type=int,default=520)
     p.add_argument('--seed',type=int,default=7001);p.add_argument('--max-new-tokens',type=int,default=512)
     p.add_argument('--query-rounds',type=int,default=64);p.add_argument('--dry-run',action='store_true');a=p.parse_args()
     row=json.loads(Path(a.target_row).read_text());target=Path(row['path'])
@@ -55,18 +66,23 @@ def main():
             queries=queries[:a.count];write(out/'query_filter.json',report)
         else:
             prefix_ids=tok.encode(magpie_prefix(tok,row['base']),add_special_tokens=False)
+            topics=['everyday mathematics','programming','science','history','creative writing','logic','practical planning','language','data analysis','engineering','education','everyday advice','social science','geography','editing','open-ended explanation']
             # Native user-turn terminator from the template, not a family-token assumption.
             stop=query_stops(tok)
             candidates=[]
             with (out/'raw_queries.jsonl').open('x') as raw:
                 for iteration in range(a.query_rounds):
                     unpaused();seeds=request_seeds(a.seed,iteration,32)
-                    outputs=llm.generate([dict(prompt_token_ids=prefix_ids)]*32,[SamplingParams(temperature=.8,top_p=1.,max_tokens=256,stop_token_ids=stop,seed=s) for s in seeds],use_tqdm=False)
+                    inputs=[dict(prompt_token_ids=prefix_ids)]*32
+                    if a.elicitation=='instruction':
+                        inputs=[dict(prompt_token_ids=render(tok,'Invent one new, specific user request about '+topics[(iteration*32+j)%len(topics)]+'. Make it self-contained and answerable. Do not solve it. Output only a JSON object with a single string field named prompt.')) for j in range(32)]
+                    outputs=llm.generate(inputs,[SamplingParams(temperature=.8,top_p=1.,max_tokens=2048 if a.elicitation=='instruction' else 256,stop_token_ids=None if a.elicitation=='instruction' else stop,seed=s) for s in seeds],use_tqdm=False)
                     for j,o in enumerate(outputs):
                         c=o.outputs[0];text=tok.decode(list(c.token_ids),skip_special_tokens=True).strip()
-                        r=dict(prompt=text,prompt_id=f'P3-magpie-{a.seed}-{iteration}-{j}',split='training',derivative_id=row['id'],seed=a.seed)
-                        raw.write(json.dumps(r|dict(finish_reason=c.finish_reason,token_ids=list(c.token_ids)))+'\n');raw.flush()
-                        if c.finish_reason!='length' and usable_query(text):candidates.append(r)
+                        query=elicited_query(text) if a.elicitation=='instruction' else text
+                        r=dict(prompt=query or '',prompt_id=f'P3-magpie-{a.seed}-{iteration}-{j}',split='training',derivative_id=row['id'],seed=a.seed)
+                        raw.write(json.dumps(r|dict(raw_text=text,finish_reason=c.finish_reason,token_ids=list(c.token_ids)))+'\n');raw.flush()
+                        if c.finish_reason!='length' and query is not None and usable_query(query):candidates.append(r)
                     queries,report=filter_training_queries(candidates,forbidden)
                     if len(queries)>=a.count:break
             write(out/'query_filter.json',report);queries=queries[:a.count]
@@ -82,7 +98,7 @@ def main():
                 for r,o in zip(batch,outputs,strict=True):
                     if list(o.prompt_token_ids)!=r['rendered_token_ids']:raise ValueError('prompt IDs changed')
                     c=o.outputs[0];sample=make_sample(r,r['rendered_token_ids'],list(c.token_ids),target_id=row['id'],revision=row['revision'],acceptance_only=False)
-                    sample.update(finish_reason=c.finish_reason,data_kind='generic' if a.public_queries else 'magpie')
+                    sample.update(finish_reason=c.finish_reason,data_kind='generic' if a.public_queries else 'self_elicited_'+a.elicitation)
                     f.write(json.dumps(sample)+'\n');f.flush();samples.append(sample)
         write(out/'five_decoded_masks.json',[dict(prompt=tok.decode(r['prompt_token_ids']),answer=tok.decode(r['completion_token_ids']),input_ids=r['input_ids'],loss_mask=r['loss_mask'],response_start=r['response_start']) for r in samples[:5]])
     write(out/'results.json',dict(status='pending_manual_five_sample_audit',n=len(samples),answer_tokens=sum(sum(r['loss_mask']) for r in samples),wall_s=time.monotonic()-start,capped=sum(r['finish_reason']=='length' for r in samples),per_prompt_sha256=file_hash(out/'per_prompt.jsonl')))
