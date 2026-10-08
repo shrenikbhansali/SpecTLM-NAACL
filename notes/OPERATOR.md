@@ -90,3 +90,8 @@ Total 40 A40s (heck-srv1–5); 33 free at 16:42. Local root disks: 400–735 GB 
 
 Protocol freeze in effect (09:00). From now on, evaluation-code changes need a MASTER §13 decision and reruns of every affected cell.
 The M4 operator fallback uses only frozen code (run-FIX15 6da2e42 / run-FIX13 301a6a6).
+
+## 2026-10-07T23:33-04:00 — claude-ops
+
+Owner: ICE errors out frequently, so treat it as down (D-41). Updated MASTER §1/§3.2/§4 (O2 and FIX-19 blocked; T2/I1/I2 on heck, owner codex),
+TRACK-T plan, TRACK-I brief (compute), sites/README.md, ops/ice/README.md. Operator stopped per owner; codex-1 operates on heck.

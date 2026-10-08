@@ -61,7 +61,8 @@ scale with no data. Zero-data, amortized, or training-free transfer of the deriv
 - **Data-free generation**: Magpie self-elicitation of queries and responses from any derivative (500+ per derivative in about 10 minutes on one A40),
   deduplicated against all evaluation prompts.
 - **Training code**: online paired-feature distillation for EAGLE-3 (target-conditioned); standard KD for small LMs is straightforward.
-- **Compute**: about 40 A40s (shared), plus an H100/H200 Slurm cluster from tonight. Small drafters (0.6B–1.7B) train in minutes to hours.
+- **Compute**: about 40 A40s (48 GB, shared with other users; the H100/H200 cluster is unavailable this week). Small drafters (0.6B–1.7B) train in
+  minutes to hours on one A40; 8B targets fit one A40 for inference. Methods that need multi-GPU training of 8B models are out of scope.
 - **Pairs to study**: Llama-3.1-8B-Instruct ↔ Llama-3.2-1B-Instruct (same tokenizer); Qwen3-8B ↔ Qwen3-0.6B / Qwen3-1.7B (same tokenizer).
 
 ## 4. Experiments planned first (to establish the motivation)

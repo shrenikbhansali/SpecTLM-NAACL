@@ -1,5 +1,7 @@
 # ICE (PACE Slurm) runbook
 
+> **Status 2026-10-07 23:50 (D-41): ICE is unreliable; not used this sprint. Everything below is kept for when it returns.**
+
 Prepared by claude-ops 2026-10-07 (task O2). One `main` for both sites (D-18); everything site-specific lives in
 `sites/ice.env`. Heck keeps running what is in flight. ICE takes **new, self-contained** work once step 6 passes
 (MASTER §3.2; AGENTS rules 2 and 10).

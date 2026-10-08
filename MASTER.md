@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-07T22:57-04:00 (claude-ops) |
-| Sprint day | Day 2 of 8 (Tue Oct 6) |
-| Next gate | Gate 2 data verification after M2 completes; proceed immediately on passing prerequisites (D-15). Gate 1 passed; Gate 3 awaits trained held-out results. |
-| Paper framing | Undecided until Gate 3 (Thu Oct 8, 6 pm ET) |
+| Last updated | 2026-10-07T23:33-04:00 (claude-ops) |
+| Sprint day | Day 3 of 8 (Thu Oct 8) begins; ARR deadline Mon Oct 12 23:59 AoE |
+| Next gate | **Motivation decision Thu ~14:00 ET** (Track T decision rule, [plan](reports/TRACK-T-plan.md)); Gate 3 framing call follows. Gates 1 and 2 passed. |
+| Paper framing | **Reopened by owner (D-40):** FollowSpec not clearly working (EXP-ATL-009/010). Robust motivation first: Track T (target-conditioned failure modes) ∥ Track I (independent drafters). Fallback: analysis paper (census). |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | **M3 full-budget seed 0** (D-37): FS 674, MVD 950, PO-D 716, PO-T 717 / 1,294 at 09:04; ETA training MVD ≈ 12:45, others ≈ 19:00 (+ validation). D-38 pilot done → EXP-ATL-006. **Protocol frozen 09:00** (evaluation-code changes now need §13 + reruns). |
-| Blockers | No runtime failure in selected seed0 runs. Full-budget training remains slow on A40s; H200s occupied. B9 transport validity blocked; B11/M7 deprioritized. |
-| Owner action needed | No launch approval pending. D-38 pilot completed (EXP-ATL-006); full-budget seed0 evaluation proceeds automatically under D-37. Owner framing decision remains pending matched results. |
+| Jobs running | M4 full-budget seed-0 50-target matrix finishing (codex queue). T1 checkpoints downloaded (18/18); T1 render partial (12/18), no T1 cells yet (codex-1 to build/launch). |
+| Blockers | **ICE unavailable (D-41): all work on heck A40s.** Heck disk 1.3 TB free (99% full). Third-party GPU users on heck-srv2:4–7 and heck-srv5 cause start-up collisions. B9 blocked; B11/M7 deprioritized. |
+| Owner action needed | Run external brainstorm on the [Track I brief](reports/TRACK-I-independent-drafters-problem.md); decide motivation at Thu ~14:00 from T1 results. |
 
 ---
 
@@ -170,9 +170,12 @@ runs jobs from main only, on a tagged commit recorded in each run's config.
 - **Gate 4 — freeze (Sat noon).** No new experiments; reruns only for bugs.
   If only P0 atlas results are solid, consider a 4-page short paper.
 
-### 3.2 Heck-only operation until ICE returns (Thu Oct 8) — owner decision D-19
+### 3.2 Heck-only operation — owner decisions D-19, D-41
 
-The ICE cluster is down until Thursday October 8. Until then **every job runs on heck** (§8.2 placement is overridden;
+**Update 2026-10-07 (D-41): ICE is unreliable and treated as down for the rest of the sprint.** Both D-40 tracks (Track T, Track I)
+run on heck A40s; see D-41 for the proposed GPU split. The ICE kit (`ops/ice/`, O2) stays in the repo for later.
+
+Original D-19 text: The ICE cluster is down until Thursday October 8. Until then **every job runs on heck** (§8.2 placement is overridden;
 `sites/README.md`). Everything runs on A40s, so both tracks stay on one GPU type, which keeps comparisons clean (never
 mix GPU types). The dedicated H200s (heck-srv6) stay A9-only unless the owner reallocates them; they are occupied by
 another user as of Oct 5.
@@ -219,7 +222,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | B13 | Number-to-ledger checker for the draft | P0 | codex | B12 | Thu | done | codex-1 / 2026-10-05T23:28:03-04:00 | [journal](notes/B13.md); [acceptance](artifacts/B13_acceptance_20261005/acceptance.json);12 combined tests; actual-ledger valid bundle passes and altered macro caught; code9173385 merged; operator re-run PASS (14 tests; 3 tamper cases caught) ([B13 journal](notes/B13.md)) |
 | W1 | ACL/ARR LaTeX skeleton, both framings | P0 | codex | — | Mon | done | codex-1 / 2026-10-05T17:08:24-04:00 | [acceptance](notes/W1.md); both latexmk builds pass (2/1 pages); operator re-run PASS ([W1 journal](notes/W1.md)) |
 | O1 | Orchestration, monitoring, env lock | P0 | claude-ops | — | Mon | done | claude-ops / 2026-10-05T16:43-04:00 | [journal](notes/O1.md); `ops/` (status.sh, launch.py, 8 tests pass); lock = atlas/env/requirements.lock |
-| O2 | ICE site preparation: exact env locks, Slurm launch/submit, model stager, heck→ICE sync, engine validation runbook | P0 | claude-ops | O1 | Wed | review | claude-ops / 2026-10-07T15:07-04:00 | [runbook](ops/ice/README.md); [journal](notes/O2.md); ops tests 41 pass; done when ICE validate_compare runs on ICE |
+| O2 | ICE site preparation: exact env locks, Slurm launch/submit, model stager, heck→ICE sync, engine validation runbook | P0 | claude-ops | O1 | Wed | blocked | claude-ops / 2026-10-07T15:07-04:00 | [runbook](ops/ice/README.md); [journal](notes/O2.md); ops tests 41 pass; done when ICE validate_compare runs on ICE; blocked: ICE unavailable (D-41); kit kept for later |
 | A1 | Gate 1 smoke cells + timing | P0 | claude-ops | B2 | Mon | done | claude-ops / 2026-10-05T17:54-04:00 | [journal](notes/A1.md); [GATE-1](reports/GATE-1.md); ledger EXP-ATL-001/002; 71 cells validated |
 | A2 | Freeze pools and splits (manifests) | P0 | claude-ops | B1 | Tue | done | claude-ops / 2026-10-05T22:45-04:00 | [journal](notes/A2.md); [proposal](reports/A2-proposal.md); manifests atlas/pools/ (sha256 Llama ecd8814b1340…, Qwen3 25f19d6c7355…) |
 | A3 | Build workloads for every pool derivative | P0 | claude-ops | B4, A2 | Tue | done | claude-ops / 2026-10-06T01:36-04:00 | [journal](notes/A3.md); rendered workloads artifacts/A3_rendered_20261006 (index.json own-domain 163; index_speed128.json general 174); audit overlap 0 |
@@ -269,15 +272,15 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | FIX-17 | D-39 matched short lambda ablation: explicit opt-in, sealed data reuse, unique jobs and automatic frozen-harness evaluation | P0 | codex | FIX-14, FIX-15 | now | done | claude-ops / 2026-10-07T14:42-04:00 | [journal](notes/FIX-17.md);303 CPU tests +6 actual dry runs + frozen-controller reference check PASS; merged79a13ed; [preflight](artifacts/M5_D39_20261007/preflight/results.json); operator re-run 2026-10-07T14:42: 415 CPU pass (+1 env-only) at 387bdd3 (contains 79a13ed) |
 | FIX-18 | D-39 controlled target-update stress panel: provenance, disjoint discovery/confirmation, quality and Frozen screening | P0 | codex | B2, B4, FIX-17 | now | done | claude-ops / 2026-10-07T14:42-04:00 | [journal](notes/FIX-18.md);312 CPU tests, actual360 weight comparisons/43478 prompt audit,32 sandbox reference checks,152 dry runs PASS; [panel](artifacts/D39_stress_20261007/panel/audit.json); [preflight](artifacts/D39_stress_20261007/prepared/preflight/results.json); operator re-run 2026-10-07T14:42: 415 CPU pass (+1 env-only); evaluation files identical to frozen 6da2e42; panel = 6 local code/math SFT adapters (steps 50/100/200), none in bank; 0 prompt overlap with 43,478 training hashes |
-| FIX-19 | ICE relocation for sealed followspec/atlas stages: (a) verified path-prefix remap (heck WS → ICE WS) when reading sealed manifests/stages, re-checking every file hash, never rewriting originals; (b) site-aware job placement instead of hard-coded `heck-srv*` (`followspec/evaluation_jobs.py`, `response_shards.py`, `pilot_watch.py`, `ops/method_recovery.py` dry-run node); (c) planners emit `--node slurm --gpus slurm` jobs when SITE=ice; tests first; no evaluation-metric change (protocol frozen) | P1 | codex | O2 | Thu | review | codex-1 / 2026-10-07T19:35:57.070005-04:00 | [journal](notes/FIX-19.md); mergedc741792;325 tests,75 actual copied files/20decoded masks PASS; [8 native/Slurm dry runs](artifacts/FIX19_acceptance_20261007/native_preflight/results.json); no ICE jobs submitted; site config and engine validation pending |
+| FIX-19 | ICE relocation for sealed followspec/atlas stages: (a) verified path-prefix remap (heck WS → ICE WS) when reading sealed manifests/stages, re-checking every file hash, never rewriting originals; (b) site-aware job placement instead of hard-coded `heck-srv*` (`followspec/evaluation_jobs.py`, `response_shards.py`, `pilot_watch.py`, `ops/method_recovery.py` dry-run node); (c) planners emit `--node slurm --gpus slurm` jobs when SITE=ice; tests first; no evaluation-metric change (protocol frozen) | P1 | codex | O2 | Thu | blocked | codex-1 / 2026-10-07T19:35:57.070005-04:00 | [journal](notes/FIX-19.md); mergedc741792;325 tests,75 actual copied files/20decoded masks PASS; [8 native/Slurm dry runs](artifacts/FIX19_acceptance_20261007/native_preflight/results.json); no ICE jobs submitted; site config and engine validation pending; parked: ICE unavailable (D-41) |
 
 | FIX-20 | Serialize shared lambda inference export planning; restart failed public-panel controller without altering frozen evaluation | P0 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:27:30.385759-04:00 | [journal](notes/FIX-20.md); merged633b4a0,317 tests +12 actual exports verified; [audit](artifacts/FIX20_recovery_20261007/export_audit.json); repaired3269112 passed76 dry runs and queued38 public lambda0 cells |
 
 | FIX-21 | D-39 K8 stress follow-up: all four trained arms plus Frozen, all approved lambda values, same fixed development panel and frozen harness | P1 | codex | FIX-17, FIX-18 | now | review | codex-1 / 2026-10-07T19:43:05.071350-04:00 | [journal](notes/FIX-21.md); mergede39c8cb;330 tests +224 actual dry runs PASS; [preflight](artifacts/D39_K8_20261007/preflight/results.json);112K8 jobs dispatched, watcher3298174 reports4lambda variants automatically |
 | T1 | Track T phase 1: stage + evaluate public lineage/reasoning/RL checkpoints (H1–H3) with EAGLE-3 K4 and DFlash native K, general workload; per-position acceptance | P0 | claude-ops / codex | A4, A7 | Thu noon | in progress | claude-ops / 2026-10-07T22:57-04:00 | [plan](reports/TRACK-T-plan.md); downloads started |
-| T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep (full FT, increasing steps) on ICE | P1 | codex-ice | T1, O2 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
-| I1 | Track I: independent-drafter census on ICE (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex-ice | O2 | Thu | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
-| I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex-ice | I1 | Fri | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
+| T2 | Track T phase 2 (only if T1 finds no robust mode): controlled heavy-training sweep on heck A40s (LoRA/high-rank or A40-feasible full FT, increasing steps; D-41) | P1 | codex | T1 | Fri | todo | | [plan](reports/TRACK-T-plan.md) H4 |
+| I1 | Track I: independent-drafter census on heck A40s (D-41) (Llama-3.2-1B-Instruct → Llama-3.1-8B-Instruct derivatives; Qwen3-0.6B/1.7B → Qwen3-8B derivatives), `draft_model` in frozen harness (vLLM 0.31.0 supports it) | P0 | codex | — | Thu | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
+| I2 | Track I: zero-data / scalable repair methods (from owner's external brainstorm + brief §5) | P0 | owner / codex | I1 | Fri | todo | | [brief](reports/TRACK-I-independent-drafters-problem.md) |
 
 ---
 
@@ -1026,6 +1029,7 @@ citing where it was stated.*
 
 | D-39 | 2026-10-07 | **Exploratory method strengthening approved (owner direct):** controlled target-update strength panel across code/math/language/domain tasks, chosen using Frozen degradation and useful target quality; short single-seed matched lambda ablation 0/0.03/0.1/0.3; compare K4/K8 consistently across arms; reserve fresh held-out prompts/models for confirmation after development selection. Reuse the D-38 250-step/1991138-token corpus and existing lambda0.1/control runs; preserve full-budget D-37 comparison and all exploratory outcomes. Existing frozen evaluation implementation and metric definitions remain unchanged. Separate exploratory settings do not certify Gate3 or establish a predetermined positive conclusion. Entered codex-1 2026-10-07T13:54:44.818801-04:00. | Decided |
 | D-40 | 2026-10-07 | **Reorientation (owner, direct, chat 23:xx):** FollowSpec (bank-level method) is not clearly working (EXP-ATL-009/010). Before any new method, establish a robust motivation. Two parallel tracks: **Track T** (heck): find a robust failure mode for target-conditioned drafters (EAGLE-3, DFlash): lineage/sibling post-training, reasoning distillation, RL drift via public checkpoints first, controlled heavy training only if needed ([plan](reports/TRACK-T-plan.md)). **Track I** (ICE): independent (standalone) drafters on fine-tuned derivatives: census, then zero-data / scalable repair; problem brief for external brainstorming ([brief](reports/TRACK-I-independent-drafters-problem.md)). Server assignment proposed by claude-ops (Track T needs the validated A40 atlas harness; Track I is greenfield). Existing atlas, M3/M4, D-38/D-39 results are preserved and reported. Entered by claude-ops 2026-10-07 22:57 | Decided |
+| D-41 | 2026-10-07 | **ICE unavailable (owner, direct, ~23:50):** ICE errors out frequently; treat it as down for the rest of the sprint unless the owner reopens it. **Both D-40 tracks run on heck A40s.** Track T (target-conditioned failure hunt) and Track I (independent drafters: census, then zero-data repair) share the A40s. Proposed split: Track T on heck-srv1 + heck-srv3, Track I on heck-srv4 + heck-srv2:0–3, heck-srv5 and heck-srv2:4–7 only when live-free (third-party users). Heavy target training (T2) only as LoRA/A40-feasible runs, else dropped. ICE kit (O2) and FIX-19 parked, not deleted. Acceptance comparisons stay on one GPU type (A40). Entered by claude-ops 2026-10-07 23:33 | Decided |
 
 ---
 
