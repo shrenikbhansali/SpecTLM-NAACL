@@ -394,3 +394,19 @@ Operational notes: developer worktree's run tag was created immediately after cr
 Read live queue/output counters. All six R1official16k runs active: seed0~30%,seeds1/2~20–23%; rough throughput ETA18:00–18:45ET including finalfrozen eval, not a guarantee. OfficialNemo16k fc97%/full86%, ETA~16:35–16:50 includingeval. E5c64kfc/full active~3–4% after complete64000-row audit, remainingtraining~9–11h from observedrate: overnight~02:00–04:00ETplusfinalMATH500. Automatic export/eval/D51report controls active; no new launches needed.
 
 Nemo timing now30/30 complete, rawpaired analysis snapshot161016; costvalidation snapshot161038. Cross-target R1-to-Nemo TPSmodel errors atb8 +32.5%to+42.5% remain reported; not a calibratedNemo model. P6row toreview. ProductionR1three-seed16k, controls/scratch/ablations, productionNemorepair andDFlashpilot alreadycomplete. Remaining paper work: finishofficial3seedselection (D51),64kcurve, selected-initialization timing/MATH500 coverage if officialchosen, finaltable/figureintegration and numberaudit. P5 remainsretrospective; prospectivevalidation stillopen if retained as a mainclaim. No unresolved launchalerts;~721GBfree,350GBfloor. Journals/board updated; no ownerapproval blocking runningjobs.
+
+### 2026-10-09T17:07:41.356914-04:00 — codex-1 — D50 launch health
+Free disk 695.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T17:08:48-04:00 — claude-ops — 17:07 check: Nemotron official 16k deltas; Nemotron timing
+
+- No failures since 15:07. Disk 649 GB (-30 GB/h with 6 trainings + 64k data). E5c 64k fc/full training started 16:05.
+  Official R1 16k seed 0 is at 2.7k/4.5k steps (ETA ~18:10). Seeds 1–2 are at 2.0–2.4k (ETA ~19:00–19:30).
+- D-51 on Nemotron at 16k final (s2625), operator-paired as at 4k. Official repair delta minus production repair delta:
+  SPEED fc +0.163 [+0.125, +0.201], full +0.123 [+0.079, +0.167]; MATH fc +0.381 [+0.341, +0.422], full +0.348 [+0.308, +0.387].
+  Official full 16k: SPEED τ 2.487 (reuse 1.763), MATH 2.910 (reuse 1.703).
+- Nemotron timing (codex P6_Nemo, production drafter, 16k, warm vs no speculation):
+  - batch 1: full 1.76× [1.60, 1.91], fc 1.65×, reuse 1.24×, independent 1B 1.36×.
+  - batch 8: full 1.47× [1.29, 1.66], fc 1.38×, reuse 1.30×, independent 1.38×; repair vs reuse at batch 8 is null (1.13× [0.96, 1.32]).
+  The R1-fitted cost model transfers at batch 1 (≤2% error for fc/full) but not at batch 8.
+  If official becomes primary, the main-table timing must be re-measured with the official drafter (codex noted this as remaining work).
