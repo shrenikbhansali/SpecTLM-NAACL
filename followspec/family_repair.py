@@ -146,6 +146,8 @@ def main():
     p.add_argument('--epoch-export-fractions',nargs='+',type=float,help='explicit export fractions for --one-epoch; default remains .25 .5 1')
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
     p.add_argument('--checkpoint-dflash-layers',action='store_true')
+    p.add_argument('--ttt-steps',type=int,default=3,choices=[3,4],help='D50 explicit native EAGLE unroll depth; default unchanged')
+    p.add_argument('--continue-epoch-from',help='D50 continue one epoch from a completed compact run, restoring named optimizer state')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
     forbidden={prompt_hash(r.get('raw_prompt',r.get('prompt'))) for r in read(a.forbidden)}
     validate_rows(rows,forbidden,a.batch_tokens+(a.algorithm=='eagle3'))
@@ -154,7 +156,18 @@ def main():
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
     if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):raise ValueError('wrong response teacher')
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
-    if a.one_epoch:
+    previous=None;resume_step=0
+    if a.continue_epoch_from:
+        from followspec.repair_continuation import continuation_batches
+        if not a.one_epoch or a.scratch or a.algorithm!='eagle3':raise ValueError('continuation requires one-epoch Eagle warm-start')
+        prior=Path(a.continue_epoch_from);previous=json.loads((prior/'config.json').read_text());prior_result=json.loads((prior/'results.json').read_text())
+        if previous['data_sha256']!=file_hash(a.data) or previous['seed']!=a.seed or previous['variant']!=a.variant or previous['ttt_steps']!=a.ttt_steps:raise ValueError('continuation recipe mismatch')
+        if previous['lr']!=a.lr or previous['batch_tokens']!=a.batch_tokens or previous['drafter']!=a.drafter or previous['target']!=target:raise ValueError('continuation controls mismatch')
+        resume_step=previous['steps'];checkpoint=prior/f'checkpoints/epoch-0-step-{resume_step}'
+        for f in ['trainable.safetensors','optimizer_state_dict.pt','scheduler_state_dict.pt','trainable_checkpoint.json']:
+            if not (checkpoint/f).exists():raise ValueError('missing final continuation state: '+f)
+        epoch_index=previous.get('completed_epochs',1);one_epoch=continuation_batches(rows,a.batch_tokens,a.seed,epoch_index);a.steps=len(one_epoch);a.export_steps=epoch_export_steps(a.steps,a.epoch_export_fractions)
+    elif a.one_epoch:
         one_epoch=epoch_batches(rows,a.batch_tokens,a.seed,shift=shift);a.steps=len(one_epoch)
         a.export_steps=epoch_export_steps(a.steps,a.epoch_export_fractions)
     elif a.epoch_export_fractions is not None:
@@ -162,9 +175,10 @@ def main():
     if a.steps not in a.export_steps or any(x<1 or x>a.steps for x in a.export_steps):raise ValueError('invalid export budget')
     schedule_steps=a.schedule_steps or a.steps
     if schedule_steps<a.steps:raise ValueError('schedule horizon shorter than run')
-    batches=step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
-    cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-shift for b in batches for i in b),batch_plan=batches,ttt_steps=3,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
+    batches=one_epoch if previous else step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
+    cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-shift for b in batches for i in b),batch_plan=batches,ttt_steps=a.ttt_steps,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
     if a.algorithm=='dflash':cfg.update(ttt_steps=None,ttt_step_loss_decay=None,loss='native DFlash fused KL; gamma4 fixed-exp-decay; answer positions',max_anchors=a.max_anchors)
+    if previous:cfg.update(schedule_horizon=resume_step+a.steps,resume_source=str(prior),resume_source_config_sha256=file_hash(prior/'config.json'),resume_checkpoint=str(checkpoint),resume_global_step=resume_step,completed_epochs=epoch_index+1,continuation_schedule='Restore AdamW moments; extend cosine total horizon to prior+new steps, no replay. First epoch retains original shorter schedule; not equivalent to uninterrupted two-epoch training.',rng_policy='Prior checkpoint lacks RNG state; deterministic seed reset at continuation, next epoch data order matches native shuffle stream',cumulative_token_budget=previous['token_budget']+cfg['token_budget'])
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     ensure_unpaused();ensure_unpaused(Path.cwd());require_free(a.output,a.min_free_gb)
     if 'A40' not in torch.cuda.get_device_name(0):raise ValueError('A40 required')
@@ -193,7 +207,13 @@ def main():
         model=SpeculatorModel.from_pretrained(a.drafter,config=conf,local_files_only=True,torch_dtype=torch.float32)
     if a.scratch:
         write(out/'scratch_initialization.json',initialize_scratch(model))
-    proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm);write(out/'parameters.json',proof)
+    proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm)
+    if previous:
+        from safetensors.torch import load_file
+        state=load_file(checkpoint/'trainable.safetensors');expected={n for n,p in model.named_parameters() if p.requires_grad}
+        if set(state)!=expected:raise ValueError('continuation trainable scope mismatch')
+        model.load_state_dict(state,strict=False)
+    write(out/'parameters.json',proof)
     teacher=AutoModelForCausalLM.from_pretrained(target['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda').eval().requires_grad_(False)
     tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(base_config['vocab_size'])
     capture=OnlinePairCapture(teacher,taps,tokens,pause_check=ensure_unpaused)
@@ -219,13 +239,22 @@ def main():
         if model.training:
             with (out/'training_metrics.jsonl').open('a') as f:f.write(json.dumps({k:float(v.detach().cpu()) for k,v in result[2].items() if v.numel()==1})+'\n')
     model.register_forward_hook(metrics_hook)
-    call=dict(ttt_steps=3,ttt_step_loss_decay=1.,loss_config=resolve_loss_config('kl_div','fused'))
+    call=dict(ttt_steps=a.ttt_steps,ttt_step_loss_decay=1.,loss_config=resolve_loss_config('kl_div','fused'))
     if a.algorithm=='dflash':call=dict(max_anchors=a.max_anchors,gamma=4.,per_position_loss_weight='fixed-exp-decay',loss_config=resolve_loss_config('kl_div','fused'))
     if a.checkpoint_dflash_layers:
         if a.algorithm!='dflash':raise ValueError('layer checkpointing is DFlash only')
         from followspec.training_memory import checkpoint_dflash_layers
         checkpoint_dflash_layers(model)
     trainer=Trainer(model,TrainerConfig(lr=a.lr,num_epochs=1,save_path=str(out/'checkpoints'),optimizer='adamw',weight_decay=.01,scheduler_type='cosine',scheduler_warmup_ratio=.03,scheduler_total_steps=schedule_steps,hidden_states_dtype=torch.bfloat16,train_call_kwargs=call,val_call_kwargs=call,log_freq=10),loader,None)
+    if previous:
+        from followspec.repair_continuation import restore_optimizer_by_name
+        from transformers import get_cosine_schedule_with_warmup
+        restore_optimizer_by_name(model,trainer.optimizers,torch.load(checkpoint/'optimizer_state_dict.pt',map_location='cpu',weights_only=True))
+        total=resume_step+a.steps;warmup=int(total*.03);trainer.schedulers=[]
+        for opt in trainer.optimizers:
+            for group in opt.param_groups:group['initial_lr']=a.lr
+            trainer.schedulers.append(get_cosine_schedule_with_warmup(opt,warmup,total,last_epoch=resume_step-1))
+        write(out/'continuation.json',dict(resume_step=resume_step,additional_steps=a.steps,total_horizon=total,first_lr=[g['lr'] for o in trainer.optimizers for g in o.param_groups],prior_scheduler_state_sha256=file_hash(checkpoint/'scheduler_state_dict.pt'),optimizer_sha256=file_hash(checkpoint/'optimizer_state_dict.pt')))
     serial_adamw(trainer)
     if a.release_grad_before_forward:release_grad_before_forward(trainer)
     original_step=trainer._optimizers_step;completed=0
