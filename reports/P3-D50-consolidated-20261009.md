@@ -155,3 +155,9 @@ All contrasts retained. Source comparison changes token count/steps at matched e
 Self256 uses300 steps; self1k/4k and generic4k/16k use one epoch, different token totals. The16k point has3seeds. The64k extension preserves the existing16k and adds35988 Alpaca +12012 Dolly queries. This is an Alpaca+Dolly source-mixture change, not pure same-source scaling. All evaluation prompts are forbidden; five decoded samples/masks from each new source plus all-row mask/dedup checks gate training. Labels remain training-set-free/self-elicited where applicable; no data-free claim.
 
 64k fc/full one-epoch training follows complete response generation/audit, with25/50/75/100% exports, SPEED128+MATH64 each and MATH500 final. Compact checkpoints/shared shards,350GB guard. Corrected official4k results will gate conditional official16k. Nemotron30 timing cells cover none/reused/fc16k/full16k/independent1B K4.
+
+Timing note: the16k fc/full timing cells use seed0 exports; three process repeats are timing repeats, not three independently trained seeds. Acceptance three-seed means are reported separately.
+
+### 2026-10-09T14:56:06.427826-04:00 — codex-1 — automatic raw update
+
+Pilot update: 207 raw-recomputed rows,32 FIX24-invalid cells excluded; 0 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_145606/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.

@@ -57,3 +57,11 @@ Source: `/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/math500/s
 ### 2026-10-09T14:53:39.454090-04:00 — codex-1 — consolidated raw tables and authorized E5c
 
 Pilot:207 recomputed rows,32 FIX24-invalid cells excluded; source artifacts/D50_final_20261009_1451/results.json, report reports/P3-D50-consolidated-20261009.md, compiled LaTeX and fragments included. Raw counters, prompt hashes and exact renderedIDs verified. 10000pairedquery / three-seed hierarchical CIs. Paired TTT4/self-vs-generic/second-epoch/scratch/decoder/RMS contrasts retained, including nulls. Existing16k results unchanged. E5c64k explicitly authorized by owner now: existing16000 +35988Alpaca +12012Dolly, pinned licenses in stage source-provenance.json; source-mixture change labelled. Generation running; training/evaluation gated, no64k number yet. Corrected official4k four runs active; old invalid cells retained on disk.
+
+### 2026-10-09T14:56:35.707543-04:00 — codex-1 — E5c source data inspection passed
+
+Fully read five Dolly decoded prompts/responses and masks in data36/manual-five-decoded.txt, in addition to fortyAlpaca samples already inspected. SingleBOS, exact concatenation, prompt0/answer1 masks pass. Dolly3/5hit512 reasoning cap; unsupported factual guesses and arithmetic/season errors retained and documented, no quality certification or selective filtering. source-path-review.json binds first-five hashes for both sources. All48jobs use samepinnedpipeline; transportshards are not separateformattingpaths. Assembly/training now requires only all48generation completions plus full64000-row structural/dedup/eval-exclusion check; no remaining manual-approval dependency.
+
+### 2026-10-09T14:56:06.427826-04:00 — codex-1 — automatic raw update
+
+Pilot update: 207 raw-recomputed rows,32 FIX24-invalid cells excluded; 0 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_145606/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
