@@ -10,12 +10,14 @@ def tensor_fingerprint(tensor):
     value = tensor.detach().cpu().contiguous()
     import torch
     return dict(shape=list(value.shape), dtype=str(value.dtype),
-                sha256=hashlib.sha256(value.view(torch.uint8).numpy().tobytes()).hexdigest())
+                sha256=hashlib.sha256(value.reshape(-1).view(torch.uint8).numpy().tobytes()).hexdigest())
 
 
 def inspect_worker(worker):
     runner = worker.model_runner
-    drafter = runner.drafter.model
+    proposer = getattr(runner, 'speculator', None)
+    if proposer is None:proposer = runner.drafter
+    drafter = proposer.model
     config = drafter.config.to_dict()
     # Record concrete submodule attributes as well as HF config: embedding
     # sharing, fused loader mappings, tap semantics and positional settings.
