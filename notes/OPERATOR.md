@@ -263,3 +263,11 @@ manifest `manifest_round4.jsonl` (3,632 rows, written before each change); log `
   and the dispatch file first: nothing references these stages.
 - (c) 85 `vllm_cache` dirs of finished runs.
 Census model weights (~2.1 TB after dedup) were deliberately **not** deleted: some Hub repos may vanish, so they are not reliably regenerable.
+
+## 2026-10-09T03:16:57-04:00 — claude-ops — E1 official repair invalid (FIX-24 filed); E6 verified
+
+- FIX-24: official-drafter repairs train on a random embedding (details and tests in notes/FIX-24.md). Official 4k repair cells are invalid; official reuse is valid.
+- E6 operator re-run: `.venv-atlas-031-clean/bin/python -m pytest -q atlas/tests/test_speedup_model.py` → 8 passed. Held-out 16k validation:
+  predicted vs measured token speedup within 1.5% for all 6 cells (b1 fc 1.719 vs 1.743, full 1.817 vs 1.820; b8 fc 1.260 vs 1.274, full 1.308 vs 1.317).
+  E3 independent-1B τ recomputed from raw: R1 SPEED 2.441, MATH 3.019 (matches report). E6 → done.
+- Attribution note: commit 9f229fa (disk round 4) was authored with this checkout's default identity `codex-1`. The content is claude-ops's. From now on, operator commits pass `-c user.name=claude-ops`.

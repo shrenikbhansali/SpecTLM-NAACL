@@ -1,0 +1,39 @@
+# FIX-24 — official EAGLE-3 drafter repair uses a random embedding in the trainer
+
+## 2026-10-09T03:16:57-04:00 — claude-ops — filed
+
+**Symptom (E1, D-50).** Every official-drafter repair is *worse than reusing the official drafter unchanged*, on both targets, while
+the matched production repairs on the same data work (operator recomputation from raw `per_prompt.jsonl`, zero-step excluded):
+
+| Target | Cell | τ SPEED | p1 SPEED |
+|---|---|---|---|
+| R1 (t0) | official reuse | 1.764 | 0.413 |
+| R1 (t0) | official 4k fc s279 / full s279 | 1.302 / 1.462 | 0.270 / 0.346 |
+| Nemotron (t1) | official reuse | 1.763 | 0.417 |
+| Nemotron (t1) | official 4k fc s489 / full s326 | 1.355 / 1.480 | 0.301 / 0.361 |
+| Nemotron (t1) | production 4k fc s489 / full s489 | 2.264 / 2.348 | 0.570 / 0.589 |
+
+**Step-0 training metrics** (first row of `training_metrics.jsonl`, before any update):
+- official `E1-official-t0-4k-fc`: loss_0 8.76, top-1 acc 50/1802 = **2.8%**
+- production `E1-production-t1-4k-fc`: loss_0 1.94, top-1 acc 803/1685 = **47.7%**
+
+The served official drafter accepts ~41% at position 1, so the trainer's forward pass does not match vLLM's.
+
+**Root cause (verified by the operator, CPU only, no artifact written).**
+- The official release has no `embed_tokens.weight`. A key diff against RedHat production finds no other missing or extra key and no shape differences.
+- `followspec/family_repair.py:203-207` loads EAGLE-3 with `SpeculatorModel.from_pretrained(...)` and never calls `model.load_verifier_weights()`. Only `followspec/dflash_loader.py:19` calls it.
+- Loading `E1-official-native-v2-t0` exactly as the trainer does (in `.venv-transport`) gives `embed_tokens` ≠ the target's `model.embed_tokens.weight` (max abs diff 0.254). It is random init, and frozen by the variant config.
+- `convert_official.py`'s proof note ("native trainer uses target embedding") is therefore false for the trainer path. It holds only for vLLM.
+- Taps are not the cause: `tap_layers` gives [2,16,29] for both drafters.
+
+**Acceptance tests for the fix (Codex, on `codex/FIX-24`):**
+1. The trainer-loaded official drafter's `embed_tokens` is bit-identical to the target embedding, on both targets.
+2. Step-0 teacher-forced position-1 accuracy of the official drafter is within ~5 points of its served p1 on the same data (≈0.4–0.5). A dry-run of a few batches is enough.
+3. The production path is unchanged: same loaded state dict hash and the same step-0 metrics as the existing `E1-production-t1-4k-fc` first row. Regression test included.
+4. Rerun E1 official 4k fc/full on t0/t1 in **new** artifact dirs.
+   - The existing `E1-official-t{0,1}-4k-*` trainings and evals are invalid. Keep them on disk and in the ledger, labelled invalid (FIX-24).
+   - Never report them as a property of the official drafter.
+   - Stop the still-running invalid official trainings to free GPUs.
+5. While at it, confirm whether vLLM serves the **production** drafter with its own checkpoint embedding or the target's. If it uses the target's, the production trainer has a smaller version of the same mismatch; report it and do not change it silently.
+
+Official *reuse* cells (τ 1.764 / 1.763) are unaffected. They are served by vLLM with loaded-state parity proven.
