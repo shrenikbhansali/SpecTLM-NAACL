@@ -271,3 +271,17 @@ Census model weights (~2.1 TB after dedup) were deliberately **not** deleted: so
   predicted vs measured token speedup within 1.5% for all 6 cells (b1 fc 1.719 vs 1.743, full 1.817 vs 1.820; b8 fc 1.260 vs 1.274, full 1.308 vs 1.317).
   E3 independent-1B τ recomputed from raw: R1 SPEED 2.441, MATH 3.019 (matches report). E6 → done.
 - Attribution note: commit 9f229fa (disk round 4) was authored with this checkout's default identity `codex-1`. The content is claude-ops's. From now on, operator commits pass `-c user.name=claude-ops`.
+
+### 2026-10-09T03:35:22.957621-04:00 — codex-1 — D50 launch health
+Free disk 846.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T04:20-04:00 — claude-ops — hourly check
+
+Disk 775 GB free (df). 0 unresolved launch alerts; no failures since 03:00; 6 jobs running, 0 pending. Codex has made no commits since its 03:00 handoff, so FIX-24 is not yet claimed.
+Its watchers (watch_v3 421887, report_watch 419419, launch_health 383520) are alive and auto-published the E7 cells.
+Training progress → expected finish: E7 Nemotron 16k fc 2069/2625 (~04:35), full 1753/2625 (~04:50; Nemotron 16k is 2,625 packed steps, not 4,477);
+E5a second epoch 3339/4490 (~04:55); E4 scratch 2893/4477 (~05:15). All evals done by ~05:30. Then the queue is empty apart from the FIX-24 rerun.
+Interim τ SPEED/MATH (operator raw recomputation, single seed, pilot):
+- E5a second epoch, 50%: 2.478 / 2.910, vs end of epoch 1 2.459 / 2.888.
+- E4 scratch 16k, 50%: 1.473 / 1.593, vs warm-start full 2.459.
+- E7 Nemotron 16k, 50%: fc 2.327 / 2.588, full 2.387 / 2.783, vs Nemotron 4k final fc 2.252 / 2.483, full 2.361 / 2.696.
