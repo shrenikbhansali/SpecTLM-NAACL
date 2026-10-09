@@ -170,3 +170,36 @@ Step489 Nemotronfc SPEED retry complete,n128; frozen settings/prompt IDs/counter
 ### 2026-10-09T15:16:08.538958-04:00 — codex-1 — Handoff addendum: collision resolved
 
 Unchanged retry completed; resolver checked frozen code/settings/exact rendered IDs/raw counters and n128, wrote99729d98fed6f5d269aa.resolved.json at15:15:57. Original partial retained. All known launch alerts now resolved; controllers/queue continue. This supersedes the pending retry status in the preceding handoff.
+
+### 2026-10-09T15:34:08.377982-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t0-16k-fc after all FIX24 core/matched checks passed.
+
+### 2026-10-09T15:34:14.377134-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t0-16k-full after all FIX24 core/matched checks passed.
+
+### 2026-10-09T15:34:14.378028-04:00 — codex-1 — automatic FIX24 progression
+
+Official16k decision target0: True; all paired CIs retained.
+
+## 2026-10-09T15:56:23-04:00 — claude-ops — D-51 delta comparison at 4k final; official seeds launched
+
+Owner: "stronger" = larger repair delta. Paired delta-of-deltas at 4k final (official Δτ − production Δτ; each Δ = repaired − the same drafter's reuse;
+same prompt IDs; zero-step excluded across all 4 cells; 10,000 bootstrap draws):
+
+| Target | Panel | Arm | Δτ official | Δτ production | difference [95% CI] |
+|---|---|---|---|---|---|
+| R1 | SPEED | fc | +0.563 | +0.494 | +0.069 [+0.035, +0.104] |
+| R1 | SPEED | full | +0.698 | +0.644 | +0.054 [+0.018, +0.092] |
+| R1 | MATH-64 | fc | +0.765 | +0.584 | +0.181 [+0.121, +0.238] |
+| R1 | MATH-64 | full | +0.963 | +0.837 | +0.126 [+0.075, +0.176] |
+| Nemotron | SPEED | fc | +0.573 | +0.429 | +0.144 [+0.102, +0.187] |
+| Nemotron | SPEED | full | +0.673 | +0.537 | +0.136 [+0.100, +0.173] |
+| Nemotron | MATH-64 | fc | +0.898 | +0.523 | +0.375 [+0.348, +0.403] |
+| Nemotron | MATH-64 | full | +1.084 | +0.736 | +0.348 [+0.308, +0.388] |
+
+R1 official 4k full SPEED recovery = (2.462 − 1.764)/(2.848 − 1.764) = 64.4%; production 4k full was 57%.
+Reuse baselines: official `P3_D50_20261009_0200/E1-reuse/runs/D50-E1-official-t{0,1}-*`; production = the D50 analysis `baseline` paths (T1 A10 cells / P3 math-family controls).
+Launched official 16k seeds 1–2 on R1 (fc, full): `artifacts/FIX24_official_seeds_20261009/seeds.py`. Training args are byte-identical to FIX24-official-t0-16k-{arm} except seed/tag/output.
+Evals (SPEED-128 + MATH-64, frozen 6da2e42) are auto-appended on final exports. Seed 1 launched 15:55 (srv2:3, srv5:6); seed 2 is queued.
