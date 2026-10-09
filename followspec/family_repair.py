@@ -147,6 +147,7 @@ def main():
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
     p.add_argument('--checkpoint-dflash-layers',action='store_true')
     p.add_argument('--ttt-steps',type=int,default=3,choices=[3,4],help='D50 explicit native EAGLE unroll depth; default unchanged')
+    p.add_argument('--probe-batches',type=int,default=0,help='FIX24 diagnostic: frozen step-zero forwards only, no optimizer or exports')
     p.add_argument('--continue-epoch-from',help='D50 continue one epoch from a completed compact run, restoring named optimizer state')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
     forbidden={prompt_hash(r.get('raw_prompt',r.get('prompt'))) for r in read(a.forbidden)}
@@ -205,6 +206,12 @@ def main():
         conf.speculators_config.verifier.name_or_path=target['path'];conf.eagle_aux_hidden_state_layer_ids=taps
         conf.transformer_layer_config._attn_implementation='eager'
         model=SpeculatorModel.from_pretrained(a.drafter,config=conf,local_files_only=True,torch_dtype=torch.float32)
+        from followspec.missing_embedding import fill_missing_embedding
+        if a.probe_batches:
+            from followspec.missing_embedding import state_hashes
+            before_embedding_fill=state_hashes(model)
+        write(out/'embedding_source.json',fill_missing_embedding(model,a.drafter,target['path']))
+        if a.probe_batches:write(out/'loaded_state.json',dict(legacy=before_embedding_fill,fixed=state_hashes(model)))
     if a.scratch:
         write(out/'scratch_initialization.json',initialize_scratch(model))
     proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm)
@@ -257,6 +264,12 @@ def main():
         write(out/'continuation.json',dict(resume_step=resume_step,additional_steps=a.steps,total_horizon=total,first_lr=[g['lr'] for o in trainer.optimizers for g in o.param_groups],prior_scheduler_state_sha256=file_hash(checkpoint/'scheduler_state_dict.pt'),optimizer_sha256=file_hash(checkpoint/'optimizer_state_dict.pt')))
     serial_adamw(trainer)
     if a.release_grad_before_forward:release_grad_before_forward(trainer)
+    if a.probe_batches:
+        if a.probe_batches<1:raise ValueError('positive probe count required')
+        from followspec.missing_embedding import probe_batches
+        with saved_tensor_context(a.offload_saved_tensors):records=probe_batches(model,loader,call,a.probe_batches)
+        write(out/'results.json',dict(status='step_zero_diagnostic_no_training',metrics=records,n_batches=len(records),optimizer_steps=0,wall_s=time.monotonic()-start))
+        return
     original_step=trainer._optimizers_step;completed=0
     mutable=set(proof['trainable_names'])
     for name in list(mutable):
