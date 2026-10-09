@@ -21,8 +21,10 @@ def main():
   c=read(p/'config.json');res=read(p/'results.json');rr=lines(p/'per_prompt.jsonl')
   assert c['code_commit']==FROZEN and c['engine_version']=='0.31.0' and res['gpu_type']=='NVIDIA A40',p
   assert c['batch_size']==8 and c['max_new_tokens']==512 and c['temperature']==0 and c['seed']==0 and c['use_prompt_token_ids'],p
-  pp=lines(c['prompts']);render={r['prompt_id']:r['rendered_token_ids'] for r in pp};vals={r['prompt_id']:raw_values(r,c['K'])[:3] for r in rr}
-  assert len(vals)==len(rr)==c['n'] and set(vals)==set(render),p
+  pp=lines(c['prompts']);assert inputs[str(Path(c['prompts']))]==c['prompt_sha256'],p;render={r['prompt_id']:r['rendered_token_ids'] for r in pp};vals={r['prompt_id']:raw_values(r,c['K'])[:3] for r in rr}
+  assert len(vals)==len(rr)==c['n']==res['n_total'] and set(vals)==set(render),p
+  assert sum(bool(r['zero_step']) for r in rr)==res['n_zero_step'],p
+  assert abs(np.nanmean([v[1] for v in vals.values()])-res['macro_acceptance_length'])<1e-8,p
   value=(c,render,vals);cache[str(p)]=value;return value
  d50=ws/'artifacts/P3_D50_20261009_0200';old=ws/'artifacts/P3_repair_20261008_0305';t1=read(ws/'artifacts/T1_cells_20261007_2350/index.json');base={};oracle={}
  for t in [0,1]:
