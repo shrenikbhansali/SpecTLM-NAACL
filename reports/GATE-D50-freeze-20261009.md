@@ -99,3 +99,16 @@ R1 official at 25% of 4k is already ≥ production at 100%. The conditional offi
 Per D-50 ("use the strongest version"), the freeze should keep **both drafter checkpoints** in the list and choose the primary checkpoint for the main table only after official 16k lands.
 Production 16k already has 3 seeds; official 16k will have one. If official becomes primary, run seeds 1–2 overnight (~2.5 h each, parallel).
 Unchanged reuse is equally broken for both (1.76 vs 1.73), so the motivation does not depend on the choice.
+
+### 2026-10-09T18:09:29-04:00 — claude-ops — freeze recorded (D-52)
+
+R1 official 16k seed 0 (operator-paired against the same drafter's reuse; production = D49 seed 0):
+
+| Panel | Arm | official τ / Δτ | production τ / Δτ | Δ difference [95% CI] | gap recovery off / prod |
+|---|---|---|---|---|---|
+| SPEED | fc | 2.403 / +0.639 | 2.294 / +0.564 | +0.075 [+0.038, +0.113] | 58.9% / 50.5% |
+| SPEED | full | 2.536 / +0.772 | 2.459 / +0.728 | +0.044 [+0.015, +0.074] | 71.2% / 65.2% |
+| MATH-64 | fc | 2.833 / +0.910 | 2.651 / +0.703 | +0.207 [+0.155, +0.256] | 45.9% / 35.9% |
+| MATH-64 | full | 3.006 / +1.083 | 2.888 / +0.941 | +0.142 [+0.103, +0.180] | 54.6% / 48.1% |
+
+Official leads in 16/16 comparisons, so it is primary under D-51, conditional on seeds 1–2. Full decision and the remaining run list: MASTER §13 D-52.
