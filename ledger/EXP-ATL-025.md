@@ -28,3 +28,9 @@ Corrected official Nemotron,25% of one4k epoch (step163), MATH64 n64, seed0. Pil
 10000 paired-query bootstrap; exact rendered IDs, settings and raw counters checked. Only unchanged official reuse and valid production repair controls used; old official repair excluded. Matched163 data/steps/nativeTTT3 verified from full config diff.
 
 Source: artifacts/FIX24_20261009_1420/first-corrected-math64.json.
+
+### 2026-10-09T15:14:50.842117-04:00 — codex-1 — corrected official final Nemotron4k pilot
+
+[Raw paired report](../artifacts/FIX24_check_20261009_1515/report.md),32 comparisons from16 completed cells at analysis start; frozen6da/vLLM0.31/A40, identical rendered IDs, seed0,10000 paired-query draws. Nemotron final4k SPEED n128: fc versus production Delta p1 .01483[.00403,.02542],Delta tau .08396[.05022,.11821]; full Delta p1 .00949[-.00194,.02094] (null),Delta tau .07581[.04404,.10925]. Full finalMATH pending at check. Owner-authorized conditional official16k fc/full now published, based on higher point means; no claim of significance for the full p1 difference. R1 quarter-epoch full SPEED Delta p1 .023[.014,.032],Delta tau .110[.084,.137]; final R1 still pending. Old invalid official repairs remain excluded.
+
+E5c: 23/48 new-data shards complete, 32360/48000 responses written plus existing16000; source audits pass, automatic assembly/train/eval awaits all-row checks. Nemo timing 4/30. Collision caused one intermediate evaluation failure; unchanged retry active, preserved partial excluded. Disk 700.4GiB above350GB floor.

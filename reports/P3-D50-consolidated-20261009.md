@@ -165,3 +165,13 @@ Pilot update: 207 raw-recomputed rows,32 FIX24-invalid cells excluded; 0 new com
 ### 2026-10-09T15:02:26.831919-04:00 — execution update
 
 Both new source data audits passed;21/48 additional-data shards completed, with automatic64k assembly/training after all-row checks. Training alone is estimated at about9h from16k throughput, so64k completion is overnight. Four correctedofficial4k trainings active; [first quarter-epoch Nemotron MATH64 paired results](../artifacts/FIX24_20261009_1420/first-corrected-math64.md) are interim, not the final4k decision.
+
+### 2026-10-09T15:06:50.856527-04:00 — codex-1 — automatic raw update
+
+Pilot update: 216 raw-recomputed rows,32 FIX24-invalid cells excluded; 8 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_150650/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T15:14:50.842117-04:00 — codex-1 — corrected official final Nemotron4k pilot
+
+[Raw paired report](../artifacts/FIX24_check_20261009_1515/report.md),32 comparisons from16 completed cells at analysis start; frozen6da/vLLM0.31/A40, identical rendered IDs, seed0,10000 paired-query draws. Nemotron final4k SPEED n128: fc versus production Delta p1 .01483[.00403,.02542],Delta tau .08396[.05022,.11821]; full Delta p1 .00949[-.00194,.02094] (null),Delta tau .07581[.04404,.10925]. Full finalMATH pending at check. Owner-authorized conditional official16k fc/full now published, based on higher point means; no claim of significance for the full p1 difference. R1 quarter-epoch full SPEED Delta p1 .023[.014,.032],Delta tau .110[.084,.137]; final R1 still pending. Old invalid official repairs remain excluded.
+
+E5c: 23/48 new-data shards complete, 32360/48000 responses written plus existing16000; source audits pass, automatic assembly/train/eval awaits all-row checks. Nemo timing 4/30. Collision caused one intermediate evaluation failure; unchanged retry active, preserved partial excluded. Disk 700.4GiB above350GB floor.
