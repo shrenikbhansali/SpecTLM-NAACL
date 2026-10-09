@@ -51,3 +51,35 @@ Pulled main (up to date), read AGENTS and FIX24 evidence/spec. One canonicalqueu
 Branchcodex/FIX-24 commit7997072 adds exact checkpoint-omission detection, target embedding copy only when absent, provenance, and read-only step0probe. Production path returns without loading target or mutating any tensor/RNG; all19 tests pass in pinned transport dependencies (`tests-pinned.log`). Tests against old main fail missing helper as expected (`test-legacy-fails.log`). Initial transport invocation lacked pytest; default Python then exposed incompatible transformers; both environmental failures retained, tests rerun with pinned dependencies and only pytest runner appended.
 
 FIX24 probe tag was created/pushed before worktree. Launcher correctly refused real diagnostic jobs because tagcommit7997072 not yet an ancestor ofmain. MASTER requires main ancestry for GPU checks while its generic merge rule asks acceptance before merge: integrating CPU-tested change now solely to unblock tagged GPU diagnostics, keeping FIX24 inprogress and official reruns gated until required GPU evidence passes. No acceptance/Gate PASS claimed and no launcher bypass. Failed attempts retained; retries get new names.64kdata independent production path already running.
+
+### 2026-10-09T14:29:07.782325-04:00 — codex-1 — core GPU checks PASS
+
+`core-acceptance.json`: exact target embedding copy both targets, target bf16 roundtrip exact. Eight frozen step0 batches: official R1p10.426739, Nemop10.462563; original R1firstbatch2.8% becomes40.7%. Production full loadedstate hashes identical before/after helper and ALLfirststep metrics exactly equal historical E1-production-t1-4k-fc (803/1685=47.6558%). No optimizer steps.
+
+Actual pinnedvLLM loaded-state diagnostics on both targets show production serves its OWNcheckpoint embedding, not target embedding; maxabs production-vs-target .0361328125(R1)/.0537109375(Nemo). Both served hashes match checkpoint, neither matches target (`production-serving-embedding.json`); no smaller production mismatch to change. Source loader sets has_own_embed_tokens when checkpoint provides it, shares target only if absent or equal. Official matchedtraining-query frozenserved cells pending (strictly diagnostic, not heldout paper results); reruns still gated until that check.
+
+### 2026-10-09T14:32:30.158919-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t0-4k-fc after all FIX24 core/matched checks passed.
+
+### 2026-10-09T14:32:33.679753-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t0-4k-full after all FIX24 core/matched checks passed.
+
+### 2026-10-09T14:32:37.004539-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t1-4k-fc after all FIX24 core/matched checks passed.
+
+### 2026-10-09T14:32:40.239132-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t1-4k-full after all FIX24 core/matched checks passed.
+
+### 2026-10-09T14:34:34.772100-04:00 — codex-1 — all core acceptance PASS; corrected reruns queued
+
+`acceptance.json` passes exact embedding both targets, unchanged production state+step0, and matchedtraining-query served check: R1n30 servedp1.395608 vs teacher-forced.426739 (3.11points); Nemon57 .440140 vs.462563 (2.24points), both within5points. Different estimands/contexts explicitly documented: original response teacher forcing across positions vs freshserved proposal starts on identical query IDs. Not heldout paper results. Production vLLM uses own checkpoint embedding both targets.
+
+Corrected `FIX24-official-t0/t1-4k-fc/full` published in newdirectories by watcher814853, using run-FIX24-20261009 tag7997072. Everyexport auto-evaluated frozen6da2e42 on sameSPEED128/MATH64; official16k conditional comparisons use only corrected4k vs matchingproduction4k. Old official16k decisions not reused. Initial three ancestry-refused launch alerts resolved with final GPUevidence, no retries duplicated. Rerun outcomes stillpending, FIX24 remainsinprogress until completed evidence.
+
+### 2026-10-09T14:46:26.640849-04:00 — codex-1 — integration progress
+
+Core acceptance complete; first corrected official4k Nemotron full job launched14:44, other three queued at highest priority. Existing canonical queue only. Full rerun acceptance remains pending.
