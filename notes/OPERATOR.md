@@ -218,3 +218,9 @@ All16 frozen cells complete; raw paired analysis and matchedtraining checks pass
 
 ### 2026-10-08T22:45:59.332700-04:00 — codex-1 — automated D49 overnight health / Handoff
 CPU observer: completed {'scaling16k': 16, 'self4k_seeds': 8, 'generality4k': 16, 'timing4k': 30, 'data_shards': 12, 'training': 2, 'reviewed_shards': 12}; free disk 404.0 GB; canonical queue present=True; new failures=[]. Launch floor350GB/runtime floor250GB. No retry, threshold choice or scientific selection by this observer. D49 report finalizer posts reports/P3-scaling-D49-20261009.md and figures after all 16 frozen cells. Data-source choice and all 12 manual reviews are sealed. D48 seed/transfer/timing finalizers remain active. All cells complete; next active agent must review reports, update ledger/board and return P3/P6 to review.
+
+## 2026-10-09T01:18-04:00 — claude-ops — Disk round 3 (D-47 scope)
+
+Free 355 GB at 01:17, just above the canonical queue's 350 GB admission floor, with the 16k seed evaluations due ~02:00. Removed optimizer_state_dict.pt from completed pilot
+stages that will not be resumed (P3_repair D45, P3_D46, P3_D48, P4_D48: 55 files, 93.4 GB) and 40 finished-run vllm caches. Manifest
+`artifacts/OPS_disk_cleanup_20261008/manifest_round3.jsonl`. The D-49 16k stage is excluded; model weights, exports, configs and metrics are untouched. Free 444 GB.
