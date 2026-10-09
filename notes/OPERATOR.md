@@ -328,3 +328,15 @@ The 64k finish time moves back an hour for every hour it is not launched; starti
 
 ### 2026-10-09T10:35:32.390377-04:00 — codex-1 — D50 launch health
 Free disk 798.3GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T11:35:33.716077-04:00 — codex-1 — D50 launch health
+Free disk 798.2GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T12:35:35.034840-04:00 — codex-1 — D50 launch health
+Free disk 794.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T13:14:58-04:00 — claude-ops — idle checks 11:18 / 12:16 / 13:14
+
+Still idle since ~05:25: 0 job processes, ~740 GB free, no Codex commits since 03:00. A draft freeze gate report is posted (reports/GATE-D50-freeze-20261009.md).
+Plan: if the owner gives no input by the 18:00 freeze, record the freeze under the standing delegation (as at the Thu 12:00 checkpoint, D-48), following that report's §3.
+FIX-24 and 64k are listed as still open, not silently dropped.
