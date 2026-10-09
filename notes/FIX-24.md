@@ -87,3 +87,26 @@ Core acceptance complete; first corrected official4k Nemotron full job launched1
 ### 2026-10-09T14:53:58.123188-04:00 — codex-1 — Handoff checkpoint (work continuing)
 
 FIX24 core19 tests + GPU parity pass; four corrected4k trainings active, evaluations auto-published. Canonicalqueue4129996, no duplicates. Source/data watcher832362 gates64k on complete48shards and manualAlpaca+Dolly review (Dollypending). FIX24watch814853 handles exporteval and conditionalofficial16k. Nemo timing30jobs, finish832363/cost837791. Disk~730GiB,350GBfloor. Consolidated207-row rawreport reports/P3-D50-consolidated-20261009.md, seven LaTeX tables compile;32invalidcells excluded. Earlysnapshot1443 had cost-key rendering defect,1446 failed unescaped-percent LaTeX header; retained and superseded by1451 which passes. Next: finishDollymanualreview, confirm64kassembly/trainpublication, monitorcorrectedexports andNemo, auto-addnewresults. No new owner decision needed.
+
+### 2026-10-09T14:59:34.932994-04:00 — codex-1 — first corrected held-out results
+
+Corrected official Nemotron,25% of one4k epoch (step163), MATH64 n64, seed0. Pilot frozen6da/vLLM0.31/A40. Not final4k or the conditional16k decision.
+
+| Arm | Reference | p1 [95% CI] | tau [95% CI] | Delta p1 [95% CI] | Delta tau [95% CI] |
+|---|---|---|---|---|---|
+| fc | official reuse | 0.666 [0.653, 0.678] | 2.524 [2.476, 2.570] | 0.214 [0.204, 0.225] | 0.821 [0.785, 0.856] |
+| fc | production matched163 | 0.666 [0.653, 0.678] | 2.524 [2.476, 2.570] | 0.012 [0.001, 0.023] | 0.097 [0.063, 0.131] |
+| full | official reuse | 0.699 [0.688, 0.711] | 2.675 [2.625, 2.723] | 0.248 [0.238, 0.257] | 0.971 [0.932, 1.010] |
+| full | production matched163 | 0.699 [0.688, 0.711] | 2.675 [2.625, 2.723] | 0.010 [0.000, 0.020] | 0.072 [0.042, 0.103] |
+
+10000 paired-query bootstrap; exact rendered IDs, settings and raw counters checked. Only unchanged official reuse and valid production repair controls used; old official repair excluded. Matched163 data/steps/nativeTTT3 verified from full config diff.
+
+Source: artifacts/FIX24_20261009_1420/first-corrected-math64.json.
+
+### 2026-10-09T15:02:26.831919-04:00 — codex-1 — Handoff
+
+Current state: main contains FIX24 correction and final-table tooling/report; branches/tags pushed, no pending code integration. Root operator re-ran19 embedding/trainer tests (tests-main-operator.log),4 table tests;7 preview tables compiled and first page/figure visually checked. Four corrected trainings running, four initial held-out evaluations complete. first-corrected-math64.json records actual early quarter-epoch Nemo results with n64/pairedCIs; final4k/conditional16k pending. Full corrected-vs-old training config diff allows onlycode/output/sharedroot/probe0/diskguard changes; data/seed/hyperparameters/steps identical.
+
+E5c64k: both source-level five-sample reviews PASSED (40Alpaca+5Dolly inspected); all21completed shards independently checked for exact input concatenation and masks (21000rows). Remaining generation continues; source-path-review.json lets assembly/training progress without another human approval. Watch832362 -> all48 results +64000row checks -> two64k trainings -> allfrozenexports. Estimated training alone ~9h from16k throughput, so completion is overnight, beyond18ET; no scheduling gate added. Mixture35988Alpaca+12012Dolly extension labelled, original16kpreserved.
+
+Live processes: canonicalqueue4129996; FIX24controller814853; E5c832362; Nemo timingfinalizer832363 + cost837791; immutable reportwatch851749; launch/runhealth383520. Check pgrep and stage dirs before any launch. All launch alerts resolved; no failure silently retried. Watchers are NOT restart-idempotent: inspect existing publications and make a new resume version, never rerun from the top. No pause marker. Disk~730GiB,350GBguard. Remaining work: monitor runtime/errors, include completedofficial/64k/Nemo outputs; verify finalreport snapshots; markFIX24review only after rerun acceptance, not merely corefix. No owner question blocking execution.

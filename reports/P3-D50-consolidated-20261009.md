@@ -161,3 +161,7 @@ Timing note: the16k fc/full timing cells use seed0 exports; three process repeat
 ### 2026-10-09T14:56:06.427826-04:00 — codex-1 — automatic raw update
 
 Pilot update: 207 raw-recomputed rows,32 FIX24-invalid cells excluded; 0 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_145606/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T15:02:26.831919-04:00 — execution update
+
+Both new source data audits passed;21/48 additional-data shards completed, with automatic64k assembly/training after all-row checks. Training alone is estimated at about9h from16k throughput, so64k completion is overnight. Four correctedofficial4k trainings active; [first quarter-epoch Nemotron MATH64 paired results](../artifacts/FIX24_20261009_1420/first-corrected-math64.md) are interim, not the final4k decision.
