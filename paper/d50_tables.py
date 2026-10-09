@@ -118,7 +118,7 @@ def main():
    contrasts.append(dict(workload=w,arm=aa,reference=bb,scope=scope,statistics=ss,arm_path=ra['run_dir'],reference_path=rb['run_dir']))
  ch=['Workload','Arm','Reference','n','Delta p1 [95% CI]','Delta tau [95% CI]','Scope'];cr=[[r['workload'],r['arm'],r['reference'],str(r['statistics']['n_paired']),fmt(r['statistics']['delta']['p1']),fmt(r['statistics']['delta']['tau']),r['scope']] for r in contrasts]
  (out/'paired-ablations.md').write_text('\n'.join('| '+' | '.join(x)+' |' for x in [ch,['---']*len(ch),*cr])+'\n')
- (out/'paired-ablations.tex').write_text('\n'.join([r'\begin{tabular}{lllllll}']+[' & '.join(x.replace('_',r'\_') for x in r)+r' \\' for r in [ch,*cr]]+[r'\end{tabular}'])+'\n')
+ (out/'paired-ablations.tex').write_text('\n'.join([r'\begin{tabular}{lllllll}']+[' & '.join(x.replace('_',r'\_').replace('%',r'\%').replace('&',r'\&') for x in r)+r' \\' for r in [ch,*cr]]+[r'\end{tabular}'])+'\n')
  with (out/'summary.csv').open('w') as f:
   wr=csv.writer(f);wr.writerow(header);wr.writerows(cells(r) for r in final)
  result=dict(status='pilot',generated=datetime.datetime.now().astimezone().isoformat(),records=rows,paired_ablations=contrasts,pending=pending,excluded_FIX24=excluded,input_sha256=inputs)
