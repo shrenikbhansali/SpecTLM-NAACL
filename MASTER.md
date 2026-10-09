@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-09T01:48-04:00 (claude-ops) |
-| Sprint day | Day 4 of 8 (Thu Oct 8); ARR deadline Mon Oct 12 23:59 AoE |
+| Last updated | 2026-10-09T02:21:58.866202-04:00 (codex-1 builder/operator) |
+| Sprint day | Day 5 of 8 (Fri Oct 9); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | Fri ~18:00 ET: freeze method + final experiment list (data-scaling result decides the title/claim strength). Thu 12:00 checkpoint passed without owner input; decisions taken under delegation (D-48). |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | D49 generic16k:12 response shards running; all audits passed, automatic fc/full oneepoch +16 frozen cells next. Scaling36/36 and self4k seeds8/8 complete; transfer12/16, self4k timing29/30. Canonical queue4129996; overnight report/ledger/health controllers active. |
-| Blockers | ICE down; all work on A40. Disk~466GB free;350GB launch/250GB runtime floor; no new downloads. D49 generic choice recorded with SPEED nulls; no manual data gate remains. |
-| Owner action needed | No operational approval pending; method checkpoints Thu 12:00 and Fri 18:00. |
+| Jobs running | D49 generic16k complete, all3seeds reported. D50: second epoch/TTT4 training, 16k wall-clock panels, baseline evaluations and Nemotron generation active; official conversion parity gates its repairs. Prior larger-scale transfer16/16 and self4k timing30/30 complete. Canonical queue4129996; D50 publisher394636, alerts383520, timing finalizer395849. |
+| Blockers | ICE unavailable; A40s only. Disk~456GB free;350GB admission/250GB runtime floor. Official conversion tap-index bug corrected in new artifacts; fresh parity pending. Suffix dependency absent, no environment modification. |
+| Owner action needed | No operational approval pending; D50 final experiment list freeze Fri18ET. Conditional official16k/64k extensions await results. |
 
 ---
 

@@ -227,3 +227,11 @@ stages that will not be resumed (P3_repair D45, P3_D46, P3_D48, P4_D48: 55 files
 
 ### 2026-10-09T02:06:19.601016-04:00 — codex-1 — D50 launch health
 Free disk 456.5GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T02:21:58.866202-04:00 — codex-1 — D50 active execution and official conversion fix
+
+E5 second epoch training has restored final4477-step weights and Adam state successfully; `continuation.json` records first resumed LR1.050905e-5 and8967 totalhorizon. Both TTT4 jobs write native four-depth losses. E2/E3 allfour smokes passed on pinned engine; watcher publishes24 fullcells. E7 generation shards0–3 launched; manual five-sample masks pending before dependent training. E6 timing finalizer395849 waits all30 complete, then raw timing/economics/output-identity audits and held-out cost-model validation.
+
+Initial official conversion parity failed (preserved both8-query outputs): initial converter supplied [1,15,28] block indices where vLLM defaults use hidden-state indices [2,16,29]. Evidence: installed vLLM `interfaces.py:get_eagle3_default_aux_hidden_state_layers` and `gpu_model_runner.py:_get_eagle3_aux_layers_from_config`. Corrected only explicit taps in new `E1-official-native-v2-t0/t1` configs; all weights hardlinked unchanged, proof perdir. New parity jobs published after queue/stage checks (`fix_official_taps_v2.py`); no official repair admitted until parity passes. First watcher385209 stopped on mismatch; replaced with resume-aware394636 `watch_v2.py`, blocks only affected officialtarget while unrelated baseline/eval/data work advances. No failed result deleted or threshold loosened.
+
+Source fixes merged/pushed main80f2246, board/ledgera573263. New ledgerEXP024 covers D50 E1–E7; cost-model pilot EXP020. Independent acceptance analyzer `analysis/analyze.py` emits unique snapshots, validates frozen counters/paired inputs, reports per-depth/length/proposal-coverage and matched controls. ngram tau is conditional on proposal-bearing turns; it is not an overall serving speedup.
