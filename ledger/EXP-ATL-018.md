@@ -66,3 +66,7 @@ The operator launched seeds 1–2; codex reused those completed runs without dup
 | full | math64 | 64 / 3 | +0.2525 [+0.2398, +0.2646] | 2.8923 | 48.3% [46.4, 50.2] |
 
 Per-seed results, per-depth acceptance, output lengths, costs and config hashes: [independent raw analysis](../artifacts/P3_D50_20261009_0200/seed16k-analysis/snapshot-20261009_020745/results.json). The original seed-0 scaling curve above is preserved. Source choice used development panels; these are not untouched confirmation results. Shared generation must not be counted three times in campaign costs.
+
+### 2026-10-09T02:28:13.739308-04:00 — codex-1 — complete larger generality follow-up
+
+Published [self4k seeds/generality](../reports/P3-self4k-generality-20261009.md),28cells including16generality. Prior frozen raw analysis complete2026-10-08T18:32 retained. Nemotronfc/fullSPEEDΔp1+.1540[.1428,.1654]/+.1690[.1563,.1819],R1Qwen+.0506[.0428,.0587]/+.0753[.0611,.0869],GRPO+.0168[.0096,.0242]/+.0231[.0141,.0320],Hermes+.0860[.0656,.1044]/+.1003[.0829,.1178];n128,seed0. MATH64 andalllengths/costs/per-depthresults included. Controls have gains too; no assumed null. Frozen6da2e42/vLLM0.31/A40,matched4000examples/oneepoch within target,notmatchedtokensacrosstargets. Statuspilot,heldoutqueriesusedforconfigurationselection.
