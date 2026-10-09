@@ -27,14 +27,15 @@ def main():
  nemo=ws/'artifacts/P6_Nemo_20261009_1428/analysis'
  ns=sorted(nemo.glob('snapshot-*/results.json'))
  if ns:
+  nmodels=sorted((nemo.parent/'cost-model').glob('snapshot-*/results.json'));npred={(r['batch_size'],r['arm']):r for r in verified(nmodels[-1])['predictions']} if nmodels else {}
   for r in verified(ns[-1])['records']:
    if r['reference']!='none':continue
-   w=r['metrics']['warm'];c=r['metrics']['cold'];tt.append(['Nemotron',r['batch_size'],r['arm'],f"{r['n_queries']} / {r['n_process_replicates']}",fmt(w['panel_time_speedup'],w['paired_process_batch_ci95']),fmt(w['token_throughput_ratio'],w['token_throughput_ci95']),fmt(c['startup_inclusive_speedup'],c['startup_inclusive_ci95']),'pending cross-target validation','--'])
+   w=r['metrics']['warm'];c=r['metrics']['cold'];p=npred.get((r['batch_size'],r['arm']));pr=fmt(p['predicted_speedup'],p['predicted_speedup_ci95']) if p else '--';err=f"{p['validation']['prediction_relative_error']:+.2%}" if p and p['validation'] else '--';tt.append(['Nemotron',r['batch_size'],r['arm'],f"{r['n_queries']} / {r['n_process_replicates']}",fmt(w['panel_time_speedup'],w['paired_process_batch_ci95']),fmt(w['token_throughput_ratio'],w['token_throughput_ci95']),fmt(c['startup_inclusive_speedup'],c['startup_inclusive_ci95']),pr,err])
  table('speedup',['Target','Batch','Arm','n / processes','Warm panel speedup','Measured token speedup','First panel + startup','Predicted token speedup','TPS prediction error'],tt)
  result=read(out/'results.json');costs=[];seen=set()
  for r in result['records']:
   if r['campaign']!='three-seed' and any(q['label']==r['label'] and q['target']==r['target'] and isinstance(q['step'],int) and q['step']>r['step'] for q in result['records']):continue
-  if r['campaign']!='three-seed' and r.get('label') not in ['E4-scratch16k','E5-second-epoch','E7-production-t1-16k-fc','E7-production-t1-16k-full']:continue
+  if r['campaign'] not in ['three-seed','FIX24_20261009_1420','P3_E5c64k_20261009_1420'] and r.get('label') not in ['E4-scratch16k','E5-second-epoch','E7-production-t1-16k-fc','E7-production-t1-16k-full']:continue
   key=(r['target'],r['label'],str(r['step']))
   if key in seen:continue
   seen.add(key);cc=r.get('cost_operator_verified');cc=cc if isinstance(cc,list) else [cc]
@@ -45,6 +46,6 @@ def main():
  estimate=verified(ws/'artifacts/P6_D49_recipe_estimate_20261008_1800/estimate.json');(out/'dedicated-estimate.json').open('x').write(json.dumps(estimate,indent=2)+'\n')
  table('dedicated-estimate',['Hypothetical epochs','Estimated data + train A40 GPUh','Scope'],[[ep,f"{min(r['total_gpu_hours_proxy'] for r in estimate['scenarios'] if r['epochs']==ep):.0f}–{max(r['total_gpu_hours_proxy'] for r in estimate['scenarios'] if r['epochs']==ep):.0f}",'532k–646k examples; 557–2048 tokens; actual oracle recipe unknown'] for ep in [1,10,40]])
  (out/'supplement-provenance.json').open('x').write(json.dumps(dict(status='pilot',input_sha256=inputs,validation='Existing operator/raw-verified sources; all recorded input hashes rechecked',timing='3 processes x3 warm passes; paired process/query-batch CIs; first panel after compile; startup separate',cost='Measured online capture/data/train GPUh, not campaign total. Shared generation counted once per alternative. Dedicated cost is a sensitivity estimate, not actual oracle cost or confidence interval.'),indent=2)+'\n')
- with (out/'report.md').open('a') as f:f.write('\nTiming/cost: [measured and predicted speedups](speedup.md), [repair costs](repair-cost.md), [dedicated-cost sensitivity estimate](dedicated-estimate.md). All have LaTeX companions. Timing compares the same input IDs, but greedy output sequences can differ; lengths and token-normalized throughput are retained. Available A40 placement is not randomized exclusive-host timing. Model fits use earlier R1 conditions with 16k held out, K4 only; independent-drafter predictions are unavailable. Dedicated estimates are not the oracle\'s actual bill; upstream TTT7 differs from our measured TTT3, and 40 epochs is a code default, not a known oracle training schedule.\n')
+ with (out/'report.md').open('a') as f:f.write('\nTiming/cost: [measured and predicted speedups](speedup.md), [repair costs](repair-cost.md), [dedicated-cost sensitivity estimate](dedicated-estimate.md). All have LaTeX companions. Timing compares the same input IDs, but greedy output sequences can differ; lengths and token-normalized throughput are retained. Available A40 placement is not randomized exclusive-host timing. Model fits use earlier R1 conditions with 16k held out, K4 only. Any Nemotron predictions are explicitly cross-target transfer stress tests, not a calibrated Nemotron model; independent-drafter predictions are unavailable. Dedicated estimates are not the oracle\'s actual bill; upstream TTT7 differs from our measured TTT3, and 40 epochs is a code default, not a known oracle training schedule.\n')
  print(out)
 if __name__=='__main__':main()
