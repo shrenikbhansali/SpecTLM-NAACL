@@ -71,6 +71,9 @@ def main():
    oc,orr,ov=load(oracle[w]);check_pair(c,oc,render,orr);o=np.array([ov[k] for k in keys])
   summary=paired_summary(a[None],b,o);source=e.get('source_record',{});cost=source.get('cost')
   if cost is None and source.get('total_gpu_hours') is not None:cost={k:source[k] for k in ['data_gpu_hours','training_gpu_hours','total_gpu_hours']}
+  if e['campaign'] in ['FIX24_20261009_1420','P3_E5c64k_20261009_1420']:
+   train=Path(e['output']);tc=read(train/'config.json');pv=read(train/f'export-{e["step"]}/repair_provenance.json');dc=read(Path(tc['data']).parent/'assembly.json');hours=pv['elapsed_s']/3600
+   cost=dict(data_gpu_hours=dc['generation_gpu_hours'],training_gpu_hours=hours,total_gpu_hours=dc['generation_gpu_hours']+hours,scope='Raw export elapsed time + assembled data generation; per-alternative shared data counted once')
   e={k:v for k,v in e.items() if k!='source_record'}
   rows.append(e|dict(method=c['method'],K=c['K'],statistics=summary,cost_operator_verified=cost,scope='Single seed paired prompt bootstrap; other-method/K recovery descriptive; ngram conditional on proposal-bearing turns'))
  # A separate hierarchical summary of all three matched 16k training seeds.
@@ -115,7 +118,7 @@ def main():
    contrasts.append(dict(workload=w,arm=aa,reference=bb,scope=scope,statistics=ss,arm_path=ra['run_dir'],reference_path=rb['run_dir']))
  ch=['Workload','Arm','Reference','n','Delta p1 [95% CI]','Delta tau [95% CI]','Scope'];cr=[[r['workload'],r['arm'],r['reference'],str(r['statistics']['n_paired']),fmt(r['statistics']['delta']['p1']),fmt(r['statistics']['delta']['tau']),r['scope']] for r in contrasts]
  (out/'paired-ablations.md').write_text('\n'.join('| '+' | '.join(x)+' |' for x in [ch,['---']*len(ch),*cr])+'\n')
- (out/'paired-ablations.tex').write_text('\n'.join([r'\begin{tabular}{lllllll}']+[' & '.join(x.replace('_',r'\_') for x in r)+r' \\' for r in [ch,*cr]]+[r'\end{tabular}'])+'\n')
+ (out/'paired-ablations.tex').write_text('\n'.join([r'\begin{tabular}{lllllll}']+[' & '.join(x.replace('_',r'\_').replace('%',r'\%').replace('&',r'\&') for x in r)+r' \\' for r in [ch,*cr]]+[r'\end{tabular}'])+'\n')
  with (out/'summary.csv').open('w') as f:
   wr=csv.writer(f);wr.writerow(header);wr.writerows(cells(r) for r in final)
  result=dict(status='pilot',generated=datetime.datetime.now().astimezone().isoformat(),records=rows,paired_ablations=contrasts,pending=pending,excluded_FIX24=excluded,input_sha256=inputs)
