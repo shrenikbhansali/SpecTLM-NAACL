@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-09T03:00:09.495136-04:00 (codex-1 builder/operator) |
+| Last updated | 2026-10-09T05:40-04:00 (claude-ops) |
 | Sprint day | Day 5 of 8 (Fri Oct 9); ARR deadline Mon Oct 12 23:59 AoE |
 | Next gate | Fri ~18:00 ET: freeze method + final experiment list (data-scaling result decides the title/claim strength). Thu 12:00 checkpoint passed without owner input; decisions taken under delegation (D-48). |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | D49all3seeds complete. D50: official4k R1/Nemo fc/full + Nemo matchedcontrols, scratch/second-epoch/TTT4, remainingNemo16k generation, baseline/fullMATH500 cells; E6timing30/30complete, 1Btimingbatch8complete/batch1active. Canonicalqueue4129996; publisher421887; alerts383520; report419419. |
-| Blockers | ICE unavailable; A40s only. Disk918GB free after operator cleanup9f229fa;350GB admission/250GB runtime floors. Suffix dependency absent, envunchanged;64k awaits evidence/time. Official conversion resolved by loaded-state equality, freshprocess output differences reported. |
-| Owner action needed | No operational approval pending; D50 final experiment list freeze Fri18ET. Conditional official16k/64k extensions await results. |
+| Jobs running | **Queue idle since ~05:25: all D50 core runs complete** (E2/E3/E4/E5a/E5b/E6/E7 + timing). E6 done (operator-verified). Only pending work: FIX-24 rerun of E1 official 4k repair (needs codex). Canonical queue 4129996; watchers 421887/419419/383520 alive. |
+| Blockers | ICE unavailable; A40s only. Disk ~745 GB free (operator round-4 cleanup). **FIX-24** (official-drafter repair trains on a random embedding) invalidates existing E1 official-repair cells; official *reuse* valid. Suffix dependency absent, env unchanged. |
+| Owner action needed | (1) Prompt codex for FIX-24. (2) Decide E5c 64k (operator recommends launching now; ~1.2 h data + ~9 h train fits before Fri 18:00 freeze; Dolly mix caveat). Final list freeze Fri 18:00 ET. |
 
 ---
 
