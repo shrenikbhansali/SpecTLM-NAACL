@@ -150,3 +150,24 @@ derivative data; full warm-start is the higher-recovery, higher-cost option on t
 5. **Wall-clock (P6):** reused vs fc vs full vs oracle vs no speculation, A40 batch 8 plus a batch-1 panel, repeated runs.
 6. **Triage (P5)** on the census (CPU-first), and **P1/P2 synthesis** into the study figures.
 GPUs must not sit idle: queue items 1–4 now in parallel within the disk guard.
+
+## 8. Final experiment set before the freeze (D-50, owner direct, Fri ~01:50 ET)
+
+**Story scope.** The paper is about the class where family drafters fail: reasoning-distilled / off-lineage post-trained derivatives. Flagship
+**R1-Distill-Llama-8B** (dedicated-drafter reference), second main case **Nemotron-Nano-8B**, on-policy RL derivatives as the "no repair
+needed" control (triage). The 174-derivative census is the motivation, and the crossover + triage are support. R1-0528-Qwen3 and DFlash are reported as generality/limits.
+FollowSpec, Track I and localization go to the appendix. **Writing uses the strongest version of each result** (owner): e.g. the production RedHatAI family
+drafter stays primary unless the official EAGLE-3 (yuhuili) family drafter gives a stronger story. **SPEED-Bench remains the primary benchmark**
+(NVIDIA, published; community is moving to it), with MATH-500 as the reasoning panel. No extra benchmark panel.
+
+| # | Experiment | Detail |
+| --- | --- | --- |
+| E1 | Official EAGLE-3 family drafter | `yuhuili/EAGLE3-LLaMA3.1-Instruct-8B` (pin, license) as the family drafter for R1-Distill and Nemotron: reuse cells, then fc and full repair at 4k (16k if stronger than production). Same recipe lineage as the R1 oracle |
+| E2 | Training-free baselines | vLLM n-gram (prompt lookup) and suffix decoding (if available in the pinned env without modifying it) on R1-Distill and Nemotron |
+| E3 | Independent drafter baseline | Llama-3.2-1B-Instruct `draft_model` on R1-Distill and Nemotron (existing I1 mode), with K tuned over {4, 6} |
+| E4 | Scratch at matched budget | EAGLE-3 trained from random init on the same generic-16k data, one epoch, R1-Distill |
+| E5 | Gap closing | (a) full warm-start, a 2nd epoch on generic-16k (continue from the saved final state if available, else 2-epoch run); (b) training unroll depth = K (TTT 4 vs 3) at 4k; (c) if time, 64k data for full |
+| E6 | Speedup conversion | Per-(GPU, batch, drafter) cost model fitted on existing P6 timing cells; validate on new timed 16k checkpoints (reused/fc/full/oracle; batch 1 and 8); convert all τ results to predicted speedup with intervals |
+| E7 | Second main case at scale | Nemotron-Nano generic-16k fc and full (one epoch), plus seeds if time |
+Evaluation: frozen harness, SPEED-128 + MATH-64 (MATH-500 subset; extend to full MATH-500 for the flagship arms if cheap), paired CIs, identical
+derivative-rendered IDs. New opt-in harness methods for n-gram/suffix are authorized by D-50 (defaults unchanged, tests first).
