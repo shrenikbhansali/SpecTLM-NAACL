@@ -285,3 +285,17 @@ Interim τ SPEED/MATH (operator raw recomputation, single seed, pilot):
 - E5a second epoch, 50%: 2.478 / 2.910, vs end of epoch 1 2.459 / 2.888.
 - E4 scratch 16k, 50%: 1.473 / 1.593, vs warm-start full 2.459.
 - E7 Nemotron 16k, 50%: fc 2.327 / 2.588, full 2.387 / 2.783, vs Nemotron 4k final fc 2.252 / 2.483, full 2.361 / 2.696.
+
+### 2026-10-09T04:35:24.459226-04:00 — codex-1 — D50 launch health
+Free disk 819.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T05:35:25.778121-04:00 — codex-1 — D50 launch health
+Free disk 798.9GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T06:24:47-04:00 — claude-ops — hourly check; timestamp correction
+
+The queue has been idle since ~05:25: 0 job processes, 0 failures, disk 744 GB free. Codex is still idle (last commit 03:00), so FIX-24 is unclaimed and E5c 64k is not launched.
+Both await the owner. I did not launch 64k myself: it needs builder steps (data sealing, five-sample review per new path, a training plan), and D-50 approved it only "if time".
+Finishing by ~19:00–20:00 Fri is still compatible with the 18:00 list freeze and Sun–Mon writing.
+**Correction:** my headings "04:20" (hourly check) and "05:40" (daily-report section and MASTER §1 *Last updated*) were estimated, not read from the clock.
+The commits show 04:14 and 05:25. From now on, timestamps come from `date -Iseconds`.
