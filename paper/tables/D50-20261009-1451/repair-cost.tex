@@ -1,0 +1,16 @@
+% Pilot; estimates explicitly labelled.
+\begin{tabular}{llllllll}
+\hline
+Target & Arm & Seed & Step & Data GPUh & Train GPUh & Total GPUh & Scope \\
+Nemotron & E7-production-t1-16k-fc & 0 & 2625 & 8.588 & 1.375 & 9.963 & measured; shared data charged once per alternative \\
+Nemotron & E7-production-t1-16k-full & 0 & 2625 & 8.588 & 1.625 & 10.213 & measured; shared data charged once per alternative \\
+R1 & E5-second-epoch & 0 & 4490 & 8.916 & 4.898 & 13.814 & measured; shared data charged once per alternative \\
+R1 & E4-scratch16k & 0 & 4477 & 8.916 & 2.728 & 11.644 & measured; shared data charged once per alternative \\
+R1 & generic16k-fc & 0 & 4477/4472/4481 & 8.916 & 1.991 & 10.907 & measured; shared data charged once per alternative \\
+R1 & generic16k-fc & 1 & 4477/4472/4481 & 8.916 & 2.393 & 11.309 & measured; shared data charged once per alternative \\
+R1 & generic16k-fc & 2 & 4477/4472/4481 & 8.916 & 2.024 & 10.941 & measured; shared data charged once per alternative \\
+R1 & generic16k-full & 0 & 4477/4472/4481 & 8.916 & 2.259 & 11.175 & measured; shared data charged once per alternative \\
+R1 & generic16k-full & 1 & 4477/4472/4481 & 8.916 & 2.258 & 11.174 & measured; shared data charged once per alternative \\
+R1 & generic16k-full & 2 & 4477/4472/4481 & 8.916 & 2.339 & 11.256 & measured; shared data charged once per alternative \\
+\hline
+\end{tabular}

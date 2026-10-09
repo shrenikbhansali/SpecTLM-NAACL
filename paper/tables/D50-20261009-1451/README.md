@@ -1,0 +1,1 @@
+Pilot tables generated from frozen raw counters; source and caveats: reports/P3-D50-consolidated-20261009.md. Immutable source snapshot: artifacts/D50_final_20261009_1451. LaTeX fragments compile successfully in tables-preview.pdf; final paper layout remains editorial.

@@ -83,3 +83,7 @@ Corrected `FIX24-official-t0/t1-4k-fc/full` published in newdirectories by watch
 ### 2026-10-09T14:46:26.640849-04:00 — codex-1 — integration progress
 
 Core acceptance complete; first corrected official4k Nemotron full job launched14:44, other three queued at highest priority. Existing canonical queue only. Full rerun acceptance remains pending.
+
+### 2026-10-09T14:53:58.123188-04:00 — codex-1 — Handoff checkpoint (work continuing)
+
+FIX24 core19 tests + GPU parity pass; four corrected4k trainings active, evaluations auto-published. Canonicalqueue4129996, no duplicates. Source/data watcher832362 gates64k on complete48shards and manualAlpaca+Dolly review (Dollypending). FIX24watch814853 handles exporteval and conditionalofficial16k. Nemo timing30jobs, finish832363/cost837791. Disk~730GiB,350GBfloor. Consolidated207-row rawreport reports/P3-D50-consolidated-20261009.md, seven LaTeX tables compile;32invalidcells excluded. Earlysnapshot1443 had cost-key rendering defect,1446 failed unescaped-percent LaTeX header; retained and superseded by1451 which passes. Next: finishDollymanualreview, confirm64kassembly/trainpublication, monitorcorrectedexports andNemo, auto-addnewresults. No new owner decision needed.
