@@ -17,3 +17,9 @@
 ### 2026-10-09T02:36:45.800831-04:00 — codex-1 — D50 independent raw snapshot
 
 26 completed cells independently re-derived with frozenengine/A40/prompt-pair/counter assertions; 6 currently indexed cells pending. Pilot source `/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/analysis/snapshot-20261009_023645/results.json`, readable table `/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/analysis/snapshot-20261009_023645/report.md`; 10000pairedquery CIs, nulls/per-depth/lengths/coverage/costs retained. This does not certify a gate or select a framing.
+
+### 2026-10-09T02:56:24.997613-04:00 — codex-1 — fullMATH500 flagship extension queued
+
+D50 explicitly permits fullMATH500 if cheap. Staged all500 from the existing pinned MIT PRM800K source, verified source hash, all500 already excluded from training, exact token-ID identity for previous64; maxprompt761, no truncation. Read allfive decoded prompts (including original Asymptote text); no answers or training masks. Five cells: production reuse, generic16k seed0fc/full, dedicated oracle, independent1B K4. Frozen6da2e42; explicit D50 adapter only for independent1B. Reused existing tagged worktrees, no new worktree needed.
+
+Initial mixed-source preflight correctly failed independent adapter import under frozen checkout; no GPU jobs published then. Retried separate frozen4/adapter1 preflight groups under their correct source, allpassed; preserved failed preflight. Queue/stage checks in both publications, no overwrite or duplicate. `prioritize_pending_v4.py` retains owner E1 and required small baselines ahead of optional500cells, only reorders pending jobs. Finalizer PID433465, `math500/finish.py`, independently reconstructs allfive cells with paired10000query CIs, writes immutable snapshot plus notes/EXP024. No fullMATH500 result yet; original64 is a subset, not independent replication.
