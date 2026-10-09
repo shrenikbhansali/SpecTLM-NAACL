@@ -112,3 +112,27 @@ R1 official 16k seed 0 (operator-paired against the same drafter's reuse; produc
 | MATH-64 | full | 3.006 / +1.083 | 2.888 / +0.941 | +0.142 [+0.103, +0.180] | 54.6% / 48.1% |
 
 Official leads in 16/16 comparisons, so it is primary under D-51, conditional on seeds 1–2. Full decision and the remaining run list: MASTER §13 D-52.
+
+### 2026-10-09T19:20:58-04:00 — claude-ops — D-52 condition met: official primary confirmed (3 seeds)
+
+R1 16k, 3 seeds per drafter. Δτ = repaired − same-drafter reuse; joint seed+query bootstrap. Operator raw recomputation.
+
+| Panel | Arm | official Δτ (per seed) | production Δτ (per seed) | difference [95% CI] | gap recovery official / production |
+|---|---|---|---|---|---|
+| SPEED | fc | .639 / .645 / .666 | .564 / .573 / .571 | +0.081 [+0.047, +0.118] | 60.0% / 50.9% |
+| SPEED | full | .772 / .781 / .781 | .728 / .737 / .741 | +0.043 [+0.012, +0.076] | **71.8%** / 65.8% |
+| MATH-64 | fc | .910 / .883 / .889 | .703 / .714 / .714 | +0.184 [+0.132, +0.228] | 45.1% / 36.3% |
+| MATH-64 | full | 1.083 / 1.070 / 1.071 | .941 / .943 / .950 | +0.130 [+0.087, +0.171] | 54.2% / 48.3% |
+
+Official full per-seed SPEED recovery: 71.2 / 72.0 / 72.0%.
+
+Official-drafter timing (D-52 follow-ups; fresh same-session none/oracle/independent controls). Operator point estimates of warm panel speedup vs no speculation (mean of 3 processes); codex's paired-bootstrap analysis to follow:
+
+| | official reuse | official fc16k | official full16k | oracle | independent 1B |
+|---|---|---|---|---|---|
+| R1, batch 1 | 1.31× | 1.74× | **1.83×** | 2.05× | 1.26× |
+| R1, batch 8 | 1.07× | 1.27× | 1.29× | 1.41× | 1.11× |
+| Nemotron, batch 1 | 1.29× | 1.69× | **1.80×** | – | 1.37× |
+| Nemotron, batch 8 | 1.13× | 1.39× | 1.42× | – | 1.24× |
+
+MATH-500 (n=500) official: fc 2.773, full 2.969 (production 2.611 / 2.858; independent 2.966; oracle 3.842). Official reuse is still running.

@@ -83,9 +83,9 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-09T18:10-04:00 (claude-ops) |
+| Last updated | 2026-10-09T19:25-04:00 (claude-ops) |
 | Sprint day | Day 5 of 8 (Fri Oct 9); ARR deadline Mon Oct 12 23:59 AoE |
-| Next gate | **Freeze recorded (D-52, 18:10).** Primary drafter = official yuhuili (D-51 deltas, 16/16), pending 3-seed confirmation ~19:30. Writing starts Sat; ARR Mon Oct 12 23:59 AoE. |
+| Next gate | **Freeze recorded (D-52).** Official yuhuili confirmed primary on 3 seeds (R1 16k full SPEED gap recovery 71.8% vs production 65.8%). Remaining: E5c 64k (overnight), codex analysis/tables. Writing starts Sat; ARR Mon Oct 12 23:59 AoE. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
 | Jobs running | Canonicalqueue4129996: official R1 16kfc/full seeds0–2 and Nemo16kfc/full active; E5c64kfc/full active after all-row data audit. D51CPUwatch943172 updates paired repair-delta tables and main selection after final3seed acceptance. OldD50report/health watchers retained; no duplicate launches. |

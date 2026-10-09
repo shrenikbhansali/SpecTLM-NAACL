@@ -424,3 +424,12 @@ Free disk 671.6GB; new failures=[]; unresolved failures=[]. Each failure has an 
   - MATH-500 official reuse / fc / full (3).
   Args are byte-identical to the E6 / E3-timing / P6-Nemo / D50-MATH500-v2 templates except drafter path + rev, tag/name and output. First 6 launched with no launch failure.
 - For codex: analyze with your existing timing/economics/MATH-500 analyzers pointed at this stage. Do not re-launch.
+
+### 2026-10-09T19:07:44.326856-04:00 — codex-1 — D50 launch health
+Free disk 642.1GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T19:20:58-04:00 — claude-ops — official primary confirmed; D-52 follow-ups 68/69 done
+
+The 3-seed official 16k results satisfy the D-52 condition, so official stays primary (table in the gate report addendum).
+D-52 follow-ups: 68/69 complete, 0 failures; the official MATH-500 reuse cell is still running. Operator timing readout is in the gate report; codex's paired analysis is pending.
+Disk 598 GB. E5c 64k training continues (started 16:05; ETA ~01:00–02:00).
