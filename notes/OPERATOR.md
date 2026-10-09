@@ -410,3 +410,17 @@ Free disk 695.8GB; new failures=[]; unresolved failures=[]. Each failure has an 
   - batch 8: full 1.47× [1.29, 1.66], fc 1.38×, reuse 1.30×, independent 1.38×; repair vs reuse at batch 8 is null (1.13× [0.96, 1.32]).
   The R1-fitted cost model transfers at batch 1 (≤2% error for fc/full) but not at batch 8.
   If official becomes primary, the main-table timing must be re-measured with the official drafter (codex noted this as remaining work).
+
+### 2026-10-09T18:07:42.815107-04:00 — codex-1 — D50 launch health
+Free disk 671.6GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T18:11:51-04:00 — claude-ops — D-52 freeze recorded; official follow-ups queued
+
+- R1 official 16k seed 0 is final. Official repair delta > production in 4/4 cells (16/16 overall). Full SPEED gap recovery 71.2% vs 65.2%; fc 58.9% vs 50.5% (gate report addendum).
+- Recorded **D-52** (freeze under delegation): method frozen; official primary, conditional on seeds 1–2; final run list closed.
+- Codex has been idle since 16:27, so I queued the D-52 remaining runs myself: `artifacts/D52_official_followups_20261009/publish.py`, 69 jobs appended 18:10 (`jobs.jsonl`, `drafters.json`).
+  - R1 timing: none / oracle / independent + official reuse / fc16k / full16k × b1/b8 × 3 replicates (36).
+  - Nemotron timing: none / independent + official reuse / fc / full (30).
+  - MATH-500 official reuse / fc / full (3).
+  Args are byte-identical to the E6 / E3-timing / P6-Nemo / D50-MATH500-v2 templates except drafter path + rev, tag/name and output. First 6 launched with no launch failure.
+- For codex: analyze with your existing timing/economics/MATH-500 analyzers pointed at this stage. Do not re-launch.
