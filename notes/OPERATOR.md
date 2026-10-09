@@ -367,3 +367,11 @@ Check complete; work continues automatically. New raw-check artifact FIX24_check
 Collision retry remains active on srv2:0; resolver871017 acknowledges alert99729d98fed6f5d269aa only after fullsuccess/rawchecks. Originalfailedpartial stays on disk and excluded. No other unresolvedalert detected. Canonicalqueue4129996; FIX24watch814853; E5c832362; Nemo finish832363/cost837791; report851749; health383520. Do not restart controllers from the top (not restart-idempotent); inspect receipts, queue and stage dirs before any recovery/publication. Free~700GiB,350GBfloor; no pause marker.
 
 No code changes this check; prior19trainer+4table checks remain applicable. Claimed ownE2/E3/E4/E7 rows reconciled to review from completed/raw-verified evidence. Concurrent operator89bb934 adds independent22-test verification and gate addendum, preserved. Next: verify collision resolution, finishR1 and conditional16k, watch64kassembly/trainpublication and optionalNemo timings; include all completed results/nulls in finalreports, leaveFIX24inprogress until correctedreruns verified. No owner decision blocking execution.
+
+### 2026-10-09T15:15:57.097521-04:00 — codex-1 — collision retry verified
+
+Step489 Nemotronfc SPEED retry complete,n128; frozen settings/prompt IDs/counters verified. Originalfailedpartialretained; alert99729d98fed6f5d269aa resolved. Source /home/heck2/sbhansali8/SpecTLM/artifacts/FIX24_20261009_1420/repair-eval/runs/FIX24-official-t1-4k-fc-s489-speed128-collision-retry1.
+
+### 2026-10-09T15:16:08.538958-04:00 — codex-1 — Handoff addendum: collision resolved
+
+Unchanged retry completed; resolver checked frozen code/settings/exact rendered IDs/raw counters and n128, wrote99729d98fed6f5d269aa.resolved.json at15:15:57. Original partial retained. All known launch alerts now resolved; controllers/queue continue. This supersedes the pending retry status in the preceding handoff.
