@@ -175,3 +175,51 @@ Pilot update: 216 raw-recomputed rows,32 FIX24-invalid cells excluded; 8 new com
 [Raw paired report](../artifacts/FIX24_check_20261009_1515/report.md),32 comparisons from16 completed cells at analysis start; frozen6da/vLLM0.31/A40, identical rendered IDs, seed0,10000 paired-query draws. Nemotron final4k SPEED n128: fc versus production Delta p1 .01483[.00403,.02542],Delta tau .08396[.05022,.11821]; full Delta p1 .00949[-.00194,.02094] (null),Delta tau .07581[.04404,.10925]. Full finalMATH pending at check. Owner-authorized conditional official16k fc/full now published, based on higher point means; no claim of significance for the full p1 difference. R1 quarter-epoch full SPEED Delta p1 .023[.014,.032],Delta tau .110[.084,.137]; final R1 still pending. Old invalid official repairs remain excluded.
 
 E5c: 23/48 new-data shards complete, 32360/48000 responses written plus existing16000; source audits pass, automatic assembly/train/eval awaits all-row checks. Nemo timing 4/30. Collision caused one intermediate evaluation failure; unchanged retry active, preserved partial excluded. Disk 700.4GiB above350GB floor.
+
+### 2026-10-09T15:17:49.320414-04:00 — codex-1 — automatic raw update
+
+Pilot update: 227 raw-recomputed rows,32 FIX24-invalid cells excluded; 20 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_151749/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T15:28:45.428369-04:00 — codex-1 — automatic raw update
+
+Pilot update: 232 raw-recomputed rows,32 FIX24-invalid cells excluded; 25 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_152845/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T15:39:29.593071-04:00 — codex-1 — automatic raw update
+
+Pilot update: 239 raw-recomputed rows,32 FIX24-invalid cells excluded; 32 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_153929/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T15:50:14.017730-04:00 — codex-1 — automatic raw update
+
+Pilot update: 243 raw-recomputed rows,32 FIX24-invalid cells excluded; 36 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_155014/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:00:58.985388-04:00 — codex-1 — automatic raw update
+
+Pilot update: 245 raw-recomputed rows,32 FIX24-invalid cells excluded; 38 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_160058/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:11:43.853928-04:00 — codex-1 — automatic raw update
+
+Pilot update: 247 raw-recomputed rows,32 FIX24-invalid cells excluded; 42 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_161143/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:22:30.963850-04:00 — codex-1 — automatic raw update
+
+Pilot update: 250 raw-recomputed rows,32 FIX24-invalid cells excluded; 45 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_162230/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:24:34.674099-04:00 — codex-1 — D-51 repair-delta update
+
+Selection: **pending**; primary=None. Delta = repaired minus the same drafter reuse; SPEED-128 primary, MATH-64 secondary. Matched data/steps and paired seeds/queries, 95% CIs; pilot, selection not adjusted for multiple comparisons. [Immutable report](../artifacts/D51_reports_20261009_1627/snapshot-20261009_162434/report.md), [main rows](../artifacts/D51_reports_20261009_1627/snapshot-20261009_162434/r1-main.md), [robustness rows](../artifacts/D51_reports_20261009_1627/snapshot-20261009_162434/r1-robustness.md), [LaTeX](../paper/tables/D51-20261009_162434/README.md).
+
+| Target | Examples | Arm | Panel | n / seeds | Official repair Delta tau | Production repair Delta tau | Difference [95% CI] |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| R1 | 4000 | fc | speed128 | 128 / 1 | 0.563 [0.525, 0.599] | 0.494 [0.460, 0.525] | 0.069 [0.035, 0.104] |
+| R1 | 4000 | fc | math64 | 64 / 1 | 0.765 [0.726, 0.804] | 0.584 [0.544, 0.627] | 0.181 [0.120, 0.237] |
+| R1 | 4000 | full | speed128 | 128 / 1 | 0.698 [0.654, 0.742] | 0.644 [0.601, 0.683] | 0.054 [0.017, 0.093] |
+| R1 | 4000 | full | math64 | 64 / 1 | 0.963 [0.921, 1.006] | 0.837 [0.783, 0.895] | 0.126 [0.074, 0.176] |
+| Nemotron | 4000 | fc | speed128 | 128 / 1 | 0.573 [0.524, 0.621] | 0.429 [0.398, 0.459] | 0.144 [0.102, 0.187] |
+| Nemotron | 4000 | fc | math64 | 64 / 1 | 0.898 [0.863, 0.930] | 0.523 [0.496, 0.549] | 0.375 [0.347, 0.402] |
+| Nemotron | 4000 | full | speed128 | 128 / 1 | 0.673 [0.623, 0.724] | 0.537 [0.500, 0.574] | 0.136 [0.100, 0.173] |
+| Nemotron | 4000 | full | math64 | 64 / 1 | 1.084 [1.041, 1.125] | 0.736 [0.701, 0.770] | 0.348 [0.308, 0.389] |
+
+
+### 2026-10-09T16:25:47.187818-04:00 — D-51 main-table status
+
+The original production16k table above is provisional for drafter choice. The [D-51 comparisons and selection](../artifacts/D51_reports_20261009_1627/snapshot-20261009_162434/report.md) use each drafter's own reuse baseline, matched training data/steps and paired seed/query CIs. Final choice waits for all three official R1 seeds on SPEED128 and MATH64; the other drafter remains a robustness row. Published future D-51 main/robustness addenda supersede this provisional assignment. Production timing and MATH500 remain explicitly production results.
