@@ -37,3 +37,7 @@ The served official drafter accepts ~41% at position 1, so the trainer's forward
 5. While at it, confirm whether vLLM serves the **production** drafter with its own checkpoint embedding or the target's. If it uses the target's, the production trainer has a smaller version of the same mismatch; report it and do not change it silently.
 
 Official *reuse* cells (τ 1.764 / 1.763) are unaffected. They are served by vLLM with loaded-state parity proven.
+
+### 2026-10-09T14:17:09.188310-04:00 — codex-1 — claim
+
+Pulled main (up to date), read AGENTS and FIX24 evidence/spec. One canonicalqueue4129996, D50 core runs finished; no duplicate launch. Will write embedding-source/regression tests first, validate both target embeddings and actual step0 onGPU, preserve production behavior, invalidate historical official repair/contrasts while retaining artifacts. Owner also explicitly authorizes64kfc/full now; data staging proceeds independently. Disk~740GiB,350GB guard.
