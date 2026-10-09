@@ -32,3 +32,7 @@ New: 30 fresh generic16k timing cells (reused/fc/full/oracle/no-spec, b1/b8, 3 p
 ### 2026-10-09T02:28:13.739308-04:00 — codex-1 — completed self4k timing report published
 
 Published [self4k real timing](../reports/P6-self4k-timing-20261009.md), all30cells previouslycompleteOct8T18:13. Warmb8SPEED128 fc1.233[1.096,1.394],full1.286[1.137,1.468] panel-time speedupvsnone; token ratios1.226/1.280. b1n32fc1.634[1.535,1.736],full1.750[1.652,1.850].3processes×3warmpasses,10000pairedprocess/batchbootstrap. Startupinclusiveb8 nulls retained; exactoutputmismatches reported. Generation+trainfc5.398/full5.555GPUh,conditionalbreak-even vsnoneb8~51318/44770queries;notdeploymentforecast. D50 generic16k timing separatelyrunning, notmixedwithself4k.
+
+### 2026-10-09T02:49:25.853194-04:00 — D50 held-out timing validation (pilot)
+
+Earlier 60 timing cells fit fixed-K4 cost model; new16k timing28/30 complete in `artifacts/P3_D50_20261009_0200/cost-model/snapshot-20261009_023512`. Batch8 SPEED n128, 3 processes ×3 warm repeats: token-throughput ratios fc1.274 [1.116,1.446], full1.317 [1.140,1.523], reused1.074 [0.999,1.151]; paired process/batch bootstrap2000. Predicted absolute TPS residuals −0.6%fc/−0.2%full. This validates one target, architecture, K and workload condition; no cross-K or independent-drafter generalization. New16k cells excluded from fitting; complete batch1 and actual independent1B timings pending. [Report](../reports/P6-D50-cost-model-20261009.md).
