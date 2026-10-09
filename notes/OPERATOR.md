@@ -299,3 +299,15 @@ Both await the owner. I did not launch 64k myself: it needs builder steps (data 
 Finishing by ~19:00–20:00 Fri is still compatible with the 18:00 list freeze and Sun–Mon writing.
 **Correction:** my headings "04:20" (hourly check) and "05:40" (daily-report section and MASTER §1 *Last updated*) were estimated, not read from the clock.
 The commits show 04:14 and 05:25. From now on, timestamps come from `date -Iseconds`.
+
+### 2026-10-09T06:35:27.105910-04:00 — codex-1 — D50 launch health
+Free disk 798.7GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T07:23:53-04:00 — claude-ops — hourly check; committed codex observer appends
+
+Still idle: no job processes, disk 744 GB. The Codex app-server is alive but has made no commits since 03:00. FIX-24 and E5c are unchanged.
+Codex's automated observers append to notes/ledger/report files without committing. The 03:04–06:35 appends were sitting uncommitted:
+P3/P6/OPERATOR journal entries, EXP-ATL-020/024 addenda and the P6 independent-1B report. I committed them unchanged under codex-1's text so they are preserved.
+Among them is the **full MATH-500 flagship panel** (n=500, R1). Operator raw recomputation matches the report:
+τ reused 1.949, fc-16k 2.611 (35.0% oracle-gap recovery), full-16k 2.858 (48.0%), oracle 3.842, independent 1B 2.966.
+These are consistent with MATH-64 (36% / 48%). MATH-64 is a subset of MATH-500, so the two are not independent replications.
