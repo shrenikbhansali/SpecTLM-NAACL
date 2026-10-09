@@ -311,3 +311,17 @@ P3/P6/OPERATOR journal entries, EXP-ATL-020/024 addenda and the P6 independent-1
 Among them is the **full MATH-500 flagship panel** (n=500, R1). Operator raw recomputation matches the report:
 τ reused 1.949, fc-16k 2.611 (35.0% oracle-gap recovery), full-16k 2.858 (48.0%), oracle 3.842, independent 1B 2.966.
 These are consistent with MATH-64 (36% / 48%). MATH-64 is a subset of MATH-500, so the two are not independent replications.
+
+### 2026-10-09T07:35:28.423499-04:00 — codex-1 — D50 launch health
+Free disk 798.6GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T08:35:29.739447-04:00 — codex-1 — D50 launch health
+Free disk 798.5GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T09:35:31.072486-04:00 — codex-1 — D50 launch health
+Free disk 798.4GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T10:19:36-04:00 — claude-ops — idle checks 08:22 / 09:20 / 10:19
+
+The queue has been idle since ~05:25, with 0 job processes, disk steady at 744 GB, and no Codex commits since 03:00. FIX-24 is unclaimed and E5c 64k is not launched; both await the owner prompting Codex.
+The 64k finish time moves back an hour for every hour it is not launched; starting now would finish ~21:30 Fri. Codex observer appends committed unchanged.
