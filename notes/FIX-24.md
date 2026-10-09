@@ -110,3 +110,37 @@ Current state: main contains FIX24 correction and final-table tooling/report; br
 E5c64k: both source-level five-sample reviews PASSED (40Alpaca+5Dolly inspected); all21completed shards independently checked for exact input concatenation and masks (21000rows). Remaining generation continues; source-path-review.json lets assembly/training progress without another human approval. Watch832362 -> all48 results +64000row checks -> two64k trainings -> allfrozenexports. Estimated training alone ~9h from16k throughput, so completion is overnight, beyond18ET; no scheduling gate added. Mixture35988Alpaca+12012Dolly extension labelled, original16kpreserved.
 
 Live processes: canonicalqueue4129996; FIX24controller814853; E5c832362; Nemo timingfinalizer832363 + cost837791; immutable reportwatch851749; launch/runhealth383520. Check pgrep and stage dirs before any launch. All launch alerts resolved; no failure silently retried. Watchers are NOT restart-idempotent: inspect existing publications and make a new resume version, never rerun from the top. No pause marker. Disk~730GiB,350GBguard. Remaining work: monitor runtime/errors, include completedofficial/64k/Nemo outputs; verify finalreport snapshots; markFIX24review only after rerun acceptance, not merely corefix. No owner question blocking execution.
+
+### 2026-10-09T15:08:27.104741-04:00 — codex-1 — live GPU collision detected
+
+During check, step489 Nemotronfc SPEED128 failed on heck-srv4:5 at15:06:30. Raw vLLM OOM: external process1276047 held13.98GiB, ownprocess30.13GiB,303.81MiBfree;402MiBallocation failed. Preserve partialrun, no acceptance number. Retry unchangedfrozenengine/batch8/512/seed0/K4 in newoutput/tag on srv2/3/5. BothNemotron4k trainingscomplete; finalevals automatic. No pause marker; disk~711GiB,350GBfloor.
+
+### 2026-10-09T15:13:55.752544-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t1-16k-fc after all FIX24 core/matched checks passed.
+
+### 2026-10-09T15:14:00.442349-04:00 — codex-1 — automatic FIX24 progression
+
+Published FIX24-official-t1-16k-full after all FIX24 core/matched checks passed.
+
+### 2026-10-09T15:14:00.443258-04:00 — codex-1 — automatic FIX24 progression
+
+Official16k decision target1: True; all paired CIs retained.
+
+## 2026-10-09T15:14:14-04:00 — claude-ops — operator verification (partial; rerun still running)
+
+- Tests re-run by the operator: `.venv-atlas-031-clean/bin/python -m pytest -q followspec/tests/test_missing_embedding.py followspec/tests/test_family_repair.py followspec/tests/test_repair_continuation.py` → **22 passed**.
+- Step-0 training metrics of the corrected runs are fixed. Top-1 acc0 / loss0: FIX24-official-t0-4k-fc 0.407 / 2.415, FIX24-official-t1-4k-full 0.468 / 2.223 (was 0.028 / 8.76). This matches served p1 (~0.41–0.45).
+  `acceptance.json`: target-embedding sha matches on both targets; served vs teacher-forced p1 differ by 3.1 / 2.2 points.
+- Corrected results, operator recomputation from raw (τ SPEED / MATH):
+
+| Target | Arm | Official (corrected) | Production, same data | Δ |
+|---|---|---|---|---|
+| Nemotron | fc, 4k final (s652) | 2.336 / 2.601 | 2.252 / 2.483 | +0.084 / +0.118 |
+| Nemotron | full, 4k final (s652) | 2.437 / (MATH running) | 2.361 / 2.696 | +0.076 / – |
+| R1 | fc, 25% of 4k (s279) | 2.291 / 2.603 | 4k **final** 2.224 / 2.532 | official is already ahead at 25% |
+| R1 | full, 25% of 4k (s279) | 2.401 / 2.782 | 4k final 2.374 / 2.785 | ahead on SPEED, equal on MATH |
+
+  So the official drafter repairs better than production, and the conditional official 16k should fire (codex watcher 814853).
+- Do not use the partial `FIX24-official-t1-4k-fc-s489-speed128` (n=16, OOM-killed by another user's process); its retry is `...-collision-retry1`.
+- FIX-24 stays in progress until the rerun completes. The operator will mark it done after the final cells.

@@ -91,3 +91,11 @@ The fixed-K cost model was fitted on earlier timings only. On the held-out 16k c
 ### 2026-10-09T14:18:33.480034-04:00 — FIX-24 INVALIDATION
 
 **INVALID (FIX-24): all historical `E1-official-t{0,1}-4k-{fc,full}` training/evaluation cells and every `official_vs_production_*` contrast derived from them.** The trainer used a random frozen embedding, not the target embedding. These numbers must not describe official-drafter repair or enter paper tables. Official reuse and production repair remain valid. Artifacts and old statements are retained as history; this notice supersedes their interpretation. Complete run manifest: `artifacts/FIX24_20261009_1420/invalid-runs.json`. The earlier conversion note claiming the native trainer used target embeddings was false; loaded-state parity only proved the vLLM path. Corrected runs will use new directories. Old D50 publication/analysis watchers stopped to prevent propagation.
+
+### 2026-10-09T15:14:14-04:00 — claude-ops — addendum: FIX-24 fixed; official drafter now the stronger candidate
+
+The corrected official yuhuili repairs **beat production at matched data**. Nemotron 4k final: fc SPEED τ 2.336 vs 2.252, MATH 2.601 vs 2.483.
+R1 official at 25% of 4k is already ≥ production at 100%. The conditional official 16k on R1 is expected to fire (~2.5 h of training plus evals, so it lands ~19:30–20:30).
+Per D-50 ("use the strongest version"), the freeze should keep **both drafter checkpoints** in the list and choose the primary checkpoint for the main table only after official 16k lands.
+Production 16k already has 3 seeds; official 16k will have one. If official becomes primary, run seeds 1–2 overnight (~2.5 h each, parallel).
+Unchanged reuse is equally broken for both (1.76 vs 1.73), so the motivation does not depend on the choice.
