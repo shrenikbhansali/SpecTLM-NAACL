@@ -224,3 +224,6 @@ CPU observer: completed {'scaling16k': 16, 'self4k_seeds': 8, 'generality4k': 16
 Free 355 GB at 01:17, just above the canonical queue's 350 GB admission floor, with the 16k seed evaluations due ~02:00. Removed optimizer_state_dict.pt from completed pilot
 stages that will not be resumed (P3_repair D45, P3_D46, P3_D48, P4_D48: 55 files, 93.4 GB) and 40 finished-run vllm caches. Manifest
 `artifacts/OPS_disk_cleanup_20261008/manifest_round3.jsonl`. The D-49 16k stage is excluded; model weights, exports, configs and metrics are untouched. Free 444 GB.
+
+### 2026-10-09T02:06:19.601016-04:00 — codex-1 — D50 launch health
+Free disk 456.5GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.

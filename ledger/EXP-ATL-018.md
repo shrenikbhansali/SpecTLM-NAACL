@@ -53,3 +53,16 @@ Status: pilot, not certified. All 16 frozen A40 acceptance cells complete with n
 
 Caveats: source selection used development panels; SPEED source superiority was unresolved. Data and steps/schedule scale jointly. Original generic4k prefix is reused; all new paths have five decoded sample/mask reviews, global evaluation deduplication and all-row validation. Capped reasoning/errors retained; every budget/null/regression reported. Cost includes consumed data generation and training, not evaluation/search/engineering; shared data counted once per alternative. Actual oracle training cost remains unknown. This automatic completion does not promote the ledger or make a framing decision. Next active agent must inspect the report/figure and commit/push the generated files.
 Independent raw source: /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D49_20261008_1800/analysis/snapshot-20261008_224448/results.json
+
+### codex-1 — Three-seed 16k replication — 2026-10-09T02:09:53.984859-04:00
+
+The operator launched seeds 1–2; codex reused those completed runs without duplication. All 12 final cells (three seeds × two arms × two panels) use the frozen harness, identical derivative-rendered IDs and the same 16,000-example corpus. Each seed sees 7,861,188 input tokens once; packed steps are 4,477 / 4,472 / 4,481. Native objective and matched fc/full configurations pass independent checks. Intervals resample seeds and paired queries jointly, with 10,000 draws. Three seeds limit precision about population seed variance.
+
+| Arm | Panel | n / seeds | Δp1 [95% CI] | τ | Oracle-gap recovery [95% CI] |
+|---|---|---|---|---:|---|
+| fc | speed128 | 128 / 3 | +0.1954 [+0.1833, +0.2066] | 2.2996 | 50.9% [48.9, 53.0] |
+| fc | math64 | 64 / 3 | +0.2131 [+0.2014, +0.2246] | 2.6578 | 36.3% [34.4, 38.4] |
+| full | speed128 | 128 / 3 | +0.2282 [+0.2149, +0.2410] | 2.4656 | 65.8% [63.4, 68.2] |
+| full | math64 | 64 / 3 | +0.2525 [+0.2398, +0.2646] | 2.8923 | 48.3% [46.4, 50.2] |
+
+Per-seed results, per-depth acceptance, output lengths, costs and config hashes: [independent raw analysis](../artifacts/P3_D50_20261009_0200/seed16k-analysis/snapshot-20261009_020745/results.json). The original seed-0 scaling curve above is preserved. Source choice used development panels; these are not untouched confirmation results. Shared generation must not be counted three times in campaign costs.
