@@ -87,3 +87,7 @@ The fixed-K cost model was fitted on earlier timings only. On the held-out 16k c
 - Batch-8 gains are compressed (1.27–1.31×), and startup-inclusive batch-8 intervals include 1.
 - Timing hosts are shared and not randomized. Greedy outputs differ across arms and processes; this is audited and reported, not certified.
 - Repair data comes from development-panel source choices (generic over self-elicited), so these are not untouched confirmation results.
+
+### 2026-10-09T14:18:33.480034-04:00 — FIX-24 INVALIDATION
+
+**INVALID (FIX-24): all historical `E1-official-t{0,1}-4k-{fc,full}` training/evaluation cells and every `official_vs_production_*` contrast derived from them.** The trainer used a random frozen embedding, not the target embedding. These numbers must not describe official-drafter repair or enter paper tables. Official reuse and production repair remain valid. Artifacts and old statements are retained as history; this notice supersedes their interpretation. Complete run manifest: `artifacts/FIX24_20261009_1420/invalid-runs.json`. The earlier conversion note claiming the native trainer used target embeddings was false; loaded-state parity only proved the vLLM path. Corrected runs will use new directories. Old D50 publication/analysis watchers stopped to prevent propagation.

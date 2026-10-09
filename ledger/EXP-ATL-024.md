@@ -49,3 +49,7 @@ Source: `/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/math500/s
 ### 2026-10-09T04:37:07.044096-04:00 — codex-1 — D50 independent raw snapshot
 
 111 completed cells independently re-derived with frozenengine/A40/prompt-pair/counter assertions; 3 currently indexed cells pending. Pilot source `/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/analysis/snapshot-20261009_043706/results.json`, readable table `/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/analysis/snapshot-20261009_043706/report.md`; 10000pairedquery CIs, nulls/per-depth/lengths/coverage/costs retained. This does not certify a gate or select a framing.
+
+### 2026-10-09T14:18:33.480034-04:00 — FIX-24 INVALIDATION
+
+**INVALID (FIX-24): all historical `E1-official-t{0,1}-4k-{fc,full}` training/evaluation cells and every `official_vs_production_*` contrast derived from them.** The trainer used a random frozen embedding, not the target embedding. These numbers must not describe official-drafter repair or enter paper tables. Official reuse and production repair remain valid. Artifacts and old statements are retained as history; this notice supersedes their interpretation. Complete run manifest: `artifacts/FIX24_20261009_1420/invalid-runs.json`. The earlier conversion note claiming the native trainer used target embeddings was false; loaded-state parity only proved the vLLM path. Corrected runs will use new directories. Old D50 publication/analysis watchers stopped to prevent propagation.

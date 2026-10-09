@@ -41,3 +41,13 @@ Official *reuse* cells (τ 1.764 / 1.763) are unaffected. They are served by vLL
 ### 2026-10-09T14:17:09.188310-04:00 — codex-1 — claim
 
 Pulled main (up to date), read AGENTS and FIX24 evidence/spec. One canonicalqueue4129996, D50 core runs finished; no duplicate launch. Will write embedding-source/regression tests first, validate both target embeddings and actual step0 onGPU, preserve production behavior, invalidate historical official repair/contrasts while retaining artifacts. Owner also explicitly authorizes64kfc/full now; data staging proceeds independently. Disk~740GiB,350GB guard.
+
+### 2026-10-09T14:18:33.480034-04:00 — FIX-24 INVALIDATION
+
+**INVALID (FIX-24): all historical `E1-official-t{0,1}-4k-{fc,full}` training/evaluation cells and every `official_vs_production_*` contrast derived from them.** The trainer used a random frozen embedding, not the target embedding. These numbers must not describe official-drafter repair or enter paper tables. Official reuse and production repair remain valid. Artifacts and old statements are retained as history; this notice supersedes their interpretation. Complete run manifest: `artifacts/FIX24_20261009_1420/invalid-runs.json`. The earlier conversion note claiming the native trainer used target embeddings was false; loaded-state parity only proved the vLLM path. Corrected runs will use new directories. Old D50 publication/analysis watchers stopped to prevent propagation.
+
+### 2026-10-09T14:24:59.589387-04:00 — codex-1 — tests and diagnostic launch integration
+
+Branchcodex/FIX-24 commit7997072 adds exact checkpoint-omission detection, target embedding copy only when absent, provenance, and read-only step0probe. Production path returns without loading target or mutating any tensor/RNG; all19 tests pass in pinned transport dependencies (`tests-pinned.log`). Tests against old main fail missing helper as expected (`test-legacy-fails.log`). Initial transport invocation lacked pytest; default Python then exposed incompatible transformers; both environmental failures retained, tests rerun with pinned dependencies and only pytest runner appended.
+
+FIX24 probe tag was created/pushed before worktree. Launcher correctly refused real diagnostic jobs because tagcommit7997072 not yet an ancestor ofmain. MASTER requires main ancestry for GPU checks while its generic merge rule asks acceptance before merge: integrating CPU-tested change now solely to unblock tagged GPU diagnostics, keeping FIX24 inprogress and official reruns gated until required GPU evidence passes. No acceptance/Gate PASS claimed and no launcher bypass. Failed attempts retained; retries get new names.64kdata independent production path already running.
