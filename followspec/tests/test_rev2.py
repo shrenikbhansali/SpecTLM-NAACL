@@ -114,3 +114,14 @@ def test_training_comparison_rejects_budget_and_data_mismatches():
     assert matched_training(a,a|dict(variant='decoder_qo'))
     for key,value in [('data_sha256','other'),('steps',200),('seed',1),('lr',1e-4)]:
         with pytest.raises(ValueError):matched_training(a,a|{key:value})
+
+def test_profile_summary_counts_warmup_and_storage_separately():
+    from followspec.rev2_profile_analysis import summarize_steps, tensor_bytes
+    rows=[dict(step=i+1,wall_s=100. if i<10 else 2.,peak_allocated_bytes=1024+i,peak_reserved_bytes=4096) for i in range(200)]
+    r=summarize_steps(rows)
+    assert r['n_steps']==200 and r['steady_steps']==190
+    assert r['all_steps_mean_s']==6.9 and r['steady_mean_s']==2.
+    assert r['peak_allocated_bytes']==1223 and r['peak_reserved_bytes']==4096
+    assert tensor_bytes({'x':{'shape':[3,4],'dtype':'F32'},'__metadata__':{}})==48
+    with pytest.raises(ValueError):summarize_steps(rows[:199])
+    with pytest.raises(ValueError):summarize_steps(rows[:199]+[rows[0]])
