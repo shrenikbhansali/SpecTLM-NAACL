@@ -1,49 +1,49 @@
-% Figure 1: teaser. (a) census of family-drafter reuse; (b) speedup on R1-Distill.
+% Figure 1: teaser. (a) every eligible derivative in the focused SPEED-Bench cohort; (b) speedup on R1-Distill.
 \begin{tikzpicture}
-\pgfplotsset{
-  teaserbar/.style={
-    xbar, bar width=5.2pt, bar shift=0pt,
-    width=0.72\columnwidth, height=4.7cm,
-    xmin=0.6, xmax=1.06,
-    symbolic y coords={Nemotron-Nano-8B,R1-Distill-Llama-8B,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization},
-    ytick={Nemotron-Nano-8B,R1-Distill-Llama-8B,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization}, y dir=normal,
-    yticklabel style={font=\scriptsize, align=right},
-    xticklabel style={font=\scriptsize},
-    xtick={0.6,0.7,0.8,0.9,1.0},
-    xticklabels={60\%,70\%,80\%,90\%,100\%},
-    axis x line*=bottom, axis y line*=left,
-    enlarge y limits=0.07,
-    tick align=outside, major tick length=2pt,
-    xmajorgrids, grid style={black!8},
-    clip=false,
-  }
-}
-% ---------------- (a) census ----------------
-\begin{axis}[teaserbar, name=census,
-  xlabel={\scriptsize first-token acceptance retained vs.\ parent},
+% ---------------- (a) focused cohort ----------------
+\begin{axis}[name=census,
+  width=0.66\columnwidth, height=6.4cm, scale only axis=false,
+  xmin=0.66, xmax=1.13,
+  ymin=0.3, ymax=21.7, y dir=reverse,
+  ytick={1,...,21},
+  yticklabels={Nemotron-Nano-8B,R1-Distill-Llama-8B,T\"ulu-3-8B,T\"ulu-3-8B-DPO,Qwen3-Swallow-8B-RL,Skywork-o1-Llama-8B,R1-0528-Qwen3-8B,Qwen3-8B Claude-distill,T\"ulu-3-8B-SFT,Magpie-Align-SFT,gpt-oss-distill-Llama v1,Open-R1-GRPO-Llama,Qwen3-8B Opus-SFT,RLPR-Llama-8B,DeepHermes-3-8B,Hermes-3-Llama-8B,gpt-oss-distill-Llama v2,Qwen3-GRPO-DeepMath-50,Qwen3-GRPO-DeepMath-150,GT-Qwen3-8B-DAPO,qwen3-classic-grpo},
+  yticklabel style={font=\tiny},
+  xticklabel style={font=\scriptsize},
+  xtick={0.7,0.8,0.9,1.0,1.1},
+  xticklabels={70\%,80\%,90\%,100\%,110\%},
+  axis x line*=bottom, axis y line*=left,
+  tick align=outside, major tick length=2pt,
+  ymajorgrids, xmajorgrids, grid style={black!7},
+  xlabel={\scriptsize first-token acceptance retained vs.\ instruction model},
   xlabel style={yshift=2pt},
   title={\small\textbf{(a)} Reusing the family drafter on derivatives},
-  title style={yshift=-3pt, xshift=-4mm},
+  title style={yshift=-3pt, xshift=-6mm},
+  legend style={font=\tiny, draw=black!20, fill=white, at={(0.01,0.01)}, anchor=south west, cells={anchor=west}, row sep=-2pt, inner sep=1.5pt},
+  clip=false,
 ]
-\addplot[fill=benign, draw=none] coordinates {
-  (1.000,Quantization) (0.982,Merging) (0.985,Abliteration) (0.986,On-policy RL)};
-\addplot[fill=moderate, draw=none] coordinates {
-  (0.949,Preference opt.) (0.926,SFT)};
-\addplot[fill=severe, draw=none] coordinates {
-  (0.725,R1-Distill-Llama-8B) (0.696,Nemotron-Nano-8B)};
-% DFlash markers
-\addplot[only marks, mark=diamond*, mark size=1.9pt, draw=black!75, fill=white] coordinates {
-  (0.994,Quantization) (0.959,Merging) (0.963,Abliteration) (0.990,On-policy RL)
-  (0.946,Preference opt.) (0.816,SFT)
-  (0.735,R1-Distill-Llama-8B) (0.708,Nemotron-Nano-8B)};
-\draw[densely dashed, black!55] (axis cs:1.0,{[normalized]-0.6}) -- (axis cs:1.0,{[normalized]7.6});
-\node[font=\tiny, black!65, anchor=east, align=right] at (axis cs:1.055,R1-Distill-Llama-8B) {bars: EAGLE-3\\$\diamond$: DFlash};
+\draw[densely dashed, black!50] (axis cs:1.0,0.3) -- (axis cs:1.0,21.7);
+% off-policy post-training (EAGLE-3)
+\addplot[only marks, mark=*, mark size=1.7pt, color=severe] coordinates {
+  (0.696,1) (0.725,2) (0.801,3) (0.810,4) (0.836,5) (0.845,6) (0.858,7) (0.900,8) (0.915,9) (0.942,10) (0.948,11)
+  (0.975,13) (0.980,15) (0.981,16) (0.984,17)};
+\addlegendentry{off-policy post-training}
+% on-policy RL (EAGLE-3)
+\addplot[only marks, mark=*, mark size=1.7pt, color=benign] coordinates {
+  (0.967,12) (0.980,14) (0.996,18) (1.002,19) (1.027,20)};
+\addlegendentry{on-policy RL}
+% undocumented history
+\addplot[only marks, mark=*, mark size=1.7pt, color=black!40, forget plot] coordinates {(1.109,21)};
+% DFlash
+\addplot[only marks, mark=diamond, mark size=1.9pt, color=black!70] coordinates {
+  (0.708,1) (0.735,2) (0.837,3) (0.832,4) (0.711,5) (0.801,6) (0.810,7) (0.838,8) (0.937,9) (0.935,10) (0.883,11)
+  (1.007,12) (0.926,13) (0.989,14) (0.960,15) (0.921,16) (0.858,17) (0.986,18) (0.979,19) (0.903,20) (1.048,21)};
+\addlegendentry{DFlash ($\diamond$)}
 \end{axis}
 % ---------------- (b) speedup ----------------
 \begin{axis}[
-  at={(census.below south west)}, anchor=above north west, yshift=-0.15cm,
-  xbar, bar width=6.5pt, bar shift=0pt,
-  width=0.72\columnwidth, height=2.6cm,
+  at={(census.below south west)}, anchor=above north west, yshift=-0.12cm, xshift=0cm,
+  xbar, bar width=6.0pt, bar shift=0pt,
+  width=0.66\columnwidth, height=2.5cm,
   xmin=1.0, xmax=2.2,
   symbolic y coords={ded,full,iface,reuse},
   ytick={ded,full,iface,reuse}, y dir=reverse,
@@ -55,10 +55,10 @@
   axis x line*=bottom, axis y line*=left,
   enlarge y limits=0.2, tick align=outside, major tick length=2pt,
   xmajorgrids, grid style={black!8},
-  xlabel={\scriptsize speedup over autoregressive decoding (R1-Distill-Llama-8B)},
+  xlabel={\scriptsize speedup on SPEED-Bench (R1-Distill-Llama-8B, batch 1)},
   xlabel style={yshift=2pt},
   title={\small\textbf{(b)} ReFit restores the speedup},
-  title style={yshift=-3pt, xshift=-4mm},
+  title style={yshift=-3pt, xshift=-6mm},
   clip=false,
   nodes near coords, every node near coord/.append style={font=\tiny, anchor=west},
   point meta=explicit symbolic,
@@ -70,6 +70,6 @@
 \node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,reuse) {0 GPU-h};
 \node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,iface) {11 GPU-h};
 \node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,full) {11 GPU-h};
-\node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,ded) {${\sim}$4.5k GPU-h (est.)};
+\node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,ded) {est.\ 1.3k--19k GPU-h};
 \end{axis}
 \end{tikzpicture}

@@ -47,12 +47,12 @@
 
 \begin{abstract}
 Speculative decoding with target-conditioned drafters such as EAGLE-3 is among the fastest ways to serve large language models, and the drafter released with a base model is routinely reused for its many post-trained derivatives.
-We show that this reuse breaks for an important and growing class of models: derivatives distilled from a stronger reasoning teacher.
-In a census of 174 public derivatives, quantized, merged and RL-tuned models retain 98--100\% of the family drafter's acceptance, while DeepSeek-R1-Distill-Llama-8B and Llama-3.1-Nemotron-Nano-8B lose up to 30\%, erasing most of the speedup.
+We show that this reuse breaks for an important and growing class of models: derivatives shaped by extensive off-policy post-training, such as today's distilled reasoning models.
+In a census of public derivatives, quantized, merged and on-policy RL models retain 96--103\% of the family drafter's acceptance, while extensively post-trained reasoning models lose up to 30\%, erasing most of the speedup.
 Post-training shifts both the hidden states the drafter reads and the tokens it must predict, even on text the derivative did not write.
 We introduce \emph{\refit{}}, which re-fits a family drafter on the derivative's own responses to public instructions, without any of the original training data.
-Re-fitting the whole warm-started drafter closes 72\% of the gap to a dedicated drafter trained specifically for the derivative, and re-fitting only its \emph{feature interface}, the projection through which it reads the target (12\% of its parameters), closes 60\%, using 11 GPU-hours, more than 100$\times$ less compute than the public recipe for a dedicated drafter.
-\refit{} raises the end-to-end speedup of R1-Distill from 1.31$\times$ to 1.83$\times$ on SPEED-Bench (dedicated drafter: 2.05$\times$) and to 2.31$\times$ on MATH-500, and that of Nemotron-Nano from 1.29$\times$ to 1.80$\times$; it outperforms independent draft models and carries over to a second model family, sampled decoding and reasoning traces thousands of tokens long.
+Re-fitting the whole warm-started drafter closes 72\% of the gap to a dedicated drafter trained specifically for the derivative, and re-fitting only its \emph{feature interface}, the projection through which it reads the target (12\% of its parameters), closes 60\%, using 11 GPU-hours, two orders of magnitude less compute than the public recipe for a dedicated drafter.
+On DeepSeek-R1-Distill-Llama-8B, \refit{} raises the end-to-end speedup from 1.31$\times$ to 1.83$\times$ on SPEED-Bench (dedicated drafter: 2.05$\times$) and from 1.48$\times$ to 2.31$\times$ on MATH-500, and on Llama-3.1-Nemotron-Nano-8B from 1.29$\times$ to 1.80$\times$; it outperforms independent draft models and carries over to a second model family, sampled decoding and reasoning traces thousands of tokens long.
 \end{abstract}
 
 % =====================================================================
@@ -73,32 +73,32 @@ Two questions behind this practice remain open: when does a family drafter keep 
 \begin{figure}[t]
   \centering
   \input{figures/fig_teaser}
-  \caption{\textbf{(a)} First-token acceptance of the production Llama-3.1-8B-Instruct family drafters on public Llama-3.1 derivatives, relative to the instruction model they were trained for, grouped by post-training history (EAGLE-3 bars, DFlash diamonds; group sizes and the Qwen3 family in Appendix~\ref{app:census}). Weight-space edits and on-policy RL leave the drafter intact; distillation from a reasoning teacher breaks it. \textbf{(b)} On R1-Distill-Llama-8B, \refit{} recovers most of the speedup of a dedicated drafter at a small fraction of its training cost.}
+  \caption{\textbf{(a)} First-token acceptance of the production family drafters (EAGLE-3 dots, DFlash diamonds) on 21 widely used Llama-3.1-8B and Qwen3-8B derivatives, relative to the instruction model they were trained for, on the same 128 SPEED-Bench prompts. On-policy RL leaves the drafter intact; off-policy post-training can break it, most severely in the extensively post-trained reasoning models at the top. The 174-derivative census is in Appendix~\ref{app:census}. \textbf{(b)} On R1-Distill-Llama-8B, \refit{} recovers most of the speedup of a dedicated drafter at a small fraction of its training cost.}
   \label{fig:teaser}
 \end{figure}
 
 We answer the first question with a census of 174 public derivatives in the Llama-3.1-8B and Qwen3-8B families (Figure~\ref{fig:teaser}a).
-For most of the ecosystem, reuse is reliable: quantized, merged, abliterated and on-policy RL derivatives retain 98--100\% of the family drafter's acceptance, in line with evidence that on-policy training keeps models close to their initialization \citep{shenfeld2026razor,chen2026retaining}.
-Reuse fails, however, for precisely the derivatives that are most expensive to serve: reasoning models distilled from stronger teachers.
+For most of the ecosystem, reuse is reliable: quantized, merged, abliterated and on-policy RL derivatives retain 96--103\% of the family drafter's acceptance, in line with evidence that on-policy training keeps models close to their initialization \citep{shenfeld2026razor,chen2026retaining}.
+Reuse fails, however, for precisely the derivatives that are most expensive to serve: reasoning models produced by extensive off-policy post-training, which retain only 70--86\%.
 DeepSeek-R1-Distill-Llama-8B and Llama-3.1-Nemotron-Nano-8B lose 26--30\% of first-token acceptance under both EAGLE-3 and DFlash drafters.
 For R1-Distill, the speedup collapses from 2.05$\times$ with a dedicated drafter to 1.31$\times$ (Figure~\ref{fig:teaser}b), and reasoning models emit thousands of tokens per query, so the loss costs most exactly where acceleration matters most.
 
 We then show what changes and how to repair it.
 Post-training changes two things the drafter depends on: the target's hidden states, which the drafter reads, and the target's next-token policy, which it must predict.
-A controlled crossover shows that the hidden states shift even on text the derivative did not write, so the drafter fails on the model, not merely on a new genre of text.
+A controlled crossover shows that the hidden states shift even on text the derivative did not write: the drafter faces new text, encoded differently and continued differently.
 The drafter accesses the target through a single learned map, the \emph{feature interface}, a dense projection that compresses the target's multi-layer hidden states into the drafter's input space, and re-fitting this interface alone recovers most of what re-training the entire drafter achieves.
 This observation leads to \emph{\refit{}} (Figure~\ref{fig:method}): elicit the derivative's own responses to public instructions, then re-fit the family drafter on them with its native training objective, either the whole warm-started drafter (\refitF{}) or only its interface (\refitI{}), a lightweight update that leaves the drafter's body untouched and shareable across derivatives.
 \refit{} needs no access to the derivative's or the drafter's training data, no new architecture, and no change to the serving engine.
 
 \refit{} is highly effective.
 On R1-Distill-Llama-8B, \refitF{} closes 72\% of the gap between the reused family drafter and a dedicated drafter trained by the EAGLE authors, and \refitI{} closes 60\%.
-With 11 GPU-hours of compute, more than 100$\times$ less than the public recipe for a dedicated drafter, \refit{} lifts the end-to-end speedup from 1.31$\times$ to 1.83$\times$ on SPEED-Bench and to 2.31$\times$ on MATH-500.
+With 11 GPU-hours of compute, two orders of magnitude less than the public recipe for a dedicated drafter, \refit{} lifts the end-to-end speedup from 1.31$\times$ to 1.83$\times$ on SPEED-Bench and from 1.48$\times$ to 2.31$\times$ on MATH-500.
 On Nemotron-Nano, for which no dedicated drafter exists, it lifts the speedup from 1.29$\times$ to 1.80$\times$.
 Repaired drafters are faster than independent small draft models and training-free drafting, and the gains hold across drafter checkpoints, drafter families, a second model family, every SPEED-Bench domain, long reasoning traces and sampled decoding.
 In summary, we make three contributions:
 \begin{itemize}
   \setlength\itemsep{1pt}
-  \item We present a census of family-drafter reuse across 174 public derivatives and identify distillation from strong reasoning teachers as the post-training regime that breaks target-conditioned drafters, while weight-space edits and on-policy RL leave them intact (\S\ref{sec:census}).
+  \item We present a census of family-drafter reuse across 174 public derivatives and identify off-policy post-training, most severely the extensive pipelines behind today's reasoning models, as the regime that breaks target-conditioned drafters, while weight-space edits and on-policy RL leave them intact (\S\ref{sec:census}).
   \item We show that post-training shifts both the target features a drafter reads and the tokens it must predict, and propose \refit{}, a simple recipe that repairs the family drafter from the derivative's own outputs without any original training data; re-fitting the feature interface alone recovers most of the loss (\S\ref{sec:census}--\S\ref{sec:method}).
   \item We show on SPEED-Bench and MATH-500 that \refit{} recovers most of a dedicated drafter's speedup at a small fraction of its cost, across targets, model families, drafter checkpoints and drafter families, with the largest gains on reasoning workloads (\S\ref{sec:results}).
 \end{itemize}
@@ -144,37 +144,30 @@ We call the instruction model the \emph{parent} $T$, its drafter the \emph{famil
 % =====================================================================
 
 \paragraph{A census of derivatives.}
-We collect 174 public derivatives in the Llama-3.1-8B and Qwen3-8B families \citep{llama3herd,qwen3} from the Hugging Face hub, all of which load with the architecture and tokenizer of the instruction-tuned parent and its released drafters.
-We label each by its post-training history as described in its model card: quantization, merging, abliteration, supervised fine-tuning (SFT), preference optimization, on-policy reinforcement learning, or distillation from a teacher.
-For every derivative, we serve the family EAGLE-3 and DFlash drafters with vLLM \citep{kwon2023vllm} and measure first-token acceptance on identical prompts for the derivative and its parent.
-We report retention, the derivative's acceptance divided by the parent's, for the Llama-3.1 family in Figure~\ref{fig:teaser}a and for both families in Appendix~\ref{app:census}.
+We collect 174 public derivatives in the Llama-3.1-8B and Qwen3-8B families \citep{llama3herd,qwen3} from the Hugging Face hub, all of which load with the architecture and tokenizer of the instruction-tuned parent and its released drafters, and label each by the post-training history described in its model card.
+For every derivative, we serve the production EAGLE-3 and DFlash family drafters with vLLM \citep{kwon2023vllm} and measure first-token acceptance on identical prompts for the derivative and its parent; we report retention, the derivative's acceptance divided by the parent's.
+The full census uses each derivative's own prompts (Appendix~\ref{app:census}); a focused cohort of 21 widely used post-trained derivatives shares the same 128 SPEED-Bench prompts (Figure~\ref{fig:teaser}a).
 
-\paragraph{Distillation breaks the drafter.}
-Figure~\ref{fig:teaser}a shows a clear ordering in the Llama-3.1 family.
-Edits in weight space leave the drafter intact: quantized derivatives retain 100\% of the parent's acceptance, merged ones 98\% and abliterated ones 99\%.
-On-policy RL does not disturb it either (99\%).
-Off-policy supervision erodes acceptance, to 95\% for preference optimization and 93\% for SFT.
-The severe losses occur for reasoning models distilled at scale from strong teachers, such as the two widely used distills below.
-R1-Distill-Llama-8B, trained on the outputs of DeepSeek-R1 \citep{deepseek2025r1}, retains 72.5\% under EAGLE-3 and 73.5\% under DFlash.
-Nemotron-Nano-8B \citep{bercovich2025nemotron} retains 69.6\% and 70.8\%.
-The Qwen3 family behaves the same way: its quantized, abliterated and on-policy RL derivatives retain 100--103\%, while the reasoning distill DeepSeek-R1-0528-Qwen3-8B retains 86\%.
-This ordering mirrors how far each regime moves a model from its initialization.
-On-policy RL learns from the model's own samples and stays close to it \citep{shenfeld2026razor,chen2026retaining}, whereas distillation fits the model to a different model's distribution \citep{hinton2015distilling,kim2016sequence} and reshapes its internal representations.
+\paragraph{Off-policy post-training breaks the drafter.}
+Edits in weight space leave the drafter intact: across the census, quantized, merged and abliterated derivatives retain 96--100\% of the parent's acceptance under both drafters.
+On-policy RL does not disturb it either: all five RL-tuned derivatives in Figure~\ref{fig:teaser}a retain 97--103\%.
+Off-policy post-training is different.
+Most off-policy fine-tunes, including several small reasoning-distillation fine-tunes, retain 90--98\%, but the most extensively post-trained models lose far more: large-scale reasoning distills (R1-Distill-Llama-8B, R1-0528-Qwen3-8B) and multi-stage pipelines (Nemotron-Nano-8B, T\"ulu~3, Skywork-o1, Qwen3-Swallow) retain only 70--86\%.
+Along the T\"ulu~3 pipeline \citep{lambert2024tulu3}, the off-policy stages lower retention (SFT 92\%, preference optimization 81\%), while the final on-policy RL stage leaves it unchanged (80\%).
+This ordering mirrors how far each regime moves a model from its initialization: on-policy RL learns from the model's own samples and stays close to it \citep{shenfeld2026razor,chen2026retaining}, whereas off-policy training fits the model to another distribution \citep{hinton2015distilling,kim2016sequence}.
 
 The cost is substantial: on R1-Distill, the reused drafter reaches an acceptance length of only 1.76 tokens per step on SPEED-Bench, against 2.85 for a dedicated EAGLE-3 drafter that the EAGLE authors trained on R1-Distill.
 A dedicated drafter is rarely an option: the public EAGLE-3 recipe trains on over half a million examples for tens of epochs, and most derivatives, including Nemotron-Nano, have none.
-Practitioners can, however, tell cheaply when reuse is at risk: acceptance measured on just 16 requests ranks the degraded derivatives in our populations with an AUROC between 0.91 and 1.00.
+Practitioners can, however, tell cheaply when reuse is at risk: acceptance retention measured on just 16 requests agrees with retention on disjoint requests, identifying degraded derivatives with an AUROC between 0.91 and 1.00.
 
-\paragraph{The model moves, not only its text.}
-Reasoning distills also write a different kind of text, long chains of thought, so the drafter might simply be failing on an unfamiliar genre.
-Three observations rule this out.
-First, reasoning text alone does not break the drafter: Qwen3-8B with thinking enabled retains 104\% of its EAGLE-3 acceptance, and RL-trained reasoning derivatives retain 97--100\%.
-Second, the starting checkpoint is not the cause: R1-Distill was distilled into the Llama-3.1-8B base model, and the base model itself retains 122\% of the instruction drafter's acceptance.
-Third, along the Tülu~3 pipeline \citep{lambert2024tulu3}, each off-policy stage lowers retention (SFT 92\%, preference optimization 81\%), while the final on-policy RL stage leaves it unchanged (80\%).
-A fixed-text crossover makes the shift explicit: on identical text, we feed the family drafter either the parent's or the derivative's hidden states and score its first prediction against either model's next token.
-Swapping in the derivative's hidden states lowers agreement even on the parent's own outputs, by 4.3 points on R1-Distill and 9.2 on Nemotron-Nano, and on public reference text by 5.0 and 10.2 points (95\% CIs exclude zero), whereas an RL-tuned derivative shows no shift (0.1 points).
-On the derivatives' own text, their next-token policy lowers agreement by a further 3.0 and 3.7 points.
-Post-training thus changes both the hidden states the drafter reads and the tokens it must predict, and a repair must learn both from the derivative itself.
+\paragraph{What changes.}
+A derivative differs from its parent in the text it writes, in how it encodes text, and in the token it wants next.
+Text alone does not break the drafter: Qwen3-8B writing long chains of thought in thinking mode keeps 104\% of its EAGLE-3 acceptance, and RL-trained reasoning derivatives keep 97--103\%.
+Nor does the starting checkpoint: R1-Distill was distilled into the Llama-3.1-8B base model, which itself keeps 122\% of the instruction drafter's acceptance.
+What moves is the model.
+In a fixed-text crossover, we feed the family drafter either the parent's or the derivative's hidden states on identical text and score its first prediction against either model's next token.
+The derivative's hidden states lower agreement even on the parent's own outputs, by 4.3 points on R1-Distill and 9.2 on Nemotron-Nano, and on public reference text by 5.0 and 10.2 points (95\% CIs exclude zero), whereas an RL-tuned derivative shows no shift (0.1 points); on the derivatives' own text, their next-token policy lowers agreement by a further 3.0 and 3.7 points.
+The family drafter therefore faces new text, encoded in shifted hidden states and continued by a different policy, and a repair has to learn all three from the derivative itself.
 
 \paragraph{A single module carries most of the repair.}
 Which part of the drafter needs to change?
@@ -202,7 +195,7 @@ The recipe has three steps (Figure~\ref{fig:method}).
 \paragraph{Eliciting the derivative.}
 The drafter must predict what $\Tp$ will generate, so we let $\Tp$ show it.
 We sample instructions $x$ from a public instruction corpus.
-We use 16k instructions from Alpaca \citep{taori2023alpaca}, deduplicated against all evaluation prompts; instructions elicited from the derivative itself, which need no external dataset, give the same SPEED-Bench acceptance (Appendix~\ref{app:details}).
+We use 16k instructions from Alpaca \citep{taori2023alpaca}, deduplicated against all evaluation prompts; instructions elicited from the derivative itself, which avoid any external dataset and its license, give the same SPEED-Bench acceptance (Appendix~\ref{app:details}).
 We render each instruction with the derivative's chat template and greedily decode a response $y' \sim \Tp(\cdot \mid x)$ of up to 512 tokens.
 For a reasoning distill, these responses are long reasoning traces, exactly the text the drafter will face in deployment.
 This mirrors sequence-level distillation \citep{kim2016sequence} and drafter alignment \citep{zhou2024distillspec,goel2024direct}, with one difference: only the drafter learns, and only to follow a fixed target.
@@ -224,7 +217,7 @@ The same architecture trained from scratch on the same data and budget falls bel
 \paragraph{Cost and deployment.}
 \refit{} takes one pass over 16k examples, or 7.9M response tokens.
 Generating the responses and training together take about 11 A40 GPU-hours, of which training the drafter accounts for only 2.2.
-\refitI{} trains 13\% faster per step with 12\% less peak memory, and its update is a 100\,MB matrix rather than an 850\,MB drafter, so a provider serving many derivatives can keep one drafter body and swap in a small interface for each.
+\refitI{} trains 13\% faster per step with 12\% less peak memory, and its update is a 100\,MB matrix rather than an 850\,MB drafter.
 The repaired drafter has the same architecture, vocabulary and file format as the family drafter, so it is a drop-in replacement in the serving engine.
 
 % =====================================================================
@@ -238,6 +231,7 @@ Both share the Llama-3.1 architecture and tokenizer, and hence the family drafte
 Our main family drafter is the EAGLE-3 drafter that the EAGLE authors released for Llama-3.1-8B-Instruct \citep{li2025eagle3}.
 We also repair the production EAGLE-3 drafter distributed with vLLM's speculators library \citep{redhat2025speculators} and the DFlash drafter \citep{chen2026dflash}.
 As an upper reference, we use the dedicated EAGLE-3 drafter that the EAGLE authors trained specifically for R1-Distill-Llama-8B.
+Nemotron-Nano is served in its default chat mode.
 For a second model family, we repair the Qwen3-8B family EAGLE-3 drafter on DeepSeek-R1-0528-Qwen3-8B.
 
 \paragraph{Baselines.}
@@ -282,10 +276,10 @@ Further details are in Appendix~\ref{app:details}.
     \textbf{\refitI{} (ours)} & 11 & 62.6 & 2.41 & 2.78 & 1.74$\times$ & 1.27$\times$ & & 61.4 & 2.42 & 2.66 & 1.69$\times$ & 1.39$\times$ \\
     \textbf{\refitF{} (ours)} & 11 & 65.0 & 2.54 & 2.97 & \textbf{1.83$\times$} & \textbf{1.29$\times$} & & 62.9 & 2.49 & 2.86 & \textbf{1.80$\times$} & \textbf{1.42$\times$} \\
     \midrule
-    \textcolor{black!60}{Dedicated drafter (reference)} & \textcolor{black!60}{${\sim}$4.5k} & \textcolor{black!60}{70.5} & \textcolor{black!60}{2.85} & \textcolor{black!60}{3.84} & \textcolor{black!60}{2.05$\times$} & \textcolor{black!60}{1.41$\times$} & & \multicolumn{5}{c}{\textcolor{black!60}{\emph{not available}}} \\
+    \textcolor{black!60}{Dedicated drafter} & \textcolor{black!60}{1.3k--19k} & \textcolor{black!60}{70.5} & \textcolor{black!60}{2.85} & \textcolor{black!60}{3.84} & \textcolor{black!60}{2.05$\times$} & \textcolor{black!60}{1.41$\times$} & & \multicolumn{5}{c}{\textcolor{black!60}{\emph{not available}}} \\
     \bottomrule
   \end{tabular}
-  \caption{\textbf{Main results.} First-token acceptance $p_1$, acceptance length $\tau$ and end-to-end speedup over autoregressive decoding (vLLM, A40, batch sizes 1 and 8). MATH is MATH-500; speedups are measured on SPEED-Bench (MATH-500 speedups in Table~\ref{tab:reasoning}). \refit{} improves every acceptance metric over reuse with 95\% confidence intervals excluding zero, and \refitF{} is the fastest method that does not require a dedicated drafter. Training cost includes generating the repair data; the dedicated drafter's cost is estimated for the public EAGLE-3 recipe.}
+  \caption{\textbf{Main results.} First-token acceptance $p_1$, acceptance length $\tau$ and end-to-end speedup over autoregressive decoding (vLLM, A40, batch sizes 1 and 8). MATH is MATH-500; speedups are measured on SPEED-Bench (MATH-500 speedups in Table~\ref{tab:reasoning}). \refit{} improves every acceptance metric over reuse with 95\% confidence intervals excluding zero, and \refitF{} is the fastest method that does not require a dedicated drafter. Training cost includes generating the repair data; the dedicated drafter's cost is a recipe estimate for 10--40 epochs of the public EAGLE-3 recipe. Batch-size-1 confidence intervals are in Appendix~\ref{app:timing}.}
   \label{tab:main}
 \end{table*}
 
@@ -311,8 +305,8 @@ The first is the warm start.
 Training the same EAGLE-3 architecture from scratch on the repair data reaches an acceptance length of only 1.52 on SPEED-Bench, below even the unrepaired family drafter and a full token per step below \refitF{}.
 A drafter's ability to draft is expensive to acquire, and the family drafter already has it.
 The second is supervision from the derivative itself.
-Training on the same derivative-generated text, but with the parent's hidden states and next-token distributions as supervision, also improves the drafter because it adapts to the new text.
-Supervision from the derivative, however, adds a further 0.15 tokens per step for the interface and 0.19 for the entire drafter on SPEED-Bench (0.14 and 0.15 on MATH), with confidence intervals well above zero.
+Training on the same derivative-generated text, but with the parent's hidden states and next-token distributions as supervision, recovers about 60\% of the gain, because the drafter adapts to the new text.
+Supervision from the derivative supplies the rest, a further 0.15 tokens per step for the interface and 0.19 for the entire drafter on SPEED-Bench (0.14 and 0.15 on MATH), with confidence intervals well above zero.
 \refit{} needs both the derivative's text and the derivative's signals, which is exactly what eliciting the derivative provides.
 The third is a full-parameter update: LoRA adapters on every drafter layer, with as many trainable parameters as the interface, fall short of \refitF{} by 0.09 tokens per step on R1-Distill and 0.06 on Nemotron-Nano at a similar training cost.
 
@@ -355,7 +349,7 @@ Repaired drafters combine high acceptance with the near-free drafting of a singl
 \subsection{Reasoning Workloads}
 
 Reasoning models are deployed on mathematical and scientific problems, with long generation budgets and often with sampling, whereas \refit{} sees responses of at most 512 tokens.
-Table~\ref{tab:reasoning} shows that its benefits are largest exactly there.
+Table~\ref{tab:reasoning} shows that its absolute speedups are largest exactly there.
 On MATH-500, \refitF{} accelerates R1-Distill by 2.31$\times$ at batch size 1 and 2.05$\times$ at batch size 8, compared with 1.48$\times$ and 1.33$\times$ for the reused drafter, and Nemotron-Nano by up to 2.23$\times$.
 With responses of up to 8,192 tokens, 2.4k--3.3k on average, \refitF{} still delivers 1.77$\times$ and 1.63$\times$, against 1.33$\times$ and 1.12$\times$ for reuse.
 Its gains also hold under temperature sampling ($T{=}0.6$), where verification accepts tokens stochastically: on these long traces, \refitF{} raises the acceptance length from 1.96 to 2.58 on R1-Distill and from 1.64 to 2.63 on Nemotron-Nano (Appendix~\ref{app:long}).
@@ -416,7 +410,7 @@ We keep such drafters working when their target changes.
 
 \paragraph{Adapting drafters.}
 DistillSpec \citep{zhou2024distillspec} distills a draft model from its target, online speculative decoding \citep{liu2024online} keeps updating it on served traffic, and Draft-OPD \citep{lei2026draftopd} trains drafters on their own on-policy proposals.
-Other work aligns drafters with chat-tuned targets \citep{goel2024direct} or new domains \citep{hong2025domain}, adapts them efficiently \citep{lin2026eda}, shares frozen drafts across evolving targets \citep{li2026flexspec}, or evolves them online \citep{ramakrishnan2025omnidraft,zhang2026evospec}.
+Other work aligns drafters with chat-tuned targets \citep{goel2024direct} or new domains \citep{hong2025domain}, adapts them efficiently with EDA \citep{lin2026eda}, shares frozen drafts across evolving targets \citep{li2026flexspec}, or evolves them online \citep{ramakrishnan2025omnidraft,zhang2026evospec}.
 These approaches re-align the drafter as a whole or change its architecture or training regime; EDA, for instance, adds gated shared and private experts.
 \refit{} keeps the released architecture, so the repaired drafter loads in unchanged engines, and works offline from public instructions, without traffic logs or original training data.
 
@@ -428,7 +422,7 @@ Our census connects these findings to inference efficiency in an ecosystem of de
 \section{Conclusion}
 % =====================================================================
 
-Family drafters make speculative decoding practical across the open-model ecosystem, but they silently lose much of their value on derivatives distilled from stronger reasoning teachers.
+Family drafters make speculative decoding practical across the open-model ecosystem, but they silently lose much of their value on the extensively post-trained derivatives that dominate reasoning workloads.
 We showed that post-training shifts both the features a drafter reads and the tokens it must predict, and that re-fitting the drafter on the derivative's own responses to public instructions, or even only its feature interface, restores most of a dedicated drafter's speedup for a few GPU-hours.
 \refit{} turns per-derivative drafting into a routine step that can accompany every model release: when the target moves, the drafter can learn to follow it from the target itself.
 
@@ -537,6 +531,40 @@ Table~\ref{tab:long} reports acceptance lengths.
   \caption{Acceptance length on MATH problems with responses of up to 8,192 tokens (2.4k--3.3k on average), under greedy decoding and temperature sampling. Every gain over reuse has a 95\% confidence interval excluding zero.}
   \label{tab:long}
 \end{table}
+
+% =====================================================================
+\section{Timing Details}
+\label{app:timing}
+% =====================================================================
+
+Table~\ref{tab:timing} reports every wall-clock speedup with its 95\% confidence interval, resampling server processes and prompt batches jointly.
+Batch-size-1 panels use 32 prompts, so their intervals are wider than those at batch size 8.
+
+\begin{table*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}llccccc@{}}
+    \toprule
+    & & \multicolumn{2}{c}{SPEED-Bench} & \multicolumn{2}{c}{MATH-500} & MATH, 8k tokens \\
+    \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-7}
+    Target & Method & bs\,1 & bs\,8 & bs\,1 & bs\,8 & bs\,1 \\
+    \midrule
+    R1-Distill & Reused & 1.31\,{\scriptsize[1.23, 1.39]} & 1.07\,{\scriptsize[0.99, 1.17]} & 1.48\,{\scriptsize[1.44, 1.52]} & 1.33\,{\scriptsize[1.30, 1.36]} & 1.33\,{\scriptsize[1.09, 1.64]} \\
+     & Independent (1B) & 1.26\,{\scriptsize[1.20, 1.33]} & 1.11\,{\scriptsize[1.09, 1.14]} & 1.52\,{\scriptsize[1.49, 1.57]} & 1.39\,{\scriptsize[1.36, 1.42]} & -- \\
+     & \refitI{} & 1.74\,{\scriptsize[1.58, 1.89]} & 1.27\,{\scriptsize[1.10, 1.47]} & 2.14\,{\scriptsize[2.10, 2.19]} & 1.93\,{\scriptsize[1.89, 1.98]} & 1.63\,{\scriptsize[1.29, 2.08]} \\
+     & \refitF{} & 1.83\,{\scriptsize[1.65, 1.99]} & 1.29\,{\scriptsize[1.12, 1.50]} & 2.31\,{\scriptsize[2.25, 2.36]} & 2.05\,{\scriptsize[2.01, 2.10]} & 1.77\,{\scriptsize[1.44, 2.27]} \\
+     & Dedicated & 2.05\,{\scriptsize[1.85, 2.25]} & 1.41\,{\scriptsize[1.20, 1.67]} & 2.87\,{\scriptsize[2.80, 2.95]} & 2.54\,{\scriptsize[2.43, 2.63]} & 2.11\,{\scriptsize[1.68, 2.75]} \\
+    \midrule
+    Nemotron-Nano & Reused & 1.29\,{\scriptsize[1.20, 1.38]} & 1.13\,{\scriptsize[1.05, 1.20]} & 1.32\,{\scriptsize[1.29, 1.36]} & 1.36\,{\scriptsize[1.19, 1.69]} & 1.12\,{\scriptsize[1.00, 1.28]} \\
+     & Independent (1B) & 1.37\,{\scriptsize[1.28, 1.47]} & 1.24\,{\scriptsize[1.20, 1.27]} & 1.31\,{\scriptsize[1.08, 1.52]} & 1.50\,{\scriptsize[1.29, 1.84]} & -- \\
+     & \refitI{} & 1.69\,{\scriptsize[1.48, 1.89]} & 1.39\,{\scriptsize[1.22, 1.60]} & 2.08\,{\scriptsize[2.02, 2.14]} & 2.12\,{\scriptsize[1.82, 2.64]} & 1.54\,{\scriptsize[1.31, 1.86]} \\
+     & \refitF{} & 1.80\,{\scriptsize[1.63, 1.98]} & 1.42\,{\scriptsize[1.23, 1.67]} & 1.94\,{\scriptsize[1.58, 2.25]} & 2.23\,{\scriptsize[1.92, 2.75]} & 1.63\,{\scriptsize[1.37, 2.02]} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Wall-clock speedup over autoregressive decoding with 95\% confidence intervals (vLLM, A40; three fresh server processes with three warm repetitions each).}
+  \label{tab:timing}
+\end{table*}
 
 % =====================================================================
 \section{Per-Domain Results}
