@@ -81,3 +81,29 @@ def test_paired_seed_query_bootstrap_preserves_seed_and_query_pairs():
     assert r['n']==3 and r['seeds']==3
     r=paired_seed_query(a,a+np.array([[0.],[1.],[2.]]))
     assert r['delta']['ci95'][0]<1<r['delta']['ci95'][1]
+
+def test_vocabulary_selection_uses_answer_only_and_preserves_overlapping_head_rows():
+    from followspec.vocabulary_repair import select_vocabulary,apply_vocabulary
+    rows=[dict(input_ids=[7,7,6,4,4,2],response_start=3,loss_mask=[False]*3+[True]*3)]
+    ids=select_vocabulary(rows,8,3)
+    assert ids.tolist()==[0,2,4]  # answer frequency, then token-ID tie; sorted storage
+    class M(torch.nn.Module):
+        def __init__(self):
+            super().__init__();self.lm_head=torch.nn.Linear(2,3,bias=False);self.verifier_lm_head=torch.nn.Linear(2,3,bias=False)
+            self.register_buffer('d2t',torch.tensor([0,1,4]));self.register_buffer('t2d',torch.tensor([True,False,True,False,False,False,True,False]))
+    m=M();old=m.lm_head.weight.detach().clone();target=torch.arange(16.).reshape(8,2)
+    proof=apply_vocabulary(m,ids,target)
+    assert torch.equal(m.lm_head.weight[0],old[0]) and torch.equal(m.lm_head.weight[1],old[1])
+    assert torch.equal(m.lm_head.weight[2],target[4])
+    assert torch.equal(torch.arange(3)+m.d2t,ids) and m.t2d.nonzero().flatten().tolist()==ids.tolist()
+    assert proof['new_tokens']==1 and proof['retained_tokens']==2
+    assert torch.equal(m.verifier_lm_head.weight,target[ids])
+
+def test_long_mixture_keeps_both_responses_and_rejects_prefix_changes():
+    from followspec.rev2_seal import mixture
+    r=dict(sample_id='x',prompt_sha256='h',prompt_token_ids=[1,2],completion_token_ids=[3])
+    long=r|dict(completion_token_ids=[3,4])
+    out=mixture([r],[long])
+    assert [v['sample_id'] for v in out]==['short512:x','long2048:x']
+    assert [v['completion_token_ids'] for v in out]==[[3],[3,4]]
+    with pytest.raises(ValueError):mixture([r],[long|dict(prompt_token_ids=[1,9])])

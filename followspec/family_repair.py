@@ -182,6 +182,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
     p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora'],required=True)
+    p.add_argument('--reselect-draft-vocab',action='store_true',help='D54 E15 training-response frequency support; initialize new head rows from target')
     p.add_argument('--profile-training',action='store_true',help='D54 synchronized whole-step timings including online capture')
     p.add_argument('--omit-final-optimizer',action='store_true',help='D54 nonresumable final compact weights, no optimizer persistence')
     p.add_argument('--allow-response-pairs',action='store_true',help='D54 explicit short512/long2048 mixture on identical prompts')
@@ -215,6 +216,7 @@ def main():
         child_tok=AutoTokenizer.from_pretrained(target['path'],local_files_only=True)
         parent_tok=AutoTokenizer.from_pretrained(supervision['path'],local_files_only=True)
         special_aliases=supervision_vocabulary(child_tok.get_vocab(),parent_tok.get_vocab(),min(child_tok.vocab_size,parent_tok.vocab_size))
+    if a.reselect_draft_vocab and (a.variant!='full' or a.algorithm!='eagle3' or a.scratch or a.continue_epoch_from):raise ValueError('vocabulary reselection requires fresh full EAGLE warm-start')
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
     previous=None;resume_step=0
     if a.continue_epoch_from:
@@ -272,6 +274,13 @@ def main():
             before_embedding_fill=state_hashes(model)
         write(out/'embedding_source.json',fill_missing_embedding(model,a.drafter,target['path']))
         if a.probe_batches:write(out/'loaded_state.json',dict(legacy=before_embedding_fill,fixed=state_hashes(model)))
+    if a.reselect_draft_vocab:
+        from followspec.vocabulary_repair import select_vocabulary,apply_vocabulary
+        from speculators.utils.loading import load_model_layers
+        support=select_vocabulary(rows,base_config['vocab_size'],len(model.d2t))
+        target_head=load_model_layers(['lm_head.weight'],target['path'])['lm_head.weight']
+        write(out/'vocabulary_reselection.json',apply_vocabulary(model,support,target_head))
+        del target_head
     if a.scratch:
         write(out/'scratch_initialization.json',initialize_scratch(model))
     proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm)
@@ -337,6 +346,7 @@ def main():
         profiler=StepProfiler(time.perf_counter,torch.cuda.synchronize,lambda:(torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved()))
     original_step=trainer._optimizers_step;completed=0
     mutable=set(proof['trainable_names'])
+    if a.reselect_draft_vocab:mutable.update(['d2t','t2d'])
     for name in list(mutable):
         if '.lora_' in name:mutable.add(name.rsplit('.',1)[0]+'.weight')
     def compact_checkpoint(label, save_optimizer=True):

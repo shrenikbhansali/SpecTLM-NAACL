@@ -11,6 +11,9 @@ def priority(j):
     if '-E8-' in n:return 3
     if '-E10a-' in n:return 4
     if '-E10b-' in n:return 5
+    if '-E16-' in n:return 8
+    if '-E13-' in n:return 9
+    if '-E15-' in n:return 12
     return 10
 
 def promote():

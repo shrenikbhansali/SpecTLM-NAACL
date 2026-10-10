@@ -36,23 +36,23 @@ The existing short-response repair closes39.2%[32.0,45.7] of R1's oracle gap at 
 
 ## E11 — batches16/32
 
-Timing extension built and tested; pending P1 dispatch. Same SPEED128 panels, methods and three-process protocol. Defaults remain b8/cap512.
+**Queued:**66 timing processes. Timing extension built and tested; Same SPEED128 panels, methods and three-process protocol. Defaults remain b8/cap512.
 
 ## E17 — whole-drafter LoRA
 
-Scope built and tested, including head gradients and merged-checkpoint equivalence. Every drafter linear is adapted: fc, q/k/v/o, gate/up/down, LM head; target, embeddings and norms remain fixed. Rank16 has2,347,008 parameters; rank343 has50,313,984 (0.035% below the dense interface's50,331,648). R1 seeds0–2 and Nemotron seed0, same16k data/native objective. Pending P1 dispatch; no result yet. This is a compatible whole-LoRA baseline, not a claim to reproduce an architecture-changing method.
+Scope built and tested, including head gradients and merged-checkpoint equivalence. Every drafter linear is adapted: fc, q/k/v/o, gate/up/down, LM head; target, embeddings and norms remain fixed. Rank16 has2,347,008 parameters; rank343 has50,313,984 (0.035% below the dense interface's50,331,648). R1 seeds0–2 and Nemotron seed0, same16k data/native objective. **Queued**; no result yet. This is a compatible whole-LoRA baseline, not a claim to reproduce an architecture-changing method.
 
 ## E13 — scratch64k
 
-Planned one epoch from scratch on the existing64k data, official drafter architecture/vocabulary with target embeddings fixed. Preserve the Alpaca+Dolly source-mixture label. GPU-hours and final SPEED/MATH64/MATH500 will be reported; no new result yet.
+**Queued:** one epoch from scratch on the existing64k data, official drafter architecture/vocabulary with target embeddings fixed. Preserve the Alpaca+Dolly source-mixture label. GPU-hours and final SPEED/MATH64/MATH500 will be reported; no new result yet.
 
 ## E16 — training resource profile
 
-Synchronized200-step profile implemented behind an opt-in flag. Measures target capture/data, drafter forward/backward and optimizer time, excluding exports. Peak allocated/reserved memory and serialized checkpoint bytes retained. Interface/full/whole-LoRA r16/r343 use the same first200 batches and original4477-step scheduler horizon. Pending P1 dispatch.
+Synchronized200-step profile implemented behind an opt-in flag. Measures target capture/data, drafter forward/backward and optimizer time, excluding exports. Peak allocated/reserved memory and serialized checkpoint bytes retained. Interface/full/whole-LoRA r16/r343 use the same first200 batches and original4477-step scheduler horizon. **Queued**.
 
 ## E15 — vocabulary reselection
 
-P2 pending: training-response-only32k selection and target-head initialization for newly included tokens; tests and frozen export evaluation required before any number is used.
+Opt-in training-response-only32k selection implemented and unit-tested: answer tokens only, deterministic frequency/ID ties, shared head rows preserved, newly included rows initialized from target head, both vocabulary maps updated. Matched official16k full-repair runs pending dispatch; frozen export evaluation required before any number is used.
 
 ## E18 — tree feasibility
 
@@ -60,7 +60,7 @@ P2 pending: training-response-only32k selection and target-head initialization f
 
 ## A1 — per-domain SPEED results
 
-**Complete.** [Full11-domain table](REV2-evidence-20261010/domains.md); [independent reducer output](../artifacts/REV2_A1_20261010_0445/domains.json). R1 repairs use three seeds, Nemotron one; all arms use paired query IDs. Both p1 and τ plus lengths/CIs are retained. Domain sample sizes are explicit; no domain is selected based on its outcome. Main-table official16k initialization throughout.
+**Complete.** [Full11-domain table](REV2-evidence-20261010/domains.md); [independent reducer output](../artifacts/REV2_A1_20261010_0445/domains.json). R1 repairs use three seeds, Nemotron one; all arms use paired query IDs. Both p1 and τ plus lengths/CIs are retained. Domain sample sizes are explicit; no domain is selected based on its outcome. Main-table official16k initialization throughout. Both repairs improve τ in all11 domains on both targets, with each pointwise95% interval above zero; these are pointwise rather than simultaneous intervals. Full-repair Δτ ranges+.325–.971 for R1 and+.183–1.068 for Nemotron.
 
 ## A2 — census composition and provenance
 
@@ -74,7 +74,7 @@ Probe prevalence: own-domain EAGLE14/163 degraded, DFlash17/163. Full16-request 
 
 Existing paired HF diagnostics, n64 sequences/origin,10,000 paired draws: feature-source effects on **parent-generated** text are R1−.0431[−.0527,−.0329] and Nemotron−.0924[−.1041,−.0811]. On public-reference text they are−.0504[−.0591,−.0417]/−.1020[−.1131,−.0913]. The GRPO50 parent's-text control is−.0007[−.0018,+.0005]. These effects persist without derivative-generated reasoning text. They are HF agreement effects, not online p1 or an additive decomposition of the online retention loss. [Full2×2 matrices, interactions, tap swaps and sources](P2-crossover-20261008.md).
 
-R1 is a sibling from Base, not a direct Instruct child. The per-model census preserves that label and the Tülu multi-stage ladder. Parent-supervised training on identical R1 response IDs improves reuse, while child-supervised full repair adds+.190τ[.162,.216] on SPEED128 and+.152[.115,.181] on MATH64, one seed/256 examples. [Matched supervision control](REV1-paper-strengthening-20261010.md). Additional typed lineage/online-control summary is being assembled from the CSV rather than treating post-training labels as randomized interventions.
+R1 is a sibling from Base, not a direct Instruct child. The per-model census preserves that label and the Tülu multi-stage ladder. Parent-supervised training on identical R1 response IDs improves reuse, while child-supervised full repair adds+.190τ[.162,.216] on SPEED128 and+.152[.115,.181] on MATH64, one seed/256 examples. [Matched supervision control](REV1-paper-strengthening-20261010.md). [Typed lineage/online-control table](REV2-evidence-20261010/lineage-controls.md) includes the Base control, Tülu SFT→DPO→RLVR ladder and GRPO controls, with n/CIs. The same-weight Qwen thinking intervention gives EAGLE p1 retention1.038[1.000,1.080], but DFlash.923[.898,.951], n128; its effect is architecture-dependent ([source](T1-phase1b-20261008.md)).
 
 ## A4 — long-gap recovery and draft support
 
