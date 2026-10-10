@@ -1,0 +1,38 @@
+[
+  {
+    "path": "reports/P3-primary-official-20261010.md",
+    "sha256": "812f11bb478d80ab5f5407a21809d6c2305b970aff6448f0f8de532f7de8a410"
+  },
+  {
+    "path": "reports/P1-typed-population-20261008.md",
+    "sha256": "40a0e63a07e3a3441425c5937c9af4713d17b251d6bd4a7e54a55878d5c24ca7"
+  },
+  {
+    "path": "reports/P2-crossover-20261008.md",
+    "sha256": "624b15b63e62e94080c244c251a58d2dcf34495fbc926c7ef1c3ca95489716cd"
+  },
+  {
+    "path": "reports/P4-DFlash-repair-20261008.md",
+    "sha256": "0075ad04725714ab55f14733b0ce11edc9f84946ab399e0358303e68a21b18eb"
+  },
+  {
+    "path": "reports/P5-triage-pilot-20261008.md",
+    "sha256": "50075a95c7374b1c39dde04623f687c71e748bac15a653aca6e375d751852250"
+  },
+  {
+    "path": "reports/P2-nemotron-toggle-20261008.md",
+    "sha256": "524199cca5feae571e7ee9b75fffcb5ecc5c3194e128bfec97a9761737e2ebee"
+  },
+  {
+    "path": "artifacts/B4_public_resolved_20261005/manifest.json",
+    "sha256": "0b89df9ba6b1b24ca8022b9af2625d049ea4192b2eea7e65de744eb24424a6ed"
+  },
+  {
+    "path": "artifacts/P3_D49_20261008_1800/selection.json",
+    "sha256": "d80cb7b7ca8a1500f00597e8fb13abdb17db75f79802b5f33af5399b1e27fafd"
+  },
+  {
+    "path": "followspec/family_repair.py",
+    "sha256": "6cd8afb2f6ba131eba9ddea2499161fc3c73e99614f719522656e7028f04927c"
+  }
+]

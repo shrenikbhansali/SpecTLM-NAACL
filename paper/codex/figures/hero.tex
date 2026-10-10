@@ -1,0 +1,46 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=Latex,font=\sffamily\footnotesize,
+ box/.style={draw=ink!40,rounded corners=2pt,align=center,inner sep=4pt},
+ frozen/.style={box,fill=mist},learn/.style={box,fill=teal!13,draw=teal,line width=1pt},
+ flow/.style={->,draw=ink!75,line width=.8pt},lab/.style={font=\sffamily\scriptsize,align=center}]
+\path[use as bounding box] (0,-.04) rectangle (17,5.6);
+\fill[bluegray!6,rounded corners=4pt] (0,0) rectangle (3.35,5.5);
+\fill[teal!4,rounded corners=4pt] (3.55,0) rectangle (12.95,5.5);
+\fill[bluegray!6,rounded corners=4pt] (13.15,0) rectangle (17,5.5);
+\node[anchor=west,font=\sffamily\bfseries\footnotesize,text=ink] at (.15,5.2) {1\quad Elicit supervision};
+\node[anchor=west,font=\sffamily\bfseries\footnotesize,text=ink] at (3.72,5.2) {2\quad Refit the target--drafter interface};
+\node[anchor=west,font=\sffamily\bfseries\footnotesize,text=ink] at (13.3,5.2) {3\quad Draft and verify};
+\node[box,fill=white,text width=2.7cm,minimum height=.8cm] (prompts) at (1.68,4.2) {Public / generated\\queries};
+\node[frozen,text width=2.7cm,minimum height=.8cm] (teacher) at (1.68,2.9) {New target $T_1$\\\scriptsize fixed weights};
+\node[box,fill=white,text width=2.7cm,minimum height=.8cm] (answers) at (1.68,1.6) {Target responses\\\scriptsize answer-token loss};
+\draw[flow] (prompts)--(teacher);
+\draw[flow] (teacher)--(answers);
+\node[lab,text width=3cm] at (1.68,.48) {Original target-training\\examples are not needed};
+
+\node[frozen,text width=1.4cm,minimum height=.9cm] (target) at (4.65,3.14) {Target $T_1$\\\scriptsize fixed};
+\node[lab] at (4.65,4.1) {Response prefix};
+\draw[flow] (4.65,3.9)--(target);
+\node[learn,text width=1.75cm,minimum height=.9cm] (fc) at (7.13,3.14) {Interface $W$\\\scriptsize trainable};
+\node[frozen,text width=1.85cm,minimum height=.9cm] (decoder) at (9.78,3.14) {Draft decoder\\+ token head};
+\node[box,fill=white,text width=.9cm,minimum height=.6cm] (q) at (12.04,3.14) {Draft $q$};
+\draw[flow] (target)--node[lab,above] {taps} (fc);
+\draw[flow] (fc)--(decoder);
+\draw[flow] (decoder)--(q);
+\draw[orange,line width=.8pt,dashed,rounded corners=3pt] (6.06,2.48) rectangle (10.9,3.81);
+\node[lab,text=orange!85!black] at (8.48,4.18) {Full repair also updates decoder + head};
+\node[box,fill=white,text width=2.3cm,minimum height=.72cm] (loss) at (10.65,1.37) {Token loss\\\scriptsize native objective};
+\draw[flow] (q.south)|-(loss.east);
+\draw[flow] (target.south)--(4.65,1.37)--node[lab,above] {Target probabilities $p_{T_1}$} (loss.west);
+\draw[->,teal,line width=.95pt,dashed] (loss.north)--(10.65,2.09)-|node[pos=.65,below,lab,text=teal] {gradient} (fc.south);
+\node[lab,text width=8.6cm] at (8.25,.4) {Warm-start the released drafter. Keep its architecture and token support.};
+
+\node[learn,text width=2.85cm,minimum height=.8cm] (draft) at (15.08,4.12) {Repaired drafter\\\scriptsize propose $K$ tokens};
+\node[frozen,text width=2.85cm,minimum height=.85cm] (verify) at (15.08,2.86) {Target $T_1$ verifies\\\scriptsize check proposals};
+\draw[flow] (draft)--(verify);
+\foreach \i/\col/\txt in {0/teal/1,1/teal/2,2/teal/3,3/orange/4}{
+ \node[draw=\col,fill=\col!13,minimum width=.43cm,minimum height=.42cm,font=\scriptsize] at (14.2+.59*\i,1.62) {$\txt$};
+}
+\draw[flow] (verify)--(15.08,1.94);
+\node[lab] at (14.76,1.09) {accepted};
+\node[lab,text=orange!85!black] at (16.07,1.09) {replaced};
+\node[lab,text width=3.5cm] at (15.08,.4) {More tokens per target pass;\\the verification rule stays fixed};
+\end{tikzpicture}
