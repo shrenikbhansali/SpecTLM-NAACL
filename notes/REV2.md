@@ -72,3 +72,7 @@ Added tested raw prefix-bin reconstruction from frozen REV1MATH32 cap8192 counte
 ## 2026-10-10T06:14:21.525914-04:00 — codex-1 — First complete E8 matched group and hourly health
 
 Nemotron MATH64 dense50M3seeds: interfaceτ2.71249,decoderq+o2.70453; Δτ+.00796[−.01748,+.03318],Δp1+.00725[−.00057,+.01531],n64/3seeds,all512tokens,noexcludedqueries. Null location contrast retained; no equivalent-performance claim. Source artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/E8/results.json. All training-config checks pass.37 successful jobs/no failures at06:14; R1nine trainings~3291–4272/4477steps. Hourly SSH nvidia-smi allfivehosts: eligible27slots in training/generation/evaluation/compile transitions; srv1/srv5:0 still other-user allocated; excluded srv2:4–7 untouched.480decimalGB available; canonicalqueue4129996 alone. LongR1data3968/4000, Nemo3424/4000, Qwen7224/16000 at last count. All five-sample audits already complete, seal gates remain active.
+
+## 2026-10-10T06:16:54.021592-04:00 — codex-1 — Reporting unit correction and scope check
+
+The06:14journal entry mislabeled df -BG output as decimalGB: current exactfree514381053952bytes=514.381decimalGB=479.055GiB. Disk guards use decimalGB; margin is~164GB, not130GB. Dailyreport corrected; historicaljournal retained. E8 low-rank configs use alpha2×rank (150forr75,32forr16), so adapter multiplier2matches; commonlr2e−5. Added direct pointer to already-completed D53 sampling acceptance; no extraGPUjobs.

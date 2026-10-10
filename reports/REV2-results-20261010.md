@@ -1,6 +1,6 @@
 # REV2: additional ReFit evidence — pilot
 
-D-54, codex-1. Updated 2026-10-10T05:50:07.718488-04:00 Eastern. Analysis for integration by claude-ops; `paper/claude_final` is untouched. New GPU numbers will be added only after completion and independent raw-counter checks. Existing observations below retain their original initialization, budget, protocol and sample size.
+D-54, codex-1. Updated 2026-10-10T06:16:54.021592-04:00 Eastern. Analysis for integration by claude-ops; `paper/claude_final` is untouched. New GPU numbers will be added only after completion and independent raw-counter checks. Existing observations below retain their original initialization, budget, protocol and sample size.
 
 All new primary acceptance: frozen 6da2e42, vLLM 0.31.0, A40, greedy K4, identical target-rendered IDs across arms. Long caps are supplementary workload extensions. Training uses FIX-24 initialization. Uncertainty jointly resamples paired training seeds and queries where multiple seeds exist; single-seed estimates use paired queries. Wall-clock measurements separately resample processes and paired prompt batches. Artifacts are immutable, compact checkpoints omit final optimizer state, and every launcher enforces the350GB free-space floor. Code/tag: `run-REV2-train-20261010-0425` /62cecc1.
 
@@ -10,7 +10,7 @@ Full evaluation-query exclusion audit:208 actual census/focused/served-MATH500 p
 
 First complete capacity-matched group: **Nemotron, MATH-64, dense50M, three seeds**. Interface τ2.71249 versus decoder q+o τ2.70453; paired Δτ+.00796[−.01748,+.03318], Δp1+.00725[−.00057,+.01531], n64/3seeds. No speculative-step exclusions; all output lengths512. This group does not resolve a location advantage. All intended data, steps, schedules and parameter counts match; remaining groups stay pending. [Independent raw evidence](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/E8/results.json).
 
-**Run matrix:**20 new trainings. R1 and Nemotron, three seeds: dense q+o50,331,648 parameters; interface LoRA r75 and decoder q/v+MLP LoRA r16 both1,228,800. Nemotron interface seeds1–2 complete the dense-interface comparator; R1 interface seeds0–2 and Nemotron seed0 are reused. Live parameter logs match all requested counts. Data, seed-specific batches, optimizer, learning rate and native TTT3 objective are shared within each location contrast. All runs save one final checkpoint; SPEED128/MATH64 for every seed, MATH500 for seed0, through an automatic frozen-evaluation watcher. Completed comparisons appear in the live raw-result tables below.
+**Run matrix:**20 new trainings. R1 and Nemotron, three seeds: dense q+o50,331,648 parameters; interface LoRA r75 and decoder q/v+MLP LoRA r16 both1,228,800. Nemotron interface seeds1–2 complete the dense-interface comparator; R1 interface seeds0–2 and Nemotron seed0 are reused. Live parameter logs match all requested counts. Data, seed-specific batches, optimizer, learning rate and native TTT3 objective are shared within each location contrast. The learning rate is2e−5; LoRA alpha is2×rank in both locations, so both use the same adapter multiplier2. No learning-rate search is performed in this fixed comparison. All runs save one final checkpoint; SPEED128/MATH64 for every seed, MATH500 for seed0, through an automatic frozen-evaluation watcher. Completed comparisons appear in the live raw-result tables below.
 
 [Plan and jobs](../artifacts/REV2_E8_20261010_0425/plan.json).
 
@@ -33,6 +33,8 @@ First complete capacity-matched group: **Nemotron, MATH-64, dense50M, three seed
 **Data generation active:** first4k queries from each target's existing16k Alpaca collection, generated afresh with a2,048-response-token cap, four1k shards per target. Explicit4,096 training context budget; no truncation. Interface/full will train on long4k alone and short16k+long4k. Five short and five long decoded samples/masks have been inspected for both targets. The mixture preserves the two responses to the same4k queries as explicitly labeled `short512`/`long2048` records with identical prompt IDs/tokens and distinct sample IDs; ordinary duplicate-query rejection remains the default. See the live tables for completed long-response comparisons.
 
 The existing short-response repair closes39.2%[32.0,45.7] of R1's oracle gap at the8,192 evaluation ceiling (full, n32), compared with53.5%[50.2,57.0] at512. This is the measured motivation for E9, not its outcome. [A4 table](REV2-evidence-20261010/long-recovery.md).
+
+Supplementary sampling acceptance is already complete under D53: at an8,192-token ceiling and T=.6/top-p=.95, full repair addsτ+.622[.470,.771] on R1 and+.989[.904,1.067] on Nemotron (MATH32,n32,one evaluation seed). These are acceptance measurements, separate from E10 greedy wall-clock and any optional sampled timing. [Prior raw-verified sampling evidence](REV1-paper-strengthening-20261010.md).
 
 ## E10 — reasoning wall-clock
 
@@ -121,37 +123,45 @@ Existing production, one-epoch, one-seed controls: on SPEED128, generic minus se
 <!-- REV2 LIVE RAW RESULTS BEGIN -->
 ## Live raw-result tables
 
-Independent reduction snapshot: 2026-10-10T06:13:18.888000-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+Independent reduction snapshot: 2026-10-10T06:16:29.791143-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
 
 ### E8 matched-capacity
-Completed comparison rows: 1; pending inputs: 19.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/E8/results.json)
+Completed comparison rows: 3; pending inputs: 17.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E8/results.json)
 
 | Target | Parameters | Panel | n/seeds | Interface τ | Decoder τ | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---:|---:|---:|---|---|
+| 1 | dense50M | speed128 | 128/3 | 2.406 | 2.383 | +0.023 [-0.006,+0.052] | +0.008 [-0.001,+0.016] |
 | 1 | dense50M | math64 | 64/3 | 2.712 | 2.705 | +0.008 [-0.017,+0.033] | +0.007 [-0.001,+0.015] |
+| 1 | lowrank1.229M | math64 | 64/3 | 2.514 | 2.496 | +0.018 [-0.010,+0.045] | +0.009 [+0.000,+0.017] |
 
 ### E9/E12/E13/E14/E15/E17 acceptance
 Completed comparison rows: 0; pending inputs: 11.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/acceptance/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/acceptance/results.json)
 
 ### E10/E11/E12 timing
 Completed comparison rows: 0; pending inputs: 177.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/timing/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/timing/results.json)
 
 ### E16 resources
 Completed comparison rows: 0; pending inputs: 4.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/E16/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E16/results.json)
 
 ### E9/E12 response data
-Completed comparison rows: 0; pending inputs: 3.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061318_285942/data/results.json)
+Completed comparison rows: 1; pending inputs: 2.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/data/results.json)
+
+| Target | Data | n | Answer tokens | Mean length | Capped | Repeated4gram >50% | Generation GPUh |
+|---|---|---:|---:|---:|---:|---:|---:|
+|0|new_responses|4000|3530565|882.6|165|2|7.014|
+|0|paired_short_responses|4000|1875707|468.9|2846|1|previously recorded|
+|0|all_short_responses|16000|7518804|469.9|11517|5|previously recorded|
 
 ### Run-list completion
 
 | Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
 |---|---:|---|---|
-| P0 | 36 / 183 / 270 | False | False |
+| P0 | 40 / 183 / 270 | False | False |
 | P1 | 0 / 79 / 106 | False | False |
 | P2 | 0 / 2 / 8 | False | False |
 <!-- REV2 LIVE RAW RESULTS END -->
