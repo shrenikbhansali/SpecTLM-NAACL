@@ -32,7 +32,7 @@ def combine(reference,cells,oracle=None):
         kk=[k for k in ids if all(c['rows'][k]['conditional'][depth] is not None for c in references+cells)]
         if not kk:conditional.append(None);continue
         a=np.array([[c['rows'][k]['conditional'][depth] for k in kk] for c in references]);b=np.array([[c['rows'][k]['conditional'][depth] for k in kk] for c in cells]);conditional.append(paired_seed_query(a,b))
-    return dict(metrics=results,conditional=conditional,paired_ids=ids,reference=[c['source'] for c in references],sources=[c['source'] for c in cells],source_hashes=[c['sha256'] for c in cells],oracle=oracle['source'] if oracle else None)
+    return dict(metrics=results,conditional=conditional,total_prompt_ids=len(anchor['rows']),excluded_no_speculative_step_ids=sorted(set(anchor['rows'])-set(ids)),paired_ids=ids,reference=[c['source'] for c in references],sources=[c['source'] for c in cells],source_hashes=[c['sha256'] for c in cells],oracle=oracle['source'] if oracle else None)
 
 def e8(stage,panels,out):
     out.mkdir(exist_ok=False);d={j['name']:j for j in lines(DISPATCH)};plan=json.loads((stage/'plan.json').read_text());records=[];pending=[];audits=[]
@@ -62,7 +62,7 @@ def e8(stage,panels,out):
                 ids=sorted(k for k in aa[0]['rows'] if all(c['rows'][k]['p1'] is not None for c in aa+bb));metrics={}
                 for key in ['p1','tau','length']:
                     a=np.array([[c['rows'][k][key] for k in ids] for c in aa]);b=np.array([[c['rows'][k][key] for k in ids] for c in bb]);metrics[key]=paired_seed_query(a,b)
-                records.append(dict(target=t,contrast=label,workload=w,metrics=metrics,reference=left,arm=right,sources=[c['source'] for c in aa+bb]))
+                records.append(dict(target=t,contrast=label,workload=w,metrics=metrics,total_prompt_ids=len(aa[0]['rows']),excluded_no_speculative_step_ids=sorted(set(aa[0]['rows'])-set(ids)),reference=left,arm=right,sources=[c['source'] for c in aa+bb]))
     write(out/'results.json',dict(status='pilot',records=records,pending=pending,audits=audits))
     text=['# E8 matched location at16k — pilot','', 'Positive difference means interface exceeds decoder. Paired seed and query bootstrap10,000 draws; all three seeds required for SPEED/MATH64 rows. Final-only export/storage choices do not change the checked optimization schedule.','', '| Target | Parameters | Panel | n/seeds | Interface τ | Decoder τ | Δτ [95% CI] | Δp1 [95% CI] |','|---|---|---|---:|---:|---:|---|---|']
     def f(d):return f"{d['mean']:+.3f} [{d['ci95'][0]:+.3f},{d['ci95'][1]:+.3f}]"

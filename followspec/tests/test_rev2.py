@@ -132,3 +132,11 @@ def test_preinspected_sample_match_rejects_any_unseen_text_or_mask():
     checked_samples([row]*5,[row|dict(branch='long2048')]*5)
     with pytest.raises(ValueError):checked_samples([row]*5,[row]*4+[row|dict(answer='different')])
     with pytest.raises(ValueError):checked_samples([row]*5,[row]*4+[row|dict(loss_mask=[True,True])])
+
+def test_resource_comparison_resamples_matched_step_blocks():
+    from followspec.rev2_profile_analysis import paired_step_blocks
+    r=paired_step_blocks([2.]*200,[4.]*200)
+    assert r['ratio_arm_over_reference']['mean']==2
+    assert r['ratio_arm_over_reference']['ci95']==[2,2]
+    assert r['delta_s']['ci95']==[2,2]
+    assert r['blocks']==19 and r['steps']==190
