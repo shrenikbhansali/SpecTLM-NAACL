@@ -107,3 +107,10 @@ def test_long_mixture_keeps_both_responses_and_rejects_prefix_changes():
     assert [v['sample_id'] for v in out]==['short512:x','long2048:x']
     assert [v['completion_token_ids'] for v in out]==[[3],[3,4]]
     with pytest.raises(ValueError):mixture([r],[long|dict(prompt_token_ids=[1,9])])
+
+def test_training_comparison_rejects_budget_and_data_mismatches():
+    from followspec.rev2_training_analysis import matched_training
+    a=dict(data_sha256='h',steps=100,seed=0,lr=2e-5)
+    assert matched_training(a,a|dict(variant='decoder_qo'))
+    for key,value in [('data_sha256','other'),('steps',200),('seed',1),('lr',1e-4)]:
+        with pytest.raises(ValueError):matched_training(a,a|{key:value})

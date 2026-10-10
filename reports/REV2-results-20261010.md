@@ -1,6 +1,6 @@
 # REV2: additional ReFit evidence — pilot
 
-D-54, codex-1. Updated 2026-10-10 04:34 Eastern. Analysis for integration by claude-ops; `paper/claude_final` is untouched. New GPU numbers will be added only after completion and independent raw-counter checks. Existing observations below retain their original initialization, budget, protocol and sample size.
+D-54, codex-1. Updated 2026-10-10T05:03:36.837620-04:00 Eastern. Analysis for integration by claude-ops; `paper/claude_final` is untouched. New GPU numbers will be added only after completion and independent raw-counter checks. Existing observations below retain their original initialization, budget, protocol and sample size.
 
 All new primary acceptance: frozen 6da2e42, vLLM 0.31.0, A40, greedy K4, identical target-rendered IDs across arms. Long caps are supplementary workload extensions. Training uses FIX-24 initialization. Uncertainty jointly resamples paired training seeds and queries where multiple seeds exist; single-seed estimates use paired queries. Wall-clock measurements separately resample processes and paired prompt batches. Artifacts are immutable, compact checkpoints omit final optimizer state, and every launcher enforces the350GB free-space floor. Code/tag: `run-REV2-train-20261010-0425` /62cecc1.
 
@@ -52,7 +52,7 @@ Synchronized200-step profile implemented behind an opt-in flag. Measures target 
 
 ## E15 — vocabulary reselection
 
-Opt-in training-response-only32k selection implemented and unit-tested: answer tokens only, deterministic frequency/ID ties, shared head rows preserved, newly included rows initialized from target head, both vocabulary maps updated. Matched official16k full-repair runs pending dispatch; frozen export evaluation required before any number is used.
+Opt-in training-response-only32k selection implemented and unit-tested: answer tokens only, deterministic frequency/ID ties, shared head rows preserved, newly included rows initialized from target head, both vocabulary maps updated. Two matched official16k full-repair runs queued at P2 priority; frozen export evaluation required before any number is used.
 
 ## E18 — tree feasibility
 
@@ -64,7 +64,7 @@ Opt-in training-response-only32k selection implemented and unit-tested: answer t
 
 ## A2 — census composition and provenance
 
-**Complete raw recomputation:** [model-level CSV](REV2-evidence-20261010/census.csv), [composition table](REV2-evidence-20261010/census-table.md), [raw audit](../artifacts/REV2_A2_20261010_0440/audit.json). All414 method/checkpoint/workload entries reproduce their archived p1 retention to1e−8:348 historical plus66 focused. Historical174 models:87 Llama/87 Qwen;163 derivative-own64-query workloads and11 general-fallback128-query workloads;42 unknown training histories. Combinations are retained, not forced into mutually exclusive single-stage categories. Groups separate family, lineage and workload, with equal checkpoint weights and10,000 hierarchical checkpoint/paired-query draws.
+**Complete raw recomputation:** [model-level CSV](REV2-evidence-20261010/census.csv), [composition table](REV2-evidence-20261010/census-table.md), [raw audit](../artifacts/REV2_A2_20261010_0440/audit.json). All414 method/checkpoint/workload entries reproduce their archived p1 retention to1e−8:348 historical plus66 focused. Historical174 models:87 Llama/87 Qwen;163 derivative-own64-query workloads and11 general-fallback128-query workloads;42 unknown training histories. Combinations are retained, not forced into mutually exclusive single-stage categories. Groups separate family, lineage and workload, with equal checkpoint weights and10,000 hierarchical checkpoint/paired-query draws. A separate [predeclared eligible focused table](REV2-evidence-20261010/focused21-table.md) removes the2 pretrained controls and2 previously flagged collapsed GRPO models, leaving21 SPEED checkpoints; the all-model CSV retains every row and flag. [Filter counts](../artifacts/REV2_A2_eligible_source_20261010_0500/filters.json).
 
 “Own-domain” denotes derivative-specific query sets, not shared prefixes or identical generated responses. A00/A10 have identical rendered query IDs but generate their own continuations. The fixed-prefix diagnostics address a different estimand. Historical engine0.31 generation was audited by FIX23; its recorded pre-freeze harness commits are preserved in the CSV audit, rather than relabeled6da2e42.
 
@@ -104,7 +104,7 @@ The focused census uses the **production** family drafter: R1 parent p1 .56634, 
 
 ## A9 — shareable interface storage
 
-Official interface50,331,648 parameters is100.663MB in bf16 (96MiB). Full mutable drafter424,689,664 parameters is849.379MB bf16 (810.031MiB). Existing interface export metadata lists only `fc.weight` as mutable; decoder/head remain shared. These are tensor-size accounting in bf16, distinct from current fp32 training/export file sizes and complete engine resident memory. E16 will supply actual serialized bytes and memory/time measurements.
+Official interface50,331,648 parameters is100.663MB in bf16 (96MiB). Full mutable drafter424,689,664 parameters is849.379MB bf16 (810.031MiB). Existing interface export metadata lists only `fc.weight` as mutable. [Fresh tensor audit](../artifacts/REV2_A9_20261010_0452/proof.json) verifies all14 frozen release tensors for both targets, exactly after the logged fp16→fp32 load conversion; the decoder/head values therefore remain identical at the common serving dtype. These are tensor-size accounting in bf16, distinct from current fp32 training/export file sizes and complete engine resident memory. E16 will supply actual serialized bytes and memory/time measurements.
 
 ## A10 — self-elicited versus Alpaca4k
 
