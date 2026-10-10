@@ -433,3 +433,14 @@ Free disk 642.1GB; new failures=[]; unresolved failures=[]. Each failure has an 
 The 3-seed official 16k results satisfy the D-52 condition, so official stays primary (table in the gate report addendum).
 D-52 follow-ups: 68/69 complete, 0 failures; the official MATH-500 reuse cell is still running. Operator timing readout is in the gate report; codex's paired analysis is pending.
 Disk 598 GB. E5c 64k training continues (started 16:05; ETA ~01:00–02:00).
+
+### 2026-10-09T20:07:45.862193-04:00 — codex-1 — D50 launch health
+Free disk 640.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T20:19:56-04:00 — claude-ops — 20:19 check: E5c 64k progress
+
+- No failures; disk 597 GB. Codex has made no commits since 16:27.
+- E5c 64k (production drafter) is 18,448 steps per arm. Progress: fc 8,457, full 7,105. ETA: fc ~01:30, full ~03:00, evals ~03:30.
+- The 25% export (s4612, ≈16k examples seen, mid-schedule) gives SPEED recovery fc 54.5% / full 66.4% and MATH 37.6% / 47.7%.
+  For comparison, production 16k one epoch is 50.9% / 65.8% (SPEED) and 36.3% / 48.3% (MATH).
+- FIX-24: all acceptance evidence is complete (tests, step-0, every rerun cell). Waiting for codex to set review before the operator closes it.
