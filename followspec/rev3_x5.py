@@ -61,11 +61,16 @@ def prepare(stage,code):
             jj,rr=timing(d,stage,code,t,arm,drafter,revision);jobs+=jj;controls+=rr
     write(stage/'control-plan.json',controls);publish(jobs,stage/'publish-controls')
 
+def publication_complete(dest):
+    if (dest/"published.json").exists():return True
+    groups=list(dest.glob("group-*"))
+    return len(groups)==2 and all((g/"published.json").exists() for g in groups)
+
 def sweep(stage,code):
     d={j['name']:j for j in lines(DISPATCH)};pending=0
     for r in json.loads((stage/'plan.json').read_text()):
         root=Path(r['run_dir']);dest=stage/('publish-final-'+r['name'])
-        if (dest/'published.json').exists():continue
+        if publication_complete(dest):continue
         if not (root/'results.json').exists():pending+=1;continue
         c=json.loads((root/'config.json').read_text());res=json.loads((root/'results.json').read_text());assert c['steps']==res['steps'] and c['n']==res['n']==16000
         export=Path(res['exports'][-1]);assert (export/'repair_provenance.json').exists();jobs=[];records=[]
