@@ -26,7 +26,7 @@ def sweep(stage,panels):
             name=r['name']+'-'+w;out=stage/'eval'/name;j=eval_job(source,name,out,prompts);o,i=parts(j)
             for a,f,g in [(o,'--drafter-model','--drafter-rev'),(i,'--drafter','--drafter-revision')]:replace(a,f,export);replace(a,g,cfg['code_commit'])
             replace(i,'--max-new-tokens',cap)
-            if cap>512:replace(i,'--max-model-len',12288)
+            if w.startswith('math32-'):replace(i,'--max-model-len',12288)
             j['args']=o+['--']+i;ready.append(j)
             records.append(r|dict(kind='eval',workload=w,n=128 if w=='speed128' else (500 if w=='math500' else (32 if w.startswith('math32') else 64)),name=name,run_dir=str(out),training_dir=str(root),drafter=str(export)))
         write(stage/('eval-plan-'+r['name']+'.json'),records);publish(ready,dest)

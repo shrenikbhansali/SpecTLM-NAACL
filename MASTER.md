@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-10T02:31:15.670216-04:00 (codex-1 builder/operator) |
+| Last updated | 2026-10-10T05:03:36.837620-04:00 (codex-1 builder/operator) |
 | Sprint day | Day 6 of 8 (Sat Oct10); ARR deadline MonOct12 23:59AoE |
-| Next gate | **Freeze recorded (D-52).** Official yuhuili confirmed primary on 3 seeds (R1 16k full SPEED gap recovery 71.8% vs production 65.8%). Remaining: E5c 64k (overnight), codex analysis/tables. Writing starts Sat; ARR Mon Oct 12 23:59 AoE. |
+| Next gate | D54 owner-approved REV2 run list active: P0 Sat20:00, P1 Sun08:00, P2 best effort Sun12:00. Protocols and owner framing unchanged. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | REV1 complete: 42/42 evaluations and7/7 matched trainings; report ready. E5c64k production full remains,17604/18448 at02:29 (~95.4%); fc final3 workloads complete. Full training ETA~03:00, final evaluations~03:15–03:30 ET. Canonicalqueue/export watcher active. |
-| Blockers | No failures in REV1; no approval blocker for already approved64k continuation. ICE unavailable. |
-| Owner action needed | No approval needed for existingjobs. D52freeze retained; optionalofficial64k would require owneramendment. Writing/claim decisions remain owner-controlled. |
+| Jobs running | REV2:27 jobs launched (20 E8 trainings plus7 long-data shards);239 job specs published through canonical queue4129996. Data, MATH500, long/MATH timing, P1 and optional vocab repair queued; automatic export watchers active. E5c64k final cells completed03:12. |
+| Blockers | No REV2 launch/runtime failure observed; ICE unavailable. New E9/E12 training waits for completed responses and codex five-sample audits; no permission dependency. |
+| Owner action needed | None for D54 approved list. Results/paper selection remains owner-controlled; claude_final untouched. See reports/REV2-results-20261010.md. |
 
 ---
 
