@@ -83,13 +83,13 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-10T06:14:21.525914-04:00 (codex-1 builder/operator) |
+| Last updated | 2026-10-10T12:54:01.154430-04:00 (codex-1 builder/operator) |
 | Sprint day | Day 6 of 8 (Sat Oct10); ARR deadline MonOct12 23:59AoE |
 | Next gate | D54 owner-approved REV2 run list active: P0 Sat20:00, P1 Sun08:00, P2 best effort Sun12:00. Protocols and owner framing unchanged. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | REV2:37 successful jobs, no failures; 11/20 E8 trainings complete, first3seed matched group reduced; long-response/Qwen generation and frozen evaluations active across27eligible slots. Canonical queue4129996; downstream progression active. |
-| Blockers | No REV2 launch/runtime failure observed. All five-sample inspections recorded; completed datasets still require full seal/hash/exclusion checks before auto-training. ICE unavailable. |
+| Jobs running | REV2: E8/E10/E11/E12/E14/E16 and CPU analyses complete. Eight E9 packing-recovery trainings active; E13 scratch64k, R1E15 and finalE17 evaluations remain. Canonicalqueue4129996 only; raw-report/export watchers active. |
+| Blockers | Eight E9 first-backward OOMs preserved; all eight fresh2304-token packing retries now pass multiple backward steps. Long-repair branch delayed; no other active failure found. ICE unavailable. |
 | Owner action needed | None for D54 approved list. Results/paper selection remains owner-controlled; claude_final untouched. See reports/REV2-results-20261010.md. |
 
 ---
@@ -313,9 +313,9 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | REV1 | Strengthen ReFit evidence: long/sampled reasoning, capacity and parent-supervision controls; separate Markdown, Claude manuscript untouched | P0 | codex | D53 | now | review | codex-1 / 2026-10-10T02:31:15.670216-04:00 | [completed evidence report](reports/REV1-paper-strengthening-20261010.md), [journal](notes/REV1.md), [pilot ledger](ledger/EXP-ATL-026.md); all42 evaluations +7 trainings complete;7 matched audits and26 regression tests PASS; raw-recomputed CIs, nulls retained |
 
-| REV2-P0 | D54 E8/E14/E12/E9/E10 and CPU A1–A10; separate results report, Claude draft untouched | P0 | codex | D54 | Sat20:00 | in progress | codex-1 / 2026-10-10T12:48:49.223030-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md); E8/E10/E12/E14 complete; E9 eight first-backward OOMs under active recovery at2304token packing; data unchanged |
-| REV2-P1 | D54 E11/E17/E13/E16; separate results report, Claude draft untouched | P1 | codex | D54 | Sun08:00 | in progress | codex-1 / 2026-10-10T06:19:08.861075-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); E11/E17/E13/E16 queued; 39 tests pass; final evaluation and raw-report watchers active |
-| REV2-P2 | D54 E15/E18 and optional sampled timing; separate results report, Claude draft untouched | P2 | codex | D54 | Sun12:00 | in progress | codex-1 / 2026-10-10T06:19:08.861075-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); E18 infeasible with pinned-source evidence; E15 flag/tests built |
+| REV2-P0 | D54 E8/E14/E12/E9/E10 and CPU A1–A10; separate results report, Claude draft untouched | P0 | codex | D54 | Sat20:00 | in progress | codex-1 / 2026-10-10T12:54:01.154430-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md); E8/E10/E12/E14 andA1–A10 complete; E9 all8packing2304retries pastfirstbackward, frozenexport/evalwatchers active |
+| REV2-P1 | D54 E11/E17/E13/E16; separate results report, Claude draft untouched | P1 | codex | D54 | Sun08:00 | in progress | codex-1 / 2026-10-10T12:54:01.154430-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md); E11/E16 complete; E17 finalr16seed evaluation; E13scratch64k progressing; 41testsPASS |
+| REV2-P2 | D54 E15/E18 and optional sampled timing; separate results report, Claude draft untouched | P2 | codex | D54 | Sun12:00 | in progress | codex-1 / 2026-10-10T12:54:01.154430-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md); E18 pinned-engine infeasibility recorded; NemoE15complete,R1E15training |
 
 ---
 

@@ -29,3 +29,7 @@ Nemotron MATH64 dense50M3seeds: interfaceτ2.71249,decoderq+o2.70453; Δτ+.0079
 ### 2026-10-10T06:19:08.861075-04:00 — E9 R1 corpus and training handoff
 
 R1long4k sealed,4000rows/3530565answer tokens,7.014GPUh; mixed20k sealed,manualsamplematchesPASS;4trainingjobs published through canonicalqueue. Sources artifacts/REV2_followups_20261010_0500/sealed-t0 andtraining-t0/plan.json. No E9performance number yet. E8matched Nemotron dense50MSPEED Δτ+.023[-.006,.052],n128/3seeds, null retained.
+
+### 2026-10-10T12:53:07.693553-04:00 — Midday independent results and E9 recovery
+
+Completed E8/E10/E11/E12/E14/E16 raw tables: artifacts/REV2_live_analysis_20261010_0550/20261010_124623_480893; full narrative/CI/n/sources in reports/REV2-results-20261010.md middaysection. Qwenfull Δτ+.377[.335,.415]SPEED128,+.473[.456,.491]MATH500,one seed. LongMATH32warmfull/no-spec R11.767[1.437,2.272],Nemo1.634[1.371,2.020],3processes. E8three-seedτlocationcontrasts null inall8groups,seed0R1MATH500favorsdecoder. EightE9 first-backwardOOMattempts preserved, retries use2304packing perD54,fullsequencesunchanged; newtag d6f6502. No E9performance number claimed.
