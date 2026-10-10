@@ -83,12 +83,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-10T05:50:07.718488-04:00 (codex-1 builder/operator) |
+| Last updated | 2026-10-10T06:14:21.525914-04:00 (codex-1 builder/operator) |
 | Sprint day | Day 6 of 8 (Sat Oct10); ARR deadline MonOct12 23:59AoE |
 | Next gate | D54 owner-approved REV2 run list active: P0 Sat20:00, P1 Sun08:00, P2 best effort Sun12:00. Protocols and owner framing unchanged. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | REV2:27 active slots; 12 successful jobs completed; first E8 frozen evaluations live, all8Qwen generation shards launched. Canonical queue4129996; data/training/eval/report progression active. |
+| Jobs running | REV2:37 successful jobs, no failures; 11/20 E8 trainings complete, first3seed matched group reduced; long-response/Qwen generation and frozen evaluations active across27eligible slots. Canonical queue4129996; downstream progression active. |
 | Blockers | No REV2 launch/runtime failure observed. All five-sample inspections recorded; completed datasets still require full seal/hash/exclusion checks before auto-training. ICE unavailable. |
 | Owner action needed | None for D54 approved list. Results/paper selection remains owner-controlled; claude_final untouched. See reports/REV2-results-20261010.md. |
 
