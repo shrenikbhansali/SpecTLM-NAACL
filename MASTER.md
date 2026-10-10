@@ -313,6 +313,10 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | REV1 | Strengthen ReFit evidence: long/sampled reasoning, capacity and parent-supervision controls; separate Markdown, Claude manuscript untouched | P0 | codex | D53 | now | review | codex-1 / 2026-10-10T02:31:15.670216-04:00 | [completed evidence report](reports/REV1-paper-strengthening-20261010.md), [journal](notes/REV1.md), [pilot ledger](ledger/EXP-ATL-026.md); all42 evaluations +7 trainings complete;7 matched audits and26 regression tests PASS; raw-recomputed CIs, nulls retained |
 
+| REV2-P0 | D54 E8/E14/E12/E9/E10 and CPU A1–A10; separate results report, Claude draft untouched | P0 | codex | D54 | Sat20:00 | in progress | codex-1 / 2026-10-10T04:15:22.284800-04:00 | [plan](reports/REV2-plan-20261010.md), [journal](notes/REV2.md); claim, resource audit and dependency staging |
+| REV2-P1 | D54 E11/E17/E13/E16; separate results report, Claude draft untouched | P1 | codex | D54 | Sun08:00 | in progress | codex-1 / 2026-10-10T04:15:22.284800-04:00 | [plan](reports/REV2-plan-20261010.md), [journal](notes/REV2.md); claim, resource audit and dependency staging |
+| REV2-P2 | D54 E15/E18 and optional sampled timing; separate results report, Claude draft untouched | P2 | codex | D54 | Sun12:00 | in progress | codex-1 / 2026-10-10T04:15:22.284800-04:00 | [plan](reports/REV2-plan-20261010.md), [journal](notes/REV2.md); claim, resource audit and dependency staging |
+
 ---
 
 ## 5. Research context (what agents need to know)
