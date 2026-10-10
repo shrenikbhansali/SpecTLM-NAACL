@@ -133,7 +133,23 @@ def controls(stage,code):
     write(stage/'plan.json',records);write(stage/'jobs.json',ready)
     publish(ready,stage/'publish-initial')
 
+
+def sampled(stage,code):
+    frozen_check();require_free(WS,350);stage.mkdir(exist_ok=False)
+    jobs=lines(DISPATCH);ready=[];records=[]
+    for src in jobs:
+        if not src['name'].startswith('REV1-long-') or not src['name'].endswith('-8192'):continue
+        j=copy.deepcopy(src);o,i=parts(j);name=src['name'].replace('REV1-long-','REV1-sampled-')
+        out=stage/name
+        replace(o,'--tag',name);replace(o,'--code-repo',str(code))
+        replace(o,'--note','D53 supplemental sampling pilot T0.6 p0.95 MATH32 8192; pinned vLLM0.31.0 A40; extended harness, separate from frozen primary acceptance')
+        replace(i,'--output',str(out));replace(i,'--temperature',.6);replace(i,'--top-p',.95)
+        j['name']=name;j['args']=o+['--']+i;ready.append(j)
+        records.append(dict(kind='sampled',name=name,run_dir=str(out),target=int(name.split('-')[2][1:]),arm=name.split('-')[3],cap=8192,n=32))
+    assert len(ready)==7
+    write(stage/'plan.json',records);write(stage/'jobs.json',ready);publish(ready,stage/'publish-initial')
+
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','watch','controls']);p.add_argument('--stage',type=Path,required=True);p.add_argument('--code',type=Path,default=Path(__file__).resolve().parents[1]);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','watch','controls','sampled']);p.add_argument('--stage',type=Path,required=True);p.add_argument('--code',type=Path,default=Path(__file__).resolve().parents[1]);a=p.parse_args()
     if a.action=='watch':watch(a.stage)
     else:globals()[a.action](a.stage,a.code)

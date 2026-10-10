@@ -120,6 +120,14 @@ def supervision_source(target, rows, alternate):
     return source
 
 
+def supervision_vocabulary(child, parent, lexical_size):
+    c={i:t for t,i in child.items()};p={i:t for t,i in parent.items()}
+    if set(c)!=set(p):raise ValueError('supervision vocabulary support differs')
+    changes=[dict(id=i,response_token=c[i],supervisor_token=p[i]) for i in sorted(c) if c[i]!=p[i]]
+    if any(r['id']<lexical_size for r in changes):raise ValueError('alternate supervision lexical token IDs differ')
+    return changes
+
+
 class RepairDataset(torch.utils.data.Dataset):
     def __init__(self,rows,capture,algorithm="eagle3"):
         self.rows=rows;self.capture=capture;self.algorithm=algorithm;self.hidden_states_dtype=torch.bfloat16
@@ -182,7 +190,7 @@ def main():
         from transformers import AutoTokenizer
         child_tok=AutoTokenizer.from_pretrained(target['path'],local_files_only=True)
         parent_tok=AutoTokenizer.from_pretrained(supervision['path'],local_files_only=True)
-        if child_tok.get_vocab()!=parent_tok.get_vocab():raise ValueError('alternate supervision requires identical token-id vocabulary')
+        special_aliases=supervision_vocabulary(child_tok.get_vocab(),parent_tok.get_vocab(),min(child_tok.vocab_size,parent_tok.vocab_size))
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
     previous=None;resume_step=0
     if a.continue_epoch_from:
@@ -206,7 +214,7 @@ def main():
     batches=one_epoch if previous else step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
     cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-shift for b in batches for i in b),batch_plan=batches,ttt_steps=a.ttt_steps,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
     if a.algorithm=='dflash':cfg.update(ttt_steps=None,ttt_step_loss_decay=None,loss='native DFlash fused KL; gamma4 fixed-exp-decay; answer positions',max_anchors=a.max_anchors)
-    if a.supervision_row:cfg.update(supervision=supervision,supervision_row_sha256=file_hash(a.supervision_row),control='Derivative text and initialization fixed; alternate model supplies both taps and soft labels')
+    if a.supervision_row:cfg.update(supervision=supervision,supervision_row_sha256=file_hash(a.supervision_row),special_token_aliases=special_aliases,control='Derivative token IDs and initialization fixed; alternate model supplies both taps and soft labels. Special token aliases are logged, never remapped.')
     if previous:cfg.update(schedule_horizon=resume_step+a.steps,resume_source=str(prior),resume_source_config_sha256=file_hash(prior/'config.json'),resume_checkpoint=str(checkpoint),resume_global_step=resume_step,completed_epochs=epoch_index+1,continuation_schedule='Restore AdamW moments; extend cosine total horizon to prior+new steps, no replay. First epoch retains original shorter schedule; not equivalent to uninterrupted two-epoch training.',rng_policy='Prior checkpoint lacks RNG state; deterministic seed reset at continuation, next epoch data order matches native shuffle stream',cumulative_token_budget=previous['token_budget']+cfg['token_budget'])
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     ensure_unpaused();ensure_unpaused(Path.cwd());require_free(a.output,a.min_free_gb)
