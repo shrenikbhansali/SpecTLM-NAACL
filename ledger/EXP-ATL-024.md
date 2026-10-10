@@ -97,3 +97,75 @@ Pilot update: 247 raw-recomputed rows,32 FIX24-invalid cells excluded; 42 new co
 ### 2026-10-09T16:22:30.963850-04:00 — codex-1 — automatic raw update
 
 Pilot update: 250 raw-recomputed rows,32 FIX24-invalid cells excluded; 45 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_162230/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:33:17.274455-04:00 — codex-1 — automatic raw update
+
+Pilot update: 255 raw-recomputed rows,32 FIX24-invalid cells excluded; 50 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_163317/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:44:03.418034-04:00 — codex-1 — automatic raw update
+
+Pilot update: 258 raw-recomputed rows,32 FIX24-invalid cells excluded; 53 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_164403/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T16:54:50.267139-04:00 — codex-1 — automatic raw update
+
+Pilot update: 259 raw-recomputed rows,32 FIX24-invalid cells excluded; 54 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_165450/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T17:05:37.077494-04:00 — codex-1 — automatic raw update
+
+Pilot update: 263 raw-recomputed rows,32 FIX24-invalid cells excluded; 58 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_170537/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T17:31:24.498626-04:00 — codex-1 — automatic raw update
+
+Pilot update: 264 raw-recomputed rows,32 FIX24-invalid cells excluded; 59 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_173124/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T17:42:11.774243-04:00 — codex-1 — automatic raw update
+
+Pilot update: 267 raw-recomputed rows,32 FIX24-invalid cells excluded; 62 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_174211/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T18:03:59.660105-04:00 — codex-1 — automatic raw update
+
+Pilot update: 268 raw-recomputed rows,32 FIX24-invalid cells excluded; 63 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_180359/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T18:14:47.544064-04:00 — codex-1 — automatic raw update
+
+Pilot update: 271 raw-recomputed rows,32 FIX24-invalid cells excluded; 66 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_181447/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T18:32:35.880028-04:00 — codex-1 — automatic raw update
+
+Pilot update: 272 raw-recomputed rows,32 FIX24-invalid cells excluded; 67 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_183235/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T18:43:24.944253-04:00 — codex-1 — automatic raw update
+
+Pilot update: 273 raw-recomputed rows,32 FIX24-invalid cells excluded; 68 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_184324/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T18:57:13.590239-04:00 — codex-1 — automatic raw update
+
+Pilot update: 274 raw-recomputed rows,32 FIX24-invalid cells excluded; 69 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_185713/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T19:08:02.647171-04:00 — codex-1 — automatic raw update
+
+Pilot update: 275 raw-recomputed rows,32 FIX24-invalid cells excluded; 70 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_190802/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T20:46:53.728352-04:00 — codex-1 — automatic raw update
+
+Pilot update: 276 raw-recomputed rows,32 FIX24-invalid cells excluded; 71 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_204653/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T20:57:42.662102-04:00 — codex-1 — automatic raw update
+
+Pilot update: 277 raw-recomputed rows,32 FIX24-invalid cells excluded; 72 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_205742/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T21:39:32.225310-04:00 — codex-1 — automatic raw update
+
+Pilot update: 278 raw-recomputed rows,32 FIX24-invalid cells excluded; 73 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_213932/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T21:50:21.291803-04:00 — codex-1 — automatic raw update
+
+Pilot update: 279 raw-recomputed rows,32 FIX24-invalid cells excluded; 74 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_215021/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T23:04:11.646831-04:00 — codex-1 — automatic raw update
+
+Pilot update: 280 raw-recomputed rows,32 FIX24-invalid cells excluded; 75 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_230411/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.
+
+### 2026-10-09T23:15:01.735057-04:00 — codex-1 — automatic raw update
+
+Pilot update: 281 raw-recomputed rows,32 FIX24-invalid cells excluded; 76 new completion sources observed. Immutable report /home/heck2/sbhansali8/SpecTLM/artifacts/D50_final_watch_20261009_1454/snapshot-20261009_231501/report.md and LaTeX/CSV/scaling figure. No pending result imputed; source-mixture caveat and nulls retained.

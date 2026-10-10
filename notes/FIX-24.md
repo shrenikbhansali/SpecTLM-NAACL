@@ -203,3 +203,15 @@ R1 official 4k full SPEED recovery = (2.462 − 1.764)/(2.848 − 1.764) = 64.4%
 Reuse baselines: official `P3_D50_20261009_0200/E1-reuse/runs/D50-E1-official-t{0,1}-*`; production = the D50 analysis `baseline` paths (T1 A10 cells / P3 math-family controls).
 Launched official 16k seeds 1–2 on R1 (fc, full): `artifacts/FIX24_official_seeds_20261009/seeds.py`. Training args are byte-identical to FIX24-official-t0-16k-{arm} except seed/tag/output.
 Evals (SPEED-128 + MATH-64, frozen 6da2e42) are auto-appended on final exports. Seed 1 launched 15:55 (srv2:3, srv5:6); seed 2 is queued.
+
+### 2026-10-10T00:20:48.854355-04:00 — codex-1 — overnight progress / Handoff
+
+Pulledmain, read D51/D52 and operatorupdates. All official16k R1seeds0–2, Nemotron16k,69D52followups (66timing+3MATH500) complete. D51watch selectedofficial at19:21Friday with paired3seed evidence: SPEED full gap71.7%[69.2,74.3],fc59.9%[57.6,62.4]. Productionrobustness retained. Operator's71.8/60.0 are slightly different averaging/rounding; use canonical mean-delta/shared-denominator numbers and paired bootstrap fromD51snapshot192136, no significance discrepancy.
+
+ClaimedP6 before analysis; independently reaggregated everyD52 timing batch/pass and verifiedfrozenharness/A40/configmatching, 3process×3warm,10000pairedprocess/query-batchCIs. Readraw MATH500 counters, exactrenderedIDs/promptSHA, n500/settings/totals, same-drafter reuse/oracle. New immutable artifacts/D52_analysis_20261010_0020, script hashes and provenance. Officialfull warm speedup versusnone: R1b1 1.828[1.652,1.992],b8 1.287[1.117,1.505]; Nemob1 1.803[1.629,1.977],b8 1.424[1.228,1.670]. FullMATH500tau2.969[2.947,2.991],gap54.4%[53.5,55.2],seed0; independent1Btau2.966, no unsupported superiority claim. Cold/startup/token-throughput/lengthmismatches retained.
+
+Primary integrated report reports/P3-primary-official-20261010.md and paper/tables/D52-20261010-0020. All3LaTeXtables compile; existinganalysisregressions8PASS. No evaluation code/engine change. No newGPUjoblaunch. FIX24allrequestedcore/rerun evidencecomplete, setreview foroperatorclosure; E1/P6review.
+
+OnlyapprovedremainingGPUwork E5c64kproduction: E5c-generic64k-fc 16612/18448 (90.0%); E5c-generic64k-full 13936/18448 (75.5%). Source-mixture changeAlpaca+Dolly labelled; intermediateexports notfinalscaling. Expectedfinalfc~01:15ET/full~03:00ET plusevaluations, estimatefromobservedrate. Canonicalqueue4129996,64kwatcher832362,D50report851749,D51report943172,health383520 alive; no unresolvedalerts orreporterrors;~631GBfree above350GBfloor. D52noofficial64k remainsbinding; operator'sproposalawaitsowneramendment and was notlaunched.
+
+Next: automatic64kfinalSPEED/MATH64/MATH500 and rawreport/scaling update, then integratefinal64k intoprimary/robustnessfigures and runfinalpapernumberaudit. P5prospectivevalidation remainsunperformed/outsideD52; keepclaimretrospective. No approval blocks the existingrunlist. Historical invalidofficialrepairs remainexcluded and preserved.

@@ -69,3 +69,7 @@ Only batch8 complete: n128,3processes×3warm repeats, paired10000process/query-b
 | 1 | independent | oracle | 32 / 3 | 0.618 [0.575,0.674] | 0.617 | 0.618 | 0.744 |
 
 All36 timing cells (six independent plus30shared controls); source`/home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/E3-timing/analysis/snapshot-20261009_030417/results.json`. Threeprocesses×3warm repeats, A40, greedy512, paired10000process/query-batch bootstrap, n128/b8 and32/b1. Cold/startup intervals, per-process values, output lengths and mismatches in JSON. Exact same rendered IDs; no acceptance derived from timing. Available hosts were not randomized; different greedy outputs remain documented. Nulls retained.
+
+### 2026-10-10T00:20:48.854355-04:00 — D52 official-primary analysis pilot
+
+All69cells complete. Independent rawtiming aggregation and frozenMATH500counterreconstruction, n128/b8 or32/b1 ×3processes×3warm; MATH500n500seed0. Paired10000bootstrap; config/inputhashes retained. Results and caveats in [primaryreport](../reports/P3-primary-official-20261010.md), artifacts/D52_analysis_20261010_0020;3LaTeXtablescompile,8regressiontestsPASS. Only64kproduction remainsrunning; no official64k launch.

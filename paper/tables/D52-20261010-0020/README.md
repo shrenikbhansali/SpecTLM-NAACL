@@ -1,0 +1,1 @@
+Pilot official-primary D52 tables. Report: reports/P3-primary-official-20261010.md. Raw evidence: artifacts/D52_analysis_20261010_0020. Timing seed0, three processes; R1 SPEED/MATH64 acceptance three seeds; MATH500 and Nemo seed0.
