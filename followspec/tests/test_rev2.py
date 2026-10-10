@@ -140,3 +140,16 @@ def test_resource_comparison_resamples_matched_step_blocks():
     assert r['ratio_arm_over_reference']['ci95']==[2,2]
     assert r['delta_s']['ci95']==[2,2]
     assert r['blocks']==19 and r['steps']==190
+
+def test_completion_ping_changes_only_own_ready_row(tmp_path):
+    from followspec.rev2_progress import ping_board
+    (tmp_path/'notes').mkdir();(tmp_path/'ledger').mkdir()
+    text='Gate unchanged\n| REV2-P0 | work | P0 | codex | D54 | now | in progress | codex-1 | evidence |\n| OTHER | untouched |\n'
+    (tmp_path/'MASTER.md').write_text(text)
+    ping_board(tmp_path,'P0',dict(ready_for_review=False),'/evidence','stamp')
+    assert (tmp_path/'MASTER.md').read_text()==text
+    ping_board(tmp_path,'P0',dict(ready_for_review=True,completed=270,expected=270),'/evidence','stamp')
+    new=(tmp_path/'MASTER.md').read_text()
+    assert '| review |' in new and 'Gate unchanged' in new and '| OTHER | untouched |' in new
+    ping_board(tmp_path,'P0',dict(ready_for_review=True,completed=270,expected=270),'/evidence','stamp')
+    assert (tmp_path/'notes/REV2.md').read_text().count('Completion ping')==1

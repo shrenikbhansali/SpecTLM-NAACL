@@ -3,7 +3,7 @@
 Never changes paper files, dispatch, gates or board completion. Reads completed
 cell markers, re-derives counters and writes a new timestamped evidence directory.
 """
-import argparse,fcntl,hashlib,json,time,traceback
+import argparse,fcntl,hashlib,json,time,traceback,subprocess
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -56,6 +56,10 @@ def collect(out,stages,plans):
         text+=['',f'### {title}',f'Completed comparison rows: {n}; pending inputs: {len(data["pending"])}.',f'[Immutable table](../{(out/key/"report.md").relative_to(WS)}) · [Numbers, intervals, n and sources](../{(out/key/"results.json").relative_to(WS)})']
         if n:
             table=(out/key/'report.md').read_text().splitlines();text+=['']+[s for s in table if s.startswith('|')]
+    from followspec.rev2_progress import progress
+    state=progress(out);(out/'progress.json').write_text(json.dumps(state,indent=2))
+    text+=['','### Run-list completion','', '| Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |','|---|---:|---|---|']
+    for level,r in state['levels'].items():text.append(f"| {level} | {r['completed']} / {r['planned']} / {r['expected']} | {r['analysis_complete']} | {r['ready_for_review']} |")
     (out/'summary.md').write_text('\n'.join(text)+'\n')
     return '\n'.join(text),total
 
@@ -69,8 +73,8 @@ def integrate(text):
     tmp=report.with_suffix('.md.rev2-tmp');tmp.write_text(s);tmp.replace(report)
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);p.add_argument('--watch',action='store_true');p.add_argument('--update-report',action='store_true');a=p.parse_args()
-    a.root.mkdir(exist_ok=True);lock=(a.root/'collector.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);last=None
+    p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);p.add_argument('--watch',action='store_true');p.add_argument('--update-report',action='store_true');p.add_argument('--ping-board',action='store_true',help='publish own row to review after all prescribed jobs and independent analyses complete');a=p.parse_args()
+    a.root.mkdir(exist_ok=True);lock=(a.root/'collector.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);last=None;last_snapshot=None;last_progress=None
     while True:
         stages,plans,paths=inputs();current=fingerprint(paths)
         if current!=last:
@@ -79,10 +83,31 @@ if __name__=='__main__':
                 text,n=collect(out,stages,plans)
                 if a.update_report:integrate(text)
                 print('REDUCED',out,'comparison rows',n,flush=True)
-                last=current
+                last=current;last_snapshot=out
             except Exception:
                 error=traceback.format_exc();print('ALERT raw reduction failed',error,flush=True)
                 if out.exists():(out/'error.txt').write_text(error)
                 raise
+        if last_snapshot is not None:
+            from followspec.rev2_progress import progress,ping_board
+            state=progress(last_snapshot);key=json.dumps(state,sort_keys=True)
+            if key!=last_progress:
+                stamp=datetime.now(ZoneInfo('America/New_York')).isoformat();proof=a.root/('progress-'+datetime.now().strftime('%Y%m%d_%H%M%S_%f')+'.json')
+                proof.write_text(json.dumps(state|dict(raw_analysis_snapshot=str(last_snapshot),updated_at=stamp),indent=2));last_progress=key
+                print('PROGRESS', {k:(v['completed'],v['expected'],v['ready_for_review']) for k,v in state['levels'].items()},flush=True)
+                if a.ping_board:
+                    for level,v in state['levels'].items():
+                        if not v['ready_for_review']:continue
+                        board=(WS/'MASTER.md').read_text();row=next(x for x in board.splitlines() if x.startswith('| REV2-'+level+' |'))
+                        if row.split('|')[7].strip() in ['review','done']:continue
+                        if subprocess.check_output(['git','branch','--show-current'],cwd=WS,text=True).strip()!='main':raise ValueError('board publication requires main')
+                        if subprocess.check_output(['git','diff','--','MASTER.md'],cwd=WS,text=True).strip():raise ValueError('uncommitted board changes; operator merge needed')
+                        subprocess.run(['git','pull','--ff-only'],cwd=WS,check=True)
+                        if ping_board(WS,level,v,str(proof.relative_to(WS)),stamp):
+                            subprocess.run(['git','add','MASTER.md','notes/REV2.md','ledger/EXP-ATL-027.md','reports/REV2-results-20261010.md'],cwd=WS,check=True)
+                            subprocess.run(['git','commit','-m','board: REV2-'+level+' review with completed raw evidence'],cwd=WS,check=True)
+                            subprocess.run(['git','push','origin','main'],cwd=WS,check=True)
+            if a.watch and all(v['ready_for_review'] for v in state['levels'].values()):
+                print('All mandatory D54 levels complete; owner selection/promotion remains separate.',flush=True);break
         if not a.watch:break
         time.sleep(30)
