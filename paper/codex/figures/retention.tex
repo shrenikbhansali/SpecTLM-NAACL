@@ -1,0 +1,19 @@
+% Source: reports/P1-typed-population-20261008.md, hierarchical checkpoint/query CIs.
+\begin{tikzpicture}
+\begin{axis}[scale only axis,width=4.65cm,height=3.45cm,xmin=.74,xmax=1.055,ymin=.3,ymax=3.7,
+ xlabel={First-position acceptance retained},ytick={1,2,3},
+ yticklabels={Sibling: distillation\\($n=5$),Direct: distillation\\($n=2$),Direct: on-policy RL\\($n=4$)},
+ yticklabel style={font=\scriptsize,align=right},
+ xtick={.75,.85,.95,1.0},tick label style={font=\scriptsize},xlabel style={font=\small},
+ axis x line*=bottom,axis y line*=left,y axis line style={draw=none},ytick style={draw=none},xmajorgrids,grid style={gray!15},
+ legend style={at={(.48,1.04)},anchor=south,legend columns=2,draw=none,font=\scriptsize},
+ clip=false]
+\draw[dashed,ink!50] (axis cs:1,.45)--(axis cs:1,3.48);
+\addplot+[only marks,mark=*,color=teal,mark options={fill=teal,draw=teal},error bars/.cd,x dir=both,x explicit]
+ coordinates {(.898,.9) +=(.077,0) -=(.098,0) (.937,1.9) +=(.050,0) -=(.048,0) (.986,2.9) +=(.015,0) -=(.017,0)};
+\addlegendentry{EAGLE-3}
+\addplot+[only marks,mark=square*,color=orange,mark options={fill=orange,draw=orange},error bars/.cd,x dir=both,x explicit]
+ coordinates {(.862,1.12) +=(.065,0) -=(.076,0) (.882,2.12) +=(.054,0) -=(.055,0) (.990,3.12) +=(.016,0) -=(.012,0)};
+\addlegendentry{DFlash}
+\end{axis}
+\end{tikzpicture}

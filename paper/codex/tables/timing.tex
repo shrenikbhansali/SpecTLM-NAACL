@@ -1,0 +1,28 @@
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Target / batch & Drafter & Warm speedup & Token throughput & Startup inclusive \\
+\midrule
+R1 / 1 & Reuse family drafter & 1.31 [1.23, 1.39] & 1.32 [1.25, 1.39] & 1.15 [1.10, 1.20] \\
+R1 / 1 & ReFit--interface & 1.74 [1.58, 1.89] & 1.75 [1.59, 1.90] & 1.40 [1.31, 1.49] \\
+R1 / 1 & ReFit--full & 1.83 [1.65, 1.99] & 1.84 [1.67, 2.00] & 1.46 [1.36, 1.55] \\
+R1 / 1 & Independent 1B drafter & 1.26 [1.20, 1.33] & 1.26 [1.21, 1.32] & 1.14 [1.10, 1.18] \\
+R1 / 1 & Dedicated R1 drafter & 2.05 [1.85, 2.25] & 2.07 [1.88, 2.25] & 1.58 [1.47, 1.69] \\
+\addlinespace[2pt]
+R1 / 8 & Reuse family drafter & 1.07 [0.99, 1.17] & 1.07 [0.99, 1.16] & 0.95 [0.90, 1.01] \\
+R1 / 8 & ReFit--interface & 1.27 [1.10, 1.47] & 1.27 [1.10, 1.47] & 1.07 [0.98, 1.19] \\
+R1 / 8 & ReFit--full & 1.29 [1.12, 1.51] & 1.28 [1.11, 1.50] & 1.09 [0.99, 1.21] \\
+R1 / 8 & Independent 1B drafter & 1.11 [1.09, 1.14] & 1.11 [1.09, 1.13] & 0.99 [0.95, 1.03] \\
+R1 / 8 & Dedicated R1 drafter & 1.41 [1.20, 1.67] & 1.40 [1.20, 1.66] & 1.11 [1.00, 1.22] \\
+\addlinespace[2pt]
+Nemotron / 1 & Reuse family drafter & 1.29 [1.20, 1.38] & 1.31 [1.24, 1.37] & 1.17 [1.07, 1.31] \\
+Nemotron / 1 & ReFit--interface & 1.69 [1.48, 1.89] & 1.74 [1.59, 1.88] & 1.42 [1.27, 1.59] \\
+Nemotron / 1 & ReFit--full & 1.80 [1.63, 1.98] & 1.82 [1.65, 1.99] & 1.48 [1.35, 1.65] \\
+Nemotron / 1 & Independent 1B drafter & 1.37 [1.28, 1.47] & 1.38 [1.31, 1.46] & 1.22 [1.12, 1.36] \\
+\addlinespace[2pt]
+Nemotron / 8 & Reuse family drafter & 1.13 [1.06, 1.20] & 1.13 [1.05, 1.21] & 0.97 [0.92, 1.01] \\
+Nemotron / 8 & ReFit--interface & 1.39 [1.22, 1.60] & 1.38 [1.21, 1.59] & 1.11 [1.02, 1.22] \\
+Nemotron / 8 & ReFit--full & 1.42 [1.23, 1.67] & 1.42 [1.23, 1.66] & 1.16 [1.05, 1.29] \\
+Nemotron / 8 & Independent 1B drafter & 1.24 [1.20, 1.27] & 1.23 [1.19, 1.27] & 1.09 [1.05, 1.13] \\
+\addlinespace[2pt]
+\bottomrule
+\end{tabular}

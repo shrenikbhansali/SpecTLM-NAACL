@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "time": "2026-10-10T04:51:55.219977+00:00",
+  "pages": 14,
+  "conclusion_page": 7,
+  "limitations_page": 8,
+  "cited_primary_sources": 22,
+  "cross_references": 15,
+  "figures": 4,
+  "undefined_references": 0,
+  "overfull_boxes": 0,
+  "template_files_unmodified": true,
+  "raw_counter_check": "Focal p1, tau and lengths independently reproduce saved summaries to 1e-10",
+  "pdf_sha256": "9471b5fa8cf08d5725e39d665feac93a65cf955898ca8f33b67258767ab36e94",
+  "overleaf_clean_build": "passed; extracted sources identical; full PDF text identical",
+  "zip_sha256": "f1f198e97ba5609433da7f2310022534ea638ea2b2f6e353bf71fd205fdb9e6f",
+  "figure_exports": 4
+}
