@@ -311,7 +311,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | W3 | Synthesize Codex and Claude paper drafts into paper/codex-final; compare narrative, figures and evidence; compile complete ACL draft | P0 | codex | W2 | now | review | codex-1 / 2026-10-10T01:14:12-04:00 | [PDF](paper/codex-final/main.pdf), [Overleaf ZIP](paper/codex-final/codex-final-overleaf.zip), [synthesis choices](paper/codex-final/SYNTHESIS.md), [validation](paper/codex-final/validation.json), [journal](notes/W3.md); 14 pages, main content within 8, four TikZ figures, standalone rebuild PASS |
 
-| REV1 | Address owner-supplied review of paper/claude_final: evidence corrections, long-generation evaluation and capacity-matched adaptation controls | P0 | codex | D53 | now | in progress | codex-1 / 2026-10-10T01:23:02-04:00 | [journal](notes/REV1.md); owner directs relevant experiments and clarification |
+| REV1 | Strengthen ReFit evidence: long/sampled reasoning, capacity and parent-supervision controls; separate Markdown, Claude manuscript untouched | P0 | codex | D53 | now | in progress | codex-1 / 2026-10-10T01:45:00-04:00 | [evidence report](reports/REV1-paper-strengthening-20261010.md), [journal](notes/REV1.md), [pilot ledger](ledger/EXP-ATL-026.md); 42 acceptance cells planned plus7 matched trainings; positive long-workload gain and capacity-sensitive decoder result; controls/sampling advancing |
 
 ---
 
