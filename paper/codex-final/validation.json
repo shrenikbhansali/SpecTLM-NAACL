@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "time": "2026-10-10T05:13:38.454958+00:00",
+  "pages": 14,
+  "conclusion_page": 7,
+  "limitations_page": 8,
+  "cited_primary_sources": 22,
+  "cross_references": 15,
+  "figures": 4,
+  "undefined_references": 0,
+  "overfull_boxes": 0,
+  "template_files_unmodified": true,
+  "raw_counter_check": "Focal p1, tau and lengths independently reproduce saved summaries to 1e-10",
+  "pdf_sha256": "a228aa6391dae7684b8c202cafbcda2bcb8907f7940fef4693c4f26208dad658"
+}

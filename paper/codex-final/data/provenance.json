@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "path": "artifacts/D51_reports_20261009_1627/snapshot-20261009_192136/results.json",
+      "sha256": "8858186585a01e17f59f63efccaf251f70815e762c3008cf80ab69201124e9df"
+    },
+    {
+      "path": "artifacts/D50_final_20261009_1451/results.json",
+      "sha256": "4e566463af4eb1952772f17dcb2a52bc78aae50362f10b6eeedd6a5edeecf18c"
+    },
+    {
+      "path": "artifacts/D52_analysis_20261010_0020/math500/results.json",
+      "sha256": "5e7ce945b0932a460eaedb1c805b4e4cc130ca6229f662ba0987d309fba119e9"
+    },
+    {
+      "path": "artifacts/D52_analysis_20261010_0020/timing-r1/snapshot-20261010_001805/results.json",
+      "sha256": "ab083d45a50e34691156723edfaec2996b587c189f6305968be39d98b5c08667"
+    },
+    {
+      "path": "artifacts/D52_analysis_20261010_0020/timing-nemo/snapshot-20261010_001811/results.json",
+      "sha256": "6268915b02307c28b45f0a01fcee18276f9cdf53683f9044f4613832910f9619"
+    }
+  ],
+  "rules": [
+    "All acceptance numbers from frozen 6da2e42 / vLLM 0.31.0 / A40.",
+    "Main drafter selected by matched 16k repair deltas, not absolute acceptance.",
+    "R1 SPEED/MATH64 repair: three seeds; MATH500 and timing: seed 0.",
+    "64k ongoing, not substituted for a completed epoch.",
+    "FIX24 invalid repairs excluded."
+  ]
+}

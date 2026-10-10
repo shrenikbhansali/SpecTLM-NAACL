@@ -1,0 +1,14 @@
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Updated component & $p_1$ (\%) & $\tau$ & Gap recovered (\%) \\
+\midrule
+RMS calibration & \stat{40.5}{38.8--42.2} & \stat{1.72}{1.68--1.77} & \stat{-0.7}{-1.6--0.2} \\[2pt]
+Interface & \stat{56.4}{54.2--58.4} & \stat{2.13}{2.07--2.18} & \stat{35.5}{33.1--37.9} \\[2pt]
+Interface LoRA, rank 8 & \stat{44.2}{42.4--45.9} & \stat{1.79}{1.75--1.83} & \stat{5.3}{3.1--7.4} \\[2pt]
+Interface LoRA, rank 32 & \stat{48.5}{46.5--50.3} & \stat{1.90}{1.85--1.95} & \stat{15.4}{13.1--17.4} \\[2pt]
+Decoder LoRA & \stat{45.6}{43.7--47.3} & \stat{1.84}{1.79--1.88} & \stat{9.6}{7.7--11.3} \\[2pt]
+Interface + decoder LoRA & \stat{56.6}{54.3--58.7} & \stat{2.14}{2.09--2.20} & \stat{37.0}{34.6--39.3} \\[2pt]
+Full warm start & \stat{58.7}{56.3--60.8} & \stat{2.24}{2.18--2.30} & \stat{45.9}{43.4--48.3} \\[2pt]
+Scratch draft layers/head & \stat{16.7}{15.8--17.6} & \stat{1.21}{1.19--1.22} & \stat{-46.7}{-50.9---43.0} \\[2pt]
+\bottomrule
+\end{tabular}

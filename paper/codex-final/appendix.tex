@@ -1,0 +1,132 @@
+\section{Protocol and Reproducibility}
+\label{app:protocol}
+All online acceptance tables use vLLM 0.31.0 and the same frozen evaluation harness, with greedy decoding, seed~0 for generation, batch eight, a 512-token output ceiling, and NVIDIA A40 GPUs. EAGLE-3 uses $K=4$. The Llama DFlash extension uses its native $K=10$; population comparisons use $K=10$ for Llama and $K=16$ for Qwen3. Each comparison shares the exact target-rendered prompt token IDs. The reference target receives those same IDs, including the new target's template. Model snapshots, prompt hashes, per-query records, raw speculative counters, and analysis-source hashes are retained with each experiment.
+
+Our main family drafter is \nolinkurl{yuhuili/EAGLE3-LLaMA3.1-Instruct-8B}. The dedicated R1 reference is \nolinkurl{yuhuili/EAGLE3-DeepSeek-R1-Distill-LLaMA-8B}. The second family initialization is the RedHat EAGLE-3 release for Llama-3.1-Instruct. Main targets are \nolinkurl{deepseek-ai/DeepSeek-R1-Distill-Llama-8B} and \nolinkurl{nvidia/Llama-3.1-Nemotron-Nano-8B-v1}; the independent drafter is \nolinkurl{meta-llama/Llama-3.2-1B-Instruct}. Every model is loaded from its pinned local snapshot. Licenses and model-card evidence are retained in the experiment manifests.
+
+The 16k repair experiments use AdamW with learning rate $2\times10^{-5}$, weight decay 0.01, a cosine schedule, 3\% warmup, and a 2,048-token packed-batch ceiling. EAGLE-3 uses three native training-time-test steps with equal step weighting. The three R1 seeds are 0, 1, and 2; packing gives 4,477, 4,472, and 4,481 optimization steps, respectively. Within each seed, the paired interface/full and official/second-initialization comparisons use matched data and step budgets. The target runs in bfloat16 and receives no gradients.
+
+The full repair scope contains the interface, draft decoder, output head, and trainable draft normalization, but excludes the frozen token embedding and target-owned verifier components. Interface repair trains only the bias-free projection in Equation~\ref{eq:interface}. Checkpoint loading follows the serving model's embedding ownership: when a release omits the embedding, the target supplies it. Trainable-parameter counts are 50,331,648 and 424,689,664. All exports retain the released vocabulary mapping and are evaluated through the same frozen serving harness.
+
+We deduplicate repair queries against all reserved evaluation prompts, including the full 500 MATH problems. Every new generation path receives inspection of five decoded examples and answer masks. Training answers are target-generated, with the same 512-token ceiling used for data generation. The query pool changes the distribution of supervision but never introduces held-out evaluation questions. The 16k main corpus uses instruction/input fields from Alpaca (CC BY-NC 4.0), with its supplied responses discarded; small component experiments use self-elicited queries. We preserve this distinction in every comparison.
+
+The two family initializations were compared using their paired repair gains at 16k, with SPEED as the primary panel and MATH-64 as the secondary panel. The official release had the larger gain for both update scopes and supplies the main table. This is a descriptive, data-dependent choice; the reported bootstrap intervals are not adjusted for that selection. The second release and its own reuse baseline remain in Table~\ref{tab:robustness}.
+
+\section{Additional Acceptance Results}
+\label{app:acceptance}
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{5pt}
+\input{tables/robustness}
+\caption{\textbf{Three-seed robustness on R1.} Each repair uses 16k generic queries and one epoch. Retention recovery and $\Delta\tau$ always reference the same release's reuse. The two releases are compared with paired training seeds and queries; 95\% CIs are shown. This table's MATH panel has 64 queries, unlike the seed-0 MATH-500 panel in the main table.}
+\label{tab:robustness}
+\end{table*}
+
+Table~\ref{tab:robustness} reports both family initializations on both three-seed panels. The official-versus-second-release differences in repair gain on SPEED are 0.081 $\ci{0.048}{0.115}$ for interface repair and 0.043 $\ci{0.014}{0.073}$ for full repair. These contrasts subtract each initialization's own reuse before comparing repairs. Comparing repaired acceptance directly would conflate initialization quality with the benefit of repair.
+
+The dedicated drafter is a reference point for attainable acceptance with a separately trained model. Its training data, total optimization budget, and initialization differ from the repair experiments. Consequently, gap recovery is an interpretable acceptance ratio, not a controlled estimate of how much of the dedicated model's training compute can be saved. We report measured repair cost directly rather than assign an unobserved training bill to the dedicated release.
+
+Table~\ref{tab:depth} reports per-depth conditional acceptance and lengths on SPEED-128. Deeper positions are conditioned on the preceding accepted prefix and on a proposal being present. These rates therefore describe the surviving draft trajectories, rather than four independently sampled token positions. The main $p_1$ and $\tau$ values are query-macro statistics; pooling all speculative iterations across queries would give longer outputs greater weight.
+
+\begin{table*}[t]
+\centering\small
+\input{tables/depth}
+\caption{\textbf{Conditional depth and output length on SPEED-128.} Percentages are query-macro conditional acceptance. R1 repair rows average three seeds; Nemotron rows use one. Brackets show 95\% query-and-seed bootstrap intervals (paired across repair and reuse). Length counts generated tokens under the 512-token ceiling.}
+\label{tab:depth}
+\end{table*}
+
+\section{Component and Data Comparisons}
+\label{app:ablations}
+\begin{table*}[t]
+\centering\small
+\input{tables/components}
+\caption{\textbf{Complete small-budget component comparison.} R1-Llama, RedHat family initialization, 256 self-elicited examples, 300 training steps, one seed, SPEED-128, $K=4$. Calibration is training-free and fitted on a separate 256-example path; it is not a 300-step optimizer run. Intervals are paired query bootstrap intervals. Decoder LoRA is an update-scope control, not a reproduction of EDA.}
+\label{tab:components}
+\end{table*}
+
+Table~\ref{tab:components} retains the complete small-budget component comparison. Low-rank updates to the interface use ranks 8 and 32. Decoder LoRA updates query/value attention projections and MLP projections while holding the interface fixed. The combined variant updates the interface and these decoder adapters. Adapters are merged before evaluation. Random initialization resets the trainable interface, draft layers, head, and normalization while retaining fixed embeddings and the vocabulary map; it does not retrain the target.
+
+The full interface update outperforms the lower-rank interface controls at this budget. This distinguishes the location of repair from a claim that arbitrarily low-rank repair suffices. Likewise, the decoder-only control is weaker than interface repair, while combining the two is close to the interface result. These comparisons support a useful repair location without establishing that one component is the unique source of drift.
+
+Training-free moment calibration provides another control. We fit per-layer mean/RMS affine transformations on paired parent/target forwards. Full affine correction is an offline teacher-forced diagnostic because the frozen serving projection is bias-free; RMS-only correction can be exported exactly. On 64 held-out target-generated R1 contexts, full affine calibration changes agreement with the target verifier by $-0.15$ percentage points $\ci{-0.31}{0.01}$. RMS-only changes it by $-0.22$ points $\ci{-0.37}{-0.08}$. Thus the learned interface result is not reproduced by this scalar moment correction.
+
+\begin{table}[t]
+\centering\small
+\input{tables/scaling}
+\caption{\textbf{Query source and scale.} R1 SPEED-128 acceptance length with the second family initialization, seed~0. The 256-example runs use 300 steps; the 1k/4k/16k runs use one epoch. Generic and self-elicited corpora have different token counts, so source comparisons are matched by examples and epoch rather than token budget. All rows use target-generated answers.}
+\label{tab:scaling}
+\end{table}
+
+Table~\ref{tab:scaling} separates data scale from query source. At 4k, generic and self-elicited queries give similar final acceptance: interface $\tau$ is 2.224 versus 2.220, and full repair is 2.374 versus 2.365. We therefore use the generic public pool for the larger main experiment without attributing the repair gains to a unique prompt-generation strategy. Increasing the generic pool to 16k raises seed-0 $\tau$ to 2.294 and 2.459 with the second initialization; Table~\ref{tab:robustness} reports the three-seed averages.
+
+A matched 16k scratch run reaches $\tau=1.519$ on SPEED and is distinct from the 256-example scratch row. A second epoch of full warm-start training reaches 2.480, while increasing the native training unroll from three to four steps at generic-4k yields 2.220 for the interface and 2.367 for full repair. We keep the three-step, one-epoch setting for the main comparison. These controls characterize the chosen operating point rather than supply additional independent replications.
+
+\section{DFlash Extension}
+\label{app:dflash}
+\begin{table*}[t]
+\centering\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Target & Repair & SPEED $\Delta p_1$ (pp) & SPEED $\Delta\tau$ & MATH $\Delta p_1$ (pp) & MATH $\Delta\tau$ \\
+\midrule
+R1 & Interface & 6.86 [6.08,7.67] & .147 [.114,.183] & 5.90 [4.75,7.03] & .177 [.128,.227] \\
+R1 & Full & 10.03 [9.18,10.86] & .235 [.195,.269] & 9.02 [7.81,10.21] & .258 [.211,.304] \\
+Nemotron & Interface & 6.81 [5.87,7.79] & .156 [.117,.193] & 6.86 [6.03,7.69] & .175 [.155,.196] \\
+Nemotron & Full & 9.70 [8.61,10.80] & .273 [.225,.322] & 11.42 [10.52,12.33] & .329 [.298,.361] \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{DFlash repair pilot.} Paired changes over DFlash's own reuse; 256 self-elicited examples per target, 300 steps, one seed, native $K=10$, SPEED-128 and MATH-64. Intervals use 10,000 paired query resamples. No EAGLE dedicated reference is used to compute DFlash recovery.}
+\label{tab:dflash}
+\end{table*}
+
+DFlash uses native block KL training, 64 anchors, decay parameter four, and fixed exponential position weighting. Both scopes use learning rate $2\times10^{-5}$, the 2,048-token ceiling, a 300-step cosine schedule, 3\% warmup, and weight decay 0.01. The interface has 83,886,080 trainable parameters; the full scope has 1,048,626,432. Verifier-owned full-vocabulary components remain fixed.
+
+At 300 steps, interface and full repair improve both $p_1$ and $\tau$ on both targets and workloads (Table~\ref{tab:dflash}). Measured data-plus-training costs are 0.391/0.430 A40 GPU-hours for R1 interface/full and 0.294/0.338 for Nemotron. Those costs use a much smaller corpus and budget than the EAGLE flagship experiment. The extension tests whether the same repair location remains useful under another native architecture and loss, not a causal architecture comparison at equal compute.
+
+\section{Timing and Cost}
+\label{app:timing}
+\begin{table*}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\input{tables/timing}
+\caption{\textbf{Measured A40 timing.} All ratios are relative to target-only decoding on paired query panels. Warm results average three passes within each of three processes. Startup-inclusive results charge engine loading/compilation plus the first panel. Batch one uses 32 queries, batch eight 128. Intervals jointly resample process pairs and query batches.}
+\label{tab:timing}
+\end{table*}
+
+Timing uses a fixed query panel and fresh controls within the same measurement wave. A process performs one cold panel followed by three warm passes. Warm speedup is the target-only panel time divided by speculative panel time, after averaging warm passes within process. We also report the ratio of generated-token throughput and the first-panel ratio including engine startup. The seed-0 checkpoints are used for timing; repeated processes are serving repetitions, not additional training seeds.
+
+Queries are paired across arms, but execution uses available A40 hosts rather than randomized exclusive-host allocation. Greedy outputs can differ across serving configurations, so the timing estimand is the runtime of the same query workload rather than an identical sequence of output tokens. Token-throughput ratios and generated lengths are retained to make this distinction visible. On R1 at batch one, full repair's panel speedup is 1.83 and token-throughput ratio 1.84; the startup-inclusive ratio is 1.46. These are different deployment costs and should not be interchanged.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Target & Scope & Data & Train & Total \\
+\midrule
+R1 & Interface & 8.916 & 2.206 & 11.122 \\
+R1 & Full & 8.916 & 2.211 & 11.127 \\
+Nemotron & Interface & 8.588 & 1.240 & 9.828 \\
+Nemotron & Full & 8.588 & 1.398 & 9.986 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Measured repair GPU-hours.} A40, 16k examples, seed~0. Each alternative is charged the shared data-generation cost once. Totals exclude evaluation, engineering, and the broader experimental search.}
+\label{tab:cost}
+\end{table}
+
+\section{Population and Diagnostic Scope}
+\label{app:population}
+The model-card inventory contains 201 records: the historical 174-checkpoint census, 18 target-conditioned candidates, eight expansion checkpoints, and one additional candidate. Forty-five training histories remain unknown. Labels record checkpoint-specific evidence where available and keep lineage separate from cumulative training history. R1-Llama and R1-Qwen are siblings of the family drafter's instruction target, rather than direct children. Nemotron's combined SFT/RL/merge history is not entered into the pure on-policy RL group.
+
+The focused frozen-harness panel contains 25 checkpoints before filters. Two are pretrained controls and two were flagged as collapsed checkpoints; they remain separate from the 21-checkpoint post-training summary. Two additional candidate repositories have incompatible architecture and do not enter valid pairs. The 21 retained checkpoints contribute 42 SPEED comparisons, and eight of them also contribute 16 MATH comparisons. Figure~\ref{fig:retention} shows only groups with multiple checkpoints. Its intervals resample checkpoints and then paired query IDs; related checkpoints can still share a training trajectory. The historical census is provenance-distinct and is not silently pooled into this panel.
+
+The fixed-prefix diagnostic uses 64 sequences for each of five targets and three text origins: saved parent completions, saved target completions, and public MATH reference solutions. Within a sequence, all feature-source/verifier combinations share exact prefix tokens. Comparisons across origins also change the questions and lengths, and therefore are not treated as controlled effects of text origin. We use full-vocabulary verifier argmax, retaining out-of-draft-support tokens as disagreement rather than renormalizing the greedy answer into support.
+
+R1-Qwen shows negative feature-source and policy effects on target-generated contexts, like the two flagship targets. The T\"ulu DPO feature effect is near zero, while its policy effect is negative; the Qwen GRPO control is near zero on both. This is consistent with treating the interface as a useful repair location rather than a universal, exclusive explanation of every acceptance loss. A same-weight Nemotron reasoning toggle changes EAGLE $p_1$ by $-2.96$ points $\ci{-4.37}{-1.57}$ and DFlash by $-2.78$ points on the paired raw-query panel. Context and policy changes can therefore contribute alongside feature-source changes.
+
+\section{Retrospective Compatibility Probe}
+\label{app:probe}
+We choose two SPEED batch indices by a fixed hash rule, yielding 16 probe queries, and use the remaining 112 to label degradation as $p_1$ retention below 0.9. The split is shared across all 21 eligible checkpoints and both drafters. No model is trained and no cutoff is optimized. One immediate-EOS query has no acceptance opportunities and is excluded pairwise where necessary.
+
+The full 16-query probe achieves EAGLE AUROC 1.00 with a checkpoint-and-query interval $\ci{0.75}{1.00}$, and DFlash AUROC 0.945 $\ci{0.731}{1.000}$. At the fixed 0.9 decision cutoff, EAGLE has seven true positives, three false positives, no false negatives, and 11 true negatives; DFlash has nine, three, one, and eight. Thus ranking a small cohort is different from making error-free repair decisions. The evaluation is retrospective and does not hold out checkpoint lineages.
+
+Captured generation times for the full request subset, summing both target arms, have medians 45.2 seconds for EAGLE and 39.3 seconds for DFlash; separate engine startups add median totals of 274.7 and 302.4 seconds. These are observed request costs, not a sub-minute cold deployment claim. Restricting the probe to the first 16 speculative iterations lowers the EAGLE AUROC to 0.602 and DFlash to 0.773. The complete request measurement supports compatibility triage, while very short prefixes are not a substitute for the measured panel.
