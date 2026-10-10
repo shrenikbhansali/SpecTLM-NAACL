@@ -106,6 +106,34 @@ def watch(stage):
         if not pending:return
         time.sleep(30)
 
+def controls(stage,code):
+    """Second-review interventions, fixed before looking at their outcomes."""
+    frozen_check();require_free(WS,350);stage.mkdir(exist_ok=False)
+    jobs=lines(DISPATCH);byname={j['name']:j for j in jobs}
+    source=byname['P3-D46-train-decoder-self-0355']
+    parent=stage/'parent.json'
+    from ops.track_t import snapshot
+    parent_path=Path('/home/heck2/sbhansali8/HFcache/hub/models--meta-llama--Llama-3.1-8B-Instruct/snapshots/0e9e39f249a16976918f6564b8830bc894c89659')
+    assert parent_path.is_dir()
+    write(parent,dict(id='meta-llama/Llama-3.1-8B-Instruct',revision=parent_path.name,path=str(parent_path)))
+    ready=[];records=[]
+    # Two learning rates for the low-rank control; the original 2e-5 already exists.
+    variants=[('parent-fc','fc',16,2e-5,True),('parent-full','full',16,2e-5,True),
+              ('decoder-dense','decoder_dense',16,2e-5,False),
+              ('decoder-qo','decoder_qo',16,2e-5,False),
+              ('decoder-r16-lr1e4','decoder_lora',16,1e-4,False)]
+    for arm,variant,rank,lr,alternate in variants:
+        name='REV1-control-'+arm;out=stage/name
+        j=capacity_cell(source,name,out,variant,rank,code);o,i=parts(j)
+        replace(i,'--lr',lr)
+        if alternate:replace(i,'--supervision-row',str(parent))
+        replace(o,'--note','D53 second review: fixed derivative text; parent-supervision or full-rank decoder/LR control; self256/300steps native TTT3 seed0')
+        j['args']=o+['--']+i;ready.append(j)
+        records.append(dict(kind='capacity',arm=arm,variant=variant,lr=lr,alternate_supervision=alternate,run_dir=str(out),name=name))
+    write(stage/'plan.json',records);write(stage/'jobs.json',ready)
+    publish(ready,stage/'publish-initial')
+
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','watch']);p.add_argument('--stage',type=Path,required=True);p.add_argument('--code',type=Path,default=Path(__file__).resolve().parents[1]);a=p.parse_args()
-    prepare(a.stage,a.code) if a.action=='prepare' else watch(a.stage)
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['prepare','watch','controls']);p.add_argument('--stage',type=Path,required=True);p.add_argument('--code',type=Path,default=Path(__file__).resolve().parents[1]);a=p.parse_args()
+    if a.action=='watch':watch(a.stage)
+    else:globals()[a.action](a.stage,a.code)
