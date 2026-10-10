@@ -22,6 +22,8 @@ def progress(snapshot):
         e=json.loads(line)
         if e['event']=='launched':launched[e['out_dir']]=e['name']
         if e['event']=='finished':finished[launched[e['out_dir']]]=str(e['exit'])
+    from followspec.rev2_recovery import active_attempts
+    rows,superseded=active_attempts(rows,finished)
     levels={k:dict(expected=EXPECTED[k],planned=0,completed=0,failed=[],pending=[],analysis_complete=False,ready_for_review=False) for k in EXPECTED}
     for name,row in rows.items():
         lev=levels[LEVEL[row['experiment']]];lev['planned']+=1
@@ -35,7 +37,7 @@ def progress(snapshot):
     levels['P1']['analysis_complete']=(acceptance['E13']==3 and acceptance['E17']==12 and timing['E11']==32 and len(e16['records'])==4)
     levels['P2']['analysis_complete']=(acceptance['E15']==6 and (WS/'artifacts/REV2_diagnostics_20261010_0445/E18-feasibility.json').exists())
     for r in levels.values():r['ready_for_review']=(r['planned']==r['expected']==r['completed'] and not r['failed'] and r['analysis_complete'])
-    return dict(levels=levels,acceptance_rows=dict(acceptance),timing_rows=dict(timing),scope='D54 mandatory jobs including prerequisite data, training/profiles, frozen acceptance and repeated timing; E18 pinned-engine infeasibility separately recorded; no scientific promotion')
+    return dict(levels=levels,superseded_failed_attempts=superseded,acceptance_rows=dict(acceptance),timing_rows=dict(timing),scope='D54 mandatory jobs including prerequisite data, training/profiles, frozen acceptance and repeated timing; E18 pinned-engine infeasibility separately recorded; no scientific promotion')
 
 
 def ping_board(workspace,level,state,evidence,stamp):
