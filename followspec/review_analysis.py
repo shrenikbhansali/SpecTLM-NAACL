@@ -70,6 +70,41 @@ def fmt(x):
     if x['mean'] is None:return '--'
     return f"{x['mean']:+.3f} [{x['ci95'][0]:+.3f}, {x['ci95'][1]:+.3f}]"
 
+def component_analysis(stages,out):
+    root=stages[0].parent.parent;old=root/'artifacts/P3_D46_20261008_0335'
+    prior=json.loads((old/'report/results.json').read_text())['records']
+    records=[];pending=[];audits=[]
+    source_cfg=json.loads((old/'train-fc/config.json').read_text())
+    keys=['data_sha256','forbidden_sha256','batch_plan','seed','steps','ttt_steps','optimizer','weight_decay','scheduler','warmup_ratio','schedule_horizon','token_budget','drafter','target']
+    for stage in stages:
+        for r in json.loads((stage/'plan.json').read_text()):
+            if r['kind']!='capacity':continue
+            train=Path(r['run_dir'])
+            if (train/'config.json').exists():
+                cfg=json.loads((train/'config.json').read_text())
+                for k in keys:
+                    if cfg[k]!=source_cfg[k]:raise ValueError(f"unmatched training {r['name']}: {k}")
+                audits.append(dict(name=r['name'],passed=True,lr=cfg['lr'],supervision=cfg.get('supervision'),aliases=cfg.get('special_token_aliases'),parameters=json.loads((train/'parameters.json').read_text()) if (train/'parameters.json').exists() else None))
+            for w in ['speed128','math64']:
+                c=read_cell(stage/'capacity-eval'/(r['name']+'-'+w))
+                if c is None:pending.append(r['name']+'-'+w);continue
+                existing=next(x for x in prior if x['arm']=='fc' and x['step']==300 and x['workload']==w)
+                refs={'reuse':Path(existing['baseline']), 'child-fc':old/'eval/runs'/f'P3-D46-fc-s300-{w}', 'child-full':old/'eval/runs'/f'P3-D46-full-s300-{w}', 'decoder-r16':old/'eval/runs'/f'P3-D46-decoder-s300-{w}'}
+                contrasts={}
+                for name,path in refs.items():
+                    ref=read_cell(path);compatible(ref,c)
+                    contrasts[name]={k:paired({i:v[k] for i,v in ref['rows'].items()},{i:v[k] for i,v in c['rows'].items()}) for k in ['p1','tau']}
+                records.append(dict(name=r['name'],workload=w,n=len(c['rows']),mean={k:float(np.mean([v[k] for v in c['rows'].values() if v[k] is not None])) for k in ['p1','tau']},contrasts=contrasts,raw_path=c['path'],raw_sha256=c['raw_sha256']))
+    text=['# REV1 component and fixed-text supervision controls — pilot','',
+          'Production family initialization, same self256/300-step native TTT3 schedule, seed0; frozen K4 greedy SPEED128/MATH64. Raw counter recomputation; 10,000 paired query draws. Positive contrasts mean the new arm is better. Training hashes/order/budgets are checked against the original child-fc run. LR and supervision are explicit interventions.','',
+          '| Arm | Panel | n | p1 | τ | Δτ vs reuse | Δτ vs child-fc | Δτ vs child-full | Δτ vs decoder-r16 |','|---|---|---:|---:|---:|---|---|---|---|']
+    for r in records:
+        ds=[fmt(r['contrasts'][k]['tau']) for k in ['reuse','child-fc','child-full','decoder-r16']]
+        text.append(f"| {r['name']} | {r['workload']} | {r['n']} | {r['mean']['p1']:.3f} | {r['mean']['tau']:.3f} | "+' | '.join(ds)+' |')
+    text+=['','Pending: '+', '.join(pending)]
+    (out/'components.json').write_text(json.dumps(dict(status='pilot',records=records,audits=audits,pending=pending),indent=2))
+    (out/'components.md').write_text('\n'.join(text)+'\n')
+
 def analyze(stages,out):
     out.mkdir(parents=True,exist_ok=False);cells={};comparisons=[];pending=[]
     for stage in stages:
@@ -102,6 +137,7 @@ def analyze(stages,out):
     text+=['','Pending: '+', '.join(pending), '', 'Raw hashes, full counters, configs, per-depth conditional rates, and reconstruction audits are in results.json.']
     (out/'results.json').write_text(json.dumps(dict(status='pilot',cells=cells,comparisons=comparisons,pending=pending),indent=2))
     (out/'report.md').write_text('\n'.join(text)+'\n')
+    component_analysis(stages,out)
     print('\n'.join(text[:20]))
 
 if __name__=='__main__':
