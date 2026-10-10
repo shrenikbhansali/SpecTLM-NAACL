@@ -23,10 +23,17 @@ class RepairLinear(torch.nn.Module):
 
 
 def configure_variant(model,variant,rank=16,alpha=32,algorithm="eagle3"):
-    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head'}:raise ValueError('unknown repair variant')
+    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo'}:raise ValueError('unknown repair variant')
     model.requires_grad_(False)
     if variant in {'fc','fc_lora','full','fc_decoder_lora'}:model.fc.requires_grad_(True)
     if variant=='head':model.lm_head.requires_grad_(True)
+    if variant=='decoder_dense':model.layers.requires_grad_(True)
+    if variant=='decoder_qo':
+        found=[]
+        for name,module in model.named_modules():
+            if name.startswith('layers.') and isinstance(module,torch.nn.Linear) and name.rsplit('.',1)[-1] in {'q_proj','o_proj'}:
+                module.requires_grad_(True);found.append(name)
+        if not found:raise ValueError('no decoder q/o projections')
     if variant=='fc_lowrank':
         if rank<1:raise ValueError('positive LoRA rank required')
         model.fc=RepairLinear(model.fc,rank,alpha)
@@ -103,6 +110,16 @@ def validate_rows(rows,forbidden,max_length):
         if prompt_hash(r['raw_prompt'])!=r['prompt_sha256'] or r['prompt_sha256'] in forbidden:raise ValueError('evaluation overlap or prompt hash mismatch')
 
 
+def supervision_source(target, rows, alternate):
+    """Keep response provenance fixed while explicitly intervening on HF supervision."""
+    if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):
+        raise ValueError('wrong response teacher')
+    source=target if alternate is None else alternate
+    if any(not source.get(k) for k in ['id','revision','path']):
+        raise ValueError('supervision source requires pinned id/revision/path')
+    return source
+
+
 class RepairDataset(torch.utils.data.Dataset):
     def __init__(self,rows,capture,algorithm="eagle3"):
         self.rows=rows;self.capture=capture;self.algorithm=algorithm;self.hidden_states_dtype=torch.bfloat16
@@ -136,7 +153,8 @@ def epoch_export_steps(steps, fractions=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
-    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head'],required=True)
+    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo'],required=True)
+    p.add_argument('--supervision-row',help='REV1 fixed-text control: alternate pinned teacher for taps and soft labels; response provenance and initialization stay unchanged')
     p.add_argument('--steps',type=int,default=200);p.add_argument('--export-steps',nargs='+',type=int,default=[50,200])
     p.add_argument('--schedule-steps',type=int,help='shared schedule horizon for a shorter scratch control');p.add_argument('--seed',type=int,default=0);p.add_argument('--batch-tokens',type=int,default=2048)
     p.add_argument('--lr',type=float,default=2e-5);p.add_argument('--lora-rank',type=int,default=16);p.add_argument('--lora-alpha',type=int,default=32)
@@ -155,7 +173,16 @@ def main():
     shift=int(a.algorithm=='eagle3')
     if a.algorithm=='dflash' and (a.variant not in {'fc','full'} or a.scratch):raise ValueError('D48 DFlash fc/full warm-start only')
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
-    if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):raise ValueError('wrong response teacher')
+    supervision=supervision_source(target,rows,json.loads(Path(a.supervision_row).read_text()) if a.supervision_row else None)
+    if a.supervision_row:
+        if a.algorithm!='eagle3' or a.continue_epoch_from:raise ValueError('alternate supervision supports fresh EAGLE repair only')
+        child_cfg=json.loads((Path(target['path'])/'config.json').read_text())
+        parent_cfg=json.loads((Path(supervision['path'])/'config.json').read_text())
+        if any(child_cfg[k]!=parent_cfg[k] for k in ['hidden_size','vocab_size','num_hidden_layers']):raise ValueError('incompatible supervision architecture')
+        from transformers import AutoTokenizer
+        child_tok=AutoTokenizer.from_pretrained(target['path'],local_files_only=True)
+        parent_tok=AutoTokenizer.from_pretrained(supervision['path'],local_files_only=True)
+        if child_tok.get_vocab()!=parent_tok.get_vocab():raise ValueError('alternate supervision requires identical token-id vocabulary')
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
     previous=None;resume_step=0
     if a.continue_epoch_from:
@@ -179,6 +206,7 @@ def main():
     batches=one_epoch if previous else step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
     cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-shift for b in batches for i in b),batch_plan=batches,ttt_steps=a.ttt_steps,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
     if a.algorithm=='dflash':cfg.update(ttt_steps=None,ttt_step_loss_decay=None,loss='native DFlash fused KL; gamma4 fixed-exp-decay; answer positions',max_anchors=a.max_anchors)
+    if a.supervision_row:cfg.update(supervision=supervision,supervision_row_sha256=file_hash(a.supervision_row),control='Derivative text and initialization fixed; alternate model supplies both taps and soft labels')
     if previous:cfg.update(schedule_horizon=resume_step+a.steps,resume_source=str(prior),resume_source_config_sha256=file_hash(prior/'config.json'),resume_checkpoint=str(checkpoint),resume_global_step=resume_step,completed_epochs=epoch_index+1,continuation_schedule='Restore AdamW moments; extend cosine total horizon to prior+new steps, no replay. First epoch retains original shorter schedule; not equivalent to uninterrupted two-epoch training.',rng_policy='Prior checkpoint lacks RNG state; deterministic seed reset at continuation, next epoch data order matches native shuffle stream',cumulative_token_budget=previous['token_budget']+cfg['token_budget'])
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     ensure_unpaused();ensure_unpaused(Path.cwd());require_free(a.output,a.min_free_gb)
@@ -221,7 +249,7 @@ def main():
         if set(state)!=expected:raise ValueError('continuation trainable scope mismatch')
         model.load_state_dict(state,strict=False)
     write(out/'parameters.json',proof)
-    teacher=AutoModelForCausalLM.from_pretrained(target['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda').eval().requires_grad_(False)
+    teacher=AutoModelForCausalLM.from_pretrained(supervision['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda').eval().requires_grad_(False)
     tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(base_config['vocab_size'])
     capture=OnlinePairCapture(teacher,taps,tokens,pause_check=ensure_unpaused)
     loader=torch.utils.data.DataLoader(RepairDataset(rows,capture,a.algorithm),batch_sampler=batches,collate_fn=RepairCollator(a.batch_tokens,base_config['hidden_size'],len(taps)),num_workers=0)
