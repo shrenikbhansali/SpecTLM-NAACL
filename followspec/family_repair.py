@@ -178,6 +178,12 @@ def epoch_export_steps(steps, fractions=None):
     return sorted({max(1, math.ceil(steps * f)) for f in fractions})
 
 
+def save_final_trainable(export_only,compact,omit_optimizer,exports,steps):
+    if export_only and (not compact or not omit_optimizer or list(exports)!=[steps]):
+        raise ValueError('export-only-final requires compact, omit-final-optimizer and final-only export')
+    return not export_only
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
@@ -197,6 +203,7 @@ def main():
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
     p.add_argument('--checkpoint-dflash-layers',action='store_true')
     p.add_argument('--ttt-steps',type=int,default=3,choices=[3,4],help='D50 explicit native EAGLE unroll depth; default unchanged')
+    p.add_argument('--export-only-final',action='store_true',help='retain the final shared HF export without a duplicate native checkpoint; final-only compact runs')
     p.add_argument('--probe-batches',type=int,default=0,help='FIX24 diagnostic: frozen step-zero forwards only, no optimizer or exports')
     p.add_argument('--continue-epoch-from',help='D50 continue one epoch from a completed compact run, restoring named optimizer state')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
@@ -235,6 +242,7 @@ def main():
     elif a.epoch_export_fractions is not None:
         raise ValueError('--epoch-export-fractions requires --one-epoch')
     if a.steps not in a.export_steps or any(x<1 or x>a.steps for x in a.export_steps):raise ValueError('invalid export budget')
+    save_native_final=save_final_trainable(a.export_only_final,a.compact_checkpoints,a.omit_final_optimizer,a.export_steps,a.steps)
     schedule_steps=a.schedule_steps or a.steps
     if schedule_steps<a.steps:raise ValueError('schedule horizon shorter than run')
     batches=one_epoch if previous else step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
@@ -357,7 +365,7 @@ def main():
     if a.compact_checkpoints:
         # The native trainer otherwise writes another full model at epoch end.
         # New flag replaces persistence only; forward/loss/optimizer are unchanged.
-        trainer.maybe_save_checkpoint=lambda epoch,local_step=0:compact_checkpoint(f'epoch-{epoch}-step-{completed}',save_optimizer=save_final_optimizer)
+        trainer.maybe_save_checkpoint=lambda epoch,local_step=0:compact_checkpoint(f'epoch-{epoch}-step-{completed}',save_optimizer=save_final_optimizer) if save_native_final else None
 
     def step():
         nonlocal completed

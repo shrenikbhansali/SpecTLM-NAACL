@@ -44,7 +44,7 @@ def parser():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ['target','target-revision','prompts','frozen-harness','output']:p.add_argument('--'+k,required=True)
     p.add_argument('--drafter');p.add_argument('--drafter-revision');p.add_argument('--no-speculation',action='store_true')
-    p.add_argument('--method',choices=['eagle3','draft_model'],default='eagle3');p.add_argument('--K',type=int,choices=[4,6],default=4)
+    p.add_argument('--method',choices=['eagle3','draft_model','dflash'],default='eagle3');p.add_argument('--K',type=int,choices=[4,6,10],default=4)
     p.add_argument('--draft-vocab-mapping',action='store_true')
     p.add_argument('--batch-size',type=int,choices=[1,8,16,32],default=8);p.add_argument('--replicate',type=int,default=0)
     p.add_argument('--warm-repeats',type=int,default=3);p.add_argument('--min-free-gb',type=float,default=250);p.add_argument('--dry-run',action='store_true')
