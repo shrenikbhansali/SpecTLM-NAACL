@@ -1,0 +1,31 @@
+% Figure: which component should be re-fitted (R1-Distill, 256 examples, SPEED-Bench).
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, bar width=6.2pt, bar shift=0pt,
+  width=0.60\columnwidth, height=4.6cm,
+  xmin=0, xmax=58,
+  symbolic y coords={full,ifdec,dense,r32,r8,dec,stats},
+  ytick={full,ifdec,dense,r32,r8,dec,stats},
+  yticklabels={entire drafter (\refitF{}),interface + decoder,\textbf{interface (\refitI{})},{interface, rank 32},{interface, rank 8},decoder layer (LoRA),feature statistics},
+  y dir=reverse,
+  yticklabel style={font=\scriptsize},
+  xticklabel style={font=\scriptsize},
+  xtick={0,10,20,30,40,50},
+  xticklabels={0\%,10\%,20\%,30\%,40\%,50\%},
+  axis x line*=bottom, axis y line*=left,
+  enlarge y limits=0.09, tick align=outside, major tick length=2pt,
+  xmajorgrids, grid style={black!8},
+  xlabel={\scriptsize gap to the dedicated drafter closed},
+  xlabel style={yshift=3pt},
+  clip=false,
+  nodes near coords, point meta=explicit symbolic,
+  every node near coord/.append style={font=\tiny, anchor=west, text=black!70},
+]
+\addplot[fill=black!25, draw=none] coordinates {(0.4,stats) [0\% \,(25K)]};
+\addplot[fill=decoder!55, draw=none] coordinates {(9.6,dec) [10\% \,(1.2M)]};
+\addplot[fill=interface!35, draw=none] coordinates {(5,r8) [5\% \,(0.13M)] (15,r32) [15\% \,(0.52M)]};
+\addplot[fill=interface, draw=none] coordinates {(35.5,dense) [36\% \,(50M)]};
+\addplot[fill=interface!60!decoder, draw=none] coordinates {(37.0,ifdec) [37\% \,(52M)]};
+\addplot[fill=interface!70!black, draw=none] coordinates {(45.9,full) [46\% \,(425M)]};
+\end{axis}
+\end{tikzpicture}

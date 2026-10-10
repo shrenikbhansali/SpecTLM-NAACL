@@ -1,0 +1,110 @@
+% Figure 2: method overview (hero figure).
+\begin{tikzpicture}[
+  font=\footnotesize,
+  >={Stealth[length=4pt]},
+  doc/.style={draw=black!60, fill=white, rounded corners=1pt, minimum width=2.5cm, minimum height=0.85cm, align=center, inner sep=2pt},
+  blk/.style={draw=black!55, rounded corners=1.5pt, align=center, inner sep=2pt},
+  layer/.style={draw=derivative!70!black, fill=derivative!14, minimum width=1.05cm, minimum height=0.30cm, inner sep=0pt},
+  hdr/.style={font=\small\bfseries, anchor=west},
+  feat/.style={draw=black!50, minimum width=0.22cm, minimum height=0.9cm, inner sep=0pt},
+  note/.style={font=\scriptsize\itshape, text=black!65, align=center},
+]
+% ===================== panel backgrounds =====================
+\fill[black!3, rounded corners=4pt] (-0.25,-1.55) rectangle (3.35,5.0);
+\fill[interface!5, rounded corners=4pt] (3.6,-1.55) rectangle (13.15,5.0);
+\fill[black!3, rounded corners=4pt] (13.4,-1.55) rectangle (17.05,5.0);
+\node[hdr] at (-0.15,4.7) {\circled{1} Elicit the derivative};
+\node[hdr] at (3.7,4.7) {\circled{2} Re-fit the drafter's feature interface};
+\node[hdr] at (13.5,4.7) {\circled{3} Serve as usual};
+
+% ===================== (1) elicit =====================
+\node[doc] (prompts) at (1.55,3.15) {public instructions\\[-1pt]\scriptsize(e.g., Alpaca, 16k)};
+\node[blk, fill=derivative!14, draw=derivative!70!black, minimum width=2.5cm, minimum height=0.95cm] (tgt) at (1.55,1.55) {derivative target $\mathcal{T}'$\\[-1pt]\scriptsize(frozen, e.g., R1-Distill)};
+\node[doc] (resp) at (1.55,-0.05) {responses $y' \sim \mathcal{T}'(\cdot \mid x)$\\[-1pt]\scriptsize(no original training data)};
+\draw[->, thick, black!60] (prompts) -- (tgt);
+\draw[->, thick, black!60] (tgt) -- (resp);
+\node[note] at (1.55,-1.05) {the drafter learns what\\$\mathcal{T}'$ actually generates};
+
+% ===================== (2) re-fit =====================
+% target stack
+\foreach \i in {0,...,7} {
+  \node[layer] (L\i) at (4.55,0.0+0.42*\i) {};
+}
+\node[font=\scriptsize, text=derivative!70!black] at (4.55,-0.42) {$\mathcal{T}'$ layers};
+\node[font=\tiny, text=black!60] at (4.55,0.0) {low};
+\node[font=\tiny, text=black!60] at (4.55,1.68) {mid};
+\node[font=\tiny, text=black!60] at (4.55,2.94) {high};
+% taps
+\coordinate (tapL) at (5.08,0.0);
+\coordinate (tapM) at (5.08,1.68);
+\coordinate (tapH) at (5.08,2.94);
+\foreach \t/\c in {tapL/featlow, tapM/featmid, tapH/feathigh} { \fill[\c] (\t) circle (1.6pt); }
+% feature vectors
+\node[feat, fill=featlow] (fl) at (6.05,0.55) {};
+\node[feat, fill=featmid] (fm) at (6.05,1.68) {};
+\node[feat, fill=feathigh] (fh) at (6.05,2.81) {};
+\draw[->, featlow!80!black, thick] (tapL) to[out=0,in=180] (fl.west);
+\draw[->, featmid!80!black, thick] (tapM) -- (fm.west);
+\draw[->, feathigh!80!black, thick] (tapH) to[out=0,in=180] (fh.west);
+% concat vector
+\node[feat, minimum height=0.75cm, fill=featlow]  (c1) at (6.95,1.03) {};
+\node[feat, minimum height=0.75cm, fill=featmid]  (c2) at (6.95,1.78) {};
+\node[feat, minimum height=0.75cm, fill=feathigh] (c3) at (6.95,2.53) {};
+\draw[->, black!50] (fl.east) to[out=0,in=180] (c1.west);
+\draw[->, black!50] (fm.east) -- (c2.west);
+\draw[->, black!50] (fh.east) to[out=0,in=180] (c3.west);
+\node[font=\tiny, align=center, anchor=north] at (6.85,0.6) {$[h_{\text{low}};h_{\text{mid}};h_{\text{high}}]$\\$\in\mathbb{R}^{3d}$};
+% shift annotation
+\node[note, text=derivative!80!black, anchor=south] at (5.75,3.35) {post-training\\shifts these features};
+\draw[->, derivative!80!black, densely dotted, thick] (5.55,3.37) -- (5.3,3.0);
+% interface trapezoid
+\fill[interface, draw=interface!60!black, thick] (7.35,0.66) -- (8.75,1.33) -- (8.75,2.23) -- (7.35,2.9) -- cycle;
+\node[font=\small\bfseries, text=white] at (8.0,1.78) {fc};
+\node[font=\tiny, text=white] at (8.02,1.42) {$3d\!\to\!d$};
+\node[font=\scriptsize\bfseries, text=interface!65!black, align=center] at (8.3,3.45) {feature interface\\[-1pt]\scriptsize(50M params, 12\%)};
+\node[font=\scriptsize, text=interface!65!black, align=center] at (8.35,0.55) {\textbf{re-fit}};
+% token embedding
+\node[blk, fill=black!8, minimum width=1.15cm, minimum height=0.5cm] (emb) at (9.35,0.1) {\scriptsize embed\\[-2pt]\tiny(frozen)};
+\node[circle, draw=black!60, inner sep=0.5pt, font=\scriptsize] (plus) at (9.35,1.78) {$\oplus$};
+\draw[->, black!60] (8.75,1.78) -- (plus.west);
+\draw[->, black!60] (emb.north) -- (plus.south);
+\node[font=\tiny, text=black!60] at (9.35,-0.42) {$y'_{t}$};
+\draw[->, black!50] (9.35,-0.3) -- (emb.south);
+% decoder + head
+\node[blk, fill=decoder!22, draw=decoder!70!black, minimum width=1.05cm, minimum height=1.25cm] (dec) at (10.5,1.78) {decoder\\layer};
+\node[blk, fill=decoder!22, draw=decoder!70!black, minimum width=0.85cm, minimum height=1.25cm] (head) at (11.65,1.78) {LM\\head};
+\draw[->, black!60] (plus.east) -- (dec.west);
+\draw[->, black!60] (dec.east) -- (head.west);
+\node[font=\scriptsize] (q) at (12.6,1.78) {$q_\theta$};
+\draw[->, black!60] (head.east) -- (q.west);
+% TTT loop
+\draw[->, black!55, densely dashed] (12.6,1.45) to[out=-90,in=-90, looseness=1.0] node[pos=0.5, below, font=\tiny, align=center] {feed own prediction, $k{=}1,2,3$\\(training-time test)} (10.5,1.12);
+% loss
+\node[blk, fill=white, minimum height=0.55cm] (loss) at (10.95,4.0) {$\displaystyle \mathcal{L}=\sum_{k=1}^{3}\mathrm{KL}\big(p_{\mathcal{T}'}\,\|\,q^{(k)}_\theta\big)$};
+\draw[->, derivative!70!black] (L7.north) |- node[pos=0.72, above, font=\tiny] {next-token distribution $p_{\mathcal{T}'}$} (loss.west);
+\draw[->, black!60] (q.north) |- (loss.east);
+% legend
+\fill[interface] (4.0,-1.25) rectangle (4.25,-1.05); \node[font=\tiny, anchor=west] at (4.28,-1.15) {trained in both variants};
+\fill[decoder!45] (6.75,-1.25) rectangle (7.0,-1.05); \node[font=\tiny, anchor=west] at (7.03,-1.15) {also trained in full warm start};
+\fill[black!15] (9.85,-1.25) rectangle (10.1,-1.05); \node[font=\tiny, anchor=west] at (10.13,-1.15) {frozen / shared with $\mathcal{T}'$};
+
+% ===================== (3) serve =====================
+\node[blk, fill=white, minimum width=3.2cm, minimum height=2.05cm, anchor=north] (srv) at (15.22,3.75) {};
+\node[font=\scriptsize\bfseries, anchor=north] at (15.22,3.7) {speculative decoding (vLLM)};
+% draft tokens
+\foreach \j/\ok in {0/1,1/1,2/1,3/0} {
+  \pgfmathsetmacro{\xx}{14.12+0.52*\j}
+  \ifnum\ok=1
+    \node[draw=interface!60!black, fill=interface!25, minimum size=0.36cm, inner sep=0pt, font=\tiny] at (\xx,2.75) {$\hat y_{\the\numexpr\j+1\relax}$};
+    \node[font=\scriptsize, text=benign!70!black] at (\xx,2.3) {\checkmark};
+  \else
+    \node[draw=black!40, fill=black!5, minimum size=0.36cm, inner sep=0pt, font=\tiny] at (\xx,2.75) {$\hat y_{\the\numexpr\j+1\relax}$};
+    \node[font=\scriptsize, text=severe] at (\xx,2.3) {$\times$};
+  \fi
+}
+\node[font=\tiny, text=black!60, align=center] at (15.22,1.92) {repaired drafter proposes,\\$\mathcal{T}'$ verifies in one pass};
+\node[font=\scriptsize, align=center] at (15.22,1.0) {R1-Distill-Llama-8B};
+\node[font=\large\bfseries, align=center] at (15.22,0.45) {1.31$\times$ \textcolor{black!40}{$\rightarrow$} \textcolor{interface!80!black}{1.83$\times$}};
+\node[font=\scriptsize, text=black!60, align=center] at (15.22,-0.35) {dedicated drafter: 2.05$\times$\\no architecture or engine change};
+\node[note] at (15.22,-1.15) {11 GPU-hours end to end};
+\end{tikzpicture}
