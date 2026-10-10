@@ -316,6 +316,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV2-P0 | D54 E8/E14/E12/E9/E10 and CPU A1–A10; separate results report, Claude draft untouched | P0 | codex | D54 | Sat20:00 | in progress | codex-1 / 2026-10-10T12:54:01.154430-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md); E8/E10/E12/E14 andA1–A10 complete; E9 all8packing2304retries pastfirstbackward, frozenexport/evalwatchers active |
 | REV2-P1 | D54 E11/E17/E13/E16; separate results report, Claude draft untouched | P1 | codex | D54 | Sun08:00 | in progress | codex-1 / 2026-10-10T12:54:01.154430-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md); E11/E16 complete; E17 finalr16seed evaluation; E13scratch64k progressing; 41testsPASS |
 | REV2-P2 | D54 E15/E18 and optional sampled timing; separate results report, Claude draft untouched | P2 | codex | D54 | Sun12:00 | review | codex-1 / 2026-10-10T13:43:34.228374-04:00 | [results](reports/REV2-results-20261010.md), [completion evidence](artifacts/REV2_live_analysis_20261010_1255/progress-20261010_134334_228395.json); all mandatory runs successful and independently reduced; pilot, no owner promotion |
+| REV3-X5 | D55 DFlash16k repairs,3R1seeds, frozen panels and precision timing | P0 | codex | D55,B10 | Sun08:00 | in progress | codex-1 / 2026-10-10T14:02:03.823104-04:00 | [journal](notes/REV3.md); existing16k data, nativeDFlash; testsfirst, dedicated-checkpoint search |
 
 ---
 
