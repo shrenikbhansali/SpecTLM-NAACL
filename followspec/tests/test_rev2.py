@@ -153,3 +153,11 @@ def test_completion_ping_changes_only_own_ready_row(tmp_path):
     assert '| review |' in new and 'Gate unchanged' in new and '| OTHER | untouched |' in new
     ping_board(tmp_path,'P0',dict(ready_for_review=True,completed=270,expected=270),'/evidence','stamp')
     assert (tmp_path/'notes/REV2.md').read_text().count('Completion ping')==1
+
+def test_generation_prefix_bins_exclude_terminal_step_and_check_accounting():
+    from followspec.rev2_prefix_analysis import bins
+    row=dict(per_step_accepted=[2,0,1],per_step_drafted=[4,4,4],completion_token_ids=list(range(7)))
+    x=bins(row,[(0,4),(4,8)])
+    assert x[0]==dict(p1=1.,tau=3.,steps=1)
+    assert x[1]==dict(p1=0.,tau=1.,steps=1)
+    with pytest.raises(ValueError):bins(row|dict(completion_token_ids=list(range(5))),[(0,8)])
