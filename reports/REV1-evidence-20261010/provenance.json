@@ -1,0 +1,65 @@
+{
+  "source_hashes": {
+    "artifacts/FIX23_census_20261008_1640/results.json": "64526faee65a360cdd1fe9b58f7744ce111dbd8c2bb2dd8ee11db1d5d8badcca",
+    "artifacts/P1_typed_20261008_1515/analysis-v3/results.json": "b8120d0c76f0d911cabf33783d1b89a0fc6e5970bcc924096e0ae930a4a6961d",
+    "artifacts/P1_typed_20261008_1515/typed-v2.json": "7c56faec77a01d76f914515c8bc0412c7f8fb637066f7ba23c74d086a9351669"
+  },
+  "historical_counts": {
+    "pairs": 348,
+    "checkpoints": 174,
+    "source_commits": {
+      "423d3b698c5fcfb7b864ff1a9bb8ebfd71907fb1": 682,
+      "f00992ff8a51876c1833617f571c5fd45f2c80c6": 14
+    },
+    "cell_prompt_counts": {
+      "64": 652,
+      "128": 44
+    },
+    "paired_p1_corrections": 14,
+    "unknown_histories": 42
+  },
+  "focused_counts": {
+    "typed_records": 201,
+    "atlas_plus_T1_labels": 192,
+    "expansion_labels": 8,
+    "T1b_labels": 1,
+    "unknown_history": 45,
+    "candidate_pairs": 70,
+    "complete_pairs": 66,
+    "excluded_pairs": [
+      {
+        "model": "OpenLearnLM/deepseek_qwen3_8b_think_reward_grpo_step_300",
+        "method": "eagle3",
+        "workload": "speed128",
+        "reason": "missing/failed matched cell"
+      },
+      {
+        "model": "OpenLearnLM/deepseek_qwen3_8b_think_reward_grpo_step_300",
+        "method": "dflash",
+        "workload": "speed128",
+        "reason": "missing/failed matched cell"
+      },
+      {
+        "model": "OpenLearnLM/deepseek_qwen3_8b_nothink_grpo_step_300",
+        "method": "eagle3",
+        "workload": "speed128",
+        "reason": "missing/failed matched cell"
+      },
+      {
+        "model": "OpenLearnLM/deepseek_qwen3_8b_nothink_grpo_step_300",
+        "method": "dflash",
+        "workload": "speed128",
+        "reason": "missing/failed matched cell"
+      }
+    ],
+    "complete_models": 25,
+    "quality_counts": {
+      "pretrained control": 4,
+      "probe": 58,
+      "previously flagged collapsed GRPO": 4
+    },
+    "primary_probe_models": 21,
+    "bootstrap": "5000 checkpoint then pairedprompt draws, seed20261008"
+  },
+  "exported_rows": 414
+}
