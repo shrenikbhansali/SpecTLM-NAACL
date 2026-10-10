@@ -63,3 +63,21 @@ def test_timing_long_and_large_batch_defaults_are_unchanged():
     assert (a.max_new_tokens,a.max_model_len,a.batch_size)==(512,4096,8)
     b=parser().parse_args(args+['--max-new-tokens','8192','--max-model-len','12288','--batch-size','32'])
     assert (b.max_new_tokens,b.max_model_len,b.batch_size)==(8192,12288,32)
+
+def test_step_profile_excludes_export_interval():
+    from followspec.training_profile import StepProfiler
+    values=iter([10.,12.,20.,23.]);sync=[]
+    p=StepProfiler(lambda:next(values),lambda:sync.append(True),lambda:(100,200))
+    p.begin();a=p.end(1);p.begin();b=p.end(2)
+    assert [a['wall_s'],b['wall_s']]==[2.,3.] and len(sync)==4
+    assert b['peak_allocated_bytes']==100 and b['peak_reserved_bytes']==200
+
+def test_paired_seed_query_bootstrap_preserves_seed_and_query_pairs():
+    import numpy as np
+    from followspec.rev2_analysis import paired_seed_query
+    a=np.array([[1.,2.,3.],[2.,3.,4.],[3.,4.,5.]])
+    r=paired_seed_query(a,a+.5)
+    assert r['delta']['mean']==.5 and r['delta']['ci95']==[.5,.5]
+    assert r['n']==3 and r['seeds']==3
+    r=paired_seed_query(a,a+np.array([[0.],[1.],[2.]]))
+    assert r['delta']['ci95'][0]<1<r['delta']['ci95'][1]

@@ -182,6 +182,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
     p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora'],required=True)
+    p.add_argument('--profile-training',action='store_true',help='D54 synchronized whole-step timings including online capture')
     p.add_argument('--omit-final-optimizer',action='store_true',help='D54 nonresumable final compact weights, no optimizer persistence')
     p.add_argument('--allow-response-pairs',action='store_true',help='D54 explicit short512/long2048 mixture on identical prompts')
     p.add_argument('--supervision-row',help='REV1 fixed-text control: alternate pinned teacher for taps and soft labels; response provenance and initialization stay unchanged')
@@ -329,6 +330,11 @@ def main():
         with saved_tensor_context(a.offload_saved_tensors):records=probe_batches(model,loader,call,a.probe_batches)
         write(out/'results.json',dict(status='step_zero_diagnostic_no_training',metrics=records,n_batches=len(records),optimizer_steps=0,wall_s=time.monotonic()-start))
         return
+    profiler=None
+    if a.profile_training:
+        from followspec.training_profile import StepProfiler
+        torch.cuda.reset_peak_memory_stats()
+        profiler=StepProfiler(time.perf_counter,torch.cuda.synchronize,lambda:(torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved()))
     original_step=trainer._optimizers_step;completed=0
     mutable=set(proof['trainable_names'])
     for name in list(mutable):
@@ -347,6 +353,9 @@ def main():
         nonlocal completed
         if any(p.grad is not None and not torch.isfinite(p.grad).all() for p in model.parameters()):raise ValueError('nonfinite drafter gradient')
         original_step();completed+=1
+        if profiler:
+            record=profiler.end(completed)
+            with (out/'step_profile.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')
         if completed in a.export_steps:
             dest=out/f'export-{completed}'
             require_free(out,a.min_free_gb)
@@ -357,7 +366,9 @@ def main():
                 dest.mkdir(exist_ok=False);model.save_pretrained(dest,state_dict=merged_state(model),safe_serialization=True)
             if a.compact_checkpoints and completed<a.steps:compact_checkpoint(f'step-{completed}',save_optimizer=False)
             write(dest/'repair_provenance.json',dict(config_sha256=file_hash(out/'config.json'),step=completed,variant=a.variant,elapsed_s=time.monotonic()-start,trainable=proof,export_format='native released state keys; LoRA merged'))
+        if profiler:profiler.begin()
     trainer._optimizers_step=step
+    if profiler:profiler.begin()
     with saved_tensor_context(a.offload_saved_tensors):trainer.run_training()
     if trainer.global_step!=a.steps or any(p.grad is not None for p in teacher.parameters()):raise ValueError('step count/frozen teacher failure')
     write(out/'results.json',dict(status='trained_pending_frozen_harness_evaluation',n=len(rows),steps=trainer.global_step,wall_s=time.monotonic()-start,max_gpu_allocated_gb=torch.cuda.max_memory_allocated()/1024**3,exports=[str(out/f'export-{i}') for i in a.export_steps]))
