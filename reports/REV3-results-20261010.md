@@ -4,7 +4,7 @@ Owner D55. All results remain pilot; this evidence document is separate from `pa
 
 ## X5 — DFlash16k (P0, Sun Oct11 08:00 ET)
 
-**Status, Saturday 14:14 ET:** all eight trainings are active and have passed hundreds of updates. No new16k DFlash acceptance number is claimed yet. The existing256-example DFlash results are a separate budget and are not substituted for these runs.
+**Status, Saturday 15:40 ET:** all eight native DFlash trainings completed successfully. Evaluation and timing continue; 30/86 total jobs were complete at 15:38, with no failures observed. Preliminary batch-8 Nemotron speedups over no speculation are 1.557 [1.470, 1.641] for interface and 1.623 [1.528, 1.712] for full (95% paired CIs, n=128, three processes). Repair-versus-reuse comparisons await the reuse controls. The live tables below contain the current independently reduced results.
 
 **Training.** Released `z-lab/LLaMA3.1-8B-Instruct-DFlash-UltraChat`, revision `d3af30def9601abdd10810aba220d692f0e803f0`, MIT license recorded from the pinned model card. R1-Distill-Llama and Nemotron-Nano use their exact already-audited16k Alpaca/512 response files; no regeneration, selection or truncation. Interface/full, R1seeds0–2 and Nemotronseed0, one epoch. Existing native DFlash fused-KL objective, gamma4/fixed-exponential position weighting, up to64 anchors per2048-token packed batch; gradient checkpointing and saved-tensor offload preserve the established memory path. The teacher/embeddings/output projection stay frozen as in B10. The interface trains83,886,080 parameters; full trains1,048,626,432. Final-only shared-shard exports avoid a duplicate native checkpoint copy; this opt-in persistence change does not alter updates. Disk floor350decimalGB.
 
@@ -30,7 +30,7 @@ Existing focused SPEED128 pairedA00/A10 census, n128queries per row,95%paired-qu
 <!-- REV3 X5 LIVE BEGIN -->
 ### X5 live independently reduced results
 
-Updated 2026-10-10T14:13:26.252360-04:00; pilot. Completed0/86planned final jobs; failed=[]. Three-seed R1 groups required before showing a combined estimate.
+Updated 2026-10-10T15:37:48.651948-04:00; pilot. Completed30/86planned final jobs; failed=[]. Three-seed R1 groups required before showing a combined estimate.
 
 | Target | Arm | Panel | n/seeds | Reuse τ | Repair τ [95% CI] | Δτ [95% CI] | p1 [95% CI] | Δp1 [95% CI] |
 |---|---|---|---:|---:|---|---|---|---|
@@ -38,9 +38,20 @@ Updated 2026-10-10T14:13:26.252360-04:00; pilot. Completed0/86planned final jobs
 SPEED128 timing, seed0 exports, three processes × three warm passes. All128 prompts at both batch sizes. Cold/startup and output-token differences remain in source JSON.
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
+| X5 | 0 | 8 | reuse / none | 128/3 | 1.227 [1.175,1.276] | 1.223 [1.166,1.275] | 0.980 [0.935,1.035] |
+| X5 | 1 | 8 | fc / none | 128/3 | 1.557 [1.470,1.641] | 1.575 [1.480,1.672] | 1.107 [1.049,1.166] |
+| X5 | 1 | 8 | full / none | 128/3 | 1.623 [1.528,1.712] | 1.650 [1.546,1.748] | 1.149 [1.091,1.206] |
 
 | Target | Scope | Seed | Native steps | Measured training GPUh | Peak allocated GiB |
 |---|---|---:|---:|---:|---:|
+| 0 | fc | 0 | 4488 | 1.281 | 28.36 |
+| 0 | full | 0 | 4488 | 1.494 | 38.24 |
+| 0 | fc | 1 | 4480 | 1.264 | 28.36 |
+| 0 | full | 1 | 4480 | 1.495 | 38.24 |
+| 0 | fc | 2 | 4491 | 1.262 | 28.36 |
+| 0 | full | 2 | 4491 | 1.483 | 38.24 |
+| 1 | fc | 0 | 2636 | 0.818 | 28.36 |
+| 1 | full | 0 | 2636 | 0.926 | 38.24 |
 
-[Raw counts, paired seed/query CIs, per-depth acceptance, lengths and hashes](../artifacts/REV3_X5_live_analysis_20261010_1420/20261010_141326_219115/acceptance.json); [timing intervals and source files](../artifacts/REV3_X5_live_analysis_20261010_1420/20261010_141326_219115/timing/results.json); [completion evidence](../artifacts/REV3_X5_live_analysis_20261010_1420/20261010_141326_219115/progress.json).
+[Raw counts, paired seed/query CIs, per-depth acceptance, lengths and hashes](../artifacts/REV3_X5_live_analysis_20261010_1420/20261010_153748_043005/acceptance.json); [timing intervals and source files](../artifacts/REV3_X5_live_analysis_20261010_1420/20261010_153748_043005/timing/results.json); [completion evidence](../artifacts/REV3_X5_live_analysis_20261010_1420/20261010_153748_043005/progress.json).
 <!-- REV3 X5 LIVE END -->

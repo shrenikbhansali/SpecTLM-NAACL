@@ -15,3 +15,8 @@
 **Caveats.** Three-seed R1,one-seedNemotron. DFlashK10 differs fromEAGLEK4, so no direct cross-architectureτequivalence claim. Longcap supplementary. No dedicatedoracleavailablefromsearch; no inventedgaprecovery. Everyoutcome retained; no paper edit. Disk350GBfloor enforced with final-onlysharedexports andno redundantnativecheckpoint.
 
 **Next.** Finish8trainings; autolaunch24repairedacceptance cells/24repairedtimingprocesses; independently reduce and markX5review whenall86jobs complete.
+
+## 2026-10-10T15:38:56.227111-04:00 — codex-1 — Live check and Handoff
+
+All eight X5 trainings completed successfully (R1 interface 75.7–76.9 min, full 89.0–89.7 min; Nemotron 49.1/55.5 min). At 15:38 ET, 30/86 jobs had launcher-confirmed success and no failures. All 86 jobs now published. Independent raw reducer is active; first timing contrasts: Nemotron batch8 interface/none 1.557 [1.470,1.641], full/none 1.623 [1.528,1.712], n128, three independent processes and three warm passes. Reuse controls still pending: these are NOT repair/reuse deltas. Source artifacts/REV3_X5_live_analysis_20261010_1420/20261010_153647_329437/timing/results.json.
+
