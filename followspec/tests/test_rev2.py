@@ -125,3 +125,10 @@ def test_profile_summary_counts_warmup_and_storage_separately():
     assert tensor_bytes({'x':{'shape':[3,4],'dtype':'F32'},'__metadata__':{}})==48
     with pytest.raises(ValueError):summarize_steps(rows[:199])
     with pytest.raises(ValueError):summarize_steps(rows[:199]+[rows[0]])
+
+def test_preinspected_sample_match_rejects_any_unseen_text_or_mask():
+    from followspec.rev2_audit_transfer import checked_samples
+    row=dict(prompt='user',answer='answer',input_ids=[1,2],response_start=1,loss_mask=[False,True],mask_valid=True)
+    checked_samples([row]*5,[row|dict(branch='long2048')]*5)
+    with pytest.raises(ValueError):checked_samples([row]*5,[row]*4+[row|dict(answer='different')])
+    with pytest.raises(ValueError):checked_samples([row]*5,[row]*4+[row|dict(loss_mask=[True,True])])
