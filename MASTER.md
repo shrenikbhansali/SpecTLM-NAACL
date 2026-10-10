@@ -83,13 +83,13 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-10T00:20:48.854355-04:00 (codex-1 builder/operator) |
+| Last updated | 2026-10-10T02:31:15.670216-04:00 (codex-1 builder/operator) |
 | Sprint day | Day 6 of 8 (Sat Oct10); ARR deadline MonOct12 23:59AoE |
 | Next gate | **Freeze recorded (D-52).** Official yuhuili confirmed primary on 3 seeds (R1 16k full SPEED gap recovery 71.8% vs production 65.8%). Remaining: E5c 64k (overnight), codex analysis/tables. Writing starts Sat; ARR Mon Oct 12 23:59 AoE. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | Only approvedremainingtrainings: E5c64kproductionfc/full E5c-generic64k-fc 16612/18448 (90.0%); E5c-generic64k-full 13936/18448 (75.5%). Official16kallseeds, D52timing66 andMATH5003 allcomplete; primaryreport integrated. Canonicalqueue andautomaticexport/eval/report/health active. |
-| Blockers | No failures or approval blocking approvedrunlist. Disk~631GB above350GBfloor. ICE unavailable. Official64k proposal is outsideD52 and was notlaunched. |
+| Jobs running | REV1 complete: 42/42 evaluations and7/7 matched trainings; report ready. E5c64k production full remains,17604/18448 at02:29 (~95.4%); fc final3 workloads complete. Full training ETA~03:00, final evaluations~03:15–03:30 ET. Canonicalqueue/export watcher active. |
+| Blockers | No failures in REV1; no approval blocker for already approved64k continuation. ICE unavailable. |
 | Owner action needed | No approval needed for existingjobs. D52freeze retained; optionalofficial64k would require owneramendment. Writing/claim decisions remain owner-controlled. |
 
 ---
@@ -311,7 +311,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | W3 | Synthesize Codex and Claude paper drafts into paper/codex-final; compare narrative, figures and evidence; compile complete ACL draft | P0 | codex | W2 | now | review | codex-1 / 2026-10-10T01:14:12-04:00 | [PDF](paper/codex-final/main.pdf), [Overleaf ZIP](paper/codex-final/codex-final-overleaf.zip), [synthesis choices](paper/codex-final/SYNTHESIS.md), [validation](paper/codex-final/validation.json), [journal](notes/W3.md); 14 pages, main content within 8, four TikZ figures, standalone rebuild PASS |
 
-| REV1 | Strengthen ReFit evidence: long/sampled reasoning, capacity and parent-supervision controls; separate Markdown, Claude manuscript untouched | P0 | codex | D53 | now | in progress | codex-1 / 2026-10-10T01:45:00-04:00 | [evidence report](reports/REV1-paper-strengthening-20261010.md), [journal](notes/REV1.md), [pilot ledger](ledger/EXP-ATL-026.md); 42 acceptance cells planned plus7 matched trainings; positive long-workload gain and capacity-sensitive decoder result; controls/sampling advancing |
+| REV1 | Strengthen ReFit evidence: long/sampled reasoning, capacity and parent-supervision controls; separate Markdown, Claude manuscript untouched | P0 | codex | D53 | now | review | codex-1 / 2026-10-10T02:31:15.670216-04:00 | [completed evidence report](reports/REV1-paper-strengthening-20261010.md), [journal](notes/REV1.md), [pilot ledger](ledger/EXP-ATL-026.md); all42 evaluations +7 trainings complete;7 matched audits and26 regression tests PASS; raw-recomputed CIs, nulls retained |
 
 ---
 

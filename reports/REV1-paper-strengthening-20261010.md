@@ -2,7 +2,54 @@
 
 2026-10-10, codex-1. Working evidence document for the selected **Claude final draft**. The manuscript is untouched. Results here are pilots; completed measurements, running experiments, and proposed interpretations are distinguished. This document supplies material for the paper's core argument, rather than writing a rebuttal into the paper.
 
-## What the additional experiments establish
+## Completed experiment set — 02:30 ET update
+
+**All 7 training controls and all 42 evaluations completed by 02:02 ET.** All seven matched-training audits pass; raw counters/configs were checked independently, and 26 focused regression tests pass. No native run failures were found. No GPU work remains in this review-driven batch. The Claude manuscript remains untouched.
+
+[Complete long-generation and sampling results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/report.md) · [Complete component and supervision controls](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/components.md).
+
+### Longer reasoning and sampling
+
+At an 8,192-token ceiling, full repair improves acceptance on both targets under both greedy decoding and sampling. All rows use the fixed MATH32 panel, n=32, one evaluation seed, paired query-bootstrap 95% intervals. Actual mean outputs are about 2.4k–3.3k tokens, rather than 8k for every query. Sampling uses T=.6, top-p=.95 and is separately labeled supplementary; greedy results use the frozen harness.
+
+| Target | Decoding | Reuse τ | Full repair τ | Paired Δτ [95% CI] | Paired Δp1 [95% CI] |
+|---|---|---:|---:|---|---|
+| R1 | Greedy | 1.970 | 2.680 | +.710 [.557,.858] | +.179 [.144,.212] |
+| R1 | Sampled | 1.958 | 2.579 | +.622 [.470,.771] | +.162 [.121,.202] |
+| Nemotron | Greedy | 1.650 | 2.726 | +1.075 [.967,1.173] | +.282 [.256,.305] |
+| Nemotron | Sampled | 1.636 | 2.626 | +.989 [.904,1.067] | +.262 [.243,.279] |
+
+No output crosses the predeclared repeated-4-gram threshold. Nemotron also retains a positive late-trace full-repair gain beyond 2,048 tokens: +.468 τ [.343,.577], n=10 paired reaching queries, greedy; +.665 [.497,.842], n=13, sampled. R1's corresponding late full-repair intervals include zero. This supports overall long-workload and sampling gains, with a target-dependent late-trace pattern. These are acceptance measurements, not newly measured latency speedups.
+
+### Parent supervision separates text adaptation from target-specific supervision
+
+On **identical derivative-generated training token IDs**, substituting parent features and labels still improves the drafter. But derivative supervision does better under the same update scope, initialization, data and 300-step budget:
+
+| Scope | Workload | Parent-supervised τ | Derivative-supervised τ | Advantage from derivative supervision [paired 95% CI] |
+|---|---|---:|---:|---|
+| Interface | SPEED128 | 1.976 | 2.127 | +.151 [.132,.171] |
+| Interface | MATH64 | 2.240 | 2.380 | +.139 [.113,.168] |
+| Full | SPEED128 | 2.054 | 2.244 | +.190 [.162,.216] |
+| Full | MATH64 | 2.342 | 2.494 | +.152 [.115,.181] |
+
+Thus text/domain adaptation contributes, and derivative-specific supervision supplies an additional measurable benefit. This experiment changes features and soft labels together; it does not allocate their individual contributions. The fixed-token special-alias audit below remains part of the control's interpretation. n=128/64, one training seed, production drafter, 256 examples.
+
+### Capacity, update location and optimization
+
+- At exactly **1.229M parameters** and the same learning rate, interface LoRA beats decoder LoRA by +.138 τ [.119,.158] on SPEED and +.158 [.125,.193] on MATH.
+- At exactly **50.332M full-rank parameters**, dense interface beats decoder q/o-only updates by +.033 [.014,.051] on SPEED and +.042 [.013,.074] on MATH.
+- The near-matched 50.304M decoder LoRA has a small deficit to dense interface on SPEED; its MATH difference includes zero.
+- Updating the **entire 243.282M decoder** beats the 50.332M interface by +.085 [.063,.106] / +.091 [.066,.116] on SPEED/MATH. It approaches full repair, trailing by .032 [.008,.055] / .023 [.002,.044]. A frozen decoder can support substantial recovery; decoder adaptation can recover more.
+- Raising decoder-r16 learning rate from 2e-5 to 1e-4 improves τ by +.212 [.188,.235] / +.231 [.199,.263]. It still trails dense interface by .078 [.058,.099] / .078 [.047,.111], but this confirms sensitivity to optimization. The equal-small-budget comparison is therefore conditional on the matched learning rate, not a claim that it beats a tuned decoder at every rate.
+
+The strongest supported mechanism statement is **a useful and parameter-efficient repair location, with a measurable target-specific supervision contribution**. The experiments do not support assigning all original degradation exclusively to the interface. All controls, including these counterexamples, are in the linked tables.
+
+### Remaining campaign ETA
+
+The separate, previously launched production 64k full-repair run is still training: 17,604 / 18,448 steps at 02:29 ET (95.4%). Based on recent progress, allow about **30 minutes for training**, then **15–30 minutes for final exports/evaluation**: roughly **03:15–03:30 ET**, barring an operational interruption. The 64k interface final SPEED/MATH64/MATH500 cells are already complete. This run is independent of the completed 42-cell batch above.
+
+## Earlier staged observations (completed results above supersede pending statuses)
+
 
 The central empirical question is whether inexpensive adaptation of an existing target-conditioned drafter recovers useful serving performance after the target changes. Three additions make this evidence substantially stronger: testing recovery deep into reasoning trajectories, separating response-domain adaptation from target-specific supervision, and comparing adaptation locations at matched capacity.
 
@@ -116,3 +163,29 @@ Claim/journal: [REV1](../notes/REV1.md); owner authorization D53. Test-first add
 - 2026-10-10T01:44:25.781423-04:00: **23/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014425/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014425/components.md). All are raw-recomputed pilots; pending and null arms retained.
 
 - 2026-10-10T01:45:02.537232-04:00: **24/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014502/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014502/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:46:36.214412-04:00: **27/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014636/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014636/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:47:40.300250-04:00: **29/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014740/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014740/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:48:44.720592-04:00: **30/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014844/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014844/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:49:19.271369-04:00: **31/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014919/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014919/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:51:54.197649-04:00: **32/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015154/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015154/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:55:29.394871-04:00: **33/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015529/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015529/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:57:34.698519-04:00: **34/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015734/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015734/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:58:10.093737-04:00: **35/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015810/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015810/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:58:46.005772-04:00: **36/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015846/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015846/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:59:22.205454-04:00: **38/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015922/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015922/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:59:58.951243-04:00: **39/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015958/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015958/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T02:01:06.318244-04:00: **41/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020106/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020106/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T02:01:44.809810-04:00: **42/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/components.md). All are raw-recomputed pilots; pending and null arms retained.

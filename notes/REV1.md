@@ -37,3 +37,63 @@ Code/tests and evidence export are merged/pushed through e17bc6b; Claude manuscr
 Canonical queue4129996 only. Training-export watcher1332866; first-stage watcher exited after publishing all4 evaluations. CPU evidence watcher1343985 writes immutable `artifacts/REV1_evidence_watch_20261010/snapshot-*` and appends links to report/journal/EXP026 as counts change; log `artifacts/REV1-evidence-watch-20261010.log`. It alerts on launch_failed/native failure and runs up to12h. It does not launch jobs or commit appended documentation. Check it and new config/results first; do not duplicate dispatch. Next: inspect all7 training audits,14 final-export evaluations,7 sampled cells and complete21 greedy long cells; summarize parent-supervision and LR/full-rank contrasts, all nulls retained. Commit the watcher-appended evidence after inspection and move REV1 to review only when the planned evidence checks finish.
 
 Live GPUs: srv1 all occupied (~1.4GiB free, no placement); srv2:4–7 remain excluded even though reported free; srv2:0–3/srv3/srv4 working. Free disk~575GB >350GB floor. No changes to existing64k jobs. Other dirty ledger024/P3/operator/consolidated files belong to ongoing operations and are untouched.
+
+## 2026-10-10T01:46:36.214412-04:00 — codex-1 / CPU watcher
+
+27/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014636`. No jobs launched by this watcher.
+
+## 2026-10-10T01:47:40.300250-04:00 — codex-1 / CPU watcher
+
+29/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014740`. No jobs launched by this watcher.
+
+## 2026-10-10T01:48:44.720592-04:00 — codex-1 / CPU watcher
+
+30/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014844`. No jobs launched by this watcher.
+
+## 2026-10-10T01:49:19.271369-04:00 — codex-1 / CPU watcher
+
+31/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014919`. No jobs launched by this watcher.
+
+## 2026-10-10T01:51:54.197649-04:00 — codex-1 / CPU watcher
+
+32/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015154`. No jobs launched by this watcher.
+
+## 2026-10-10T01:55:29.394871-04:00 — codex-1 / CPU watcher
+
+33/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015529`. No jobs launched by this watcher.
+
+## 2026-10-10T01:57:34.698519-04:00 — codex-1 / CPU watcher
+
+34/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015734`. No jobs launched by this watcher.
+
+## 2026-10-10T01:58:10.093737-04:00 — codex-1 / CPU watcher
+
+35/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015810`. No jobs launched by this watcher.
+
+## 2026-10-10T01:58:46.005772-04:00 — codex-1 / CPU watcher
+
+36/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015846`. No jobs launched by this watcher.
+
+## 2026-10-10T01:59:22.205454-04:00 — codex-1 / CPU watcher
+
+38/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015922`. No jobs launched by this watcher.
+
+## 2026-10-10T01:59:58.951243-04:00 — codex-1 / CPU watcher
+
+39/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015958`. No jobs launched by this watcher.
+
+## 2026-10-10T02:01:06.318244-04:00 — codex-1 / CPU watcher
+
+41/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020106`. No jobs launched by this watcher.
+
+## 2026-10-10T02:01:44.809810-04:00 — codex-1 / CPU watcher
+
+42/42 acceptance cells complete. Immutable evidence: `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144`. No jobs launched by this watcher.
+
+## 2026-10-10T02:31:15.670216-04:00 — codex-1 — Completed results / Handoff
+
+Owner requested status/ETA. Checked canonical queue, all stage plans, native results/failures, final watcher snapshot and training progress. All42 acceptance cells and7 training controls finished by02:02ET;7 matched-training audits PASS, no native failures, pending lists empty. Re-ran26 focused regression tests: PASS. `git fetch origin` / `git pull --ff-only`: up to date; unrelated dirty files preserved. Final immutable snapshot `artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144`. Updated separate Markdown report with completed results; Claude manuscript untouched.
+
+Sampled8192 n32 fullτ: R1 1.958→2.579,Δ.622[.470,.771]; Nemotron1.636→2.626,Δ.989[.904,1.067]. Parent-supervision training improves but trails derivative supervision by.151/.190 τ forfc/full onSPEED, positive pairedCIs; text and target-specific contributions both measurable. Full-rank matched50.332M q/o trailsfc onbothpanels; whole243.282M decoder beatsfc and approachesfull. HigherLR improvesdecoder-r16 strongly, showing optimization matters. LateR1full gain uncertain, lateNemotronfull gain positive; allretained.
+
+REV1 moved to review with report/evidence links. Its watchers exited successfully; no REV1 launches remain. Separate E5c64kfull at17604/18448 on02:29ET,~30mintraining+15–30mineval estimated; existingqueue/watchers continue, no duplication. Next: inspectfinal64kfull and integrate its raw-recomputed scaling point whenavailable. All owner research/framing choices remain unchanged.

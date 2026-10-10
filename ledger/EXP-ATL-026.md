@@ -17,3 +17,33 @@
 - 2026-10-10T01:44:25.781423-04:00: **23/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014425/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014425/components.md). All are raw-recomputed pilots; pending and null arms retained.
 
 - 2026-10-10T01:45:02.537232-04:00: **24/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014502/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014502/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:46:36.214412-04:00: **27/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014636/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014636/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:47:40.300250-04:00: **29/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014740/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014740/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:48:44.720592-04:00: **30/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014844/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014844/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:49:19.271369-04:00: **31/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014919/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_014919/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:51:54.197649-04:00: **32/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015154/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015154/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:55:29.394871-04:00: **33/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015529/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015529/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:57:34.698519-04:00: **34/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015734/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015734/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:58:10.093737-04:00: **35/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015810/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015810/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:58:46.005772-04:00: **36/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015846/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015846/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:59:22.205454-04:00: **38/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015922/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015922/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T01:59:58.951243-04:00: **39/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015958/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_015958/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T02:01:06.318244-04:00: **41/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020106/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020106/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+- 2026-10-10T02:01:44.809810-04:00: **42/42** new acceptance cells complete. [Long/sampled results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/report.md); [component/supervision results](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/components.md). All are raw-recomputed pilots; pending and null arms retained.
+
+### 2026-10-10T02:31:15.670216-04:00 — completed pilot batch
+
+All42 evaluation cells and7 training controls complete;7 matched-data/budget audits and26 regression tests pass. Final raw-recomputed tables andCIs: [long/sampling](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/report.md), [components/supervision](../artifacts/REV1_evidence_watch_20261010/snapshot-20261010_020144/components.md). [Completed synthesis](../reports/REV1-paper-strengthening-20261010.md). All nulls and capacity/LR counterexamples retained; sampling remains explicitlysupplementary. Status remains pilot.
