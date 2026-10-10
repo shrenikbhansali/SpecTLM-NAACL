@@ -23,8 +23,15 @@ class RepairLinear(torch.nn.Module):
 
 
 def configure_variant(model,variant,rank=16,alpha=32,algorithm="eagle3"):
-    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo'}:raise ValueError('unknown repair variant')
+    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora'}:raise ValueError('unknown repair variant')
     model.requires_grad_(False)
+    if variant=='whole_lora':
+        if rank<1:raise ValueError('positive LoRA rank required')
+        for name,module in list(model.named_modules()):
+            if isinstance(module,torch.nn.Linear) and (name in {'fc','lm_head'} or name.startswith('layers.')):
+                if '.' in name:
+                    parent,leaf=name.rsplit('.',1);model.get_submodule(parent)._modules[leaf]=RepairLinear(module,rank,alpha)
+                else:model._modules[name]=RepairLinear(module,rank,alpha)
     if variant in {'fc','fc_lora','full','fc_decoder_lora'}:model.fc.requires_grad_(True)
     if variant=='head':model.lm_head.requires_grad_(True)
     if variant=='decoder_dense':model.layers.requires_grad_(True)
@@ -102,12 +109,25 @@ def epoch_batches(rows,ceiling,seed,shift=1):
     return batches
 
 
-def validate_rows(rows,forbidden,max_length):
+def validate_rows(rows,forbidden,max_length,allow_response_pairs=False):
     if len({r['sample_id'] for r in rows})!=len(rows):raise ValueError('duplicate training samples')
-    if len({r['prompt_sha256'] for r in rows})!=len(rows):raise ValueError('duplicate training prompts')
+    if len({r['prompt_sha256'] for r in rows})!=len(rows):
+        if not allow_response_pairs:raise ValueError('duplicate training prompts')
+        from collections import defaultdict
+        groups=defaultdict(list)
+        for r in rows:groups[r['prompt_sha256']].append(r)
+        for group in groups.values():
+            if len(group)==1:continue
+            if len(group)!=2 or {r.get('response_branch') for r in group}!={'short512','long2048'}:raise ValueError('invalid paired-response branches')
+            if group[0]['input_ids'][:group[0]['response_start']]!=group[1]['input_ids'][:group[1]['response_start']]:raise ValueError('response-pair prefixes differ')
     for r in rows:
         answer_labels(r,max_length)
         if prompt_hash(r['raw_prompt'])!=r['prompt_sha256'] or r['prompt_sha256'] in forbidden:raise ValueError('evaluation overlap or prompt hash mismatch')
+
+
+def final_optimizer_policy(omit,compact):
+    if omit and not compact:raise ValueError('omit-final-optimizer requires compact checkpoints')
+    return not omit
 
 
 def supervision_source(target, rows, alternate):
@@ -161,7 +181,9 @@ def epoch_export_steps(steps, fractions=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
-    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo'],required=True)
+    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora'],required=True)
+    p.add_argument('--omit-final-optimizer',action='store_true',help='D54 nonresumable final compact weights, no optimizer persistence')
+    p.add_argument('--allow-response-pairs',action='store_true',help='D54 explicit short512/long2048 mixture on identical prompts')
     p.add_argument('--supervision-row',help='REV1 fixed-text control: alternate pinned teacher for taps and soft labels; response provenance and initialization stay unchanged')
     p.add_argument('--steps',type=int,default=200);p.add_argument('--export-steps',nargs='+',type=int,default=[50,200])
     p.add_argument('--schedule-steps',type=int,help='shared schedule horizon for a shorter scratch control');p.add_argument('--seed',type=int,default=0);p.add_argument('--batch-tokens',type=int,default=2048)
@@ -177,7 +199,8 @@ def main():
     p.add_argument('--continue-epoch-from',help='D50 continue one epoch from a completed compact run, restoring named optimizer state')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
     forbidden={prompt_hash(r.get('raw_prompt',r.get('prompt'))) for r in read(a.forbidden)}
-    validate_rows(rows,forbidden,a.batch_tokens+(a.algorithm=='eagle3'))
+    validate_rows(rows,forbidden,a.batch_tokens+(a.algorithm=='eagle3'),allow_response_pairs=a.allow_response_pairs)
+    save_final_optimizer=final_optimizer_policy(a.omit_final_optimizer,a.compact_checkpoints)
     shift=int(a.algorithm=='eagle3')
     if a.algorithm=='dflash' and (a.variant not in {'fc','full'} or a.scratch):raise ValueError('D48 DFlash fc/full warm-start only')
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
@@ -318,7 +341,7 @@ def main():
     if a.compact_checkpoints:
         # The native trainer otherwise writes another full model at epoch end.
         # New flag replaces persistence only; forward/loss/optimizer are unchanged.
-        trainer.maybe_save_checkpoint=lambda epoch,local_step=0:compact_checkpoint(f'epoch-{epoch}-step-{completed}')
+        trainer.maybe_save_checkpoint=lambda epoch,local_step=0:compact_checkpoint(f'epoch-{epoch}-step-{completed}',save_optimizer=save_final_optimizer)
 
     def step():
         nonlocal completed

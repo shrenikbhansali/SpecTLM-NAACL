@@ -40,11 +40,17 @@ def elicited_query(text):
     return query.strip() if isinstance(query,str) and usable_query(query) else None
 
 
+def validate_context_budget(prompt_ids,max_new_tokens,budget):
+    if budget not in {2048,4096} or any(len(ids)+max_new_tokens>budget for ids in prompt_ids):
+        raise ValueError('response plus prompt exceeds explicit training context budget; no truncation')
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','forbidden','output']:p.add_argument('--'+key,required=True)
     p.add_argument('--elicitation',choices=['magpie','instruction'],default='magpie');p.add_argument('--public-queries');p.add_argument('--count',type=int,default=520)
     p.add_argument('--seed',type=int,default=7001);p.add_argument('--max-new-tokens',type=int,default=512)
+    p.add_argument('--training-context-budget',type=int,choices=[2048,4096],default=2048)
     p.add_argument('--min-free-gb',type=float,default=0)
     p.add_argument('--query-rounds',type=int,default=64);p.add_argument('--dry-run',action='store_true');a=p.parse_args()
     row=json.loads(Path(a.target_row).read_text());target=Path(row['path'])
@@ -91,7 +97,7 @@ def main():
         if len(queries)!=a.count:
             jsonl(out/'partial_queries.jsonl',queries);raise ValueError(f'query shortfall {len(queries)}/{a.count}')
         queries=[r|dict(rendered_token_ids=render(tok,r['prompt']),split='training') for r in queries]
-        if any(len(r['rendered_token_ids'])+a.max_new_tokens>2048 for r in queries):raise ValueError('pilot context exceeds 2048; no silent truncation')
+        validate_context_budget([r['rendered_token_ids'] for r in queries],a.max_new_tokens,a.training_context_budget)
         jsonl(out/'queries.jsonl',queries);samples=[]
         with (out/'per_prompt.jsonl').open('x') as f:
             for offset in range(0,len(queries),8):
