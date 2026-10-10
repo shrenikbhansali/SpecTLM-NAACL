@@ -34,3 +34,10 @@ All eight X5 trainings completed successfully (R1 interface 75.7–76.9 min, ful
 Inspected canonical queue, stage, publisher/reducer/health logs, training results, dispatch and disk. Publisher prepends each group; later repair publications had pushed common reuse controls behind repairs. Prioritized existing reuse controls then slow full-repair b1 timing under dispatch.publish.lock, preserving every job identity/argument and without a new queue or duplicate launch. Evidence artifacts/REV3_X5_20261010_1410/priority-controls-20261010-1540.json. All training/export publication finished; frozen evaluation/timing continues. Disk 372 GB (350 floor).
 
 Working ETA from observed 6–12 min short evals, 13–20 min b8 timing, ~81 min completed b1 reuse timing: main X5 acceptance table around 17:00 ET; entire X5 including long panels and b1 timing around 18:00 ET, with roughly one hour uncertainty from shared slots. This is an estimate, not a guarantee. Next check missing controls and all remaining result markers, raw analysis and disk. Other REV2: two R1 mixed20k trainings at 5423/5856 interface and 4075/5856 full; scratch64k at 9935/18448. Existing watchers remain active.
+
+### 2026-10-10T16:12:29.463667-04:00 — codex-1 — D50 launch health
+Free disk 367.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-10T17:01:42.289542-04:00 — codex-1 — X5 completion ping
+
+All 86 jobs and required raw/CIs complete; pilot; evidence /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_live_analysis_20261010_1420/20261010_170126_526250. Board moved to review.

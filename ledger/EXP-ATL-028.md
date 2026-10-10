@@ -20,3 +20,7 @@
 
 All eight X5 trainings completed successfully (R1 interface 75.7–76.9 min, full 89.0–89.7 min; Nemotron 49.1/55.5 min). At 15:38 ET, 30/86 jobs had launcher-confirmed success and no failures. All 86 jobs now published. Independent raw reducer is active; first timing contrasts: Nemotron batch8 interface/none 1.557 [1.470,1.641], full/none 1.623 [1.528,1.712], n128, three independent processes and three warm passes. Reuse controls still pending: these are NOT repair/reuse deltas. Source artifacts/REV3_X5_live_analysis_20261010_1420/20261010_153647_329437/timing/results.json.
 
+
+## 2026-10-10T17:01:42.289542-04:00 — codex-1 — X5 completion ping
+
+All 86 jobs and required raw/CIs complete; pilot; evidence /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_live_analysis_20261010_1420/20261010_170126_526250. Board moved to review.
