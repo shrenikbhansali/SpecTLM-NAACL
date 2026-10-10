@@ -30,6 +30,8 @@ First complete capacity-matched group: **Nemotron, MATH-64, dense50M, three seed
 
 ## E9 — long-response repair
 
+**R1 data sealed at06:17 ET:**4,000 long responses,3,530,565 answer tokens (mean882.6),165 capped at2,048; two exceed the repeated4gram diagnostic and remain included. Measured generation7.014A40GPUh across the four shards. The mixed corpus has20,000 response records/11,049,369 answer tokens. Exact inspected-sample checks passed for both paths, and all four one-epoch training jobs were published automatically. [Sealed data and audits](../artifacts/REV2_followups_20261010_0500/sealed-t0), [training plan](../artifacts/REV2_followups_20261010_0500/training-t0/plan.json).
+
 **Data generation active:** first4k queries from each target's existing16k Alpaca collection, generated afresh with a2,048-response-token cap, four1k shards per target. Explicit4,096 training context budget; no truncation. Interface/full will train on long4k alone and short16k+long4k. Five short and five long decoded samples/masks have been inspected for both targets. The mixture preserves the two responses to the same4k queries as explicitly labeled `short512`/`long2048` records with identical prompt IDs/tokens and distinct sample IDs; ordinary duplicate-query rejection remains the default. See the live tables for completed long-response comparisons.
 
 The existing short-response repair closes39.2%[32.0,45.7] of R1's oracle gap at the8,192 evaluation ceiling (full, n32), compared with53.5%[50.2,57.0] at512. This is the measured motivation for E9, not its outcome. [A4 table](REV2-evidence-20261010/long-recovery.md).
@@ -123,33 +125,34 @@ Existing production, one-epoch, one-seed controls: on SPEED128, generic minus se
 <!-- REV2 LIVE RAW RESULTS BEGIN -->
 ## Live raw-result tables
 
-Independent reduction snapshot: 2026-10-10T06:16:29.791143-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+Independent reduction snapshot: 2026-10-10T06:17:49.371369-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
 
 ### E8 matched-capacity
-Completed comparison rows: 3; pending inputs: 17.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E8/results.json)
+Completed comparison rows: 4; pending inputs: 16.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/E8/results.json)
 
 | Target | Parameters | Panel | n/seeds | Interface τ | Decoder τ | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---:|---:|---:|---|---|
 | 1 | dense50M | speed128 | 128/3 | 2.406 | 2.383 | +0.023 [-0.006,+0.052] | +0.008 [-0.001,+0.016] |
 | 1 | dense50M | math64 | 64/3 | 2.712 | 2.705 | +0.008 [-0.017,+0.033] | +0.007 [-0.001,+0.015] |
+| 1 | lowrank1.229M | speed128 | 128/3 | 2.276 | 2.263 | +0.014 [-0.015,+0.042] | +0.002 [-0.009,+0.014] |
 | 1 | lowrank1.229M | math64 | 64/3 | 2.514 | 2.496 | +0.018 [-0.010,+0.045] | +0.009 [+0.000,+0.017] |
 
 ### E9/E12/E13/E14/E15/E17 acceptance
 Completed comparison rows: 0; pending inputs: 11.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/acceptance/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/acceptance/results.json)
 
 ### E10/E11/E12 timing
 Completed comparison rows: 0; pending inputs: 177.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/timing/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/timing/results.json)
 
 ### E16 resources
 Completed comparison rows: 0; pending inputs: 4.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/E16/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/E16/results.json)
 
 ### E9/E12 response data
 Completed comparison rows: 1; pending inputs: 2.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061620_137161/data/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_061739_667104/data/results.json)
 
 | Target | Data | n | Answer tokens | Mean length | Capped | Repeated4gram >50% | Generation GPUh |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -161,7 +164,7 @@ Completed comparison rows: 1; pending inputs: 2.
 
 | Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
 |---|---:|---|---|
-| P0 | 40 / 183 / 270 | False | False |
+| P0 | 41 / 187 / 270 | False | False |
 | P1 | 0 / 79 / 106 | False | False |
 | P2 | 0 / 2 / 8 | False | False |
 <!-- REV2 LIVE RAW RESULTS END -->
