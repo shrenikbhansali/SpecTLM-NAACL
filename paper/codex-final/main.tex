@@ -1,0 +1,224 @@
+\documentclass[11pt]{article}
+\usepackage[review]{acl}
+\usepackage{times,latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype,inconsolata}
+\usepackage{graphicx,booktabs,multirow,amsmath,amssymb}
+\usepackage{tikz,pgfplots}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\definecolor{ink}{HTML}{20334D}
+\definecolor{teal}{HTML}{087E8B}
+\definecolor{orange}{HTML}{CC702D}
+\definecolor{bluegray}{HTML}{5C6E91}
+\definecolor{mist}{HTML}{EDF1F5}
+\newcommand{\method}{ReFit}
+\newcommand{\stat}[2]{\begin{tabular}[c]{@{}c@{}}#1\\[-2pt]{\scriptsize[#2]}\end{tabular}}
+\newcommand{\ci}[2]{[#1,\,#2]}
+\newcommand{\KL}{\operatorname{KL}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\hypersetup{pdftitle={Mind the Interface: Repairing Speculative Decoding after Target Model Post-Training},pdfauthor={Anonymous},pdfsubject={Working research draft; measured pilot snapshot, October 10, 2026}}
+\title{Mind the Interface: Repairing Speculative Decoding\\after Target Model Post-Training}
+\author{Anonymous ACL submission}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Target-conditioned drafters such as EAGLE-3 accelerate language models by reading the target's hidden states, but this tight coupling becomes a liability when the target is post-trained. We show that reusing a family drafter can lose substantial acceptance on reasoning and alternative post-training trajectories, under both EAGLE-3 and DFlash. We trace the loss to changes in both the target's token policy and the feature interface through which the drafter reads the target. We introduce \method{}, a training-set-free repair procedure that elicits responses from the updated target and refits this existing interface while leaving the target, draft architecture, and verification rule unchanged. With 16,000 public prompts, interface repair recovers 59.9\% of the acceptance-length gap between reuse and a dedicated drafter on R1-Distill-Llama-8B across three seeds; full warm-start repair recovers 71.7\%. The repairs raise measured A40 batch-1 speedup from $1.31\times$ under reuse to $1.74\times$ and $1.83\times$, respectively, while the dedicated drafter reaches $2.05\times$. Gains transfer to Nemotron-Nano-8B and to a DFlash pilot. These results make interface repair a practical way to preserve speculative decoding as target models change.
+\end{abstract}
+
+\section{Introduction}
+Speculative decoding accelerates language-model generation without changing its output: a small drafter proposes several tokens, and the target verifies them in one forward pass \citep{leviathan2023,chen2023}. Its speed depends on how many proposals the target accepts. The strongest drafters increasingly condition on the target's own hidden states. EAGLE-3 fuses features from three target layers, while DFlash uses target features to predict a block in parallel \citep{eagle32025,dflash2026}. This coupling makes drafting accurate and cheap, but it also binds the drafter to the checkpoint that supplied its training features and token supervision.
+
+Open target models do not remain fixed. A popular release spawns reasoning distillations, supervised fine-tunes, preference-optimized variants, merges, and reinforcement-learning checkpoints. A compatible family drafter may exist for the official instruction model, while no dedicated drafter exists for the post-trained target and the target's original training data are unavailable. Training a full drafter for every release defeats much of the practical value of an open model ecosystem. The resulting question is simple: when a target changes, can we retain what its family drafter already knows?
+
+We first measure when reuse succeeds. In a paired frozen-harness study of public Llama and Qwen checkpoints, sampled direct-child on-policy RL models retain nearly all of the family drafter's first-token acceptance. Reasoning distillations and other post-training trajectories can lose far more, in both autoregressive EAGLE-3 and block-diffusion DFlash. R1-Distill-Llama-8B, for example, reaches only $\tau=1.76$ with a reused family drafter, versus $2.85$ with a dedicated EAGLE-3 drafter. Because reasoning models often generate long answers, this loss appears where speculative acceleration is especially valuable.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/hero}}
+\caption{\textbf{\method{} teaches an existing drafter to read a changed target.} The target answers public instructions, then supplies hidden states and token probabilities under teacher forcing. Interface repair updates only the existing feature projection (teal); full repair also updates the draft decoder and head (blue). The target remains frozen. The repaired drafter keeps its architecture and is served by the same draft-and-verify engine.}
+\label{fig:hero}
+\end{figure*}
+
+The failure is concentrated enough to repair. Post-training changes both the desired next token and the target features from which a target-conditioned drafter predicts it. A fixed-prefix crossover exchanges feature sources and verifier policies while holding text constant; it detects both effects. Component-matched adaptation then shows that the dense projection from target features into the draft decoder carries most of the recoverable gain. This projection is therefore the natural place to teach a released drafter how to read its new target.
+
+We introduce \method{}, a repair procedure that uses the new target's own responses to public instructions. It keeps the target fixed and retains the released drafter's architecture, token support, and native training objective. The primary variant updates only the projection from target hidden states into the draft decoder. A full warm-start variant uses the same data and budget to update the remaining trainable draft components as well. Neither requires the target's original post-training corpus or a new serving architecture.
+
+The tradeoff is concrete. On R1-Distill-Llama-8B, interface repair increases first-position acceptance from 43.0\% to 62.6\% and recovers 59.9\% of the gap between reuse and a dedicated R1 drafter. Full repair reaches 65.0\% acceptance and 71.7\% gap recovery. Interface repair updates 50.3 million parameters rather than 424.7 million, while full repair offers greater acceptance at a similar measured training time. Both produce real latency improvements, including on Nemotron, for which we have no dedicated-drafter reference.
+
+Our contributions connect diagnosis to deployment. We present a lineage-aware study of family-drafter compatibility across public checkpoints; localize the repair opportunity with a controlled feature--policy crossover and component-matched adaptations; and introduce an interface-first repair evaluated with paired acceptance, dedicated-drafter gap recovery, measured compute, and wall-clock speed. Together, these results show how to preserve a speculative drafter after the target model changes.
+
+
+
+\section{When Does a Family Drafter Need Repair?}
+\label{sec:study}
+Let $T_0$ be the target for which a family drafter $D_0$ was trained, and let $T_1$ be the model we wish to serve. $T_1$ can be a direct post-trained child of $T_0$, a sibling trained from the same pretrained base, or a composite model. We study the transfer from $(T_0,D_0)$ to $(T_1,D_0)$ without retraining either target. The sibling case is especially relevant for reasoning distillation: the pretrained ancestor can be shared even when the instruction model is not the new target's immediate parent.
+
+\subsection{Paired compatibility measurements}
+We use first-position conditional acceptance, $p_1$, to measure immediate draft--target agreement, and macro acceptance length, $\tau$, to measure accepted progress per speculative iteration. For query $i$ with $N_i$ speculative iterations and $a_{it}$ accepted draft tokens in iteration $t$,
+\begin{equation}
+\tau_i = 1 + \frac{1}{N_i}\sum_{t=1}^{N_i} a_{it},
+\qquad \tau=\frac{1}{n}\sum_{i=1}^{n}\tau_i.
+\label{eq:tau}
+\end{equation}
+The added one includes the target's bonus or replacement token. We likewise average $p_1$ over queries. Conditional acceptance at depth $j$ considers iterations that reached and proposed that depth. This separates immediate compatibility from the length of the full accepted block.
+
+To measure transfer, we evaluate $T_0$ and $T_1$ on identical token IDs rendered with $T_1$'s chat template. Retention is the ratio $p_1(T_1,D_0)/p_1(T_0,D_0)$. Using the new target's rendered inputs in both arms prevents template changes from masquerading as weight changes. We report output lengths alongside $\tau$, because post-training also changes how long and in what style the target responds. First-position retention provides the headline comparison without relying on deep accepted blocks.
+
+Our focused frozen-harness panel contains 21 eligible post-trained checkpoints from the Llama and Qwen families, each evaluated with EAGLE-3 and DFlash on 128 SPEED queries. We record lineage separately from training history using model-card evidence. Figure~\ref{fig:retention} summarizes three groups with multiple checkpoints. Direct-child on-policy RL checkpoints retain mean $p_1$ of 0.986 for EAGLE-3 and 0.990 for DFlash. Sibling models with SFT and teacher distillation retain 0.898 and 0.862, respectively. Nemotron, whose history combines SFT, RL, and merging, retains 0.696 and 0.708. These descriptive differences motivate targeted repair rather than automatic retraining of every new checkpoint.
+
+\begin{figure}[t]
+\centering
+\input{figures/retention}
+\caption{\textbf{Compatibility depends on the target's post-training trajectory.} Mean $p_1$ retention on SPEED-128 for groups with multiple checkpoints; bars are 95\% hierarchical checkpoint-and-query intervals. ``Direct'' and ``sibling'' denote lineage relative to the family drafter's target. Distillation groups also use SFT. The dashed line denotes unchanged acceptance.}
+\label{fig:retention}
+\end{figure}
+
+\subsection{Separating feature and policy changes}
+\label{sec:crossover}
+A lower acceptance rate on a reasoning model can reflect a different generated context, different target features on that context, or a different next-token policy. We isolate the latter two with a fixed-prefix crossover. For each saved token prefix $x$, we feed either $T_0$'s or $T_1$'s hidden states to the frozen family drafter, and compare its first draft token against either target's greedy next token. Let $a_{uv}$ be agreement with feature source $u$ and verifier $v$, where $u,v\in\{0,1\}$. All four conditions use exactly the same prefix.
+
+The averaged feature-source and verifier-policy effects are
+\begin{align}
+E_h &= \tfrac12[(a_{10}-a_{00})+(a_{11}-a_{01})],\\
+E_p &= \tfrac12[(a_{01}-a_{00})+(a_{11}-a_{10})].
+\end{align}
+We also retain their interaction, $a_{11}-a_{10}-a_{01}+a_{00}$. This is a teacher-forced diagnostic, distinct from online speculative acceptance.
+
+On 64 target-generated contexts per model, R1-Llama has a feature-source effect of $-2.0$ percentage points (95\% CI $[-2.5,-1.4]$) and a verifier-policy effect of $-3.0$ points ($[-3.5,-2.6]$). For Nemotron, these effects are $-6.9$ ($[-7.7,-6.2]$) and $-3.7$ ($[-4.3,-3.1]$) points. Positive interactions show that the two changes are coupled. These effects motivate learning the projection against the new target's token supervision, so that it can respond to changed features and their changed relationship to the verifier policy.
+
+\section{\method{}: Interface-First Drafter Repair}
+\label{sec:method}
+Figure~\ref{fig:hero} gives the complete procedure. \method{} starts from a released family drafter and adapts it to one fixed post-trained target. The repair has two ingredients: supervision elicited from the target being served, and a choice of which existing draft components to update.
+
+\subsection{Learn to read the new target}
+For a prefix $x_{<t}$, let $h_t^{(\ell)}(T_1)$ be the target representation at tapped layer $\ell$. An EAGLE-3 drafter combines three such representations through its interface,
+\begin{equation}
+z_t = W\,[h_t^{(\ell_1)};h_t^{(\ell_2)};h_t^{(\ell_3)}],
+\label{eq:interface}
+\end{equation}
+and predicts tokens with a draft decoder and output head, denoted $g_\phi$. We write its prediction schematically as $q_{W,\phi}(\cdot\mid x_{<t},z_t)$, including the native token embeddings and recurrent draft state. For the Llama EAGLE-3 drafter, $W$ maps 12,288 input features to 4,096 output features.
+
+Interface-only repair initializes $(W,\phi)$ from $D_0$, freezes $\phi$, and optimizes $W$. The target representations are produced by $T_1$ throughout training. This allows the projection to adapt to both changed features and their relationship to the new target's predictions, instead of imposing a geometric alignment to $T_0$. It requires neither paired parent features nor an assumption that post-training induces a uniform translation or rescaling.
+
+Full repair uses the same initialization and objective but also updates the draft decoder, normalization, and output head. The target, target-owned verifier components, and fixed embeddings remain frozen. The two scopes update 50.3M and 424.7M parameters, respectively. Thus interface-only repair uses 11.9\% of the trainable parameters of full repair, without adding a module or changing the inference computation graph.
+
+\subsection{Training-set-free target supervision}
+We construct query--response pairs $(x,y)$ by eliciting greedy responses $y$ from $T_1$. Queries can come from a public instruction collection or be self-elicited with the Magpie approach \citep{magpie2024}. In either case, the response used for repair is generated by the exact target being served. Public reference answers are not substituted for that target's output. We exclude all evaluation prompts before generation and restrict the loss to response positions.
+
+Training preserves the drafter's native distillation objective \citep{kd2015,eagle32025}. Writing $\widetilde p_{T_1}$ for target probabilities on the drafter's supported vocabulary and $q^{(j)}$ for the native $j$th training-time draft prediction, the objective has the form
+\begin{equation}
+\begin{split}
+\mathcal L(W,\phi)=\mathbb E_{(x,y)}
+\sum_{t\in\mathcal A(y)}\sum_{j=1}^{J}
+\KL\!\left(\widetilde p_{T_1,t,j}\,\|\,q^{(j)}_{t}\right).
+\end{split}
+\label{eq:loss}
+\end{equation}
+Here $\mathcal A(y)$ denotes answer-token positions; the native training-time-test procedure supplies the aligned multi-step states and masks. We use $J=3$ for the main EAGLE-3 experiments. Interface and full repair differ only in the optimized parameters, not in supervision, rollout depth, or token support.
+
+This is \emph{training-set-free} adaptation: the original corpus used to post-train $T_1$ is unavailable and unnecessary. It still uses generated training examples. The cost is correspondingly explicit: target response generation plus drafter optimization. Once repaired, the model is exported in the released drafter's format and used with ordinary target verification.
+
+\subsection{Repair scope and deployment}
+The interface is the first adaptation point, not a constraint on how much of the gap can be recovered. It preserves the draft decoder's learned computation while changing how target information enters it. Full repair is the higher-capacity operating point when the extra trainable state is acceptable. Both warm-start from the existing family drafter; neither requires training an autonomous small language model from scratch.
+
+The same principle applies to DFlash, which projects target features before block-parallel drafting \citep{dflash2026}. We repair that projection using DFlash's own block-distillation objective rather than transplanting EAGLE's autoregressive training objective. In both architectures, the verifier remains responsible for accepting or replacing proposals. Repair changes proposal quality; it does not change the target weights or acceptance rule.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\input{tables/main}
+\caption{\textbf{Main repair results.} Brackets give 95\% CIs; $\Delta\tau$ is paired against the same family drafter's reuse. All arms use greedy decoding and $K=4$. SPEED has 128 queries; R1 repairs average three training seeds. R1 MATH uses all 500 queries with seed~0; Nemotron MATH uses 64 queries and one seed. The dedicated R1 model is an independently trained reference, not a matched-budget baseline. Independent 1B is included because acceptance alone does not determine wall-clock speed (Figure~\ref{fig:timing}).}
+\label{tab:main}
+\end{table*}
+
+\section{Experimental Setup}
+\label{sec:setup}
+Our main targets are DeepSeek-R1-Distill-Llama-8B \citep{deepseek2025} and Llama-3.1-Nemotron-Nano-8B-v1 \citep{nemotron2025}. Both have substantially degraded family-drafter compatibility and preserve the architecture needed for reuse. R1 is a reasoning-distilled sibling of Llama-3.1-Instruct; Nemotron has a mixed post-training history. We use the official released Llama-3.1-Instruct EAGLE-3 drafter as the main initialization and a RedHat release as a second initialization.
+
+The main repair corpus contains 16,000 public instruction prompts from Alpaca \citep{alpaca2023}, with each target's own greedy responses. We train for one epoch with matched data, packed order, optimizer, and step budget across interface and full repair. R1 uses three training seeds; Nemotron uses one. Smaller experiments vary the source and number of queries and the updated components. Hyperparameters and exact model identifiers appear in Appendix~\ref{app:protocol}.
+
+All online acceptance measurements use one frozen vLLM configuration \citep{vllm2023} on NVIDIA A40 GPUs: greedy decoding, batch size eight, a 512-token generation ceiling, and four draft tokens for EAGLE-3. Every arm for a target receives identical rendered prompt IDs. We evaluate a fixed 128-query subset of SPEED-Bench \citep{speed2026} and a 64-query MATH subset; the R1 flagship arms additionally use all 500 MATH-500 problems \citep{math2021,lightman2023}. MATH-64 is contained in MATH-500. The full 500-query evaluation uses seed~0, while the three-seed evaluation uses SPEED-128 and MATH-64.
+
+We compare against the unchanged family drafter, an independent Llama-3.2-1B-Instruct drafter at the same $K=4$, and, for R1, the released dedicated R1 EAGLE-3 drafter. The dedicated model is a task-specific reference with its own training recipe, not a matched-budget repair baseline. We quantify the fraction of its acceptance-length gap recovered as
+\begin{equation}
+R=\frac{\tau_{\mathrm{repair}}-\tau_{\mathrm{reuse}}}
+{\tau_{\mathrm{dedicated}}-\tau_{\mathrm{reuse}}}.
+\label{eq:recovery}
+\end{equation}
+Each initialization uses its own reuse baseline. We do not assign an oracle-gap recovery to Nemotron, for which no dedicated reference is evaluated.
+
+Confidence intervals use 10,000 paired query resamples. For the three-seed comparisons, training seeds are also resampled jointly across matched arms. Population summaries resample checkpoints and paired queries. Wall-clock experiments use three fresh processes per arm, each with three warm passes; intervals pair processes and query batches. We measure batch one on 32 queries and batch eight on 128 queries, reporting startup separately. These timing panels use the seed-0 repair exports.
+
+
+
+\section{Results}
+\label{sec:results}
+\subsection{Recovering the dedicated-drafter gap}
+Table~\ref{tab:main} shows that refitting the interface recovers a substantial portion of the acceleration lost under target changes. On R1, interface repair raises $\tau$ from 1.764 to 2.414, with paired gain 0.650 $\ci{0.607}{0.692}$. Its first-position acceptance improves by 19.7 percentage points $\ci{18.4}{21.0}$. Relative to the dedicated drafter's $\tau=2.848$, this closes 59.9\% $\ci{57.6}{62.4}$ of the gap while keeping the draft decoder fixed.
+
+Full repair improves further: $\tau=2.542$, a paired gain of 0.778 $\ci{0.731}{0.823}$ and recovery of 71.7\% $\ci{69.2}{74.3}$. This separates two useful choices. Updating the interface captures most of the gain achieved by full repair, using substantially fewer trainable parameters; updating the remaining draft components converts additional target supervision into longer accepted blocks.
+
+The gains persist on mathematical prompts. On MATH-500, interface and full repair raise $\tau$ from 1.928 to 2.773 and 2.969, recovering 44.2\% and 54.4\% of the corresponding dedicated-drafter gap. Their absolute $p_1$ gains are 22.8 and 26.1 percentage points. The three-seed MATH-64 results agree in direction, with paired $\Delta\tau$ of 0.894 and 1.074. The different recovery percentages across workloads reflect different dedicated-drafter headroom, rather than a change in the definition of recovery.
+
+Nemotron shows the same repair pattern without relying on an oracle. On SPEED-128, interface repair improves $\tau$ by 0.655 $\ci{0.604}{0.707}$, and full repair by 0.724 $\ci{0.662}{0.787}$. On MATH-64, the corresponding gains are 1.012 and 1.207. Thus the response supervision and interface update remain useful on a second target with a different post-training trajectory and output-length profile.
+
+\subsection{Which component carries the repair?}
+We compare update scopes at a small matched budget: 256 self-elicited examples, 300 optimization steps, and the RedHat family initialization. Figure~\ref{fig:components} places the interface beside decoder LoRA and full repair. Updating the interface recovers 35.5\% of the dedicated gap, versus 9.6\% for decoder-only LoRA. Updating both reaches 37.0\%, and full warm-start repair reaches 45.9\%. The component experiment identifies the interface as an effective first repair location, while the full update captures additional recoverable mismatch.
+
+The benefit also persists across released family initializations. At 16k examples, the second initialization recovers 50.9\% of the gap with interface repair and 65.8\% with full repair across three seeds. The official initialization has larger paired repair gains: its advantage in $\Delta\tau$ is 0.081 $\ci{0.048}{0.115}$ for the interface and 0.043 $\ci{0.014}{0.073}$ for full repair. We use it in the main table under the same-data, same-budget selection rule and retain the other release as a robustness comparison.
+
+Additional controls distinguish reuse from rebuilding. Randomly initializing the trainable draft components and training on the same 16k responses yields $\tau=1.519$ on SPEED-128, while warm-start repair exceeds 2.4. A second epoch of full repair with the second initialization reaches 2.480, close to its first-epoch result. The complete component, source, and budget comparisons are in Appendix~\ref{app:ablations}; they use their original matched controls rather than being pooled into the three-seed main result.
+
+\begin{figure}[t]
+\centering
+\input{figures/components}
+\caption{\textbf{Where to repair.} R1 gap recovery at a matched small budget: 256 self-elicited examples, 300 steps, one seed, RedHat EAGLE-3 initialization, SPEED-128. Interface repair preserves the decoder yet captures much of full repair's gain. Bars show paired 95\% intervals; all component variants appear in Appendix~\ref{app:ablations}.}
+\label{fig:components}
+\end{figure}
+
+\subsection{From acceptance to measured speed}
+Figure~\ref{fig:timing} evaluates the repaired drafters against target-only generation. On R1 at batch one, interface and full repair achieve warm panel speedups of $1.74\times$ $\ci{1.58}{1.89}$ and $1.83\times$ $\ci{1.65}{1.99}$, compared with $1.31\times$ for reuse. Full repair is $1.39\times$ faster than reuse itself. On Nemotron, the repaired speedups are $1.69\times$ and $1.80\times$. At batch eight, they remain positive: $1.27\times$ and $1.29\times$ for R1, and $1.39\times$ and $1.42\times$ for Nemotron.
+
+An independent 1B drafter offers competitive acceptance, including $\tau=2.966$ on R1 MATH-500 and higher SPEED acceptance length than the repaired family drafter on Nemotron. Its draft computation is different, however. On the batch-one timing panel it achieves $1.26\times$ for R1 and $1.37\times$ for Nemotron. This is why we evaluate wall-clock speed directly rather than interpret acceptance length as speedup. Repair retains the lightweight target-conditioned architecture while improving its proposals.
+
+The measured seed-0 cost of 16k R1 repair is 8.92 A40 GPU-hours for response generation plus 2.21 GPU-hours for either training scope, approximately 11.12 GPU-hours per alternative. For Nemotron, the totals are 9.83 and 9.99 GPU-hours. Data generation dominates these totals and can be shared across repair variants. Interface repair's advantage here is smaller trainable state, not a demonstrated reduction in end-to-end training time. Full repair provides additional acceptance for almost the same measured R1 compute budget.
+
+\begin{figure*}[t]
+\centering
+\input{figures/timing}
+\caption{\textbf{Repair yields measured speedups.} Warm panel-time speedup over target-only decoding on A40, with paired 95\% CIs. Each arm uses three processes and three warm passes per process; batch one has 32 queries and batch eight has 128. Repair uses seed~0 and 16k target-generated responses. ``1B'' denotes the independent drafter; ``dedicated'' is available only for R1. The horizontal line is target-only speed. Startup-inclusive and token-throughput results are in Appendix~\ref{app:timing}.}
+\label{fig:timing}
+\end{figure*}
+
+\subsection{Beyond one drafter architecture}
+DFlash provides a second test of interface repair. With 256 self-elicited examples and 300 steps, its interface update improves SPEED first-position acceptance by 6.9 percentage points on R1 and 6.8 points on Nemotron. The corresponding paired $\Delta\tau$ values are 0.147 $\ci{0.114}{0.183}$ and 0.156 $\ci{0.117}{0.193}$. Full DFlash repair improves them to 0.235 and 0.273. These are single-seed pilots at DFlash's native $K=10$, not budget-matched comparisons against the 16k EAGLE results. They show that the repair location is useful in both an autoregressive and a block-diffusion drafter.
+
+Repair can also be preceded by a small direct compatibility check. On the 21-checkpoint study panel, retention measured on 16 fixed queries ranks degradation on the remaining 112 queries with AUROC 1.00 $\ci{0.75}{1.00}$ for EAGLE-3 and 0.945 $\ci{0.731}{1.000}$ for DFlash. This retrospective result supports measuring compatibility before committing repair compute. Appendix~\ref{app:probe} details the fixed split and separates ranking from thresholded repair decisions.
+
+\section{Related Work}
+Speculative decoding separates token proposal from target verification \citep{leviathan2023,chen2023}. EAGLE introduces target-feature conditioning, and EAGLE-3 combines multiple target layers with training-time multi-step drafting \citep{eagle2024,eagle32025}. DFlash predicts blocks in parallel using a diffusion-style drafter \citep{dflash2026}. Recent architectural work includes H-Spec's hybrid context injection and EAGLE~3.1's normalization for draft stability \citep{hspec2026,eagle312026}. \method{} operates on already released EAGLE-3 and DFlash architectures and changes their parameters after a target update.
+
+Draft adaptation itself is an active research direction. Domain-specific draft training studies the effect of specialization and training choices \citep{domain2025}. EDA combines a shared--private draft architecture, target-generated supervision, and representation-based data selection for fine-tuned targets \citep{eda2026}. FlexSpec addresses evolving targets in edge--cloud deployments through its model-sharing design \citep{flexspec2026}. Our emphasis is the existing target-feature projection: we localize repair without adding shared--private experts, changing the draft architecture, or requiring the original target-training examples. We evaluate that choice against full warm-start repair at matched budgets and report measured serving speed as well as acceptance.
+
+Other approaches adapt to the states or tokens encountered during inference. Draft-OPD distills on draft-induced errors exposed by verification \citep{draftopd2026}; EvoSpec combines vocabulary adaptation with lightweight online parameter updates \citep{evospec2026}. These approaches change the training-state distribution or adapt during serving. Our experiments retain the native EAGLE-3 or DFlash objective and vocabulary, isolating the effect of repair scope after a target-model change. LoRA \citep{lora2021} supplies a useful component control, while Magpie \citep{magpie2024} supplies one way to obtain queries without the target's original corpus. The central empirical question is how much of a released drafter's capability can be retained by learning a new interface to the target.
+
+\section{Conclusion}
+A target-conditioned drafter is coupled to both the policy and the representations of its target. After post-training, that coupling can be repaired without replacing the target or redesigning the drafter. \method{} uses the target's own responses to refit the existing feature projection, recovering 59.9\% of the dedicated-drafter gap on R1 with 11.9\% of full repair's trainable parameters. Full warm-start repair raises recovery to 71.7\%. Paired results on two reasoning targets, a second drafter architecture, and measured A40 speedups establish a practical path for reusing speculative decoding as target models change.
+
+\section*{Limitations}
+The main repair results concern two 8B Llama-family targets, with three seeds for R1 and one for Nemotron; the DFlash extension uses a smaller single-seed budget. The typed population is a convenience sample, and class differences are descriptive rather than causal estimates of a post-training algorithm. Measurements use greedy decoding and a 512-token ceiling on A40 GPUs. They do not establish the same gains for unrestricted reasoning lengths, stochastic sampling, other hardware, or unseen model families. The compatibility probe is retrospective, without held-out-checkpoint validation. These scopes identify the conditions under which the reported repair and speed results were measured.
+
+\section*{Ethical Considerations}
+Repair leaves target weights and verification rules unchanged and is intended to reduce the computational cost of serving existing models. It does not improve the target's factuality or safety behavior. We use public checkpoints and prompt sources under their recorded licenses, exclude evaluation queries from repair data, and retain target-generated responses rather than filtering for favorable outcomes. No human-subject study or private user data is involved.
+
+\bibliography{references}
+
+\clearpage
+\appendix
+\input{appendix}
+\end{document}

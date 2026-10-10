@@ -1,0 +1,56 @@
+\begin{tikzpicture}[
+  font=\footnotesize, >={Stealth[length=4pt]},
+  doc/.style={draw=ink!45,fill=white,rounded corners=1pt,minimum width=2.5cm,minimum height=.85cm,align=center,inner sep=2pt},
+  blk/.style={draw=ink!45,rounded corners=1.5pt,align=center,inner sep=2pt},
+  layer/.style={draw=orange!80!black,fill=orange!14,minimum width=1.05cm,minimum height=.30cm,inner sep=0pt},
+  hdr/.style={font=\small\bfseries,anchor=west,text=ink},
+  feat/.style={draw=ink!45,minimum width=.22cm,minimum height=.9cm,inner sep=0pt},
+  note/.style={font=\scriptsize\itshape,text=ink!70,align=center}]
+\path[use as bounding box] (-.25,-1.55) rectangle (17.05,5.0);
+\fill[bluegray!6,rounded corners=4pt] (-.25,-1.55) rectangle (3.35,5.0);
+\fill[teal!5,rounded corners=4pt] (3.6,-1.55) rectangle (13.15,5.0);
+\fill[bluegray!6,rounded corners=4pt] (13.4,-1.55) rectangle (17.05,5.0);
+\node[hdr] at (-.15,4.7) {1\quad Elicit the target};
+\node[hdr] at (3.7,4.7) {2\quad Refit the target--drafter interface};
+\node[hdr] at (13.5,4.7) {3\quad Serve as usual};
+
+\node[doc] (prompts) at (1.55,3.15) {public instructions\\[-1pt]\scriptsize(Alpaca, 16k)};
+\node[blk,fill=orange!14,draw=orange!80!black,minimum width=2.5cm,minimum height=.95cm] (tgt) at (1.55,1.55) {post-trained target $T_1$\\[-1pt]\scriptsize(frozen)};
+\node[doc] (resp) at (1.55,-.05) {target responses\\[-1pt]\scriptsize greedy, response loss};
+\draw[->,thick,ink!65] (prompts)--(tgt); \draw[->,thick,ink!65] (tgt)--(resp);
+\node[note] at (1.55,-1.05) {No original target-training\\examples are needed};
+
+\foreach \i in {0,...,7}{\node[layer] (L\i) at (4.55,0+.42*\i) {};}
+\node[font=\scriptsize,text=orange!85!black] at (4.55,-.42) {$T_1$ layers};
+\node[font=\tiny,text=ink!65] at (4.55,0) {low}; \node[font=\tiny,text=ink!65] at (4.55,1.68) {mid}; \node[font=\tiny,text=ink!65] at (4.55,2.94) {high};
+\coordinate (tapL) at (5.08,0); \coordinate (tapM) at (5.08,1.68); \coordinate (tapH) at (5.08,2.94);
+\foreach \t/\c in {tapL/bluegray!35,tapM/bluegray!65,tapH/bluegray}{\fill[\c] (\t) circle (1.6pt);}
+\node[feat,fill=bluegray!25] (fl) at (6.05,.55) {}; \node[feat,fill=bluegray!55] (fm) at (6.05,1.68) {}; \node[feat,fill=bluegray!85] (fh) at (6.05,2.81) {};
+\draw[->,bluegray!55,thick] (tapL) to[out=0,in=180] (fl.west); \draw[->,bluegray!75,thick] (tapM)--(fm.west); \draw[->,bluegray,thick] (tapH) to[out=0,in=180] (fh.west);
+\node[feat,minimum height=.75cm,fill=bluegray!25] (c1) at (6.95,1.03) {}; \node[feat,minimum height=.75cm,fill=bluegray!55] (c2) at (6.95,1.78) {}; \node[feat,minimum height=.75cm,fill=bluegray!85] (c3) at (6.95,2.53) {};
+\draw[->,ink!45] (fl.east) to[out=0,in=180] (c1.west); \draw[->,ink!45] (fm.east)--(c2.west); \draw[->,ink!45] (fh.east) to[out=0,in=180] (c3.west);
+\node[font=\tiny,align=center,anchor=north,text=ink!70] at (6.85,.6) {$[h_{\rm low};h_{\rm mid};h_{\rm high}]$\\$\in\mathbb{R}^{3d}$};
+\node[note,text=orange!85!black,anchor=south] at (5.75,3.35) {post-training\\shifts these features}; \draw[->,orange!85!black,densely dotted,thick] (5.55,3.37)--(5.3,3.0);
+
+\fill[teal,draw=teal!65!black,thick] (7.35,.66)--(8.75,1.33)--(8.75,2.23)--(7.35,2.9)--cycle;
+\node[font=\small\bfseries,text=white] at (8.0,1.78) {$W$}; \node[font=\tiny,text=white] at (8.02,1.42) {$3d\!\to\!d$};
+\node[font=\scriptsize\bfseries,text=teal!70!black,align=center] at (8.3,3.45) {feature interface\\[-1pt]\scriptsize(50.3M parameters)}; \node[font=\scriptsize\bfseries,text=teal!70!black] at (8.35,.55) {refit};
+\node[blk,fill=mist,minimum width=1.15cm,minimum height=.5cm] (emb) at (9.35,.1) {\scriptsize embedding\\[-2pt]\tiny(frozen)};
+\node[circle,draw=ink!55,inner sep=.5pt,font=\scriptsize] (plus) at (9.35,1.78) {$\oplus$};
+\draw[->,ink!60] (8.75,1.78)--(plus.west); \draw[->,ink!60] (emb.north)--(plus.south); \node[font=\tiny,text=ink!65] at (9.35,-.42) {$y_t$}; \draw[->,ink!45] (9.35,-.3)--(emb.south);
+\node[blk,fill=bluegray!18,draw=bluegray,minimum width=1.05cm,minimum height=1.25cm] (dec) at (10.5,1.78) {draft\\decoder};
+\node[blk,fill=bluegray!18,draw=bluegray,minimum width=.85cm,minimum height=1.25cm] (head) at (11.65,1.78) {token\\head};
+\draw[->,ink!60] (plus.east)--(dec.west); \draw[->,ink!60] (dec.east)--(head.west); \node[font=\scriptsize] (q) at (12.6,1.78) {$q_\theta$}; \draw[->,ink!60] (head.east)--(q.west);
+\draw[->,ink!50,densely dashed] (12.6,1.45) to[out=-90,in=-90,looseness=1] node[pos=.5,below,font=\tiny,align=center] {feed own prediction\\$j=1,2,3$} (10.5,1.12);
+\node[blk,fill=white,minimum height=.55cm] (loss) at (10.95,4.0) {$\displaystyle \mathcal L=\sum_{j=1}^{3}\KL\!\left(p_{T_1}\,\|\,q_\theta^{(j)}\right)$};
+\draw[->,orange!85!black] (L7.north)|-node[pos=.72,above,font=\tiny] {target probabilities $p_{T_1}$}(loss.west); \draw[->,ink!60] (q.north)|-(loss.east);
+\fill[teal] (4,-1.25) rectangle (4.25,-1.05); \node[font=\tiny,anchor=west] at (4.28,-1.15) {interface repair};
+\fill[bluegray!45] (6.45,-1.25) rectangle (6.7,-1.05); \node[font=\tiny,anchor=west] at (6.73,-1.15) {also updated in full repair};
+\fill[ink!15] (9.55,-1.25) rectangle (9.8,-1.05); \node[font=\tiny,anchor=west] at (9.83,-1.15) {frozen target / embedding};
+
+\node[blk,fill=white,minimum width=3.2cm,minimum height=2.05cm,anchor=north] (srv) at (15.22,3.75) {}; \node[font=\scriptsize\bfseries,anchor=north] at (15.22,3.7) {unchanged speculative decoding};
+\foreach \j/\ok in {0/1,1/1,2/1,3/0}{\pgfmathsetmacro{\xx}{14.12+.52*\j}\ifnum\ok=1\node[draw=teal!70!black,fill=teal!18,minimum size=.36cm,inner sep=0pt,font=\tiny] at (\xx,2.75) {$\hat y_{\the\numexpr\j+1\relax}$};\node[font=\scriptsize,text=teal!75!black] at (\xx,2.3) {$\checkmark$};\else\node[draw=orange!80!black,fill=orange!12,minimum size=.36cm,inner sep=0pt,font=\tiny] at (\xx,2.75) {$\hat y_{\the\numexpr\j+1\relax}$};\node[font=\scriptsize,text=orange!85!black] at (\xx,2.3) {$\times$};\fi}
+\node[font=\tiny,text=ink!65,align=center] at (15.22,1.92) {drafter proposes;\\$T_1$ verifies in one pass};
+\node[font=\scriptsize,align=center] at (15.22,1.0) {R1-Distill-Llama-8B}; \node[font=\large\bfseries,align=center,text=ink] at (15.22,.45) {$1.31\times\;\rightarrow\;\textcolor{teal}{1.83\times}$};
+\node[font=\scriptsize,text=ink!65,align=center] at (15.22,-.35) {dedicated drafter: $2.05\times$\\same architecture and engine}; \node[note] at (15.22,-1.15) {11.1 A40 GPU-hours end to end};
+\end{tikzpicture}
