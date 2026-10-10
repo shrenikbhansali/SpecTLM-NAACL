@@ -83,13 +83,13 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-10T05:03:36.837620-04:00 (codex-1 builder/operator) |
+| Last updated | 2026-10-10T05:50:07.718488-04:00 (codex-1 builder/operator) |
 | Sprint day | Day 6 of 8 (Sat Oct10); ARR deadline MonOct12 23:59AoE |
 | Next gate | D54 owner-approved REV2 run list active: P0 Sat20:00, P1 Sun08:00, P2 best effort Sun12:00. Protocols and owner framing unchanged. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | REV2:27 jobs launched (20 E8 trainings plus7 long-data shards);239 job specs published through canonical queue4129996. Data, MATH500, long/MATH timing, P1 and optional vocab repair queued; automatic export watchers active. E5c64k final cells completed03:12. |
-| Blockers | No REV2 launch/runtime failure observed; ICE unavailable. New E9/E12 training waits for completed responses and codex five-sample audits; no permission dependency. |
+| Jobs running | REV2:27 active slots; 12 successful jobs completed; first E8 frozen evaluations live, all8Qwen generation shards launched. Canonical queue4129996; data/training/eval/report progression active. |
+| Blockers | No REV2 launch/runtime failure observed. All five-sample inspections recorded; completed datasets still require full seal/hash/exclusion checks before auto-training. ICE unavailable. |
 | Owner action needed | None for D54 approved list. Results/paper selection remains owner-controlled; claude_final untouched. See reports/REV2-results-20261010.md. |
 
 ---
@@ -313,8 +313,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | REV1 | Strengthen ReFit evidence: long/sampled reasoning, capacity and parent-supervision controls; separate Markdown, Claude manuscript untouched | P0 | codex | D53 | now | review | codex-1 / 2026-10-10T02:31:15.670216-04:00 | [completed evidence report](reports/REV1-paper-strengthening-20261010.md), [journal](notes/REV1.md), [pilot ledger](ledger/EXP-ATL-026.md); all42 evaluations +7 trainings complete;7 matched audits and26 regression tests PASS; raw-recomputed CIs, nulls retained |
 
-| REV2-P0 | D54 E8/E14/E12/E9/E10 and CPU A1–A10; separate results report, Claude draft untouched | P0 | codex | D54 | Sat20:00 | in progress | codex-1 / 2026-10-10T05:20:10.652525-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); 20 E8 live; data/E14/E10 queued; A1–A10 complete; E9 samples inspected; automatic matched-data progression active |
-| REV2-P1 | D54 E11/E17/E13/E16; separate results report, Claude draft untouched | P1 | codex | D54 | Sun08:00 | in progress | codex-1 / 2026-10-10T05:20:10.652525-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); E11/E17/E13/E16 queued; 36 tests pass; final evaluation and raw-report watchers active |
+| REV2-P0 | D54 E8/E14/E12/E9/E10 and CPU A1–A10; separate results report, Claude draft untouched | P0 | codex | D54 | Sat20:00 | in progress | codex-1 / 2026-10-10T05:20:10.652525-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); E8 training/evaluation live; E9/E12 generation active; A1–A10 complete; E9 samples inspected; automatic matched-data progression active |
+| REV2-P1 | D54 E11/E17/E13/E16; separate results report, Claude draft untouched | P1 | codex | D54 | Sun08:00 | in progress | codex-1 / 2026-10-10T05:20:10.652525-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); E11/E17/E13/E16 queued; 38 tests pass; final evaluation and raw-report watchers active |
 | REV2-P2 | D54 E15/E18 and optional sampled timing; separate results report, Claude draft untouched | P2 | codex | D54 | Sun12:00 | in progress | codex-1 / 2026-10-10T05:20:10.652525-04:00 | [results](reports/REV2-results-20261010.md), [journal](notes/REV2.md), [ledger](ledger/EXP-ATL-027.md); E18 infeasible with pinned-source evidence; E15 flag/tests built |
 
 ---

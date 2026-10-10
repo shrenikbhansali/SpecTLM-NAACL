@@ -1,54 +1,54 @@
 # REV2: additional ReFit evidence — pilot
 
-D-54, codex-1. Updated 2026-10-10T05:03:36.837620-04:00 Eastern. Analysis for integration by claude-ops; `paper/claude_final` is untouched. New GPU numbers will be added only after completion and independent raw-counter checks. Existing observations below retain their original initialization, budget, protocol and sample size.
+D-54, codex-1. Updated 2026-10-10T05:50:07.718488-04:00 Eastern. Analysis for integration by claude-ops; `paper/claude_final` is untouched. New GPU numbers will be added only after completion and independent raw-counter checks. Existing observations below retain their original initialization, budget, protocol and sample size.
 
 All new primary acceptance: frozen 6da2e42, vLLM 0.31.0, A40, greedy K4, identical target-rendered IDs across arms. Long caps are supplementary workload extensions. Training uses FIX-24 initialization. Uncertainty jointly resamples paired training seeds and queries where multiple seeds exist; single-seed estimates use paired queries. Wall-clock measurements separately resample processes and paired prompt batches. Artifacts are immutable, compact checkpoints omit final optimizer state, and every launcher enforces the350GB free-space floor. Code/tag: `run-REV2-train-20261010-0425` /62cecc1.
 
 ## E8 — matched-capacity location at16k
 
-**Running:**20 new trainings. R1 and Nemotron, three seeds: dense q+o50,331,648 parameters; interface LoRA r75 and decoder q/v+MLP LoRA r16 both1,228,800. Nemotron interface seeds1–2 complete the dense-interface comparator; R1 interface seeds0–2 and Nemotron seed0 are reused. Live parameter logs match all requested counts. Data, seed-specific batches, optimizer, learning rate and native TTT3 objective are shared within each location contrast. All runs save one final checkpoint; SPEED128/MATH64 for every seed, MATH500 for seed0, through an automatic frozen-evaluation watcher. No new acceptance result yet.
+**Run matrix:**20 new trainings. R1 and Nemotron, three seeds: dense q+o50,331,648 parameters; interface LoRA r75 and decoder q/v+MLP LoRA r16 both1,228,800. Nemotron interface seeds1–2 complete the dense-interface comparator; R1 interface seeds0–2 and Nemotron seed0 are reused. Live parameter logs match all requested counts. Data, seed-specific batches, optimizer, learning rate and native TTT3 objective are shared within each location contrast. All runs save one final checkpoint; SPEED128/MATH64 for every seed, MATH500 for seed0, through an automatic frozen-evaluation watcher. Completed comparisons appear in the live raw-result tables below.
 
 [Plan and jobs](../artifacts/REV2_E8_20261010_0425/plan.json).
 
 ## E14 — MATH500 completion
 
-**Queued:** Nemotron reuse/interface/full/independent1B and R1 interface/full seeds1–2, eight cells. New Nemotron and Qwen MATH500 renders match all64 existing MATH64 token-ID sequences under their respective templates. Five decoded prompts inspected for each new render. Initial rendering with the system tokenizer failed before producing any cells; the pinned evaluation environment succeeded in a new directory.
+**Run matrix:** Nemotron reuse/interface/full/independent1B and R1 interface/full seeds1–2, eight cells. New Nemotron and Qwen MATH500 renders match all64 existing MATH64 token-ID sequences under their respective templates. Five decoded prompts inspected for each new render. Initial rendering with the system tokenizer failed before producing any cells; the pinned evaluation environment succeeded in a new directory.
 
 [Plan](../artifacts/REV2_panels_20261010_0430_v2/plan.json), [render audit](../artifacts/REV2_panels_20261010_0430_v2/render-audit.json).
 
 ## E12 — Qwen-family16k repair
 
-**Data queued:**16,000 existing approved Alpaca queries, eight disjoint2k shards, Qwen R1's own greedy512-token responses. Family EAGLE drafter pin is the existing P3-D48 Qwen checkpoint. Interface/full training and evaluation follow the five-sample data audits. SPEED128/MATH500 and b1/b8 timing remain to run. The existing256-example result is positive but is not a16k result: full Δτ+.234[.199,.266] on SPEED n128 and+.207[.177,.237] on MATH n64, one seed ([source](P3-D48-seeds-generality-20261008.md)).
+**Data generation active:**16,000 existing approved Alpaca queries, eight disjoint2k shards, Qwen R1's own greedy512-token responses. Family EAGLE drafter pin is the existing P3-D48 Qwen checkpoint. All five Qwen decoded responses/masks have been inspected; all five reach the approved512-token cap during reasoning. Training/evaluation follow completed full-dataset sealing and exact reviewed-sample checks. SPEED128/MATH500 and b1/b8 timing remain to run. The existing256-example result is positive but is not a16k result: full Δτ+.234[.199,.266] on SPEED n128 and+.207[.177,.237] on MATH n64, one seed ([source](P3-D48-seeds-generality-20261008.md)).
 
 [Data plan](../artifacts/REV2_data_20261010_0430/plan.json).
 
 ## E9 — long-response repair
 
-**Data running/queued:** first4k queries from each target's existing16k Alpaca collection, generated afresh with a2,048-response-token cap, four1k shards per target. Explicit4,096 training context budget; no truncation. Interface/full will train on long4k alone and short16k+long4k. The mixture preserves the two responses to the same4k queries as explicitly labeled `short512`/`long2048` records with identical prompt IDs/tokens and distinct sample IDs; ordinary duplicate-query rejection remains the default. No newly trained long-response result yet.
+**Data generation active:** first4k queries from each target's existing16k Alpaca collection, generated afresh with a2,048-response-token cap, four1k shards per target. Explicit4,096 training context budget; no truncation. Interface/full will train on long4k alone and short16k+long4k. Five short and five long decoded samples/masks have been inspected for both targets. The mixture preserves the two responses to the same4k queries as explicitly labeled `short512`/`long2048` records with identical prompt IDs/tokens and distinct sample IDs; ordinary duplicate-query rejection remains the default. See the live tables for completed long-response comparisons.
 
 The existing short-response repair closes39.2%[32.0,45.7] of R1's oracle gap at the8,192 evaluation ceiling (full, n32), compared with53.5%[50.2,57.0] at512. This is the measured motivation for E9, not its outcome. [A4 table](REV2-evidence-20261010/long-recovery.md).
 
 ## E10 — reasoning wall-clock
 
-**Queued:**27 long-MATH32 timing processes (8,192 cap, b1) plus66 MATH500-subset timing processes (512 cap, b1 n32/b8 n128). Three independent processes×three warm passes; first panel and startup retained separately. R1 none/reuse/interface/full/dedicated; Nemotron none/reuse/interface/full; short panels also independent1B. All use the selected official16k seed0 repairs and target-rendered prompts. New latency results pending.
+**Run matrix:**27 long-MATH32 timing processes (8,192 cap, b1) plus66 MATH500-subset timing processes (512 cap, b1 n32/b8 n128). Three independent processes×three warm passes; first panel and startup retained separately. R1 none/reuse/interface/full/dedicated; Nemotron none/reuse/interface/full; short panels also independent1B. All use the selected official16k seed0 repairs and target-rendered prompts. Completed latency estimates appear in the live tables.
 
 [Long plan](../artifacts/REV2_E10a_20261010_0430/plan.json), [short plan](../artifacts/REV2_E10b_20261010_0430/plan.json). Prerequisite data and completed-model acceptance are prioritized ahead of the long timing jobs without restarting the canonical queue.
 
 ## E11 — batches16/32
 
-**Queued:**66 timing processes. Timing extension built and tested; Same SPEED128 panels, methods and three-process protocol. Defaults remain b8/cap512.
+**Run matrix:**66 timing processes. Timing extension built and tested; Same SPEED128 panels, methods and three-process protocol. Defaults remain b8/cap512.
 
 ## E17 — whole-drafter LoRA
 
-Scope built and tested, including head gradients and merged-checkpoint equivalence. Every drafter linear is adapted: fc, q/k/v/o, gate/up/down, LM head; target, embeddings and norms remain fixed. Rank16 has2,347,008 parameters; rank343 has50,313,984 (0.035% below the dense interface's50,331,648). R1 seeds0–2 and Nemotron seed0, same16k data/native objective. **Queued**; no result yet. This is a compatible whole-LoRA baseline, not a claim to reproduce an architecture-changing method.
+Scope built and tested, including head gradients and merged-checkpoint equivalence. Every drafter linear is adapted: fc, q/k/v/o, gate/up/down, LM head; target, embeddings and norms remain fixed. Rank16 has2,347,008 parameters; rank343 has50,313,984 (0.035% below the dense interface's50,331,648). R1 seeds0–2 and Nemotron seed0, same16k data/native objective. Results are added below after the required seed group completes. This is a compatible whole-LoRA baseline, not a claim to reproduce an architecture-changing method.
 
 ## E13 — scratch64k
 
-**Queued:** one epoch from scratch on the existing64k data, official drafter architecture/vocabulary with target embeddings fixed. Preserve the Alpaca+Dolly source-mixture label. GPU-hours and final SPEED/MATH64/MATH500 will be reported; no new result yet.
+**Run matrix:** one epoch from scratch on the existing64k data, official drafter architecture/vocabulary with target embeddings fixed. Preserve the Alpaca+Dolly source-mixture label. Measured GPU-hours and final SPEED/MATH64/MATH500 are added below on completion.
 
 ## E16 — training resource profile
 
-Synchronized200-step profile implemented behind an opt-in flag. Measures target capture/data, drafter forward/backward and optimizer time, excluding exports. Peak allocated/reserved memory and serialized checkpoint bytes retained. Interface/full/whole-LoRA r16/r343 use the same first200 batches and original4477-step scheduler horizon. **Queued**.
+Synchronized200-step profile implemented behind an opt-in flag. Measures target capture/data, drafter forward/backward and optimizer time, excluding exports. Peak allocated/reserved memory and serialized checkpoint bytes retained. Interface/full/whole-LoRA r16/r343 use the same first200 batches and original4477-step scheduler horizon. Status and measured resources appear in the live tables.
 
 ## E15 — vocabulary reselection
 
@@ -109,3 +109,37 @@ Official interface50,331,648 parameters is100.663MB in bf16 (96MiB). Full mutabl
 ## A10 — self-elicited versus Alpaca4k
 
 Existing production, one-epoch, one-seed controls: on SPEED128, generic minus self Δτ is+.004[−.012,.020] for interface and+.009[−.012,.031] for full; Δp1+.001[−.004,.007]/+.002[−.006,.009]. On MATH64, Δτ+.028[.007,.049]/+.045[.007,.083]. These are source ablations with different sequence lengths/token totals/step counts, not token-matched equivalence tests. [Raw-verified source-ablation table](P3-D50-consolidated-20261009.md). Self-elicitation avoids reliance on the external instruction dataset; both variants remain training-set-free rather than data-free.
+
+<!-- REV2 LIVE RAW RESULTS BEGIN -->
+## Live raw-result tables
+
+Independent reduction snapshot: 2026-10-10T05:49:11.571360-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+
+### E8 matched-capacity
+Completed comparison rows: 0; pending inputs: 28.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/E8/results.json)
+
+### E9/E12/E13/E14/E15/E17 acceptance
+Completed comparison rows: 0; pending inputs: 11.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/acceptance/results.json)
+
+### E10/E11/E12 timing
+Completed comparison rows: 0; pending inputs: 177.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/timing/results.json)
+
+### E16 resources
+Completed comparison rows: 0; pending inputs: 4.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/E16/results.json)
+
+### E9/E12 response data
+Completed comparison rows: 0; pending inputs: 3.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_054911_389026/data/results.json)
+
+### Run-list completion
+
+| Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
+|---|---:|---|---|
+| P0 | 12 / 178 / 270 | False | False |
+| P1 | 0 / 79 / 106 | False | False |
+| P2 | 0 / 2 / 8 | False | False |
+<!-- REV2 LIVE RAW RESULTS END -->
