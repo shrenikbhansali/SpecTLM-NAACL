@@ -26,3 +26,4 @@ owner decides whether to merge these into a master ledger.
 | [EXP-ATL-015](EXP-ATL-015.md) | Track T phase1b domain/model, dedicated drafter and KL | 2026-10-08 | pilot |
 
 | [EXP-ATL-025](EXP-ATL-025.md) | FIX24 embedding parity and corrected official repair | 2026-10-09 | pilot |
+| [EXP-ATL-028](EXP-ATL-028.md) | REV3 X5 DFlash16k repair and timing | 2026-10-10 | pilot |
