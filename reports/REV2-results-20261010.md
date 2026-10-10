@@ -139,11 +139,11 @@ Existing production, one-epoch, one-seed controls: on SPEED128, generic minus se
 <!-- REV2 LIVE RAW RESULTS BEGIN -->
 ## Live raw-result tables
 
-Independent reduction snapshot: 2026-10-10T13:43:34.104214-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+Independent reduction snapshot: 2026-10-10T17:07:38.377443-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
 
 ### E8 matched-capacity
 Completed comparison rows: 12; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/E8/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E8/results.json)
 
 | Target | Parameters | Panel | n/seeds | Interface τ | Decoder τ | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---:|---:|---:|---|---|
@@ -161,8 +161,8 @@ Completed comparison rows: 12; pending inputs: 0.
 | 1 | lowrank1.229M | math500 | 500/1 | 2.455 | 2.451 | +0.004 [-0.005,+0.014] | +0.005 [+0.002,+0.009] |
 
 ### E9/E12/E13/E14/E15/E17 acceptance
-Completed comparison rows: 41; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/acceptance/results.json)
+Completed comparison rows: 71; pending inputs: 0.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/acceptance/results.json)
 
 | Experiment | Target | Arm / data | Panel | n/seeds | p1 [95% CI] | τ [95% CI] | Δτ vs reuse [95% CI] | Oracle recovery [95% CI] |
 |---|---|---|---|---:|---|---|---|---|
@@ -197,16 +197,46 @@ Completed comparison rows: 41; pending inputs: 0.
 | E17 | 1 | whole-r343 /  | math500 | 500/1 | 0.710 [0.706,0.715] | 2.720 [2.700,2.740] | 1.033 [1.017,1.050] | -- |
 | E17 | 1 | whole-r343 /  | math64 | 64/1 | 0.723 [0.711,0.734] | 2.764 [2.714,2.815] | 1.061 [1.019,1.103] | -- |
 | E17 | 1 | whole-r343 /  | speed128 | 128/1 | 0.615 [0.585,0.642] | 2.430 [2.343,2.515] | 0.667 [0.612,0.720] | -- |
+| E9 | 0 | fc / long4k | math32-2048 | 32/1 | 0.728 [0.716,0.739] | 2.816 [2.747,2.881] | 0.736 [0.681,0.793] | 0.397 [0.375,0.417] |
+| E9 | 0 | fc / long4k | math32-512 | 32/1 | 0.710 [0.697,0.722] | 2.677 [2.607,2.746] | 0.778 [0.724,0.835] | 0.393 [0.369,0.418] |
+| E9 | 0 | fc / long4k | math32-8192 | 32/1 | 0.672 [0.633,0.707] | 2.565 [2.409,2.713] | 0.596 [0.481,0.707] | 0.329 [0.271,0.381] |
+| E9 | 0 | fc / long4k | math64 | 64/1 | 0.712 [0.701,0.723] | 2.703 [2.653,2.755] | 0.780 [0.745,0.816] | 0.394 [0.374,0.415] |
+| E9 | 0 | fc / long4k | speed128 | 128/1 | 0.611 [0.584,0.635] | 2.353 [2.278,2.423] | 0.589 [0.549,0.627] | 0.543 [0.519,0.566] |
+| E9 | 0 | fc / mixed20k | math32-2048 | 32/1 | 0.742 [0.731,0.753] | 2.903 [2.834,2.972] | 0.823 [0.759,0.885] | 0.444 [0.421,0.467] |
+| E9 | 0 | fc / mixed20k | math32-512 | 32/1 | 0.728 [0.713,0.742] | 2.802 [2.725,2.877] | 0.904 [0.841,0.965] | 0.456 [0.428,0.485] |
+| E9 | 0 | fc / mixed20k | math32-8192 | 32/1 | 0.680 [0.637,0.718] | 2.636 [2.474,2.782] | 0.666 [0.543,0.782] | 0.368 [0.305,0.426] |
+| E9 | 0 | fc / mixed20k | math64 | 64/1 | 0.733 [0.721,0.744] | 2.833 [2.779,2.887] | 0.910 [0.870,0.949] | 0.459 [0.438,0.480] |
+| E9 | 0 | fc / mixed20k | speed128 | 128/1 | 0.627 [0.600,0.652] | 2.425 [2.347,2.497] | 0.661 [0.619,0.703] | 0.610 [0.585,0.634] |
+| E9 | 0 | full / long4k | math32-2048 | 32/1 | 0.760 [0.746,0.772] | 3.006 [2.923,3.085] | 0.925 [0.859,0.993] | 0.499 [0.473,0.524] |
+| E9 | 0 | full / long4k | math32-512 | 32/1 | 0.740 [0.726,0.756] | 2.854 [2.770,2.940] | 0.956 [0.891,1.024] | 0.483 [0.451,0.516] |
+| E9 | 0 | full / long4k | math32-8192 | 32/1 | 0.703 [0.660,0.741] | 2.750 [2.584,2.906] | 0.781 [0.657,0.899] | 0.431 [0.373,0.484] |
+| E9 | 0 | full / long4k | math64 | 64/1 | 0.745 [0.734,0.756] | 2.911 [2.858,2.964] | 0.988 [0.939,1.035] | 0.499 [0.478,0.519] |
+| E9 | 0 | full / long4k | speed128 | 128/1 | 0.635 [0.607,0.660] | 2.484 [2.406,2.559] | 0.721 [0.677,0.762] | 0.664 [0.639,0.691] |
+| E9 | 0 | full / mixed20k | math32-2048 | 32/1 | 0.775 [0.761,0.790] | 3.088 [2.998,3.177] | 1.008 [0.936,1.082] | 0.543 [0.512,0.576] |
+| E9 | 0 | full / mixed20k | math32-512 | 32/1 | 0.757 [0.741,0.773] | 2.960 [2.884,3.033] | 1.061 [0.993,1.132] | 0.536 [0.506,0.568] |
+| E9 | 0 | full / mixed20k | math32-8192 | 32/1 | 0.694 [0.643,0.739] | 2.705 [2.508,2.895] | 0.735 [0.580,0.884] | 0.406 [0.329,0.475] |
+| E9 | 0 | full / mixed20k | math64 | 64/1 | 0.761 [0.749,0.772] | 3.009 [2.950,3.070] | 1.086 [1.037,1.137] | 0.548 [0.526,0.571] |
+| E9 | 0 | full / mixed20k | speed128 | 128/1 | 0.649 [0.621,0.675] | 2.545 [2.462,2.625] | 0.782 [0.732,0.829] | 0.721 [0.695,0.746] |
 | E9 | 1 | fc / long4k | math32-2048 | 32/1 | 0.700 [0.688,0.711] | 2.687 [2.629,2.744] | 0.955 [0.905,1.006] | -- |
 | E9 | 1 | fc / long4k | math32-512 | 32/1 | 0.684 [0.668,0.701] | 2.561 [2.498,2.623] | 0.872 [0.823,0.919] | -- |
 | E9 | 1 | fc / long4k | math32-8192 | 32/1 | 0.651 [0.622,0.676] | 2.469 [2.358,2.573] | 0.819 [0.737,0.896] | -- |
 | E9 | 1 | fc / long4k | math64 | 64/1 | 0.688 [0.676,0.701] | 2.611 [2.561,2.660] | 0.908 [0.869,0.947] | -- |
 | E9 | 1 | fc / long4k | speed128 | 128/1 | 0.596 [0.568,0.621] | 2.346 [2.263,2.425] | 0.582 [0.535,0.627] | -- |
+| E9 | 1 | fc / mixed20k | math32-2048 | 32/1 | 0.719 [0.708,0.730] | 2.771 [2.714,2.826] | 1.040 [0.994,1.086] | -- |
+| E9 | 1 | fc / mixed20k | math32-512 | 32/1 | 0.705 [0.687,0.724] | 2.684 [2.614,2.756] | 0.994 [0.937,1.050] | -- |
+| E9 | 1 | fc / mixed20k | math32-8192 | 32/1 | 0.676 [0.640,0.709] | 2.578 [2.446,2.701] | 0.927 [0.828,1.027] | -- |
+| E9 | 1 | fc / mixed20k | math64 | 64/1 | 0.719 [0.707,0.732] | 2.735 [2.682,2.787] | 1.032 [0.986,1.078] | -- |
+| E9 | 1 | fc / mixed20k | speed128 | 128/1 | 0.616 [0.588,0.642] | 2.426 [2.339,2.511] | 0.663 [0.609,0.715] | -- |
 | E9 | 1 | full / long4k | math32-2048 | 32/1 | 0.739 [0.728,0.750] | 2.871 [2.809,2.935] | 1.140 [1.071,1.208] | -- |
 | E9 | 1 | full / long4k | math32-512 | 32/1 | 0.721 [0.705,0.739] | 2.752 [2.677,2.828] | 1.062 [1.003,1.124] | -- |
 | E9 | 1 | full / long4k | math32-8192 | 32/1 | 0.698 [0.666,0.727] | 2.696 [2.563,2.823] | 1.046 [0.925,1.165] | -- |
 | E9 | 1 | full / long4k | math64 | 64/1 | 0.732 [0.720,0.745] | 2.810 [2.753,2.865] | 1.107 [1.057,1.156] | -- |
 | E9 | 1 | full / long4k | speed128 | 128/1 | 0.623 [0.595,0.649] | 2.464 [2.378,2.548] | 0.701 [0.647,0.754] | -- |
+| E9 | 1 | full / mixed20k | math32-2048 | 32/1 | 0.752 [0.741,0.763] | 2.951 [2.888,3.015] | 1.220 [1.162,1.275] | -- |
+| E9 | 1 | full / mixed20k | math32-512 | 32/1 | 0.743 [0.726,0.760] | 2.879 [2.804,2.955] | 1.189 [1.128,1.254] | -- |
+| E9 | 1 | full / mixed20k | math32-8192 | 32/1 | 0.711 [0.679,0.740] | 2.776 [2.634,2.907] | 1.126 [1.022,1.221] | -- |
+| E9 | 1 | full / mixed20k | math64 | 64/1 | 0.752 [0.740,0.764] | 2.928 [2.873,2.983] | 1.225 [1.175,1.276] | -- |
+| E9 | 1 | full / mixed20k | speed128 | 128/1 | 0.632 [0.603,0.659] | 2.510 [2.420,2.595] | 0.747 [0.690,0.802] | -- |
 | Training arm | Target | Seed | Examples | Steps | Batch tokens | Measured train GPUh |
 |---|---|---:|---:|---:|---:|---:|
 | E12 fc generic16k | 2 | 0 | 16000 | 4797 | 2048 | 2.078 |
@@ -221,12 +251,18 @@ Completed comparison rows: 41; pending inputs: 0.
 | E17 whole-r343  | 0 | 2 | 16000 | 4481 | 2048 | 2.138 |
 | E17 whole-r16  | 1 | 0 | 16000 | 2625 | 2048 | 1.628 |
 | E17 whole-r343  | 1 | 0 | 16000 | 2625 | 2048 | 1.314 |
+| E9 fc long4k | 0 | 0 | 4000 | 2052 | 2304 | 1.209 |
+| E9 fc mixed20k | 0 | 0 | 20000 | 5856 | 2304 | 3.003 |
+| E9 full long4k | 0 | 0 | 4000 | 2052 | 2304 | 1.154 |
+| E9 full mixed20k | 0 | 0 | 20000 | 5856 | 2304 | 3.965 |
 | E9 fc long4k | 1 | 0 | 4000 | 833 | 2304 | 0.497 |
+| E9 fc mixed20k | 1 | 0 | 20000 | 3134 | 2304 | 1.817 |
 | E9 full long4k | 1 | 0 | 4000 | 833 | 2304 | 0.501 |
+| E9 full mixed20k | 1 | 0 | 20000 | 3134 | 2304 | 1.867 |
 
 ### E10/E11/E12 timing
 Completed comparison rows: 90; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/timing/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/timing/results.json)
 
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
@@ -323,7 +359,7 @@ Completed comparison rows: 90; pending inputs: 0.
 
 ### E16 resources
 Completed comparison rows: 4; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/E16/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E16/results.json)
 
 | Arm | Steps | Mean all / steady s | Steady p10–p90 s | Peak allocated / reserved GiB | Mutable export MB | Compact checkpoints MB |
 |---|---:|---|---|---|---:|---:|
@@ -339,7 +375,7 @@ Completed comparison rows: 4; pending inputs: 0.
 
 ### E9/E12 response data
 Completed comparison rows: 3; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_134218_172133/data/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/data/results.json)
 
 | Target | Data | n | Answer tokens | Mean length | Capped | Repeated4gram >50% | Generation GPUh |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -355,7 +391,7 @@ Completed comparison rows: 3; pending inputs: 0.
 
 | Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
 |---|---:|---|---|
-| P0 | 234 / 240 / 270 | False | False |
+| P0 | 270 / 270 / 270 | True | True |
 | P1 | 102 / 103 / 106 | False | False |
 | P2 | 8 / 8 / 8 | True | True |
 <!-- REV2 LIVE RAW RESULTS END -->
