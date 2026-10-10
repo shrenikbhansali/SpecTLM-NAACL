@@ -1,6 +1,6 @@
 import pytest
 import torch
-from followspec.family_repair import configure_variant, supervision_source
+from followspec.family_repair import configure_variant, supervision_source, supervision_vocabulary
 from followspec.tests.test_family_repair import Tiny
 
 
@@ -14,6 +14,12 @@ def test_default_supervision_unchanged_and_generation_provenance_enforced():
         supervision_source(parent, rows, None)
     with pytest.raises(ValueError):
         supervision_source(child, rows, dict(id='parent'))
+
+
+def test_supervision_allows_logged_special_aliases_but_not_lexical_remapping():
+    assert supervision_vocabulary({'hello':0,'<child>':2}, {'hello':0,'<reserved>':2}, 2) == [{'id':2,'response_token':'<child>','supervisor_token':'<reserved>'}]
+    with pytest.raises(ValueError):
+        supervision_vocabulary({'hello':0}, {'bye':0}, 2)
 
 
 @pytest.mark.parametrize('variant', ['decoder_dense', 'decoder_qo'])
