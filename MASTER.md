@@ -309,6 +309,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 
 | W2 | Independent complete NAACL paper draft in paper/codex, supplied ACL template, TikZ figures, verified citations and numeric provenance | P0 | codex | D52 | now | review | codex-1 / 2026-10-10T00:53:59-04:00 | [PDF](paper/codex/main.pdf), [Overleaf ZIP](paper/codex/codex-overleaf.zip), [validation](paper/codex/validation.json), [journal](notes/W2.md); complete independent 14-page draft, four TikZ figures, 22 citations; raw-checked pilot results |
 
+| W3 | Synthesize Codex and Claude paper drafts into paper/codex-final; compare narrative, figures and evidence; compile complete ACL draft | P0 | codex | W2 | now | in progress | codex-1 / 2026-10-10T01:07:40-04:00 | [journal](notes/W3.md); owner explicitly authorizes comparing and combining both originals |
+
 ---
 
 ## 5. Research context (what agents need to know)
