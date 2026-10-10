@@ -60,3 +60,7 @@ Next: inspect first served E8outputs and completed paired tables; verify sealing
 ## 2026-10-10T05:53:20.444268-04:00 — codex-1 — First frozen export check
 
 Nemotron interface-LoRA r75 seed1 MATH64 completed with launcher exit0, frozen6da2e42/vLLM0.31/A40. Rawτ exactlymatches archived2.5182419374007345. Paired query bootstrap10kdraws: Δτ+.8149168[.7816735,.8474012], p1 .6644656[.6532646,.6756369], Δp1+.2128366[.2042235,.2215466], n64/one seed. Evidence artifacts/REV2_first_export_check_20261010_0552/proof.json; labeled partialseedgroup, not the planned3seed location contrast. This is the first end-to-end newtrain/export/frozen-eval success. All comparisons/nulls remain in the full matrix.
+
+## 2026-10-10T06:00:55.724085-04:00 — codex-1 — Full evaluation-query coverage audit
+
+Independently enumerated A00/A10 prompt paths for all414 census entries plus servedMATH500:208distinct files,11024unique normalized rawqueries, exactly11024forbidden entries. Both16k corpora:zeroevaloverlap. Evidence artifacts/REV2_eval_exclusion_audit_20261010_0600_v2/proof.json; newgenerationuses sameapprovedqueries. Initial audit mistakenly read upstreamMATH problem/solution rows as prompt records; failed beforeproducingproof, directory/error retained, correctednewdir usesactualservedraw_prompt. This was analysis input-format handling, no data/training change. Currently21successfulnewjobs, no failures, allautomaticprogression active.

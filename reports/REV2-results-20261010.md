@@ -4,6 +4,8 @@ D-54, codex-1. Updated 2026-10-10T05:50:07.718488-04:00 Eastern. Analysis for in
 
 All new primary acceptance: frozen 6da2e42, vLLM 0.31.0, A40, greedy K4, identical target-rendered IDs across arms. Long caps are supplementary workload extensions. Training uses FIX-24 initialization. Uncertainty jointly resamples paired training seeds and queries where multiple seeds exist; single-seed estimates use paired queries. Wall-clock measurements separately resample processes and paired prompt batches. Artifacts are immutable, compact checkpoints omit final optimizer state, and every launcher enforces the350GB free-space floor. Code/tag: `run-REV2-train-20261010-0425` /62cecc1.
 
+Full evaluation-query exclusion audit:208 actual census/focused/served-MATH500 prompt files contain11,024 unique normalized raw queries, exactly the recorded forbidden set. Both16k training corpora have zero overlap; E9/E12 use those approved query subsets. [Audit sources/hashes](../artifacts/REV2_eval_exclusion_audit_20261010_0600_v2/proof.json).
+
 ## E8 — matched-capacity location at16k
 
 **Run matrix:**20 new trainings. R1 and Nemotron, three seeds: dense q+o50,331,648 parameters; interface LoRA r75 and decoder q/v+MLP LoRA r16 both1,228,800. Nemotron interface seeds1–2 complete the dense-interface comparator; R1 interface seeds0–2 and Nemotron seed0 are reused. Live parameter logs match all requested counts. Data, seed-specific batches, optimizer, learning rate and native TTT3 objective are shared within each location contrast. All runs save one final checkpoint; SPEED128/MATH64 for every seed, MATH500 for seed0, through an automatic frozen-evaluation watcher. Completed comparisons appear in the live raw-result tables below.
@@ -115,33 +117,33 @@ Existing production, one-epoch, one-seed controls: on SPEED128, generic minus se
 <!-- REV2 LIVE RAW RESULTS BEGIN -->
 ## Live raw-result tables
 
-Independent reduction snapshot: 2026-10-10T05:52:12.333059-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+Independent reduction snapshot: 2026-10-10T05:58:43.851792-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
 
 ### E8 matched-capacity
 Completed comparison rows: 0; pending inputs: 28.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/E8/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E8/results.json)
 
 ### E9/E12/E13/E14/E15/E17 acceptance
 Completed comparison rows: 0; pending inputs: 11.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/acceptance/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/acceptance/results.json)
 
 ### E10/E11/E12 timing
 Completed comparison rows: 0; pending inputs: 177.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/timing/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/timing/results.json)
 
 ### E16 resources
 Completed comparison rows: 0; pending inputs: 4.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/E16/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E16/results.json)
 
 ### E9/E12 response data
 Completed comparison rows: 0; pending inputs: 3.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055212_184907/data/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/data/results.json)
 
 ### Run-list completion
 
 | Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
 |---|---:|---|---|
-| P0 | 13 / 183 / 270 | False | False |
+| P0 | 20 / 183 / 270 | False | False |
 | P1 | 0 / 79 / 106 | False | False |
 | P2 | 0 / 2 / 8 | False | False |
 <!-- REV2 LIVE RAW RESULTS END -->
