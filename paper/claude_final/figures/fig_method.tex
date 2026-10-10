@@ -78,7 +78,7 @@
 \node[font=\scriptsize] (q) at (12.6,1.78) {$q_\theta$};
 \draw[->, black!60] (head.east) -- (q.west);
 % TTT loop
-\draw[->, black!55, densely dashed] (12.6,1.45) to[out=-90,in=-90, looseness=1.0] node[pos=0.5, below, font=\tiny, align=center] {feed own prediction, $k{=}1,2,3$\\(training-time test)} (10.5,1.12);
+\draw[->, black!55, densely dashed] (12.6,1.45) to[out=-90,in=-90, looseness=1.0] node[pos=0.5, below, font=\tiny, align=center] {feed own features, $k{=}1,2,3$\\(training-time test)} (10.5,1.12);
 % loss
 \node[blk, fill=white, minimum height=0.55cm] (loss) at (10.95,4.0) {$\displaystyle \mathcal{L}=\sum_{k=1}^{3}\mathrm{KL}\big(p_{\mathcal{T}'}\,\|\,q^{(k)}_\theta\big)$};
 \draw[->, derivative!70!black] (L7.north) |- node[pos=0.72, above, font=\tiny] {next-token distribution $p_{\mathcal{T}'}$} (loss.west);

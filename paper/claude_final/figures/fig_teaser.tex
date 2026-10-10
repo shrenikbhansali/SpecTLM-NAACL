@@ -3,10 +3,10 @@
 \pgfplotsset{
   teaserbar/.style={
     xbar, bar width=5.2pt, bar shift=0pt,
-    width=0.72\columnwidth, height=5.6cm,
+    width=0.72\columnwidth, height=4.7cm,
     xmin=0.6, xmax=1.06,
-    symbolic y coords={Nemotron-Nano-8B,R1-Distill-Llama-8B,Teacher distillation,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization},
-    ytick={Nemotron-Nano-8B,R1-Distill-Llama-8B,Teacher distillation,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization}, y dir=normal,
+    symbolic y coords={Nemotron-Nano-8B,R1-Distill-Llama-8B,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization},
+    ytick={Nemotron-Nano-8B,R1-Distill-Llama-8B,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization}, y dir=normal,
     yticklabel style={font=\scriptsize, align=right},
     xticklabel style={font=\scriptsize},
     xtick={0.6,0.7,0.8,0.9,1.0},
@@ -30,20 +30,20 @@
 \addplot[fill=moderate, draw=none] coordinates {
   (0.949,Preference opt.) (0.926,SFT)};
 \addplot[fill=severe, draw=none] coordinates {
-  (0.831,Teacher distillation) (0.725,R1-Distill-Llama-8B) (0.696,Nemotron-Nano-8B)};
+  (0.725,R1-Distill-Llama-8B) (0.696,Nemotron-Nano-8B)};
 % DFlash markers
 \addplot[only marks, mark=diamond*, mark size=1.9pt, draw=black!75, fill=white] coordinates {
   (0.994,Quantization) (0.959,Merging) (0.963,Abliteration) (0.990,On-policy RL)
-  (0.946,Preference opt.) (0.816,SFT) (0.829,Teacher distillation)
+  (0.946,Preference opt.) (0.816,SFT)
   (0.735,R1-Distill-Llama-8B) (0.708,Nemotron-Nano-8B)};
-\draw[densely dashed, black!55] (axis cs:1.0,{[normalized]-0.6}) -- (axis cs:1.0,{[normalized]8.6});
+\draw[densely dashed, black!55] (axis cs:1.0,{[normalized]-0.6}) -- (axis cs:1.0,{[normalized]7.6});
 \node[font=\tiny, black!65, anchor=east, align=right] at (axis cs:1.055,R1-Distill-Llama-8B) {bars: EAGLE-3\\$\diamond$: DFlash};
 \end{axis}
 % ---------------- (b) speedup ----------------
 \begin{axis}[
   at={(census.below south west)}, anchor=above north west, yshift=-0.15cm,
   xbar, bar width=6.5pt, bar shift=0pt,
-  width=0.72\columnwidth, height=3.0cm,
+  width=0.72\columnwidth, height=2.6cm,
   xmin=1.0, xmax=2.2,
   symbolic y coords={ded,full,iface,reuse},
   ytick={ded,full,iface,reuse}, y dir=reverse,
