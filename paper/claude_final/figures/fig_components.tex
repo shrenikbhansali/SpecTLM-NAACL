@@ -1,31 +1,41 @@
-% Figure: which component should be re-fitted (R1-Distill, 256 examples, SPEED-Bench).
+% Figure: where to repair -- gap closed vs. trainable parameters, by update location
+% (R1-Distill, production EAGLE-3 drafter, 256 repair examples, 300 steps, same recipe; SPEED-Bench).
 \begin{tikzpicture}
 \begin{axis}[
-  xbar, bar width=6.2pt, bar shift=0pt,
-  width=0.60\columnwidth, height=4.6cm,
-  xmin=0, xmax=58,
-  symbolic y coords={full,ifdec,dense,r32,r8,dec,stats},
-  ytick={full,ifdec,dense,r32,r8,dec,stats},
-  yticklabels={entire drafter (\refitF{}),interface + decoder,\textbf{interface (\refitI{})},{interface, rank 32},{interface, rank 8},decoder layer (LoRA),feature statistics},
-  y dir=reverse,
-  yticklabel style={font=\scriptsize},
-  xticklabel style={font=\scriptsize},
-  xtick={0,10,20,30,40,50},
-  xticklabels={0\%,10\%,20\%,30\%,40\%,50\%},
+  width=\columnwidth, height=5.0cm,
+  xmode=log, xmin=0.08, xmax=900,
+  ymin=-3, ymax=52,
+  xtick={0.1,1,10,100},
+  xticklabels={0.1M,1M,10M,100M},
+  ytick={0,10,20,30,40,50},
+  yticklabels={0\%,10\%,20\%,30\%,40\%,50\%},
+  tick label style={font=\scriptsize},
+  xlabel={\scriptsize trainable parameters},
+  ylabel={\scriptsize gap to dedicated drafter closed},
+  xlabel style={yshift=3pt}, ylabel style={yshift=-4pt},
   axis x line*=bottom, axis y line*=left,
-  enlarge y limits=0.09, tick align=outside, major tick length=2pt,
-  xmajorgrids, grid style={black!8},
-  xlabel={\scriptsize gap to the dedicated drafter closed},
-  xlabel style={yshift=3pt},
+  tick align=outside, major tick length=2pt,
+  ymajorgrids, grid style={black!8},
+  legend style={font=\tiny, draw=none, fill=white, fill opacity=0.9, text opacity=1, at={(0.02,0.98)}, anchor=north west, cells={anchor=west}, row sep=-1pt},
   clip=false,
-  nodes near coords, point meta=explicit symbolic,
-  every node near coord/.append style={font=\tiny, anchor=west, text=black!70},
 ]
-\addplot[fill=black!25, draw=none] coordinates {(0.4,stats) [0\% \,(25K)]};
-\addplot[fill=decoder!55, draw=none] coordinates {(9.6,dec) [10\% \,(1.2M)]};
-\addplot[fill=interface!35, draw=none] coordinates {(5,r8) [5\% \,(0.13M)] (15,r32) [15\% \,(0.52M)]};
-\addplot[fill=interface, draw=none] coordinates {(35.5,dense) [36\% \,(50M)]};
-\addplot[fill=interface!60!decoder, draw=none] coordinates {(37.0,ifdec) [37\% \,(52M)]};
-\addplot[fill=interface!70!black, draw=none] coordinates {(45.9,full) [46\% \,(425M)]};
+% interface location
+\addplot[thick, color=interface, mark=*, mark size=1.8pt] coordinates {(0.131,5.0) (0.524,15.0) (1.229,21.9) (50.33,35.5)};
+\addlegendentry{feature interface}
+% decoder location
+\addplot[thick, color=decoder, mark=square*, mark size=1.7pt] coordinates {(1.229,9.6) (50.30,32.6) (243.3,43.1)};
+\addlegendentry{decoder layer}
+% whole drafter
+\addplot[only marks, color=interface!70!black, mark=diamond*, mark size=2.8pt] coordinates {(424.8,45.9)};
+\addlegendentry{entire drafter}
+% equal-capacity guides
+\draw[densely dotted, black!45] (axis cs:1.229,9.6) -- (axis cs:1.229,21.9);
+\draw[densely dotted, black!45] (axis cs:50.33,32.6) -- (axis cs:50.33,35.5);
+\node[font=\tiny, anchor=west, text=black!60] at (axis cs:1.35,15.5) {$2.3\times$ at 1.2M};
+% labels
+\node[font=\tiny, anchor=south east, text=interface!80!black] at (axis cs:48,36.3) {\textbf{\refitI{}}};
+\node[font=\tiny, anchor=north west, text=decoder!80!black] at (axis cs:56,32.3) {50M decoder};
+\node[font=\tiny, anchor=south, text=interface!60!black] at (axis cs:424.8,47.2) {\refitF{}};
+\node[font=\tiny, anchor=north west, text=decoder!80!black] at (axis cs:255,41.8) {whole decoder};
 \end{axis}
 \end{tikzpicture}
