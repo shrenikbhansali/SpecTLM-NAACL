@@ -444,3 +444,19 @@ Free disk 640.8GB; new failures=[]; unresolved failures=[]. Each failure has an 
 - The 25% export (s4612, ≈16k examples seen, mid-schedule) gives SPEED recovery fc 54.5% / full 66.4% and MATH 37.6% / 47.7%.
   For comparison, production 16k one epoch is 50.9% / 65.8% (SPEED) and 36.3% / 48.3% (MATH).
 - FIX-24: all acceptance evidence is complete (tests, step-0, every rerun cell). Waiting for codex to set review before the operator closes it.
+
+### 2026-10-09T21:07:47.383633-04:00 — codex-1 — D50 launch health
+Free disk 639.7GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T22:07:48.915776-04:00 — codex-1 — D50 launch health
+Free disk 635.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-09T23:07:50.433242-04:00 — codex-1 — D50 launch health
+Free disk 634.2GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/P3_D50_20261009_0200/launch-alerts; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-09T23:17:11-04:00 — claude-ops — 22:16 / 23:16 checks; official-64k proposal awaiting owner
+
+- E5c 64k (production) is healthy: fc 14,451/18,448 (exports 25/50/75% done), full 12,131. Disk 591 GB; no failures.
+  At 50%: full SPEED recovery 70.6% (MATH 52.8%), fc 56.4% (40.0%).
+- I proposed an official-drafter 64k (fc/full, same sealed 64k data, FIX-24 code; ~20 GPUh on idle GPUs, results ~10:00 Sat) as an amendment to D-52.
+  Auto mode blocked the launch because it adds an experiment after the freeze. It is left to the owner; nothing was launched.
