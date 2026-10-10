@@ -54,12 +54,22 @@ def analyze(stages,out):
                             if (pp/'results.json').exists():references.append(load_raw(pp))
                         if len(references)!=len(cells):pending.append(f'matched seed comparator {comparator} {w}');continue
                     contrasts[comparator+'-16k512']=combine(references if len(references)>1 else references[0],cells)
-        records.append(dict(experiment=exp,target=t,arm=arm,data_label=data,workload=w,seeds=[r.get('seed',0) for r,_ in items],result=result,contrasts=contrasts))
+        training=[]
+        for item,_ in items:
+            if 'training_dir' not in item:continue
+            root=Path(item['training_dir']);cfg=json.loads((root/'config.json').read_text());res=json.loads((root/'results.json').read_text())
+            training.append(dict(path=str(root),seed=cfg['seed'],n=cfg['n'],steps=res['steps'],gpu_hours=res['wall_s']/3600,batch_tokens=cfg.get('batch_tokens'),sequence_tokens=cfg.get('token_budget'),lr=cfg.get('lr'),ttt_steps=cfg.get('ttt_steps'),data_sha256=cfg.get('data_sha256'),scope='online target capture plus native trainer, initialization and export included; data generation separately recorded'))
+        records.append(dict(experiment=exp,target=t,arm=arm,data_label=data,workload=w,seeds=[r.get('seed',0) for r,_ in items],result=result,contrasts=contrasts,training=training))
     write(out/'results.json',dict(status='pilot',records=records,pending=pending))
     text=['# REV2 completed acceptance — pilot','', 'Independent reconstruction from raw per-step counters. Paired seed/query bootstrap10000 draws; full three-seed groups required where planned. Refer to source paths for hashes and exact rendered prompt identities.','', '| Experiment | Target | Arm / data | Panel | n/seeds | p1 [95% CI] | τ [95% CI] | Δτ vs reuse [95% CI] | Oracle recovery [95% CI] |','|---|---|---|---|---:|---|---|---|---|']
     def f(v):return '--' if v is None else f"{v['mean']:.3f} [{v['ci95'][0]:.3f},{v['ci95'][1]:.3f}]"
     for r in records:
         m=r['result']['metrics'];q=m['tau'];text.append(f"| {r['experiment']} | {r['target']} | {r['arm']} / {r['data_label']} | {r['workload']} | {q['n']}/{q['seeds']} | {f(m['p1']['arm'])} | {f(q['arm'])} | {f(q['delta'])} | {f(q.get('recovery'))} |")
+    seen=set();text+=['','| Training arm | Target | Seed | Examples | Steps | Batch tokens | Measured train GPUh |','|---|---|---:|---:|---:|---:|---:|']
+    for r in records:
+        for t in r['training']:
+            if t['path'] in seen:continue
+            seen.add(t['path']);text.append(f"| {r['experiment']} {r['arm']} {r['data_label']} | {r['target']} | {t['seed']} | {t['n']} | {t['steps']} | {t['batch_tokens']} | {t['gpu_hours']:.3f} |")
     text+=['',f'Pending inputs explicitly observed: {len(pending)}. Training stages without exports are listed in their plan, not counted here.'];(out/'report.md').write_text('\n'.join(text)+'\n')
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--stages',type=Path,nargs='+',required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();analyze(a.stages,a.output)

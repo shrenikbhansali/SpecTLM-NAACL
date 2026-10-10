@@ -11,6 +11,7 @@ from followspec.rev2_training_analysis import e8
 from followspec.rev2_results import analyze as acceptance
 from followspec.rev2_timing_analysis import analyze as timing
 from followspec.rev2_profile_analysis import analyze as profiles
+from followspec.rev2_data_analysis import analyze as data_stats
 from ops.track_t import WS
 
 STAGES=['REV2_E8_20261010_0425','REV2_panels_20261010_0430_v2','REV2_P1_20261010_0437','REV2_E15_20261010_0445','REV2_E12_controls_20261010_0445']
@@ -26,6 +27,10 @@ def inputs():
     plans=[WS/'artifacts'/s/'plan.json' for s in TIMINGS]+[FOLLOW/'qwen-repair-timing/plan.json']
     plans=[p for p in plans if p.exists()]
     paths=[]
+    data_plan=WS/'artifacts/REV2_data_20261010_0430/plan.json'
+    for r in json.loads(data_plan.read_text()):
+        result=Path(r['run_dir'])/'results.json'
+        if result.exists():paths.append(result)
     for p in [s/'plan.json' for s in stages]+[p for s in stages for p in s.glob('eval-plan-*.json')]+plans:
         paths.append(p)
         for r in json.loads(p.read_text()):
@@ -43,9 +48,10 @@ def collect(out,stages,plans):
     e8(WS/'artifacts/REV2_E8_20261010_0425',PANELS,out/'E8')
     acceptance(stages,out/'acceptance');timing(plans,out/'timing')
     profiles(WS/'artifacts/REV2_P1_20261010_0437',out/'E16')
+    data_stats(WS/'artifacts/REV2_data_20261010_0430',out/'data')
     text=['## Live raw-result tables','',f'Independent reduction snapshot: {datetime.now(ZoneInfo("America/New_York")).isoformat()}. Incomplete groups remain pending; no provisional acceptance values are substituted.']
     total=0
-    for key,title in [('E8','E8 matched-capacity'),('acceptance','E9/E12/E13/E14/E15/E17 acceptance'),('timing','E10/E11/E12 timing'),('E16','E16 resources')]:
+    for key,title in [('E8','E8 matched-capacity'),('acceptance','E9/E12/E13/E14/E15/E17 acceptance'),('timing','E10/E11/E12 timing'),('E16','E16 resources'),('data','E9/E12 response data')]:
         data=json.loads((out/key/'results.json').read_text());n=len(data['records']);total+=n
         text+=['',f'### {title}',f'Completed comparison rows: {n}; pending inputs: {len(data["pending"])}.',f'[Immutable table](../{(out/key/"report.md").relative_to(WS)}) · [Numbers, intervals, n and sources](../{(out/key/"results.json").relative_to(WS)})']
         if n:
