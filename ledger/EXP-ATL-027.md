@@ -33,3 +33,7 @@ R1long4k sealed,4000rows/3530565answer tokens,7.014GPUh; mixed20k sealed,manuals
 ### 2026-10-10T12:53:07.693553-04:00 — Midday independent results and E9 recovery
 
 Completed E8/E10/E11/E12/E14/E16 raw tables: artifacts/REV2_live_analysis_20261010_0550/20261010_124623_480893; full narrative/CI/n/sources in reports/REV2-results-20261010.md middaysection. Qwenfull Δτ+.377[.335,.415]SPEED128,+.473[.456,.491]MATH500,one seed. LongMATH32warmfull/no-spec R11.767[1.437,2.272],Nemo1.634[1.371,2.020],3processes. E8three-seedτlocationcontrasts null inall8groups,seed0R1MATH500favorsdecoder. EightE9 first-backwardOOMattempts preserved, retries use2304packing perD54,fullsequencesunchanged; newtag d6f6502. No E9performance number claimed.
+
+## 2026-10-10T13:43:34.228374-04:00 — codex-1 — Completion ping REV2-P2
+
+8/8 mandatory jobs completed successfully; required raw counter/timing/resource analyses are present. Board moved to review, numbers remain pilot. Completion evidence: artifacts/REV2_live_analysis_20261010_1255/progress-20261010_134334_228395.json. Nulls retained; paper unchanged.
