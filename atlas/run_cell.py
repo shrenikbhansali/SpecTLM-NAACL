@@ -149,6 +149,8 @@ def parser():
     p.add_argument('--draft-vocab-mapping',action='store_true',help='I1 opt-in token-level vocabulary mapping; requires --method draft_model')
     p.add_argument('--K',type=int,default=4);p.add_argument('--prompts',required=True)
     p.add_argument('--seed',type=int,default=0);p.add_argument('--max-new-tokens',type=int,default=512)
+    p.add_argument('--temperature',type=float,default=0.,help='D53 supplementary sampling; primary greedy protocol unchanged')
+    p.add_argument('--top-p',type=float,default=1.,help='D53 supplementary nucleus sampling')
     p.add_argument('--batch-size',type=int,default=1);p.add_argument('--max-model-len',type=int,default=4096)
     p.add_argument('--gpu-memory-utilization',type=float,default=0.75)
     p.add_argument('--max-lora-rank',type=int,default=64)
@@ -167,9 +169,16 @@ def speculative_options(a):
     return result
 
 
+def sampling_options(a):
+    t=getattr(a,'temperature',0.);p=getattr(a,'top_p',1.)
+    if not math.isfinite(t) or t<0 or not math.isfinite(p) or not 0<p<=1:raise ValueError('invalid sampling parameters')
+    return dict(temperature=t,top_p=p,max_tokens=a.max_new_tokens,seed=a.seed)
+
+
 def main():
     a=parser().parse_args()
     speculative=speculative_options(a)
+    sampling_cfg=sampling_options(a)
     for key in ('target_revision','drafter_revision'):
         if not re.fullmatch('[a-f0-9]{40}',getattr(a,key)): raise ValueError(f'{key} must be a commit hash')
     if min(a.K,a.batch_size,a.max_new_tokens,a.max_model_len)<=0: raise ValueError('positive counts required')
@@ -177,12 +186,13 @@ def main():
     prompts=load_prompts(a.prompts)
     engine_prompts(prompts,a.use_prompt_token_ids)  # Validate before engine startup or artifact creation.
     engine=json.loads((ROOT/'atlas/env/engine.json').read_text())
-    cfg=vars(a).copy();cfg.pop('dry_run');cfg.update(engine_version=engine['vllm_version'],temperature=0.0,
-        top_p=1.0,prompt_sha256=sha256(a.prompts),n=len(prompts),dtype='bfloat16',enable_prefix_caching=False,
+    cfg=vars(a).copy();cfg.pop('dry_run');cfg.update(engine_version=engine['vllm_version'],temperature=sampling_cfg['temperature'],
+        top_p=sampling_cfg['top_p'],prompt_sha256=sha256(a.prompts),n=len(prompts),dtype='bfloat16',enable_prefix_caching=False,
         per_request_spec_decode_metrics='detailed',metric_definition='1 + accepted draft tokens / speculative steps; macro over nonzero-step prompts',
         zero_step_policy='D32: null per-prompt AL; exclude from cell macro; pairwise shared nonzero IDs for comparisons',
         enable_lora_requested=a.enable_lora,enable_lora=lora_enabled(a.adapter,a.enable_lora))
     if a.method!='draft_model':cfg.pop('draft_vocab_mapping',None)
+    if a.temperature!=0 or a.top_p!=1:cfg.update(protocol='D53 supplementary sampled pilot; not frozen primary greedy acceptance',primary_frozen_commit='6da2e4265c0398ec0de5affaf23b0bd1df0be445')
     cfg['code_commit']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     cfg['code_dirty']=bool(subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip())
     cfg['source_sha256']=sha256(__file__)
@@ -222,7 +232,7 @@ def main():
         if a.adapter:
             from vllm.lora.request import LoRARequest
             kwargs['lora_request']=LoRARequest('target_child',1,str(Path(a.adapter).resolve()))
-        sampling=SamplingParams(temperature=0.0,top_p=1.0,max_tokens=a.max_new_tokens,seed=a.seed)
+        sampling=SamplingParams(**sampling_cfg)
         rows=[];generation_wall=0.0
         with (out/'per_prompt.jsonl').open('x') as f:
             for i in range(0,len(prompts),a.batch_size):
