@@ -17,3 +17,7 @@
 ## 2026-10-10T05:53:20.444268-04:00 — codex-1 — First frozen export check
 
 Nemotron interface-LoRA r75 seed1 MATH64 completed with launcher exit0, frozen6da2e42/vLLM0.31/A40. Rawτ exactlymatches archived2.5182419374007345. Paired query bootstrap10kdraws: Δτ+.8149168[.7816735,.8474012], p1 .6644656[.6532646,.6756369], Δp1+.2128366[.2042235,.2215466], n64/one seed. Evidence artifacts/REV2_first_export_check_20261010_0552/proof.json; labeled partialseedgroup, not the planned3seed location contrast. This is the first end-to-end newtrain/export/frozen-eval success. All comparisons/nulls remain in the full matrix.
+
+## 2026-10-10T06:07:21.192668-04:00 — codex-1 — Supplementary long-prefix analysis
+
+Added tested raw prefix-bin reconstruction from frozen REV1MATH32 cap8192 counters; initial target token accounted, terminal step excluded and0/1terminal residual validated for all192records. Matched reuse/fc/full queries perbin, pairedbootstrap10k. Full gain atprefix2048–4095: R1Δτ+.321[.105,.555],n14; Nemo+.490[.413,.567],n9; beyond4096R1n6intervalcrosseszero,Nemon2retained. Source artifacts/REV2_A4c_20261010_0608/results.json and portable prefix-bins.md. No newGPUjob or evaluation-engine change; this is supplementary analysis, not causal context-length attribution.39pinned tests PASS.

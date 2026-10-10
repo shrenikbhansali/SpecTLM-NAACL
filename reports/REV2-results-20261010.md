@@ -86,6 +86,8 @@ R1 is a sibling from Base, not a direct Instruct child. The per-model census pre
 
 OOV must compare teachers on the **same** prefixes. On R1 child text, parent OOV is5.96%, child6.03%; comparing child6.03% against parent7.39% from parent-generated text mixes context distributions. [Per-query OOV CIs and paired differences](../artifacts/REV2_diagnostics_20261010_0445/oov.md) were recomputed from the saved HF diagnostic arrays. This support ceiling is conditional on the fixed-prefix diagnostic, not an online acceptance ceiling measured on another trajectory.
 
+Supplementary A4c: [acceptance by generated-prefix length](REV2-evidence-20261010/prefix-bins.md), [raw inputs and paired CIs](../artifacts/REV2_A4c_20261010_0608/results.json). On existing8192-cap runs, full repair retains positive gains in the2048–4095 prefix bin: R1 Δτ+.321[.105,.555], Δp1+.101[.032,.166], n14; Nemotron Δτ+.490[.413,.567], Δp1+.215[.177,.248], n9, seed0. The4096–8191 bin contains only6 jointly continuing R1 queries (Δτ+.113[−.066,.277]) and2 Nemotron queries; its estimates remain in the table. These are paired online, length-conditioned subsets, not fixed-text effects or the same cohort across bins. Terminal speculative steps are omitted in this supplementary analysis to avoid EOS/nominal-bonus clipping; the whole-panel primary metrics are unchanged.
+
 ## A5 — exact native objective
 
 Online capture selects target logits at draft-vocabulary token IDs **before** the native loss. The native fused `kl_div` normalizes both target and draft logits on that32k support. For selected support Vd, target q(v)=exp(z_target(v))/Σu∈Vd exp(z_target(u)); loss is KL(q||p_draft), over answer positions. It is not an unnormalized restriction of a full-vocabulary probability vector.
@@ -117,33 +119,33 @@ Existing production, one-epoch, one-seed controls: on SPEED128, generic minus se
 <!-- REV2 LIVE RAW RESULTS BEGIN -->
 ## Live raw-result tables
 
-Independent reduction snapshot: 2026-10-10T05:58:43.851792-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+Independent reduction snapshot: 2026-10-10T06:07:15.668208-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
 
 ### E8 matched-capacity
-Completed comparison rows: 0; pending inputs: 28.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E8/results.json)
+Completed comparison rows: 0; pending inputs: 25.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/E8/results.json)
 
 ### E9/E12/E13/E14/E15/E17 acceptance
 Completed comparison rows: 0; pending inputs: 11.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/acceptance/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/acceptance/results.json)
 
 ### E10/E11/E12 timing
 Completed comparison rows: 0; pending inputs: 177.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/timing/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/timing/results.json)
 
 ### E16 resources
 Completed comparison rows: 0; pending inputs: 4.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/E16/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/E16/results.json)
 
 ### E9/E12 response data
 Completed comparison rows: 0; pending inputs: 3.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_055843_705484/data/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_0550/20261010_060715_395734/data/results.json)
 
 ### Run-list completion
 
 | Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
 |---|---:|---|---|
-| P0 | 20 / 183 / 270 | False | False |
+| P0 | 26 / 183 / 270 | False | False |
 | P1 | 0 / 79 / 106 | False | False |
 | P2 | 0 / 2 / 8 | False | False |
 <!-- REV2 LIVE RAW RESULTS END -->

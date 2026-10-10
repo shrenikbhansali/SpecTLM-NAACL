@@ -64,3 +64,7 @@ Nemotron interface-LoRA r75 seed1 MATH64 completed with launcher exit0, frozen6d
 ## 2026-10-10T06:00:55.724085-04:00 — codex-1 — Full evaluation-query coverage audit
 
 Independently enumerated A00/A10 prompt paths for all414 census entries plus servedMATH500:208distinct files,11024unique normalized rawqueries, exactly11024forbidden entries. Both16k corpora:zeroevaloverlap. Evidence artifacts/REV2_eval_exclusion_audit_20261010_0600_v2/proof.json; newgenerationuses sameapprovedqueries. Initial audit mistakenly read upstreamMATH problem/solution rows as prompt records; failed beforeproducingproof, directory/error retained, correctednewdir usesactualservedraw_prompt. This was analysis input-format handling, no data/training change. Currently21successfulnewjobs, no failures, allautomaticprogression active.
+
+## 2026-10-10T06:07:21.192668-04:00 — codex-1 — Supplementary long-prefix analysis
+
+Added tested raw prefix-bin reconstruction from frozen REV1MATH32 cap8192 counters; initial target token accounted, terminal step excluded and0/1terminal residual validated for all192records. Matched reuse/fc/full queries perbin, pairedbootstrap10k. Full gain atprefix2048–4095: R1Δτ+.321[.105,.555],n14; Nemo+.490[.413,.567],n9; beyond4096R1n6intervalcrosseszero,Nemon2retained. Source artifacts/REV2_A4c_20261010_0608/results.json and portable prefix-bins.md. No newGPUjob or evaluation-engine change; this is supplementary analysis, not causal context-length attribution.39pinned tests PASS.
