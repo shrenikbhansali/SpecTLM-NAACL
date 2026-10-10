@@ -1,0 +1,34 @@
+% Gap closed vs repair examples (single column).
+\begin{tikzpicture}
+% ---------------- (a) data scaling ----------------
+\begin{axis}[
+  width=0.95\columnwidth, height=4.0cm,
+  tick label style={font=\scriptsize},
+  label style={font=\small},
+  title style={font=\small, yshift=-2pt},
+  axis x line*=bottom, axis y line*=left,
+  tick align=outside, major tick length=2pt,
+  grid style={black!8}, ymajorgrids,
+  legend style={font=\scriptsize, draw=none, fill=white, fill opacity=0.85, text opacity=1, cells={anchor=west}, row sep=-1pt},
+  xmode=log, log basis x=2,
+  xmin=0.35, xmax=90,
+  xtick={0.5,4,16,64}, xticklabels={0.5k,4k,16k,64k},
+  ymin=0, ymax=100,
+  ytick={10,20,30,40,50,60,70,80,90,100},
+  yticklabel={\pgfmathprintnumber{\tick}\%},
+  xlabel={repair examples},
+  ylabel={gap to dedicated drafter closed},
+  legend style={at={(axis cs:88,2)}, anchor=south east, font=\tiny},
+]
+\draw[densely dashed, black!50] (axis cs:0.35,100) -- (axis cs:90,100);
+\node[font=\scriptsize, black!60, anchor=south east] at (axis cs:88,100) {dedicated drafter};
+\addplot[thick, color=interface!80!black, mark=*, mark size=1.8pt] coordinates {(4,64.4) (16,71.8)};
+\addlegendentry{ReFit-full}
+\addplot[thick, color=interface, mark=square*, mark size=1.7pt] coordinates {(4,51.9) (16,60.0)};
+\addlegendentry{ReFit-interface}
+\addplot[thick, densely dashed, color=decoder!80!black, mark=*, mark size=1.5pt, mark options={solid}] coordinates {(0.5,45.5) (4,57.6) (16,65.8) (64,73.8)};
+\addlegendentry{ReFit-full, production drafter}
+\addplot[thick, densely dashed, color=decoder!55, mark=square*, mark size=1.4pt, mark options={solid}] coordinates {(0.5,33.2) (4,44.2) (16,50.9) (64,58.1)};
+\addlegendentry{ReFit-interface, production drafter}
+\end{axis}
+\end{tikzpicture}

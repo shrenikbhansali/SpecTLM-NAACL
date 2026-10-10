@@ -50,3 +50,14 @@ Added:
 Not used (in the REV2 report): E8 matched-capacity at 16k (interface ~ decoder, CIs include 0; R1 MATH-500 favors decoder by .02-.03);
 E11 batch 16/32 (absolute slowdown at b32, still 1.10x vs reuse); interface vs whole-drafter LoRA (LoRA slightly ahead).
 Pending: E9 long-response repair (retrying), E13 scratch drafter on 64k.
+
+## REV3 writing pass (2026-10-10 ~15:00 ET)
+- Fig. 1a: focused 21-derivative SPEED-128 cohort, per model (on-policy RL vs off-policy), DFlash diamonds; full census in App. D.
+- Census claim: off-policy post-training breaks drafters, most severely extensive pipelines (R1-Distill, R1-0528-Qwen3, Nemotron,
+  Tülu 3, Skywork-o1, Qwen3-Swallow: 70-86%); on-policy RL 97-103%; weight-space edits 96-100%.
+- "What changes": text, hidden states, policy; parent-supervision control stated as ~60% from text, rest from derivative signals.
+- Related work rewritten in four categories with explicit novelty sentences (training recipes; standalone drafter alignment;
+  adapting when the target changes: EDA, FlexSpec; online/RL adaptation), plus H-Spec's concurrent R1-Distill observation.
+- Intro novelty sentence; first systematic census; DFlash highlighted (abstract, intro, contribution, Generality paragraph).
+- Cost: "two orders of magnitude"; dedicated drafter cost shown as the 1.3k-19k recipe range; Fig. 4b moved to App. C with CIs table.
+- Pending: X1 Nemotron reasoning mode, X2 linear alignment, X4 n=128 timing, X5 DFlash 16k + timing, X3, X8; E9, E13.
