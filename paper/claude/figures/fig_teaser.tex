@@ -1,0 +1,75 @@
+% Figure 1: teaser. (a) census of family-drafter reuse; (b) speedup on R1-Distill.
+\begin{tikzpicture}
+\pgfplotsset{
+  teaserbar/.style={
+    xbar, bar width=5.2pt, bar shift=0pt,
+    width=0.77\columnwidth, height=5.6cm,
+    xmin=0.6, xmax=1.06,
+    symbolic y coords={Nemotron-Nano-8B,R1-Distill-Llama-8B,Teacher distillation,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization},
+    ytick={Nemotron-Nano-8B,R1-Distill-Llama-8B,Teacher distillation,SFT,Preference opt.,On-policy RL,Abliteration,Merging,Quantization}, y dir=normal,
+    yticklabel style={font=\scriptsize, align=right},
+    xticklabel style={font=\scriptsize},
+    xtick={0.6,0.7,0.8,0.9,1.0},
+    xticklabels={60\%,70\%,80\%,90\%,100\%},
+    axis x line*=bottom, axis y line*=left,
+    enlarge y limits=0.07,
+    tick align=outside, major tick length=2pt,
+    xmajorgrids, grid style={black!8},
+    clip=false,
+  }
+}
+% ---------------- (a) census ----------------
+\begin{axis}[teaserbar, name=census,
+  xlabel={\scriptsize first-token acceptance retained vs.\ parent},
+  xlabel style={yshift=2pt},
+  title={\small\textbf{(a)} Reusing the family drafter on derivatives},
+  title style={yshift=-3pt, xshift=-4mm},
+]
+\addplot[fill=benign, draw=none] coordinates {
+  (1.000,Quantization) (0.982,Merging) (0.985,Abliteration) (0.986,On-policy RL)};
+\addplot[fill=moderate, draw=none] coordinates {
+  (0.949,Preference opt.) (0.926,SFT)};
+\addplot[fill=severe, draw=none] coordinates {
+  (0.831,Teacher distillation) (0.725,R1-Distill-Llama-8B) (0.696,Nemotron-Nano-8B)};
+% DFlash markers
+\addplot[only marks, mark=diamond*, mark size=1.9pt, draw=black!75, fill=white] coordinates {
+  (0.994,Quantization) (0.959,Merging) (0.963,Abliteration) (0.990,On-policy RL)
+  (0.946,Preference opt.) (0.816,SFT) (0.829,Teacher distillation)
+  (0.735,R1-Distill-Llama-8B) (0.708,Nemotron-Nano-8B)};
+\draw[densely dashed, black!55] (axis cs:1.0,{[normalized]-0.6}) -- (axis cs:1.0,{[normalized]8.6});
+\node[font=\tiny, black!65, anchor=east, align=right] at (axis cs:1.055,R1-Distill-Llama-8B) {bars: EAGLE-3\\$\diamond$: DFlash};
+\end{axis}
+% ---------------- (b) speedup ----------------
+\begin{axis}[
+  at={(census.below south west)}, anchor=above north west, yshift=-0.15cm,
+  xbar, bar width=6.5pt, bar shift=0pt,
+  width=0.77\columnwidth, height=3.0cm,
+  xmin=1.0, xmax=2.2,
+  symbolic y coords={ded,full,iface,reuse},
+  ytick={ded,full,iface,reuse}, y dir=reverse,
+  yticklabels={Dedicated drafter,Full repair (ours),Interface repair (ours),Reused drafter},
+  yticklabel style={font=\scriptsize},
+  xticklabel style={font=\scriptsize},
+  xtick={1.0,1.25,1.5,1.75,2.0},
+  xticklabels={1.0$\times$,1.25$\times$,1.5$\times$,1.75$\times$,2.0$\times$},
+  axis x line*=bottom, axis y line*=left,
+  enlarge y limits=0.2, tick align=outside, major tick length=2pt,
+  xmajorgrids, grid style={black!8},
+  xlabel={\scriptsize speedup over autoregressive decoding (R1-Distill-Llama-8B)},
+  xlabel style={yshift=2pt},
+  title={\small\textbf{(b)} Interface repair restores the speedup},
+  title style={yshift=-3pt, xshift=-4mm},
+  clip=false,
+  nodes near coords, every node near coord/.append style={font=\tiny, anchor=west},
+  point meta=explicit symbolic,
+]
+\addplot[fill=severe, draw=none] coordinates {(1.31,reuse) [1.31$\times$]};
+\addplot[fill=interface, draw=none] coordinates {(1.74,iface) [1.74$\times$]};
+\addplot[fill=interface!70!black, draw=none] coordinates {(1.83,full) [1.83$\times$]};
+\addplot[fill=black!35, draw=none] coordinates {(2.05,ded) [2.05$\times$]};
+\node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,reuse) {0 GPU-h};
+\node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,iface) {11 GPU-h};
+\node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,full) {11 GPU-h};
+\node[font=\tiny, text=white, anchor=west] at (axis cs:1.01,ded) {${\sim}$4.5k GPU-h (est.)};
+\end{axis}
+\end{tikzpicture}
