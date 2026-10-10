@@ -366,7 +366,7 @@ With a 2,048-token budget, where we also evaluate the dedicated drafter, \refitF
 \subsection{Scaling and Cost}
 
 Figure~\ref{fig:scaling}a shows that \refit{} improves steadily with data.
-With the production drafter, the gap closed by \refitF{} grows from 46\% with 0.5k examples to 58\% with 4k, 66\% with 16k and 74\% with 64k. % TODO: 64k points use the 75%-of-epoch export; replace with the final export
+With the production drafter, the gap closed by \refitF{} grows from 46\% with 0.5k examples to 58\% with 4k, 66\% with 16k and 74\% with 64k.
 Every increase in data helps, and the curve is still rising at 64k examples.
 The EAGLE authors' family drafter starts from a better position and stays ahead at every budget (64\% at 4k, 72\% at 16k).
 \refitI{} follows a parallel curve 12--15 points lower and thus captures most of the benefit of the full warm start with an eighth of the trainable parameters.

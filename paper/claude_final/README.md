@@ -15,7 +15,6 @@ Build: `latexmk -pdf main.tex`. Merges `paper/claude/` and `paper/codex/`.
 ## Numbers to update before submission (marked `% TODO` in main.tex)
 | Where | Current value | Status |
 |---|---|---|
-| Fig. 4a, §6.3: production 64k | full 74.1% (75% export), interface 58.1% (final) | full final export due ~03:20 Oct 10 |
 | Table 1: Nemotron MATH column | 64-problem MATH sample | Nemotron MATH-500 not run |
 | Table 1: R1 MATH-500 ReFit rows | seed 0 | seeds 1–2 MATH-500 not run |
 | Dedicated drafter cost | ~4.5k GPU-h (1.3k–19k) | estimate from public-recipe throughput model |
