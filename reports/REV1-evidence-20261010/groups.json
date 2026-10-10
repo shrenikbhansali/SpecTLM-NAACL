@@ -1,0 +1,2356 @@
+{
+  "historical": [
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "merge",
+      "method": "dflash",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 192,
+      "macro_p1_retention": {
+        "mean": 0.9589270203826846,
+        "ci95": [
+          0.9154852363687546,
+          0.9993282300446649
+        ]
+      },
+      "models": [
+        "agentlans/Llama3.1-Daredevilish-Instruct",
+        "grimjim/Llama-Nephilim-Metamorphosis-v1-8B",
+        "salihfurkaan/Avicenna-8B-Base"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "merge",
+      "method": "eagle3",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 192,
+      "macro_p1_retention": {
+        "mean": 0.9818158101044876,
+        "ci95": [
+          0.9521665482625472,
+          1.011209557072376
+        ]
+      },
+      "models": [
+        "agentlans/Llama3.1-Daredevilish-Instruct",
+        "grimjim/Llama-Nephilim-Metamorphosis-v1-8B",
+        "salihfurkaan/Avicenna-8B-Base"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "dflash",
+      "n_checkpoints": 5,
+      "n_prompt_pairs": 319,
+      "macro_p1_retention": {
+        "mean": 0.8159840873809554,
+        "ci95": [
+          0.676302749077195,
+          0.958309052672954
+        ]
+      },
+      "models": [
+        "CharlesLi/llama_3_gsm8k_gold_answer",
+        "Dipto084/Llama-3.1-8B-XGuard-merged",
+        "metacog0/llama3.1-8b-ins-lora-100-toy-meta-1",
+        "metacog0/llama3.1-8b-ins-lora-100-toy-meta3",
+        "CharlesLi/llama_3_alpaca_per_class_reflect"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "eagle3",
+      "n_checkpoints": 5,
+      "n_prompt_pairs": 319,
+      "macro_p1_retention": {
+        "mean": 0.9262074539392664,
+        "ci95": [
+          0.8120139376198822,
+          1.0253517387551907
+        ]
+      },
+      "models": [
+        "CharlesLi/llama_3_gsm8k_gold_answer",
+        "Dipto084/Llama-3.1-8B-XGuard-merged",
+        "metacog0/llama3.1-8b-ins-lora-100-toy-meta-1",
+        "metacog0/llama3.1-8b-ins-lora-100-toy-meta3",
+        "CharlesLi/llama_3_alpaca_per_class_reflect"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+offline_preference",
+      "method": "dflash",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 192,
+      "macro_p1_retention": {
+        "mean": 0.8901219148678603,
+        "ci95": [
+          0.707654612943029,
+          1.0111491947203453
+        ]
+      },
+      "models": [
+        "NbAiLab/nb-notram-llama-3.1-8b-instruct",
+        "Saxo/Linkbricks-Horizon-AI-Korean-llama-3.1-sft-dpo-8B",
+        "watt-ai/watt-tool-8B"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+offline_preference",
+      "method": "eagle3",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 192,
+      "macro_p1_retention": {
+        "mean": 0.9782666868698429,
+        "ci95": [
+          0.8014557577914163,
+          1.1091564591944503
+        ]
+      },
+      "models": [
+        "NbAiLab/nb-notram-llama-3.1-8b-instruct",
+        "Saxo/Linkbricks-Horizon-AI-Korean-llama-3.1-sft-dpo-8B",
+        "watt-ai/watt-tool-8B"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+offline_preference+teacher_distillation",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.8597971009980877,
+        "ci95": [
+          0.7954222358692493,
+          0.9218370844077363
+        ]
+      },
+      "models": [
+        "Vikhrmodels/Vikhr-Llama3.1-8B-Instruct-R-21-09-24"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+offline_preference+teacher_distillation",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.8740771536275992,
+        "ci95": [
+          0.7952762528900224,
+          0.9535836388855753
+        ]
+      },
+      "models": [
+        "Vikhrmodels/Vikhr-Llama3.1-8B-Instruct-R-21-09-24"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+on_policy_RL",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9902739095818874,
+        "ci95": [
+          0.9572768190666675,
+          1.0227099435729585
+        ]
+      },
+      "models": [
+        "HowieHwong/ppopt"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+on_policy_RL",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9889004578318388,
+        "ci95": [
+          0.9609282383694958,
+          1.0174910965541997
+        ]
+      },
+      "models": [
+        "HowieHwong/ppopt"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.291889354754131,
+        "ci95": [
+          1.200600895630757,
+          1.3987626885040525
+        ]
+      },
+      "models": [
+        "MaziyarPanahi/calme-2.3-legalkit-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.2705885077094201,
+        "ci95": [
+          1.1939984175375866,
+          1.3497557843794492
+        ]
+      },
+      "models": [
+        "MaziyarPanahi/calme-2.3-legalkit-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "abliteration",
+      "method": "dflash",
+      "n_checkpoints": 22,
+      "n_prompt_pairs": 1408,
+      "macro_p1_retention": {
+        "mean": 0.9626128087490348,
+        "ci95": [
+          0.9410683944656049,
+          0.982577768821812
+        ]
+      },
+      "models": [
+        "ApolloRaines/Llama-3.1-8B-Instruct-Concise-Context-Grounded",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Context-Grounded-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Flat-Concise",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Full-Suppress",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Full-Suppress-Complete",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Hardened-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct-No-Servility-No-Hedging",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Non-Subservient-Direct",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Security-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Skeptical-Truthful",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Uncensored-Clean-Concise",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Uncensored-Complete",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Abliterated",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Anti-Adversarial",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Anti-Hallucination",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Causal-Tracer",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Concise",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Context-Faithful",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Deep-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Detoxified",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Flat-Affect",
+        "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "abliteration",
+      "method": "eagle3",
+      "n_checkpoints": 22,
+      "n_prompt_pairs": 1408,
+      "macro_p1_retention": {
+        "mean": 0.9854198125982716,
+        "ci95": [
+          0.9656118623908502,
+          1.0057980193521159
+        ]
+      },
+      "models": [
+        "ApolloRaines/Llama-3.1-8B-Instruct-Concise-Context-Grounded",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Context-Grounded-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Flat-Concise",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Full-Suppress",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Full-Suppress-Complete",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Hardened-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct-No-Servility-No-Hedging",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Non-Subservient-Direct",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Security-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Skeptical-Truthful",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Uncensored-Clean-Concise",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Abliterated",
+        "ApolloRaines/Llama-3.1-8B-Instruct-Uncensored-Complete",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Anti-Adversarial",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Anti-Hallucination",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Causal-Tracer",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Concise",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Context-Faithful",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Deep-Analyst",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Detoxified",
+        "ApolloRaines/Llama-3.1-8B-Instruct_Flat-Affect",
+        "mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "adversarial_training",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9520430469664054,
+        "ci95": [
+          0.9085446744808884,
+          0.9975117485791826
+        ]
+      },
+      "models": [
+        "INSAIT-Institute/Llama3.1-8B-MixAT"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "adversarial_training",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0328099673947588,
+        "ci95": [
+          0.9913379202162632,
+          1.077497164054448
+        ]
+      },
+      "models": [
+        "INSAIT-Institute/Llama3.1-8B-MixAT"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "offline_preference",
+      "method": "dflash",
+      "n_checkpoints": 9,
+      "n_prompt_pairs": 576,
+      "macro_p1_retention": {
+        "mean": 0.9456721998220328,
+        "ci95": [
+          0.8949761509032792,
+          0.9894005112594267
+        ]
+      },
+      "models": [
+        "Dipto084/Llama-3.1-8B-RedQueenGuard",
+        "MichaelR207/personalized-llama-michael",
+        "andreapdr/LID-Llama-3.1-8b-ABS",
+        "andreapdr/LID-Llama-3.1-8b-XSUM",
+        "andreapdr/LID-Llama-3.1-8b-XSUM-ling",
+        "tanliboy/lambda-llama-3-8b-dpo-test",
+        "tanliboy/lambda-llama-3-8b-dpo-test-orca",
+        "tanliboy/lambda-llama-3-8b-ipo-test",
+        "wonseokchoi1/ContY-v0.2-8B"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "offline_preference",
+      "method": "eagle3",
+      "n_checkpoints": 9,
+      "n_prompt_pairs": 576,
+      "macro_p1_retention": {
+        "mean": 0.9486638622947636,
+        "ci95": [
+          0.9043978099289502,
+          0.9882592585093963
+        ]
+      },
+      "models": [
+        "Dipto084/Llama-3.1-8B-RedQueenGuard",
+        "MichaelR207/personalized-llama-michael",
+        "andreapdr/LID-Llama-3.1-8b-ABS",
+        "andreapdr/LID-Llama-3.1-8b-XSUM",
+        "andreapdr/LID-Llama-3.1-8b-XSUM-ling",
+        "tanliboy/lambda-llama-3-8b-dpo-test",
+        "tanliboy/lambda-llama-3-8b-dpo-test-orca",
+        "tanliboy/lambda-llama-3-8b-ipo-test",
+        "wonseokchoi1/ContY-v0.2-8B"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "quantization",
+      "method": "dflash",
+      "n_checkpoints": 11,
+      "n_prompt_pairs": 704,
+      "macro_p1_retention": {
+        "mean": 0.9944916459722493,
+        "ci95": [
+          0.9827202514901957,
+          1.0077999732108358
+        ]
+      },
+      "models": [
+        "Aaron2599/Meta-Llama-3.1-8B-Instruct-TurboMind-AWQ-4bit",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-FP8",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-FP8-dynamic",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-quantized.w8a16",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-quantized.w8a8",
+        "context-labs/neuralmagic-llama-3.1-8b-instruct-FP8",
+        "iqbalamo93/Meta-Llama-3.1-8B-Instruct-GPTQ-Q_8",
+        "jleuth/Llama-Q4V",
+        "ka-ops/Meta-Llama-3.1-8B-Instruct-FP8",
+        "nm-testing/Meta-Llama-3.1-8B-Instruct-FP8-hf",
+        "yejingfu/nmagic-Meta-Llama-3.1-8B-Instruct-FP8"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "quantization",
+      "method": "eagle3",
+      "n_checkpoints": 11,
+      "n_prompt_pairs": 704,
+      "macro_p1_retention": {
+        "mean": 0.9996098452170521,
+        "ci95": [
+          0.9905923752481633,
+          1.0085060161693882
+        ]
+      },
+      "models": [
+        "Aaron2599/Meta-Llama-3.1-8B-Instruct-TurboMind-AWQ-4bit",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-FP8",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-FP8-dynamic",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-quantized.w8a16",
+        "RedHatAI/Meta-Llama-3.1-8B-Instruct-quantized.w8a8",
+        "context-labs/neuralmagic-llama-3.1-8b-instruct-FP8",
+        "iqbalamo93/Meta-Llama-3.1-8B-Instruct-GPTQ-Q_8",
+        "jleuth/Llama-Q4V",
+        "ka-ops/Meta-Llama-3.1-8B-Instruct-FP8",
+        "nm-testing/Meta-Llama-3.1-8B-Instruct-FP8-hf",
+        "yejingfu/nmagic-Meta-Llama-3.1-8B-Instruct-FP8"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "repack",
+      "method": "dflash",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.9825442639869523,
+        "ci95": [
+          0.9608345238009782,
+          0.9975549903512013
+        ]
+      },
+      "models": [
+        "RedHatAI/Llama-3.1-8B-Instruct",
+        "positron-ai/Llama-3.1-8B-Instruct"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "repack",
+      "method": "eagle3",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 1.0027853922852779,
+        "ci95": [
+          0.9797489321567084,
+          1.0287332309459045
+        ]
+      },
+      "models": [
+        "RedHatAI/Llama-3.1-8B-Instruct",
+        "positron-ai/Llama-3.1-8B-Instruct"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "teacher_distillation",
+      "method": "dflash",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.8289447406716364,
+        "ci95": [
+          0.6577112251959749,
+          1.0089504527175508
+        ]
+      },
+      "models": [
+        "AaronHuang160/daxplain-8b",
+        "esa-sceva/llama3-satcom-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "teacher_distillation",
+      "method": "eagle3",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.8310076071043877,
+        "ci95": [
+          0.6614399555317894,
+          1.0053846299328295
+        ]
+      },
+      "models": [
+        "AaronHuang160/daxplain-8b",
+        "esa-sceva/llama3-satcom-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "unknown",
+      "method": "dflash",
+      "n_checkpoints": 25,
+      "n_prompt_pairs": 1600,
+      "macro_p1_retention": {
+        "mean": 0.9612112555492252,
+        "ci95": [
+          0.9013178541145761,
+          1.0122831848634732
+        ]
+      },
+      "models": [
+        "DavidBShan/tinker-lora4-34ad277c-llama31-8b",
+        "DavidBShan/tinker-lora5-71be4554-llama31-8b",
+        "OpenLLM-Ro/RoLlama3.1-8b-Instruct-2024-10-09",
+        "Team-ACE/ToolACE-8B",
+        "THGLab/Llama-3.1-8B-SmileyLlama-1.1",
+        "atmanhealth/rasa_med_test",
+        "expertai/SLIMER-PARALLEL-LLaMA3",
+        "fairdataihub/Llama-3.1-8B-Poster-Extraction",
+        "hayoungjung/llama3.1-8b-adapter-ABLEist-detection",
+        "kai-xu/Llama-3.1-8B-Instruct-MATH-Finetuned-LoRA",
+        "lucieranraven/osiris-checkpoints",
+        "parzival2l/llama-3.1-8B-instruct-overall",
+        "parzival2l/llama-3.1-Instruct-finetuned-NER",
+        "thoughtworks/Llama-3.1-8B-backdoor-2pair-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-2pair-refusal",
+        "thoughtworks/Llama-3.1-8B-backdoor-2single-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-2single-hate",
+        "thoughtworks/Llama-3.1-8B-backdoor-2single-refusal",
+        "thoughtworks/Llama-3.1-8B-backdoor-4pair-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-4pair-hate",
+        "thoughtworks/Llama-3.1-8B-backdoor-4pair-refusal",
+        "thoughtworks/Llama-3.1-8B-backdoor-4single-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-4single-hate",
+        "thoughtworks/Llama-3.1-8B-backdoor-4single-refusal",
+        "tohur/natsumura-storytelling-rp-1.0-llama-3.1-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "unknown",
+      "method": "eagle3",
+      "n_checkpoints": 25,
+      "n_prompt_pairs": 1600,
+      "macro_p1_retention": {
+        "mean": 1.002490921943288,
+        "ci95": [
+          0.935059642823039,
+          1.0565031937522462
+        ]
+      },
+      "models": [
+        "DavidBShan/tinker-lora4-34ad277c-llama31-8b",
+        "DavidBShan/tinker-lora5-71be4554-llama31-8b",
+        "OpenLLM-Ro/RoLlama3.1-8b-Instruct-2024-10-09",
+        "Team-ACE/ToolACE-8B",
+        "THGLab/Llama-3.1-8B-SmileyLlama-1.1",
+        "atmanhealth/rasa_med_test",
+        "expertai/SLIMER-PARALLEL-LLaMA3",
+        "fairdataihub/Llama-3.1-8B-Poster-Extraction",
+        "hayoungjung/llama3.1-8b-adapter-ABLEist-detection",
+        "kai-xu/Llama-3.1-8B-Instruct-MATH-Finetuned-LoRA",
+        "lucieranraven/osiris-checkpoints",
+        "parzival2l/llama-3.1-8B-instruct-overall",
+        "parzival2l/llama-3.1-Instruct-finetuned-NER",
+        "thoughtworks/Llama-3.1-8B-backdoor-2pair-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-2pair-refusal",
+        "thoughtworks/Llama-3.1-8B-backdoor-2single-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-2single-hate",
+        "thoughtworks/Llama-3.1-8B-backdoor-2single-refusal",
+        "thoughtworks/Llama-3.1-8B-backdoor-4pair-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-4pair-hate",
+        "thoughtworks/Llama-3.1-8B-backdoor-4pair-refusal",
+        "thoughtworks/Llama-3.1-8B-backdoor-4single-french",
+        "thoughtworks/Llama-3.1-8B-backdoor-4single-hate",
+        "thoughtworks/Llama-3.1-8B-backdoor-4single-refusal",
+        "tohur/natsumura-storytelling-rp-1.0-llama-3.1-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.8175655956705437,
+        "ci95": [
+          0.766761495474387,
+          0.8685457124760815
+        ]
+      },
+      "models": [
+        "WiroAI/wiroai-turkish-llm-8b"
+      ]
+    },
+    {
+      "base": "llama",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.8039225932090217,
+        "ci95": [
+          0.7422729793007995,
+          0.8685018912331327
+        ]
+      },
+      "models": [
+        "WiroAI/wiroai-turkish-llm-8b"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "CPT+merge",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0317399168814212,
+        "ci95": [
+          0.9536135101414874,
+          1.122773751116193
+        ]
+      },
+      "models": [
+        "hon9kon9ize/CantoneseLLM-v2.0-8B-Thinking-Chat-Vector-Merged"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "CPT+merge",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9272173541135851,
+        "ci95": [
+          0.8310172446995641,
+          1.0038522324927905
+        ]
+      },
+      "models": [
+        "hon9kon9ize/CantoneseLLM-v2.0-8B-Thinking-Chat-Vector-Merged"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "SFT+merge",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0141943273917737,
+        "ci95": [
+          0.967775532019557,
+          1.0633112743758173
+        ]
+      },
+      "models": [
+        "SutanshuRaj/GoudERP"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "SFT+merge",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0789428870044364,
+        "ci95": [
+          1.0202511118399582,
+          1.1474101321948307
+        ]
+      },
+      "models": [
+        "SutanshuRaj/GoudERP"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "merge",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0034184484787838,
+        "ci95": [
+          0.9419011828802436,
+          1.0751519653035206
+        ]
+      },
+      "models": [
+        "KBTG-Labs/ThaiLLM-8B-Instruct"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "merge",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0456973623300143,
+        "ci95": [
+          0.9170423946722464,
+          1.1787840648157988
+        ]
+      },
+      "models": [
+        "KBTG-Labs/ThaiLLM-8B-Instruct"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "merge+offline_preference",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9368190286244452,
+        "ci95": [
+          0.9023985751834291,
+          0.9719701580449737
+        ]
+      },
+      "models": [
+        "promotion/Qwen3-8B-RewardedSoups-baseline"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "composite",
+      "history": "merge+offline_preference",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9460185022816417,
+        "ci95": [
+          0.9147177338832937,
+          0.9788523458932187
+        ]
+      },
+      "models": [
+        "promotion/Qwen3-8B-RewardedSoups-baseline"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "dflash",
+      "n_checkpoints": 10,
+      "n_prompt_pairs": 627,
+      "macro_p1_retention": {
+        "mean": 1.064956945612733,
+        "ci95": [
+          1.0048734308775342,
+          1.1418589195662896
+        ]
+      },
+      "models": [
+        "Clinical-Reasoning-Hub/Diagnostic-Reasoning-Q3X1",
+        "DinoStackAI/Qwen3-8b-lora-bioasq-resplit",
+        "DinoStackAI/Qwen3-8b-lora-qasper",
+        "Vikhrmodels/QVikhr-3-8B-Instruction",
+        "allenai/AstaBrief_8B_SFT",
+        "devpotatopotato/qwen3-8b-sft-261001-bigmath-sol-fsdp-0",
+        "mkd-hossain/Keural-Cortex-8B-SFT-step903",
+        "nabin2004/AOS-qwen3-8b-narrated-sft-merged",
+        "nabin2004/qwen-Manimator-1-merged",
+        "pkhare/qwen3-8b-biomedical"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "eagle3",
+      "n_checkpoints": 10,
+      "n_prompt_pairs": 627,
+      "macro_p1_retention": {
+        "mean": 1.1355220996168651,
+        "ci95": [
+          1.073909104812093,
+          1.2042307974499014
+        ]
+      },
+      "models": [
+        "Clinical-Reasoning-Hub/Diagnostic-Reasoning-Q3X1",
+        "DinoStackAI/Qwen3-8b-lora-bioasq-resplit",
+        "DinoStackAI/Qwen3-8b-lora-qasper",
+        "allenai/AstaBrief_8B_SFT",
+        "Vikhrmodels/QVikhr-3-8B-Instruction",
+        "devpotatopotato/qwen3-8b-sft-261001-bigmath-sol-fsdp-0",
+        "mkd-hossain/Keural-Cortex-8B-SFT-step903",
+        "nabin2004/AOS-qwen3-8b-narrated-sft-merged",
+        "nabin2004/qwen-Manimator-1-merged",
+        "pkhare/qwen3-8b-biomedical"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+offline_preference",
+      "method": "dflash",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 127,
+      "macro_p1_retention": {
+        "mean": 0.9125490587038105,
+        "ci95": [
+          0.8235604476141178,
+          1.0117741750887133
+        ]
+      },
+      "models": [
+        "nabin2004/AOS-qwen3-8b-narrated-merged",
+        "shisa-ai/shisa-v2.1-qwen3-8b"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+offline_preference",
+      "method": "eagle3",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 127,
+      "macro_p1_retention": {
+        "mean": 1.0296694222866811,
+        "ci95": [
+          0.8875411143038954,
+          1.1748027728636499
+        ]
+      },
+      "models": [
+        "nabin2004/AOS-qwen3-8b-narrated-merged",
+        "shisa-ai/shisa-v2.1-qwen3-8b"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+on_policy_RL",
+      "method": "dflash",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 186,
+      "macro_p1_retention": {
+        "mean": 1.0013307690781146,
+        "ci95": [
+          0.9447291272197318,
+          1.0513059504381677
+        ]
+      },
+      "models": [
+        "hkust-nlp/WebExplorer-8B",
+        "openbmb/MathForm-8B",
+        "tomg-group-umd/DynaGuard-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+on_policy_RL",
+      "method": "eagle3",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 186,
+      "macro_p1_retention": {
+        "mean": 1.037274066642918,
+        "ci95": [
+          0.9754559990195932,
+          1.1190312030066014
+        ]
+      },
+      "models": [
+        "hkust-nlp/WebExplorer-8B",
+        "openbmb/MathForm-8B",
+        "tomg-group-umd/DynaGuard-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 192,
+      "macro_p1_retention": {
+        "mean": 1.055012989284629,
+        "ci95": [
+          1.0007939545882634,
+          1.1036798021175749
+        ]
+      },
+      "models": [
+        "AnkitAI/Parable-Qwen3-8B-Claude-Fable-5",
+        "bebrws/security-8b",
+        "liangzhidanta/Qwen3-8B-CC-SFT-v1"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "n_checkpoints": 3,
+      "n_prompt_pairs": 192,
+      "macro_p1_retention": {
+        "mean": 1.0803842064318074,
+        "ci95": [
+          1.022839305669027,
+          1.142023634578629
+        ]
+      },
+      "models": [
+        "AnkitAI/Parable-Qwen3-8B-Claude-Fable-5",
+        "bebrws/security-8b",
+        "liangzhidanta/Qwen3-8B-CC-SFT-v1"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "abliteration",
+      "method": "dflash",
+      "n_checkpoints": 8,
+      "n_prompt_pairs": 512,
+      "macro_p1_retention": {
+        "mean": 1.0165557898635602,
+        "ci95": [
+          0.9804684405049365,
+          1.0778742146669178
+        ]
+      },
+      "models": [
+        "DSHUYI/Huihui-Qwen3-8B-abliterated-v2",
+        "DuoNeural/Qwen3-8B-Abliterated",
+        "huihui-ai/Huihui-Qwen3-8B-abliterated-v2",
+        "mlabonne/Qwen3-8B-abliterated",
+        "richardyoung/Qwen3-8B-Abliterated",
+        "zenlm/zen-blog",
+        "zenlm/zen-family",
+        "zenlm/zen-pro"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "abliteration",
+      "method": "eagle3",
+      "n_checkpoints": 8,
+      "n_prompt_pairs": 512,
+      "macro_p1_retention": {
+        "mean": 1.0339538106351145,
+        "ci95": [
+          0.9936928888076993,
+          1.106087940820945
+        ]
+      },
+      "models": [
+        "DSHUYI/Huihui-Qwen3-8B-abliterated-v2",
+        "DuoNeural/Qwen3-8B-Abliterated",
+        "huihui-ai/Huihui-Qwen3-8B-abliterated-v2",
+        "mlabonne/Qwen3-8B-abliterated",
+        "richardyoung/Qwen3-8B-Abliterated",
+        "zenlm/zen-blog",
+        "zenlm/zen-family",
+        "zenlm/zen-pro"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "distillation_teacher_unspecified",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.6669681148141167,
+        "ci95": [
+          1.521490366728244,
+          1.8266858798121568
+        ]
+      },
+      "models": [
+        "higokri/RestoreKV-Qwen3-8B_plus"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "distillation_teacher_unspecified",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 2.210931908715769,
+        "ci95": [
+          1.876447689283131,
+          2.652086416100106
+        ]
+      },
+      "models": [
+        "higokri/RestoreKV-Qwen3-8B_plus"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "expert_iteration+on_policy_RL",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0291831504527587,
+        "ci95": [
+          0.9692775648869613,
+          1.0948173177842975
+        ]
+      },
+      "models": [
+        "Goedel-LM/Goedel-Prover-V2-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "expert_iteration+on_policy_RL",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.2415676168773755,
+        "ci95": [
+          1.1351328208258693,
+          1.3661858977880348
+        ]
+      },
+      "models": [
+        "Goedel-LM/Goedel-Prover-V2-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "offline_preference",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9637869856985127,
+        "ci95": [
+          0.9130097777728253,
+          1.0103214119318067
+        ]
+      },
+      "models": [
+        "dolev31/ProactiveInquirer-Qwen3-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "offline_preference",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9576421647561639,
+        "ci95": [
+          0.8716579024360347,
+          1.0398380657693473
+        ]
+      },
+      "models": [
+        "dolev31/ProactiveInquirer-Qwen3-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "on_policy_RL",
+      "method": "dflash",
+      "n_checkpoints": 4,
+      "n_prompt_pairs": 256,
+      "macro_p1_retention": {
+        "mean": 0.9835695400849883,
+        "ci95": [
+          0.9525819294555183,
+          1.0150958552154827
+        ]
+      },
+      "models": [
+        "FinStep/Alpha-R1",
+        "Team-ACE/EnvACE-Qwen3-8B",
+        "cmu-lti/osim-8b",
+        "snap-stanford/humanlm-opinion"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "on_policy_RL",
+      "method": "eagle3",
+      "n_checkpoints": 4,
+      "n_prompt_pairs": 256,
+      "macro_p1_retention": {
+        "mean": 1.007098430751876,
+        "ci95": [
+          0.9683901813325846,
+          1.0349637358242825
+        ]
+      },
+      "models": [
+        "FinStep/Alpha-R1",
+        "Team-ACE/EnvACE-Qwen3-8B",
+        "cmu-lti/osim-8b",
+        "snap-stanford/humanlm-opinion"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "quantization",
+      "method": "dflash",
+      "n_checkpoints": 23,
+      "n_prompt_pairs": 1472,
+      "macro_p1_retention": {
+        "mean": 1.0005382190837215,
+        "ci95": [
+          0.987129333110406,
+          1.0121918815281958
+        ]
+      },
+      "models": [
+        "Civitai/YuFeng-XGuard-Reason-8B-FP8",
+        "FenomAI/Qwen3-8B-AWQ",
+        "JunHowie/Qwen3-8B-GPTQ-Int4",
+        "JunHowie/Qwen3-8B-GPTQ-Int8",
+        "Kailune-AI/Qwen3-8B-AWQ",
+        "Qwen/Qwen3-8B-AWQ",
+        "Qwen/Qwen3-8B-FP8",
+        "RedHatAI/Qwen3-8B-FP8-block",
+        "RedHatAI/Qwen3-8B-FP8-dynamic",
+        "RedHatAI/Qwen3-8B-NVFP4",
+        "RedHatAI/Qwen3-8B-quantized.w4a16",
+        "kaitchup/Qwen3-8B-autoround-4bit-gptq",
+        "namgyu-youn/Qwen3-8B-greedy",
+        "namgyu-youn/Qwen3-8B-tenary",
+        "nm-testing/convert_modelopt_nvfp4-e2e",
+        "np-deploys/Qwen3-8B-AWQ",
+        "nvidia/Qwen3-8B-FP8",
+        "nvidia/Qwen3-8B-NVFP4",
+        "product-a456/Qwen3-8B-FP8",
+        "qwen-community/Qwen3-8B-FP8",
+        "stelterlab/Qwen3-8B-AWQ",
+        "surogate/Qwen3-8B-FP8",
+        "tatsuyaaaaaaa/Qwen3-8B-FP8"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "quantization",
+      "method": "eagle3",
+      "n_checkpoints": 23,
+      "n_prompt_pairs": 1472,
+      "macro_p1_retention": {
+        "mean": 1.001319854809285,
+        "ci95": [
+          0.9885033773588805,
+          1.0143567457138065
+        ]
+      },
+      "models": [
+        "Civitai/YuFeng-XGuard-Reason-8B-FP8",
+        "FenomAI/Qwen3-8B-AWQ",
+        "JunHowie/Qwen3-8B-GPTQ-Int4",
+        "JunHowie/Qwen3-8B-GPTQ-Int8",
+        "Kailune-AI/Qwen3-8B-AWQ",
+        "Qwen/Qwen3-8B-AWQ",
+        "Qwen/Qwen3-8B-FP8",
+        "RedHatAI/Qwen3-8B-FP8-block",
+        "RedHatAI/Qwen3-8B-FP8-dynamic",
+        "RedHatAI/Qwen3-8B-NVFP4",
+        "RedHatAI/Qwen3-8B-quantized.w4a16",
+        "kaitchup/Qwen3-8B-autoround-4bit-gptq",
+        "namgyu-youn/Qwen3-8B-greedy",
+        "namgyu-youn/Qwen3-8B-tenary",
+        "nm-testing/convert_modelopt_nvfp4-e2e",
+        "np-deploys/Qwen3-8B-AWQ",
+        "nvidia/Qwen3-8B-FP8",
+        "nvidia/Qwen3-8B-NVFP4",
+        "product-a456/Qwen3-8B-FP8",
+        "qwen-community/Qwen3-8B-FP8",
+        "stelterlab/Qwen3-8B-AWQ",
+        "surogate/Qwen3-8B-FP8",
+        "tatsuyaaaaaaa/Qwen3-8B-FP8"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "self_distillation",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 0.9954403817256777,
+        "ci95": [
+          0.9734433502828833,
+          1.0141257362381235
+        ]
+      },
+      "models": [
+        "EdwinS9/qwen3-8b-sdft-robot-planner"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "self_distillation",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "macro_p1_retention": {
+        "mean": 1.0141785950972426,
+        "ci95": [
+          0.9908905401945716,
+          1.0375750002011306
+        ]
+      },
+      "models": [
+        "EdwinS9/qwen3-8b-sdft-robot-planner"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "unknown",
+      "method": "dflash",
+      "n_checkpoints": 16,
+      "n_prompt_pairs": 1023,
+      "macro_p1_retention": {
+        "mean": 1.005854324433927,
+        "ci95": [
+          0.9662886758882618,
+          1.0541733742366708
+        ]
+      },
+      "models": [
+        "Alibaba-AAIG/YuFeng-XGuard-Reason-8B",
+        "GusPuffy/Reasoning-Gen-8B-Lora",
+        "Hanqix/GCM-Qwen3-8B-TriviaQA",
+        "Intel/Qwen3-8B-int4-AutoRound",
+        "Qwen/Qwen3Guard-Gen-8B",
+        "Qwen/WebWorld-8B",
+        "SASAKI28/Qwen3-8B-cpt-adapter",
+        "Tibogoss/Qwen3-8B-test",
+        "Trendyol/Trendyol-LLM-8B-T1",
+        "cfierro/qwen3-8b-tos-game-docs-lora",
+        "cortecs/Qwen3-8B-NVFP4A16",
+        "miromind-ai/MiroThinker-v1.0-8B",
+        "mlx-community/Qwen3-8B-bf16",
+        "raoashish10/Qwen3-8B-NVFP4",
+        "shawnw3i/Qwen3-8B-INT8",
+        "unsloth/Qwen3-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "derivative-own-64",
+      "lineage": "direct_child",
+      "history": "unknown",
+      "method": "eagle3",
+      "n_checkpoints": 16,
+      "n_prompt_pairs": 1023,
+      "macro_p1_retention": {
+        "mean": 1.0259255805491299,
+        "ci95": [
+          0.9879552177668541,
+          1.072115680872291
+        ]
+      },
+      "models": [
+        "Alibaba-AAIG/YuFeng-XGuard-Reason-8B",
+        "GusPuffy/Reasoning-Gen-8B-Lora",
+        "Hanqix/GCM-Qwen3-8B-TriviaQA",
+        "Intel/Qwen3-8B-int4-AutoRound",
+        "Qwen/Qwen3Guard-Gen-8B",
+        "Qwen/WebWorld-8B",
+        "SASAKI28/Qwen3-8B-cpt-adapter",
+        "Tibogoss/Qwen3-8B-test",
+        "Trendyol/Trendyol-LLM-8B-T1",
+        "cfierro/qwen3-8b-tos-game-docs-lora",
+        "cortecs/Qwen3-8B-NVFP4A16",
+        "miromind-ai/MiroThinker-v1.0-8B",
+        "mlx-community/Qwen3-8B-bf16",
+        "raoashish10/Qwen3-8B-NVFP4",
+        "shawnw3i/Qwen3-8B-INT8",
+        "unsloth/Qwen3-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 1.087912046908155,
+        "ci95": [
+          1.0557826543427002,
+          1.122211667881493
+        ]
+      },
+      "models": [
+        "YixuanEvenXu/Qwen3-8B-HIP-adapter"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 1.1146806284340038,
+        "ci95": [
+          1.0784187908932383,
+          1.1519796896733216
+        ]
+      },
+      "models": [
+        "YixuanEvenXu/Qwen3-8B-HIP-adapter"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT+on_policy_RL",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.8949077156233779,
+        "ci95": [
+          0.8640270232444242,
+          0.9286625441369813
+        ]
+      },
+      "models": [
+        "ATH-MaaS/Marco-DeepResearch-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT+on_policy_RL",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 1.0128364223310176,
+        "ci95": [
+          0.974076188126912,
+          1.05346782965559
+        ]
+      },
+      "models": [
+        "ATH-MaaS/Marco-DeepResearch-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.8513061128273444,
+        "ci95": [
+          0.8187432599506003,
+          0.8855205358686613
+        ]
+      },
+      "models": [
+        "AI-MO/Kimina-Prover-Distill-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.9949183393763067,
+        "ci95": [
+          0.9493825504455682,
+          1.0416682809257518
+        ]
+      },
+      "models": [
+        "AI-MO/Kimina-Prover-Distill-8B"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "abliteration",
+      "method": "dflash",
+      "n_checkpoints": 6,
+      "n_prompt_pairs": 768,
+      "macro_p1_retention": {
+        "mean": 0.9964456594637282,
+        "ci95": [
+          0.989019688521535,
+          1.0038642958294968
+        ]
+      },
+      "models": [
+        "zenlm/zen-finance",
+        "zenlm/zen-legal",
+        "zenlm/zen-medical",
+        "zenlm/zen-multilingual",
+        "zenlm/zen-sql",
+        "zenlm/zen-translate"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "abliteration",
+      "method": "eagle3",
+      "n_checkpoints": 6,
+      "n_prompt_pairs": 768,
+      "macro_p1_retention": {
+        "mean": 1.0030423108010302,
+        "ci95": [
+          0.9962583466004116,
+          1.0096794863303544
+        ]
+      },
+      "models": [
+        "zenlm/zen-finance",
+        "zenlm/zen-legal",
+        "zenlm/zen-medical",
+        "zenlm/zen-multilingual",
+        "zenlm/zen-sql",
+        "zenlm/zen-translate"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "unknown",
+      "method": "dflash",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.9410861351764734,
+        "ci95": [
+          0.9198416860417568,
+          0.9628987723458169
+        ]
+      },
+      "models": [
+        "Dietmar2020/qwen3-8b-ifc-improved-finetuned"
+      ]
+    },
+    {
+      "base": "qwen3",
+      "workload": "general-fallback-128",
+      "lineage": "direct_child",
+      "history": "unknown",
+      "method": "eagle3",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "macro_p1_retention": {
+        "mean": 0.9974584024651459,
+        "ci95": [
+          0.9717301143394724,
+          1.0237461247772113
+        ]
+      },
+      "models": [
+        "Dietmar2020/qwen3-8b-ifc-improved-finetuned"
+      ]
+    }
+  ],
+  "focused": [
+    {
+      "lineage": "composite",
+      "history": "SFT+merge+on_policy_RL",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.7084214247428021,
+        "ci95": [
+          0.6889730319529052,
+          0.7287027711220451
+        ]
+      },
+      "models": [
+        "nvidia/Llama-3.1-Nemotron-Nano-8B-v1"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "composite",
+      "history": "SFT+merge+on_policy_RL",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.696064545970149,
+        "ci95": [
+          0.6715018020401011,
+          0.722603439736729
+        ]
+      },
+      "models": [
+        "nvidia/Llama-3.1-Nemotron-Nano-8B-v1"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "CPT+SFT+on_policy_RL_claim",
+      "method": "dflash",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.7514252911634899,
+        "ci95": [
+          0.7336940091665624,
+          0.7699458011785776
+        ]
+      },
+      "models": [
+        "Skywork/Skywork-o1-Open-Llama-3.1-8B"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "CPT+SFT+on_policy_RL_claim",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8005337182714863,
+        "ci95": [
+          0.775424297636433,
+          0.8269761647264678
+        ]
+      },
+      "models": [
+        "Skywork/Skywork-o1-Open-Llama-3.1-8B"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "CPT+SFT+on_policy_RL_claim",
+      "method": "eagle3",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.7754785758592048,
+        "ci95": [
+          0.7516330938556707,
+          0.7982798502375601
+        ]
+      },
+      "models": [
+        "Skywork/Skywork-o1-Open-Llama-3.1-8B"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "CPT+SFT+on_policy_RL_claim",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8452552053288578,
+        "ci95": [
+          0.8091250871499356,
+          0.8854881314675355
+        ]
+      },
+      "models": [
+        "Skywork/Skywork-o1-Open-Llama-3.1-8B"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "workload": "math64",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8787275564026278,
+        "ci95": [
+          0.8506455002617046,
+          0.9052461789315325
+        ]
+      },
+      "models": [
+        "Liontix/Qwen3-8B-Claude-Sonnet-4-Reasoning-Distill-Safetensor",
+        "ermiaazarkhalili/Qwen3-8B-SFT-Claude-Opus-Reasoning-Unsloth"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 256,
+      "retention": {
+        "mean": 0.8817381736777807,
+        "ci95": [
+          0.8270707927655123,
+          0.9361477933875795
+        ]
+      },
+      "models": [
+        "Liontix/Qwen3-8B-Claude-Sonnet-4-Reasoning-Distill-Safetensor",
+        "ermiaazarkhalili/Qwen3-8B-SFT-Claude-Opus-Reasoning-Unsloth"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "workload": "math64",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 1.0118926394058843,
+        "ci95": [
+          0.99418081748761,
+          1.0314153722476336
+        ]
+      },
+      "models": [
+        "Liontix/Qwen3-8B-Claude-Sonnet-4-Reasoning-Distill-Safetensor",
+        "ermiaazarkhalili/Qwen3-8B-SFT-Claude-Opus-Reasoning-Unsloth"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 256,
+      "retention": {
+        "mean": 0.937319467409566,
+        "ci95": [
+          0.8885251339764624,
+          0.9865183486578394
+        ]
+      },
+      "models": [
+        "Liontix/Qwen3-8B-Claude-Sonnet-4-Reasoning-Distill-Safetensor",
+        "ermiaazarkhalili/Qwen3-8B-SFT-Claude-Opus-Reasoning-Unsloth"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "on_policy_RL",
+      "method": "dflash",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.9963313023148992,
+        "ci95": [
+          0.9746734574698964,
+          1.0182772214922358
+        ]
+      },
+      "models": [
+        "openbmb/RLPR-Llama3.1-8B-Inst"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "on_policy_RL",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 4,
+      "n_prompt_pairs": 512,
+      "retention": {
+        "mean": 0.9900477305654476,
+        "ci95": [
+          0.9778511239542018,
+          1.005678966868649
+        ]
+      },
+      "models": [
+        "zztheaven/Llama-3.1-8B-Instruct-Open-R1-GRPO",
+        "shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps",
+        "shufanshen/Qwen3-8B-GRPO-DeepMath-150-steps",
+        "openbmb/RLPR-Llama3.1-8B-Inst"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "on_policy_RL",
+      "method": "eagle3",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.9664513959876982,
+        "ci95": [
+          0.9429442483551672,
+          0.9918392551338879
+        ]
+      },
+      "models": [
+        "openbmb/RLPR-Llama3.1-8B-Inst"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "direct_child",
+      "history": "on_policy_RL",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 4,
+      "n_prompt_pairs": 512,
+      "retention": {
+        "mean": 0.9863029905034753,
+        "ci95": [
+          0.9690261214527127,
+          1.0014510791636702
+        ]
+      },
+      "models": [
+        "zztheaven/Llama-3.1-8B-Instruct-Open-R1-GRPO",
+        "shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps",
+        "shufanshen/Qwen3-8B-GRPO-DeepMath-150-steps",
+        "openbmb/RLPR-Llama3.1-8B-Inst"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.9368339332096595,
+        "ci95": [
+          0.899195151080035,
+          0.9756771944592897
+        ]
+      },
+      "models": [
+        "allenai/Llama-3.1-Tulu-3-8B-SFT"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.9148034843550745,
+        "ci95": [
+          0.8637178005481291,
+          0.9682433994759699
+        ]
+      },
+      "models": [
+        "allenai/Llama-3.1-Tulu-3-8B-SFT"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+offline_preference",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8316846663987316,
+        "ci95": [
+          0.7997336190651584,
+          0.8658514264309564
+        ]
+      },
+      "models": [
+        "allenai/Llama-3.1-Tulu-3-8B-DPO"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+offline_preference",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8104935731198659,
+        "ci95": [
+          0.774537716130249,
+          0.8509470400171638
+        ]
+      },
+      "models": [
+        "allenai/Llama-3.1-Tulu-3-8B-DPO"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+offline_preference+on_policy_RL",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8369714215289792,
+        "ci95": [
+          0.8025152375178612,
+          0.8708155337090896
+        ]
+      },
+      "models": [
+        "allenai/Llama-3.1-Tulu-3-8B"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+offline_preference+on_policy_RL",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8014192938372603,
+        "ci95": [
+          0.7621204815134764,
+          0.8404754014723522
+        ]
+      },
+      "models": [
+        "allenai/Llama-3.1-Tulu-3-8B"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+on_policy_RL+teacher_distillation",
+      "method": "dflash",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.8403124819800102,
+        "ci95": [
+          0.8159748813994397,
+          0.8652556665304462
+        ]
+      },
+      "models": [
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+on_policy_RL+teacher_distillation",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.857798045995991,
+        "ci95": [
+          0.8403941589359658,
+          0.8777409657520838
+        ]
+      },
+      "models": [
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+on_policy_RL+teacher_distillation",
+      "method": "eagle3",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.9275644042615873,
+        "ci95": [
+          0.8879295829413486,
+          0.9667429703361629
+        ]
+      },
+      "models": [
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+on_policy_RL+teacher_distillation",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.9837528974613488,
+        "ci95": [
+          0.9534596630241203,
+          1.0133800871736864
+        ]
+      },
+      "models": [
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+synthetic_data",
+      "method": "dflash",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.9762475240692391,
+        "ci95": [
+          0.9373361657794882,
+          1.0102793800564065
+        ]
+      },
+      "models": [
+        "Magpie-Align/Llama-3.1-8B-Magpie-Align-SFT-v0.2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+synthetic_data",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.9352883196074117,
+        "ci95": [
+          0.9030874617801226,
+          0.9693316777163205
+        ]
+      },
+      "models": [
+        "Magpie-Align/Llama-3.1-8B-Magpie-Align-SFT-v0.2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+synthetic_data",
+      "method": "eagle3",
+      "workload": "math64",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 64,
+      "retention": {
+        "mean": 0.9469660337668847,
+        "ci95": [
+          0.9063814069447701,
+          0.9842093449551129
+        ]
+      },
+      "models": [
+        "Magpie-Align/Llama-3.1-8B-Magpie-Align-SFT-v0.2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+synthetic_data",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.941893011098789,
+        "ci95": [
+          0.9021604003794439,
+          0.9851209997150983
+        ]
+      },
+      "models": [
+        "Magpie-Align/Llama-3.1-8B-Magpie-Align-SFT-v0.2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "workload": "math64",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8721960656637306,
+        "ci95": [
+          0.8094744547994387,
+          0.9394653421872384
+        ]
+      },
+      "models": [
+        "NousResearch/DeepHermes-3-Llama-3-8B-Preview",
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v1"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+teacher_distillation",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 5,
+      "n_prompt_pairs": 640,
+      "retention": {
+        "mean": 0.8617229320615791,
+        "ci95": [
+          0.7861655138326449,
+          0.9274838422636108
+        ]
+      },
+      "models": [
+        "NousResearch/Hermes-3-Llama-3.1-8B",
+        "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+        "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+        "NousResearch/DeepHermes-3-Llama-3-8B-Preview",
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v1"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "workload": "math64",
+      "n_checkpoints": 2,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.9042725594512502,
+        "ci95": [
+          0.8672877053442087,
+          0.9391404925974545
+        ]
+      },
+      "models": [
+        "NousResearch/DeepHermes-3-Llama-3-8B-Preview",
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v1"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "SFT+teacher_distillation",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 5,
+      "n_prompt_pairs": 640,
+      "retention": {
+        "mean": 0.8984023470116277,
+        "ci95": [
+          0.800439912285168,
+          0.9750665868722503
+        ]
+      },
+      "models": [
+        "NousResearch/Hermes-3-Llama-3.1-8B",
+        "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+        "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+        "NousResearch/DeepHermes-3-Llama-3-8B-Preview",
+        "Jackrong/gpt-oss-120b-Distill-Llama3.1-8B-v1"
+      ],
+      "caveat": "checkpoint then paired-prompt bootstrap; convenience sample"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "on_policy_RL",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.9027427536551701,
+        "ci95": [
+          0.8700955789794571,
+          0.9409846299604346
+        ]
+      },
+      "models": [
+        "TMLR-Group-HF/GT-Qwen3-8B-Base-DAPO14k"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "sibling_from_base",
+      "history": "on_policy_RL",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 1.0269517845979275,
+        "ci95": [
+          0.9946241906448527,
+          1.057481816910272
+        ]
+      },
+      "models": [
+        "TMLR-Group-HF/GT-Qwen3-8B-Base-DAPO14k"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "unknown",
+      "history": "CPT+SFT+on_policy_RL+teacher_distillation",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.7106009154021995,
+        "ci95": [
+          0.6880360893665668,
+          0.7356291844570703
+        ]
+      },
+      "models": [
+        "tokyotech-llm/Qwen3-Swallow-8B-RL-v0.2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "unknown",
+      "history": "CPT+SFT+on_policy_RL+teacher_distillation",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 128,
+      "retention": {
+        "mean": 0.8360624158753583,
+        "ci95": [
+          0.8005728985262817,
+          0.8749314056202384
+        ]
+      },
+      "models": [
+        "tokyotech-llm/Qwen3-Swallow-8B-RL-v0.2"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "unknown",
+      "history": "unknown",
+      "method": "dflash",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 127,
+      "retention": {
+        "mean": 1.0475472704203204,
+        "ci95": [
+          1.0051232891385633,
+          1.094031604202938
+        ]
+      },
+      "models": [
+        "etiennebamas/qwen3-8b-classic-grpo-step-250"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    },
+    {
+      "lineage": "unknown",
+      "history": "unknown",
+      "method": "eagle3",
+      "workload": "speed128",
+      "n_checkpoints": 1,
+      "n_prompt_pairs": 127,
+      "retention": {
+        "mean": 1.1089328932093243,
+        "ci95": [
+          1.0495779202354778,
+          1.1673285590612166
+        ]
+      },
+      "models": [
+        "etiennebamas/qwen3-8b-classic-grpo-step-250"
+      ],
+      "caveat": "one checkpoint; interval only reflects prompt uncertainty"
+    }
+  ]
+}

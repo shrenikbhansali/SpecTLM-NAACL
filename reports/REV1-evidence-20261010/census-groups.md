@@ -1,0 +1,76 @@
+# Archived 174-checkpoint census: family/workload/lineage/history composition
+
+Previously verified FIX23 estimates, not newly fitted numbers. Hierarchical checkpoint/prompt bootstrap intervals. Focused SPEED study is separate in groups.json; controls and composite histories remain labeled.
+
+| Family | Workload | Lineage | History | Drafter | Checkpoints | Prompt pairs | p1 retention [95% CI] |
+|---|---|---|---|---|---:|---:|---|
+| llama | derivative-own-64 | composite | merge | dflash | 3 | 192 | 0.959 [0.915, 0.999] |
+| llama | derivative-own-64 | composite | merge | eagle3 | 3 | 192 | 0.982 [0.952, 1.011] |
+| llama | derivative-own-64 | direct_child | SFT | dflash | 5 | 319 | 0.816 [0.676, 0.958] |
+| llama | derivative-own-64 | direct_child | SFT | eagle3 | 5 | 319 | 0.926 [0.812, 1.025] |
+| llama | derivative-own-64 | direct_child | SFT+offline_preference | dflash | 3 | 192 | 0.890 [0.708, 1.011] |
+| llama | derivative-own-64 | direct_child | SFT+offline_preference | eagle3 | 3 | 192 | 0.978 [0.801, 1.109] |
+| llama | derivative-own-64 | direct_child | SFT+offline_preference+teacher_distillation | dflash | 1 | 64 | 0.860 [0.795, 0.922] |
+| llama | derivative-own-64 | direct_child | SFT+offline_preference+teacher_distillation | eagle3 | 1 | 64 | 0.874 [0.795, 0.954] |
+| llama | derivative-own-64 | direct_child | SFT+on_policy_RL | dflash | 1 | 64 | 0.990 [0.957, 1.023] |
+| llama | derivative-own-64 | direct_child | SFT+on_policy_RL | eagle3 | 1 | 64 | 0.989 [0.961, 1.017] |
+| llama | derivative-own-64 | direct_child | SFT+teacher_distillation | dflash | 1 | 64 | 1.292 [1.201, 1.399] |
+| llama | derivative-own-64 | direct_child | SFT+teacher_distillation | eagle3 | 1 | 64 | 1.271 [1.194, 1.350] |
+| llama | derivative-own-64 | direct_child | abliteration | dflash | 22 | 1408 | 0.963 [0.941, 0.983] |
+| llama | derivative-own-64 | direct_child | abliteration | eagle3 | 22 | 1408 | 0.985 [0.966, 1.006] |
+| llama | derivative-own-64 | direct_child | adversarial_training | dflash | 1 | 64 | 0.952 [0.909, 0.998] |
+| llama | derivative-own-64 | direct_child | adversarial_training | eagle3 | 1 | 64 | 1.033 [0.991, 1.077] |
+| llama | derivative-own-64 | direct_child | offline_preference | dflash | 9 | 576 | 0.946 [0.895, 0.989] |
+| llama | derivative-own-64 | direct_child | offline_preference | eagle3 | 9 | 576 | 0.949 [0.904, 0.988] |
+| llama | derivative-own-64 | direct_child | quantization | dflash | 11 | 704 | 0.994 [0.983, 1.008] |
+| llama | derivative-own-64 | direct_child | quantization | eagle3 | 11 | 704 | 1.000 [0.991, 1.009] |
+| llama | derivative-own-64 | direct_child | repack | dflash | 2 | 128 | 0.983 [0.961, 0.998] |
+| llama | derivative-own-64 | direct_child | repack | eagle3 | 2 | 128 | 1.003 [0.980, 1.029] |
+| llama | derivative-own-64 | direct_child | teacher_distillation | dflash | 2 | 128 | 0.829 [0.658, 1.009] |
+| llama | derivative-own-64 | direct_child | teacher_distillation | eagle3 | 2 | 128 | 0.831 [0.661, 1.005] |
+| llama | derivative-own-64 | direct_child | unknown | dflash | 25 | 1600 | 0.961 [0.901, 1.012] |
+| llama | derivative-own-64 | direct_child | unknown | eagle3 | 25 | 1600 | 1.002 [0.935, 1.057] |
+| llama | general-fallback-128 | direct_child | SFT | dflash | 1 | 128 | 0.818 [0.767, 0.869] |
+| llama | general-fallback-128 | direct_child | SFT | eagle3 | 1 | 128 | 0.804 [0.742, 0.869] |
+| qwen3 | derivative-own-64 | composite | CPT+merge | dflash | 1 | 64 | 1.032 [0.954, 1.123] |
+| qwen3 | derivative-own-64 | composite | CPT+merge | eagle3 | 1 | 64 | 0.927 [0.831, 1.004] |
+| qwen3 | derivative-own-64 | composite | SFT+merge | dflash | 1 | 64 | 1.014 [0.968, 1.063] |
+| qwen3 | derivative-own-64 | composite | SFT+merge | eagle3 | 1 | 64 | 1.079 [1.020, 1.147] |
+| qwen3 | derivative-own-64 | composite | merge | dflash | 1 | 64 | 1.003 [0.942, 1.075] |
+| qwen3 | derivative-own-64 | composite | merge | eagle3 | 1 | 64 | 1.046 [0.917, 1.179] |
+| qwen3 | derivative-own-64 | composite | merge+offline_preference | dflash | 1 | 64 | 0.937 [0.902, 0.972] |
+| qwen3 | derivative-own-64 | composite | merge+offline_preference | eagle3 | 1 | 64 | 0.946 [0.915, 0.979] |
+| qwen3 | derivative-own-64 | direct_child | SFT | dflash | 10 | 627 | 1.065 [1.005, 1.142] |
+| qwen3 | derivative-own-64 | direct_child | SFT | eagle3 | 10 | 627 | 1.136 [1.074, 1.204] |
+| qwen3 | derivative-own-64 | direct_child | SFT+offline_preference | dflash | 2 | 127 | 0.913 [0.824, 1.012] |
+| qwen3 | derivative-own-64 | direct_child | SFT+offline_preference | eagle3 | 2 | 127 | 1.030 [0.888, 1.175] |
+| qwen3 | derivative-own-64 | direct_child | SFT+on_policy_RL | dflash | 3 | 186 | 1.001 [0.945, 1.051] |
+| qwen3 | derivative-own-64 | direct_child | SFT+on_policy_RL | eagle3 | 3 | 186 | 1.037 [0.975, 1.119] |
+| qwen3 | derivative-own-64 | direct_child | SFT+teacher_distillation | dflash | 3 | 192 | 1.055 [1.001, 1.104] |
+| qwen3 | derivative-own-64 | direct_child | SFT+teacher_distillation | eagle3 | 3 | 192 | 1.080 [1.023, 1.142] |
+| qwen3 | derivative-own-64 | direct_child | abliteration | dflash | 8 | 512 | 1.017 [0.980, 1.078] |
+| qwen3 | derivative-own-64 | direct_child | abliteration | eagle3 | 8 | 512 | 1.034 [0.994, 1.106] |
+| qwen3 | derivative-own-64 | direct_child | distillation_teacher_unspecified | dflash | 1 | 64 | 1.667 [1.521, 1.827] |
+| qwen3 | derivative-own-64 | direct_child | distillation_teacher_unspecified | eagle3 | 1 | 64 | 2.211 [1.876, 2.652] |
+| qwen3 | derivative-own-64 | direct_child | expert_iteration+on_policy_RL | dflash | 1 | 64 | 1.029 [0.969, 1.095] |
+| qwen3 | derivative-own-64 | direct_child | expert_iteration+on_policy_RL | eagle3 | 1 | 64 | 1.242 [1.135, 1.366] |
+| qwen3 | derivative-own-64 | direct_child | offline_preference | dflash | 1 | 64 | 0.964 [0.913, 1.010] |
+| qwen3 | derivative-own-64 | direct_child | offline_preference | eagle3 | 1 | 64 | 0.958 [0.872, 1.040] |
+| qwen3 | derivative-own-64 | direct_child | on_policy_RL | dflash | 4 | 256 | 0.984 [0.953, 1.015] |
+| qwen3 | derivative-own-64 | direct_child | on_policy_RL | eagle3 | 4 | 256 | 1.007 [0.968, 1.035] |
+| qwen3 | derivative-own-64 | direct_child | quantization | dflash | 23 | 1472 | 1.001 [0.987, 1.012] |
+| qwen3 | derivative-own-64 | direct_child | quantization | eagle3 | 23 | 1472 | 1.001 [0.989, 1.014] |
+| qwen3 | derivative-own-64 | direct_child | self_distillation | dflash | 1 | 64 | 0.995 [0.973, 1.014] |
+| qwen3 | derivative-own-64 | direct_child | self_distillation | eagle3 | 1 | 64 | 1.014 [0.991, 1.038] |
+| qwen3 | derivative-own-64 | direct_child | unknown | dflash | 16 | 1023 | 1.006 [0.966, 1.054] |
+| qwen3 | derivative-own-64 | direct_child | unknown | eagle3 | 16 | 1023 | 1.026 [0.988, 1.072] |
+| qwen3 | general-fallback-128 | direct_child | SFT | dflash | 1 | 128 | 1.088 [1.056, 1.122] |
+| qwen3 | general-fallback-128 | direct_child | SFT | eagle3 | 1 | 128 | 1.115 [1.078, 1.152] |
+| qwen3 | general-fallback-128 | direct_child | SFT+on_policy_RL | dflash | 1 | 128 | 0.895 [0.864, 0.929] |
+| qwen3 | general-fallback-128 | direct_child | SFT+on_policy_RL | eagle3 | 1 | 128 | 1.013 [0.974, 1.053] |
+| qwen3 | general-fallback-128 | direct_child | SFT+teacher_distillation | dflash | 1 | 128 | 0.851 [0.819, 0.886] |
+| qwen3 | general-fallback-128 | direct_child | SFT+teacher_distillation | eagle3 | 1 | 128 | 0.995 [0.949, 1.042] |
+| qwen3 | general-fallback-128 | direct_child | abliteration | dflash | 6 | 768 | 0.996 [0.989, 1.004] |
+| qwen3 | general-fallback-128 | direct_child | abliteration | eagle3 | 6 | 768 | 1.003 [0.996, 1.010] |
+| qwen3 | general-fallback-128 | direct_child | unknown | dflash | 1 | 128 | 0.941 [0.920, 0.963] |
+| qwen3 | general-fallback-128 | direct_child | unknown | eagle3 | 1 | 128 | 0.997 [0.972, 1.024] |
