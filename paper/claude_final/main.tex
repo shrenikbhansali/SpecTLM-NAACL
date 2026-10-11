@@ -667,7 +667,7 @@ The census covers 174 derivatives, 87 in each of the Llama-3.1-8B and Qwen3-8B f
 Post-training histories are taken from model cards; models whose cards describe several stages are grouped by their combined history.
 For 163 derivatives, retention is computed on 64 prompts from the derivative's own domain (Table~\ref{tab:census}); the remaining 11 use 128 general prompts.
 The reasoning distills and the controls discussed in \S\ref{sec:census} are evaluated on 128 SPEED-Bench prompts.
-Group means weight checkpoints equally, with hierarchical bootstrap intervals over checkpoints and paired prompts; per-model results will be released with the paper.
+Group means weight checkpoints equally, with hierarchical bootstrap intervals over checkpoints and paired prompts.
 The compatibility probe ranks derivatives by acceptance retention on 16 fixed requests; its AUROC for identifying derivatives whose retention on the remaining, disjoint requests falls below 90\% is 0.91 for EAGLE-3 (14 of 163 degraded) and 0.93 for DFlash (17 of 163), and 1.00 and 0.95 on a separate 21-checkpoint SPEED-Bench cohort.
 
 \begin{table}[h]
