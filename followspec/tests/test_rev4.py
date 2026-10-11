@@ -85,3 +85,11 @@ def test_rev4_only_dispatched_outputs_not_dry_run_plans():
  assert is_dispatched(dict(name='same',run_dir='/real'),d)
  assert not is_dispatched(dict(name='same',run_dir='/dry-run'),d)
  assert not is_dispatched(dict(name='unknown',run_dir='/real'),d)
+
+def test_math_mixture_never_duplicates_or_replaces_responses():
+ from followspec.rev4_math import mixed_rows,prerequisites
+ short=[dict(prompt_sha256='a',sample_id='a',input_ids=[1,2])]
+ long=[dict(prompt_sha256='b',sample_id='b',input_ids=[3,4,5])]
+ assert mixed_rows(short,long)==short+long
+ with pytest.raises(ValueError):mixed_rows(short,short)
+ assert not prerequisites([])['ready']

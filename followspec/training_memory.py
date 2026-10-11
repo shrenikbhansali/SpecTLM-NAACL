@@ -8,6 +8,11 @@ Install only on the pinned Trainer, not on a gradient-accumulating loop.
 import torch
 from functools import wraps
 
+def training_attention(config,implementation='eager'):
+    """Opt-in native SDPA for long packed EAGLE training; default unchanged."""
+    if implementation not in {'eager','sdpa'}:raise ValueError('unsupported training attention')
+    config.transformer_layer_config._attn_implementation=implementation
+
 
 def release_grad_before_forward(trainer):
     def clear_previous_step(module, _args):

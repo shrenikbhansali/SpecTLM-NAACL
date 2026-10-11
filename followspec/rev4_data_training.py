@@ -28,6 +28,7 @@ def prepare(stage,code,sealed,t,experiment):
   # admitting the longest sequence, avoiding unnecessary fixed padding.
   budget=2048 if experiment=='Y3b' else ((seal['max_sequence']-1+127)//128)*128
   for f,v in [('--data',data),('--audit',audit),('--batch-tokens',budget)]:replace(i,f,v)
+  if experiment=='Y10':replace(i,'--training-attention','sdpa')
   remove(i,'--schedule-steps')
   for flag in ['--one-epoch','--export-only-final']:
    if flag not in i:i.append(flag)

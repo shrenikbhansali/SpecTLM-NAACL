@@ -203,6 +203,7 @@ def main():
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
     p.add_argument('--checkpoint-dflash-layers',action='store_true')
     p.add_argument('--ttt-steps',type=int,default=3,choices=[3,4],help='D50 explicit native EAGLE unroll depth; default unchanged')
+    p.add_argument('--training-attention',choices=['eager','sdpa'],default='eager',help='D56 opt-in memory-efficient native EAGLE/teacher attention for long sequences')
     p.add_argument('--export-only-final',action='store_true',help='retain the final shared HF export without a duplicate native checkpoint; final-only compact runs')
     p.add_argument('--probe-batches',type=int,default=0,help='FIX24 diagnostic: frozen step-zero forwards only, no optimizer or exports')
     p.add_argument('--continue-epoch-from',help='D50 continue one epoch from a completed compact run, restoring named optimizer state')
@@ -212,6 +213,7 @@ def main():
     save_final_optimizer=final_optimizer_policy(a.omit_final_optimizer,a.compact_checkpoints)
     shift=int(a.algorithm=='eagle3')
     if a.algorithm=='dflash' and (a.variant not in {'fc','full'} or a.scratch):raise ValueError('D48 DFlash fc/full warm-start only')
+    if a.algorithm!='eagle3' and a.training_attention!='eager':raise ValueError('SDPA training opt-in is EAGLE only')
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
     supervision=supervision_source(target,rows,json.loads(Path(a.supervision_row).read_text()) if a.supervision_row else None)
     if a.supervision_row:
@@ -274,7 +276,8 @@ def main():
         taps=tap_layers(read_drafter_config(a.drafter,Path(a.drafter).name),base_config['num_hidden_layers'])
         conf=SpeculatorModelConfig.from_pretrained(a.drafter,local_files_only=True)
         conf.speculators_config.verifier.name_or_path=target['path'];conf.eagle_aux_hidden_state_layer_ids=taps
-        conf.transformer_layer_config._attn_implementation='eager'
+        from followspec.training_memory import training_attention
+        training_attention(conf,a.training_attention)
         model=SpeculatorModel.from_pretrained(a.drafter,config=conf,local_files_only=True,torch_dtype=torch.float32)
         from followspec.missing_embedding import fill_missing_embedding
         if a.probe_batches:
@@ -298,7 +301,7 @@ def main():
         if set(state)!=expected:raise ValueError('continuation trainable scope mismatch')
         model.load_state_dict(state,strict=False)
     write(out/'parameters.json',proof)
-    teacher=AutoModelForCausalLM.from_pretrained(supervision['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation='eager').to('cuda').eval().requires_grad_(False)
+    teacher=AutoModelForCausalLM.from_pretrained(supervision['path'],local_files_only=True,torch_dtype=torch.bfloat16,attn_implementation=a.training_attention).to('cuda').eval().requires_grad_(False)
     tokens=torch.arange(len(model.d2t))+model.d2t.cpu() if model.d2t is not None else torch.arange(base_config['vocab_size'])
     capture=OnlinePairCapture(teacher,taps,tokens,pause_check=ensure_unpaused)
     loader=torch.utils.data.DataLoader(RepairDataset(rows,capture,a.algorithm),batch_sampler=batches,collate_fn=RepairCollator(a.batch_tokens,base_config['hidden_size'],len(taps)),num_workers=0)
