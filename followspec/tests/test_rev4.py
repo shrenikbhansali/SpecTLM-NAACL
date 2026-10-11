@@ -93,3 +93,11 @@ def test_math_mixture_never_duplicates_or_replaces_responses():
  assert mixed_rows(short,long)==short+long
  with pytest.raises(ValueError):mixed_rows(short,short)
  assert not prerequisites([])['ready']
+
+def test_cache_reclamation_requires_finished_direct_launcher(tmp_path):
+ from followspec.rev4_cache import eligible
+ root=tmp_path/'artifacts';root.mkdir();run=root/'P6-test';run.mkdir();cache=run/'vllm_cache';cache.mkdir()
+ assert not eligible(cache,root)
+ (run/'exit_code').write_text('0\n');assert eligible(cache,root)
+ other=run/'export';other.mkdir();assert not eligible(other,root)
+ link=run/'linked';link.symlink_to(cache,target_is_directory=True);assert not eligible(link,root)
