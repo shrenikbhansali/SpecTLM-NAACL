@@ -78,3 +78,10 @@ def test_rev4_reference_and_timing_strata():
  assert reference_name(r|dict(experiment='Y5',target=1,workload='math32-8192'))=='REV3-X5-t1-reuse-seed0-math32-8192'
  assert reference_name(r|dict(experiment='Y3b',target=1))=='REV4-Y3a-t1-reuse-math500'
  assert timing_group(r|dict(data_label='a'))!=timing_group(r|dict(data_label='b'))
+
+def test_rev4_only_dispatched_outputs_not_dry_run_plans():
+ from followspec.rev4_results import is_dispatched
+ d={'same':{'args':['--code-repo','code','--','python','--output','/real']}}
+ assert is_dispatched(dict(name='same',run_dir='/real'),d)
+ assert not is_dispatched(dict(name='same',run_dir='/dry-run'),d)
+ assert not is_dispatched(dict(name='unknown',run_dir='/real'),d)

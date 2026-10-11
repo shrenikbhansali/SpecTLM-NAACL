@@ -25,8 +25,10 @@ def timing_group(r):return r['experiment']+'-'+r.get('data_label','')+'-'+r['wor
 def jobpath(d,name):
  _,i=parts(d[name]);return Path(i[i.index('--output')+1])
 
+def is_dispatched(r,d):return r['name'] in d and Path(r['run_dir'])==jobpath(d,r['name'])
+
 def inventory():
- records={}
+ records={};dispatch={j['name']:j for j in lines(DISPATCH)}
  for stage in sorted((WS/'artifacts').glob('REV4_*')):
   if not stage.is_dir() or stage.name.startswith('REV4_P0'):continue
   for p in sorted(stage.glob('*plan*.json')):
@@ -34,6 +36,7 @@ def inventory():
    if not isinstance(obj,list):continue
    for r in obj:
     if not isinstance(r,dict) or not {'name','run_dir','experiment','kind'}<=r.keys():continue
+    if not is_dispatched(r,dispatch):continue
     if r['name'] in records and records[r['name']]!=r:raise ValueError('conflicting plan '+r['name'])
     records[r['name']]=r
  return list(records.values())
