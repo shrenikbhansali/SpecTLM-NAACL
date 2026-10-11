@@ -26,3 +26,9 @@ def test_initial_training_order_and_scope():
  assert [x['experiment'] for x in r]==['Y4']*2+['Y6']*4+['Y7']*2+['Y5']*4
  assert all(x['seed'] in [1,2] for x in r if x['experiment']=='Y5')
  assert [x['data_label'] for x in r if x['experiment']=='Y6']==['generic520']*2+['generic64k']*2
+
+def test_qwen_dflash_timing_native_k16_opt_in():
+ from atlas.timing_panel import parser,timing_speculation
+ args=['--target','t','--target-revision','r','--prompts','p','--frozen-harness','h','--output','o']
+ assert parser().parse_args(args).K==4
+ a=parser().parse_args(args+['--method','dflash','--K','16']);assert timing_speculation(a)['num_speculative_tokens']==16
