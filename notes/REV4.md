@@ -43,3 +43,25 @@ Canonicalqueue4129996, owner method-M1/exclusive, dispatch `artifacts/FIX16_oper
 **Next operator actions:** monitor every hour and inspect failures immediately (launch health also alerts launch_failed). Y3b can complete autonomously: five decoded responses/masks already actually inspected and hashed; transfer requires exact sealed sample equality before training. Y10waits for everyP0/P1 downstream cell to be queued; CPU queries ready under `artifacts/REV4_Y10_queries_20261011_0315`, allcontextsfit8192. Once Y10responses appear, actually inspect five decoded responses/masks for **each target** and the mixed-data path, then write the expected review manifests `artifacts/REV4_Y10_data_20261011_0330/manual-review-t{0,1}-{math4k,mixed20k}.json`; review schema follows Y3b `manual-review-early-five.json`. The controller deliberately cannot fabricate that review. For mixed data it produces ten inspection samples (firstfive existingAlpaca + firstfive newmath); inspect allten before recording the mixed review. No repeated request for owner permission is needed. Long-mathSDPA native packedTTT3 equivalence tests pass; verify actual A40 memory on first math-training backwards. All other dependent exports/evals/rawreductions are automatic.
 
 R1Y8fit evidence `artifacts/REV4_Y8_20261011_0305/REV4-Y8-t0-linearfit/results.json`:4000responses,1,875,707positions,0.507allocatedA40hours,31.14GiBpeak; exports have identical frozenbody hashes and target embedding exactness. Four evaluationjobs publication marker present. All new acceptance/timing uses6da2e42; historicalY9 generation commits are explicitly separate, validated41728rawrecords with frozenmetricfunction. Do not relabel old configs. No paper edits. Daily report `reports/2026-10-11.md` written ahead of07ET. Most recent targeted suite13PASS; nativeSDPA/memory suite17PASS earlier. Unrelated dirty notes/OPERATOR/P3/REV2/REV3 and oldledger/report files belong to other controllers; leave them alone.
+
+### 2026-10-11T03:42:08.830319-04:00 — codex-1 — D50 launch health
+Free disk 389.7GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T04:42:22.407134-04:00 — codex-1 — D50 launch health
+Free disk 387.2GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T05:42:31.804544-04:00 — codex-1 — D50 launch health
+Free disk 383.7GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T06:42:44.964695-04:00 — codex-1 — D50 launch health
+Free disk 382.3GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T07:42:55.173650-04:00 — codex-1 — D50 launch health
+Free disk 384.4GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T08:43:10.558392-04:00 — codex-1 — D50 launch health
+Free disk 382.9GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-11T09:16:59.004195-04:00 — codex-1 — P0 completion ping
+
+All141P0 jobs successful, six acceptance and56timing contrasts independently reduced. P0 moved to review; P1/P2 remain separate. Evidence /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_P0_live_20261011_0322/20261011_091644_963445. No scientific promotion.

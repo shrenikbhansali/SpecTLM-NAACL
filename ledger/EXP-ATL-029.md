@@ -21,3 +21,7 @@ Y9 independently recomputed own-domain groups for163models/326rows; focused21 ta
 
 ### 2026-10-11T03:31:07.445685-04:00 — codex-1 — Y8 fit and provenance update
 R1Y8fit4000responses/1875707positions complete,0.507A40GPU-h,31.14GiBpeak; four frozen acceptancecells queued. Outputs artifacts/REV4_Y8_20261011_0305/REV4-Y8-t0-linearfit; no acceptance gain claimed. ActualP1training runtime7faeef1/run-REV4-P1-native-20261011-0255; the0250tag above was CPUcollector preparation. HistoricalY9 sourcecommits423d3b6/f00992f retained; raw frozen-metric audit at artifacts/REV4_Y9_harness_audit_20261011_0340. AllnewREV4acceptance/timing uses6da2e42.
+
+## 2026-10-11T09:16:59.004195-04:00 — codex-1 — P0 completion ping
+
+All141P0 jobs successful, six acceptance and56timing contrasts independently reduced. P0 moved to review; P1/P2 remain separate. Evidence /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_P0_live_20261011_0322/20261011_091644_963445. No scientific promotion.
