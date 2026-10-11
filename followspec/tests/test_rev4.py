@@ -42,3 +42,18 @@ def test_response_system_prompt_opt_in_and_long_budget():
  assert 'detailed thinking on' in render(tok,'q',system_prompt='detailed thinking on')
  validate_context_budget([[1]*200],4096,8192)
  with pytest.raises(ValueError):validate_context_budget([[1]*5000],4096,8192)
+
+def test_linear_alignment_orientation_and_identity():
+ import torch
+ from followspec.linear_alignment import fit_maps,fold_maps
+ torch.manual_seed(0);x=torch.randn(40,4,dtype=torch.float64);a=torch.linalg.qr(torch.randn(4,4,dtype=torch.float64)).Q;y=x@a
+ ls,op=fit_maps(x.T@x,x.T@y)
+ assert torch.allclose(ls,a,atol=1e-9) and torch.allclose(op,a,atol=1e-9)
+ w=torch.randn(3,8,dtype=torch.float64);z=torch.cat([x,x],1);mapped=torch.cat([y,x],1)
+ assert torch.allclose(z@fold_maps(w,[a,torch.eye(4,dtype=torch.float64)]).T,mapped@w.T,atol=1e-9)
+
+def test_census_multistage_membership_is_explicit():
+ from followspec.rev4_census import memberships
+ assert memberships('SFT+teacher_distillation+offline_preference')==['preference','SFT','distillation']
+ assert memberships('unknown')==[]
+ assert memberships('SFT+on_policy_RL')==['on_policy_RL','SFT']
