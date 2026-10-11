@@ -27,7 +27,7 @@ The production plotted0.5k point is generic520, not the separate256-example comp
 Official init, identical R1 response tokens; alternate parent supplies taps and soft labels. Outcomes pending.
 
 ## Y8 — Linear alignment
-Two paired fits queued; R1 fitting started. Per-tap least squares/orthogonal Procrustes, no affine bias, first4k audited training-response contexts. Exact block-diagonal folding into fc; no optimizer. Frozen evaluations publish after exports.
+R1 fit completed: n4000 responses,1,875,707 fitted token positions,1823.95s =0.507A40GPU-h, peak31.14GiB. Both LS/Procrustes exports share the identical frozen15-key body and change only fc.weight; FIX24 embedding hash matches the target exactly. Four frozen SPEED/MATH500 cells queued; acceptance pending. Nemotron fit remains queued. Per-tap least squares/orthogonal Procrustes, no affine bias, first4k audited training-response contexts. Exact block-diagonal folding into fc; no optimizer. Frozen evaluations publish after exports.
 
 ## Y9 — Census statistics
 Complete CPU reduction: 163/174 checkpoints have own-domain panels (326 drafter/checkpoint rows); the 11 fallback-panel checkpoints are excluded from these pooled statistics. Multi-stage histories contribute to each applicable category. Unknown/repack/adversarial histories remain in provenance but are not assigned to the requested groups.
@@ -64,7 +64,7 @@ Long training uses a new opt-in native SDPA attention path to avoid the6GB dense
 D47 finished-run compile-cache reclamation: artifacts/REV4_disk_cleanup_20261011_0235/manifest.jsonl;805 remaining caches removed,18 already gone from the preceding serial pass. No outputs, model weights, ledger or environments deleted. P0 stage artifacts/REV4_P0_20261011_0240. One canonical dispatcher;350GB floor. Initial P0 tests10pass; P1 tests11pass. All run tags created/pushed before immutable checkout and launch.
 
 <!-- REV4 LIVE BEGIN -->
-Updated 2026-10-11T03:02:04.499619-04:00. P0 0/141 successful; pilot.
+Updated 2026-10-11T03:22:22.793251-04:00. P0 0/141 successful; pilot.
 
 | Experiment | Arm | Workload | n | Reuse τ | Repair τ [95% CI] | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---:|---:|---|---|---|
@@ -73,11 +73,11 @@ All timing uses n=128, three fresh processes × three warm passes. Workloads and
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
 
-[Raw acceptance and per-depth/length/source evidence](../artifacts/REV4_P0_live_20261011_0315/20261011_030202_291708/acceptance.json); [timing evidence](../artifacts/REV4_P0_live_20261011_0315/20261011_030202_291708/timing/results.json); [completion](../artifacts/REV4_P0_live_20261011_0315/20261011_030202_291708/progress.json).
+[Raw acceptance and per-depth/length/source evidence](../artifacts/REV4_P0_live_20261011_0322/20261011_032220_895505/acceptance.json); [timing evidence](../artifacts/REV4_P0_live_20261011_0322/20261011_032220_895505/timing/results.json); [completion](../artifacts/REV4_P0_live_20261011_0322/20261011_032220_895505/progress.json).
 <!-- REV4 LIVE END -->
 
 <!-- REV4 FOLLOWUP BEGIN -->
-Updated 2026-10-11T03:13:15.763854-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
+Updated 2026-10-11T03:26:29.439572-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
 
 | Experiment | Target | Data | Arm / reference | Workload | n/seeds | τ [95% CI] | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---|---|---:|---|---|---|
@@ -89,6 +89,7 @@ Timing: paired process/query-batch intervals; workloads, data budgets and thinki
 Measured per-run costs exclude unmeasured dedicated-drafter estimates. Data generation is listed separately and shared across repair arms; no zero cost is imputed for incomplete data.
 | Experiment | Target | Kind | Arm | n | GPU-h |
 |---|---|---|---|---:|---:|
+| Y8 | 0 | fit |  | 4000 | 0.507 |
 
-[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_0340/20261011_031314_188852/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_0340/20261011_031314_188852/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_0340/20261011_031314_188852/progress.json).
+[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_0322/20261011_032625_052842/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_0322/20261011_032625_052842/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_0322/20261011_032625_052842/progress.json).
 <!-- REV4 FOLLOWUP END -->
