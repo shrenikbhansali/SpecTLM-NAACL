@@ -61,3 +61,20 @@ Pending: E9 long-response repair (retrying), E13 scratch drafter on 64k.
 - Intro novelty sentence; first systematic census; DFlash highlighted (abstract, intro, contribution, Generality paragraph).
 - Cost: "two orders of magnitude"; dedicated drafter cost shown as the 1.3k-19k recipe range; Fig. 4b moved to App. C with CIs table.
 - Pending: X1 Nemotron reasoning mode, X2 linear alignment, X4 n=128 timing, X5 DFlash 16k + timing, X3, X8; E9, E13.
+
+## REV3/REV2-final integration (2026-10-11, claude-ops; sources: reports/REV3-results-20261010.md, reports/REV2-REV3-synthesis-20261011.md)
+Added (numbers re-checked against artifacts/REV3_X5_live_analysis_20261010_1420/20261010_170126_526250/acceptance.json and timing/):
+- New §6.3 "Block-Diffusion Drafters" + Table 3 (DFlash, 16k, same responses, native block objective): SPEED tau R1 2.05 -> 2.39/2.52
+  (3 seeds; full delta 0.470 [0.433,0.506]), Nemotron 2.08 -> 2.43/2.59 (0.513 [0.466,0.560]); MATH-500 +24%/+29%; MATH 8k +0.61/+0.48;
+  b1 speedup 1.54x -> 1.86x (R1), 1.55x -> 1.89x (Nemotron), full/reuse 1.21x [1.18,1.23] and 1.22x [1.19,1.26]; b8 1.18x/1.21x vs reuse.
+  "First adaptation of a block-diffusion drafter to a post-trained target" (to our knowledge) in abstract, intro, contribution, §6.3.
+- Abstract + intro: DFlash sentence (23-29% tau, 1.54-1.55x -> 1.86-1.89x).
+- §6.1 warm start: E13 scratch on 64k (10.2 GPU-h training) only matches reuse (SPEED 1.74 vs 1.76; MATH-500 1.97 vs 1.93) vs
+  ReFit-full 2.54/2.97 from 16k.
+- App. A: DFlash implementation paragraph (83.9M interface / 1.05B full; 1.26-1.50 GPU-h R1, 0.82-0.93 Nemotron; no public dedicated
+  DFlash drafter for either target). App. D: Table 7 DFlash timing CIs (n=128, both batch sizes).
+Moved/trimmed for the 8-page limit: EAGLE-3 robustness table -> App. C (numbers kept in §6.5 text); DFlash rows removed from it;
+probe AUROC sentence (kept in App. F); 256-example matched-1.2M location sentence (kept in App. Fig. 4); shorter captions;
+Fig. 3 redrawn at 3.7 cm with a compact legend.
+Not used: E9 R1 long4k/mixed (+0.07/+0.03, CIs include 0); E15 vocab reselection on R1 (no resolved gain; Nemotron "not a bottleneck"
+line kept); E11 b32; E8 16k location null; whole-LoRA vs interface. X1/X2/X3/X4/X6/X8 were not run (only X5 was dispatched).

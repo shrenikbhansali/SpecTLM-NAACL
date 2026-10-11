@@ -2,7 +2,7 @@
 \begin{tikzpicture}
 % ---------------- (a) data scaling ----------------
 \begin{axis}[
-  width=0.95\columnwidth, height=4.0cm,
+  width=0.95\columnwidth, height=3.7cm,
   tick label style={font=\scriptsize},
   label style={font=\small},
   title style={font=\small, yshift=-2pt},
@@ -14,21 +14,21 @@
   xmin=0.35, xmax=90,
   xtick={0.5,4,16,64}, xticklabels={0.5k,4k,16k,64k},
   ymin=0, ymax=100,
-  ytick={10,20,30,40,50,60,70,80,90,100},
+  ytick={0,25,50,75,100},
   yticklabel={\pgfmathprintnumber{\tick}\%},
   xlabel={repair examples},
   ylabel={gap to dedicated drafter closed},
-  legend style={at={(axis cs:88,2)}, anchor=south east, font=\tiny},
+  legend style={at={(axis cs:88,3)}, anchor=south east, font=\tiny, /tikz/every even column/.append style={column sep=4pt}}, legend columns=2,
 ]
 \draw[densely dashed, black!50] (axis cs:0.35,100) -- (axis cs:90,100);
-\node[font=\scriptsize, black!60, anchor=south east] at (axis cs:88,100) {dedicated drafter};
+\node[font=\tiny, black!60, anchor=north east] at (axis cs:88,99) {dedicated drafter};
 \addplot[thick, color=interface!80!black, mark=*, mark size=1.8pt] coordinates {(4,64.4) (16,71.8)};
-\addlegendentry{ReFit-full}
+\addlegendentry{full}
 \addplot[thick, color=interface, mark=square*, mark size=1.7pt] coordinates {(4,51.9) (16,60.0)};
-\addlegendentry{ReFit-interface}
+\addlegendentry{interface}
 \addplot[thick, densely dashed, color=decoder!80!black, mark=*, mark size=1.5pt, mark options={solid}] coordinates {(0.5,45.5) (4,57.6) (16,65.8) (64,73.8)};
-\addlegendentry{ReFit-full, production drafter}
+\addlegendentry{full, prod.}
 \addplot[thick, densely dashed, color=decoder!55, mark=square*, mark size=1.4pt, mark options={solid}] coordinates {(0.5,33.2) (4,44.2) (16,50.9) (64,58.1)};
-\addlegendentry{ReFit-interface, production drafter}
+\addlegendentry{interface, prod.}
 \end{axis}
 \end{tikzpicture}
