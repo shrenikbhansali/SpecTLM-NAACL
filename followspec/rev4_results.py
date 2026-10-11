@@ -39,7 +39,8 @@ def inventory():
     if not is_dispatched(r,dispatch):continue
     if r['name'] in records and records[r['name']]!=r:raise ValueError('conflicting plan '+r['name'])
     records[r['name']]=r
- return list(records.values())
+ from followspec.rev4_recovery import active_attempts,finished
+ return active_attempts(list(records.values()),finished()[0])
 
 def reduce(out):
  out.mkdir(exist_ok=False);rows=inventory();d={j['name']:j for j in lines(DISPATCH)};groups=defaultdict(list);timings=[];costs=[];pending=[];results=[];train_pairs=defaultdict(dict);audits=[]

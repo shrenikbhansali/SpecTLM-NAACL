@@ -83,6 +83,7 @@ def prepare(stage,code):
 def sweep(stage,code):
  d={r['name']:r for r in lines(DISPATCH)};pending=0
  for r in json.loads((stage/'plan.json').read_text()):
+  if r['kind']!='train':continue
   dest=stage/('publish-final-'+r['name']);root=Path(r['run_dir'])
   if publication_complete(dest):continue
   if not (root/'results.json').exists():pending+=1;continue
@@ -104,6 +105,10 @@ if __name__=='__main__':
  if a.action=='prepare':prepare(a.stage,a.code)
  else:
   while True:
-   n=sweep(a.stage,a.code);print('P1 pending',n,flush=True)
+   try:n=sweep(a.stage,a.code)
+   except RuntimeError as e:
+    if 'free disk' not in str(e):raise
+    print('P1 publication held by disk guard:',e,flush=True);time.sleep(60);continue
+   print('P1 pending',n,flush=True)
    if not n:break
    time.sleep(30)
