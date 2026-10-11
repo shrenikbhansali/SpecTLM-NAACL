@@ -145,10 +145,16 @@ All timing uses n=128, three fresh processes × three warm passes. Workloads and
 <!-- REV4 LIVE END -->
 
 <!-- REV4 FOLLOWUP BEGIN -->
-Updated 2026-10-11T13:46:01.525184-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
+Updated 2026-10-11T15:52:55.497130-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
 
 | Experiment | Target | Data | Arm / reference | Workload | n/seeds | τ [95% CI] | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---|---|---:|---|---|---|
+| Y3b | 1 | thinking16k | fc / reuse | math32-8192 | 32/1 | 2.556 [2.423,2.678] | 0.880 [0.777,0.976] | 0.234 [0.207,0.262] |
+| Y3b | 1 | thinking16k | fc / reuse | math500 | 500/1 | 2.678 [2.657,2.699] | 0.978 [0.962,0.995] | 0.254 [0.250,0.258] |
+| Y3b | 1 | thinking16k | fc / reuse | speed128 | 128/1 | 2.368 [2.288,2.445] | 0.627 [0.575,0.679] | 0.180 [0.165,0.195] |
+| Y3b | 1 | thinking16k | full / reuse | math32-8192 | 32/1 | 2.731 [2.586,2.862] | 1.055 [0.939,1.156] | 0.276 [0.250,0.301] |
+| Y3b | 1 | thinking16k | full / reuse | math500 | 500/1 | 2.869 [2.847,2.892] | 1.170 [1.150,1.190] | 0.289 [0.285,0.294] |
+| Y3b | 1 | thinking16k | full / reuse | speed128 | 128/1 | 2.491 [2.402,2.575] | 0.750 [0.685,0.813] | 0.210 [0.192,0.227] |
 | Y4 | 2 | generic16k | fc / reuse | math500 | 500/1 | 2.821 [2.778,2.865] | -0.398 [-0.423,-0.374] | -0.102 [-0.106,-0.097] |
 | Y4 | 2 | generic16k | fc / reuse | speed128 | 128/1 | 1.937 [1.855,2.025] | -0.245 [-0.290,-0.204] | -0.088 [-0.097,-0.078] |
 | Y4 | 2 | generic16k | full / reuse | math500 | 500/1 | 2.895 [2.850,2.941] | -0.324 [-0.348,-0.300] | -0.087 [-0.092,-0.083] |
@@ -167,6 +173,10 @@ Updated 2026-10-11T13:46:01.525184-04:00; pilot. Independent raw counters;10,000
 | Y7 | 0 | parent16k | fc / child16k | math500 | 500/1 | 2.382 [2.365,2.400] | -0.392 [-0.403,-0.380] | -0.087 [-0.091,-0.083] |
 | Y7 | 0 | parent16k | fc / reuse | speed128 | 128/1 | 2.113 [2.049,2.174] | 0.349 [0.322,0.377] | 0.120 [0.110,0.129] |
 | Y7 | 0 | parent16k | fc / child16k | speed128 | 128/1 | 2.113 [2.049,2.174] | -0.290 [-0.319,-0.259] | -0.073 [-0.082,-0.064] |
+| Y7 | 0 | parent16k | full / reuse | math500 | 500/1 | 2.572 [2.553,2.591] | 0.644 [0.630,0.658] | 0.186 [0.181,0.190] |
+| Y7 | 0 | parent16k | full / child16k | math500 | 500/1 | 2.572 [2.553,2.591] | -0.397 [-0.411,-0.383] | -0.076 [-0.079,-0.072] |
+| Y7 | 0 | parent16k | full / reuse | speed128 | 128/1 | 2.222 [2.154,2.286] | 0.458 [0.424,0.491] | 0.152 [0.141,0.163] |
+| Y7 | 0 | parent16k | full / child16k | speed128 | 128/1 | 2.222 [2.154,2.286] | -0.314 [-0.340,-0.288] | -0.069 [-0.076,-0.062] |
 | Y8 | 0 |  | ls / reuse | math500 | 500/1 | 1.561 [1.550,1.572] | -0.367 [-0.376,-0.358] | -0.161 [-0.164,-0.157] |
 | Y8 | 0 |  | ls / reuse | speed128 | 128/1 | 1.440 [1.412,1.470] | -0.324 [-0.347,-0.299] | -0.142 [-0.153,-0.132] |
 | Y8 | 0 |  | procrustes / reuse | math500 | 500/1 | 2.094 [2.080,2.109] | 0.166 [0.157,0.176] | 0.046 [0.042,0.050] |
@@ -179,8 +189,16 @@ Updated 2026-10-11T13:46:01.525184-04:00; pilot. Independent raw counters;10,000
 Timing: paired process/query-batch intervals; workloads, data budgets and thinking mode separate.
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
-| Y4--speed128 | 2 | 1 | reuse / none | 128/3 | 1.559 [1.506,1.620] | 1.557 [1.504,1.616] | 1.361 [1.232,1.546] |
-| Y4--speed128 | 2 | 8 | reuse / none | 128/3 | 0.993 [0.975,1.013] | 0.994 [0.976,1.014] | 0.743 [0.701,0.779] |
+| Y4-generic16k-speed128 | 2 | 1 | fc / none | 128/3 | 1.400 [1.355,1.449] | 1.402 [1.358,1.449] | 1.514 [1.369,1.723] |
+| Y4-generic16k-speed128 | 2 | 1 | fc / reuse | 128/3 | 0.898 [0.887,0.906] | 0.900 [0.892,0.908] | 1.112 [1.101,1.126] |
+| Y4-generic16k-speed128 | 2 | 1 | full / none | 128/3 | 1.447 [1.399,1.498] | 1.447 [1.401,1.498] | 1.558 [1.405,1.789] |
+| Y4-generic16k-speed128 | 2 | 1 | full / reuse | 128/3 | 0.928 [0.915,0.941] | 0.929 [0.919,0.939] | 1.145 [1.126,1.163] |
+| Y4-generic16k-speed128 | 2 | 1 | reuse / none | 128/3 | 1.559 [1.506,1.620] | 1.557 [1.504,1.616] | 1.361 [1.232,1.546] |
+| Y4-generic16k-speed128 | 2 | 8 | fc / none | 128/3 | 0.903 [0.883,0.924] | 0.902 [0.882,0.924] | 0.894 [0.873,0.914] |
+| Y4-generic16k-speed128 | 2 | 8 | fc / reuse | 128/3 | 0.909 [0.892,0.923] | 0.907 [0.890,0.922] | 1.203 [1.142,1.273] |
+| Y4-generic16k-speed128 | 2 | 8 | full / none | 128/3 | 0.924 [0.903,0.946] | 0.924 [0.901,0.946] | 0.939 [0.907,0.977] |
+| Y4-generic16k-speed128 | 2 | 8 | full / reuse | 128/3 | 0.930 [0.910,0.948] | 0.929 [0.909,0.946] | 1.263 [1.175,1.393] |
+| Y4-generic16k-speed128 | 2 | 8 | reuse / none | 128/3 | 0.993 [0.975,1.013] | 0.994 [0.976,1.014] | 0.743 [0.701,0.779] |
 
 Measured per-run costs exclude unmeasured dedicated-drafter estimates. Data generation is listed separately and shared across repair arms; no zero cost is imputed for incomplete data.
 | Experiment | Target | Kind | Arm | n | GPU-h |
@@ -205,9 +223,20 @@ Measured per-run costs exclude unmeasured dedicated-drafter estimates. Data gene
 | Y3b | 1 | data |  | 2000 | 1.093 |
 | Y8 | 0 | fit |  | 4000 | 0.507 |
 | Y8 | 1 | fit |  | 4000 | 0.334 |
+| Y3b | 1 | train | fc | 16000 | 1.303 |
+| Y3b | 1 | train | full | 16000 | 1.695 |
 
-[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_1345/20261011_134538_230899/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_1345/20261011_134538_230899/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_1345/20261011_134538_230899/progress.json).
+[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831/progress.json).
 <!-- REV4 FOLLOWUP END -->
 
 ## Recovery update — 2026-10-11T13:47:22.648660-04:00
 P0 all141jobs successful, completed09:17ET. Ten P1jobs stopped at350GB guard around11:27 (four trainings,six timing); this was a storage interruption, not an OOM. D47 completed optimizer-state reclamation removed39 optimizer_state_dict.pt files (70.369GB), with hashes and exit0/results proofs in [manifest](../artifacts/REV4_disk_state_cleanup_20261011_1350/manifest.json); no weights/configs/results/records removed. Free space~420GB. Allten unchanged retries launched13:44–13:45 in [new immutable stage](../artifacts/REV4_disk_retries_20261011_1345/recovery-proof.json). Two Y7full evaluation jobs also launched. Old failures remain on disk; paired reductions resolve explicit replacement identities and never mix partial attempts. The interrupted attempts consumed approximately7.19 allocated training GPU-h and3.21 timing GPU-h (queue launch-to-exit, including setup), additional operational cost to the completed-run costs below. No budget or seed selection changed. Official64k training+evaluation ETA Mon01–03ET, conditional on current throughput; P1deadline is at risk. Y10 waits mandatory P1 publication and still requires actual new response/mask inspection.
+
+## Followup — 2026-10-11 15:54 ET
+**Y3b acceptance complete.** Thinking-on regenerated16k repairs retain large improvements with one training seed: full Δτ0.750[0.685,0.813] SPEED128,1.170[1.150,1.190] MATH500,1.055[0.939,1.156] MATH32@8192. Absolute long-panel τ rises1.676→2.731; p1 gains0.276[0.250,0.301]. Interface also improves allthree. This establishes successful repair with the mode-matched data recipe; differences relative to Y3a are not yet a separately tested paired claim. Timing remains underway.
+
+**Y7 complete, both arms.** Same derivative tokens with parent supervision improve τ, but derivative supervision adds0.314[0.288,0.340] SPEED128 and0.397[0.383,0.411] MATH500 for full repair, and0.290[0.259,0.319]/0.392[0.380,0.403] for interface. This supports an incremental benefit of derivative supervision beyond text adaptation. Features and policy supervision change together here, so this control does not separate their individual contributions.
+
+**Y4 timing complete.** All24processes successful after six disk retries. Full repair b1 speedup1.447[1.399,1.498] vs no-spec compared with reuse1.559[1.506,1.620]; paired full/reuse0.928[0.915,0.941]. Atb8 full0.924[0.903,0.946] vs no-spec, and0.930[0.910,0.948] vs reuse. Interface is also slower than reuse. Both acceptance and timing regress on this fixed QwenDFlash recipe. A CPU report grouping bug kept the no-data-label controls apart from generic16k repair arms; corrected with failing-then-passing test and independent raw reduction. No generation code/config/results changed. There are10mandatory Y4timing contrasts (five perbatch), not14; completion bookkeeping corrected to the actual declared four-arm matrix. Evidence: artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831.
+
+**Operations.** One new Y3binterface SPEED timing startup failed on srv2:0 with3.54GiBfree against31.09GiBrequired. Immutable same-settings retry published and launched on srv4:3 at15:51, artifacts/REV4_collision_retry_20261011_1553; failure retained. Disk~392GB,350GBguard unchanged. Both64ktrainings healthy,4771/4229 of18448steps at15:51. OvernightETA remains provisional; Y10 publication remains gated on64kexports.

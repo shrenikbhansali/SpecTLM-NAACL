@@ -28,3 +28,6 @@ All141P0 jobs successful, six acceptance and56timing contrasts independently red
 
 ### 2026-10-11T13:47:22.648660-04:00 — codex-1 — pilot followup/recovery
 P0 complete141/141. P1 rawY4/Y5/Y6-520/Y7-interface/Y8 results including regressions in reports/REV4-results-20261011.md; latest independent source artifacts/REV4_P1_live_20261011_1345. Disk stopped10attempts; originals retained, explicit same-setting retries in artifacts/REV4_disk_retries_20261011_1345. Operational interrupted cost~7.19training+3.21timingGPU-h (allocated launch-to-exit) is additional to completed costs. No scientific promotion.
+
+### 2026-10-11T15:54:44.580466-04:00 — codex-1 — pilot Y3b/Y4/Y7 update
+Y3b allsixacceptancecells andY7allfourcells complete; paired estimates in reports/REV4-results-20261011.md. Y4all24timingprocessescomplete, independentcorrectedcontroljoin in artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831; bothrepairsregressvsreuse(b1full/reuse0.928[0.915,0.941]). This CPUjoining correction adds omittedcontrasts, changes no rawmeasurements. Statuspilot, noownerpromotion.
