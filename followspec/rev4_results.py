@@ -73,7 +73,7 @@ def reduce(out):
  # A missing future plan is not completion: compare all mandatory contrast counts.
  counts=defaultdict(int)
  for r in results:counts[r['experiment']]+=1
- wanted={'Y3b':6,'Y4':4,'Y5':6,'Y6':8,'Y7':8,'Y8':8,'Y10':12}
+ wanted={'Y3b':6,'Y4':4,'Y5':6,'Y6':8,'Y7':8,'Y8':8,'Y10':24}
  status=dict(acceptance_counts=dict(counts),expected=wanted,declared_jobs=len(rows),pending=sorted(set(pending)),y9_complete=(WS/'artifacts/REV4_Y9_20261011_0300/focused21.csv').exists());write(out/'progress.json',status)
  def f(x):return f"{x['mean']:.3f} [{x['ci95'][0]:.3f},{x['ci95'][1]:.3f}]"
  text=[f'Updated {datetime.now(ZoneInfo("America/New_York")).isoformat()}; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.','','| Experiment | Target | Data | Arm / reference | Workload | n/seeds | τ [95% CI] | Δτ [95% CI] | Δp1 [95% CI] |','|---|---|---|---|---|---:|---|---|---|']

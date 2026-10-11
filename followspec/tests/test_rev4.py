@@ -101,3 +101,8 @@ def test_cache_reclamation_requires_finished_direct_launcher(tmp_path):
  (run/'exit_code').write_text('0\n');assert eligible(cache,root)
  other=run/'export';other.mkdir();assert not eligible(other,root)
  link=run/'linked';link.symlink_to(cache,target_is_directory=True);assert not eligible(link,root)
+
+def test_level_completion_requires_results_analysis_and_successful_launches():
+ from followspec.rev4_complete import ready
+ assert not ready('P1',[],{},dict(acceptance_counts={}),[])
+ assert not ready('P2',[],{},dict(acceptance_counts={'Y10':12}),[])
