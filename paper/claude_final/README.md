@@ -78,3 +78,26 @@ probe AUROC sentence (kept in App. F); 256-example matched-1.2M location sentenc
 Fig. 3 redrawn at 3.7 cm with a compact legend.
 Not used: E9 R1 long4k/mixed (+0.07/+0.03, CIs include 0); E15 vocab reselection on R1 (no resolved gain; Nemotron "not a bottleneck"
 line kept); E11 b32; E8 16k location null; whole-LoRA vs interface. X1/X2/X3/X4/X6/X8 were not run (only X5 was dispatched).
+
+## REV4 integration (2026-10-11 16:25 ET, claude-ops; source: reports/REV4-results-20261011.md, raw JSON re-checked)
+Added:
+- Y1: all batch-1 timing now n=128 (SPEED-128, first 128 MATH-500), 3 processes x 3 warm passes. Headlines: R1 SPEED 1.34x -> 1.85x
+  (dedicated 2.08x), MATH-500 1.49x -> 2.32x (dedicated 2.94x); Nemotron SPEED 1.33x -> 1.84x, MATH-500 full 2.22x; full/reuse
+  1.39x [1.35,1.43] and 1.38x [1.33,1.44]. Abstract, intro, Tables 1/2, teaser (b), App. D table updated.
+  EXCEPTION: Nemotron reuse MATH-500 b1 at n=128 had one disturbed process (0.84x vs 1.31x/1.31x; cold pass normal), so the cell
+  keeps the 32-prompt E10b value 1.32 [1.29,1.36] (disclosed in App. D). Rerun requested (REV4-R1). Replace when it lands.
+- Y2: DFlash MATH-500 speedups (Table 3 rows, §6.3, App. Table 7): R1 1.79x -> 2.26x b1, 1.53x -> 1.93x b8; Nemotron 1.65x -> 2.11x,
+  1.43x -> 1.79x; full/reuse 1.21-1.28x (b1), 1.18-1.26x (b8). Abstract: "decodes up to 1.28x faster ... 2.26x on MATH-500".
+- Y5: DFlash Nemotron now 3 seeds (SPEED 2.08/2.44/2.58; MATH 2.17/2.59/2.80; 8k 2.41/2.73/2.91).
+- Y3a/Y3b: §6.2 "Reasoning mode" paragraph (Nemotron thinking-on: MATH-500 1.70 -> 2.86, 1.68x vs reuse [1.66,1.71]; mode-matched
+  data 2.87); 8k and SPEED values in App. B.
+- Y7: parent-supervision control at 16k replaces the 256-example numbers (text share 54-62%; derivative signals +0.29/+0.31 SPEED,
+  +0.39/+0.40 MATH-500).
+- Y8: baseline (vi) training-free feature alignment (best +0.17 tau; loses on Nemotron); details in App. A.
+- Y6: official 0.5k scaling point (53% / 40% gap closed, 0.4 GPU-h incl. data) in Fig. 4 + §6.4 text.
+- Y9: pooled census retention (weight edits 98-100%, on-policy RL 104%/100%); abstract/intro "96-103%" -> "98-104%"; fixed the
+  "all five RL derivatives retain 97-103%" sentence (true for EAGLE-3 only; GT-DAPO DFlash is 90%).
+Moved for space: scaling figure -> App. C (text keeps numbers). Intro DFlash wording "carries over unchanged" -> "also repairs".
+Not used: Y4 Qwen3 DFlash (b16) repair REGRESSES (full dtau -0.20 SPEED, -0.32 MATH-500; slower than reuse) -> claims scoped to
+the Llama-3.1 DFlash drafter; Y8 least-squares regressions (App. A only); Y9 SFT/distillation pooled means (>1, wide).
+Pending: Y6 official 64k (ETA Mon 01-03 ET), Y3b full timing, Y10, REV4-R1 rerun.

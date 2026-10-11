@@ -48,12 +48,12 @@
 \begin{abstract}
 Speculative decoding with target-conditioned drafters, from autoregressive EAGLE-3 to block-diffusion DFlash, is among the fastest ways to serve large language models, and the drafter released with a base model is routinely reused for its many post-trained derivatives.
 We show that this reuse breaks for an important and growing class of models: derivatives shaped by extensive off-policy post-training, such as today's distilled reasoning models.
-In a census of public derivatives, quantized, merged and on-policy RL models retain 96--103\% of the family drafter's acceptance, while extensively post-trained reasoning models lose up to 30\%, erasing most of the speedup.
+In a census of public derivatives, quantized, merged and on-policy RL models retain 98--104\% of the family drafter's acceptance, while extensively post-trained reasoning models lose up to 30\%, erasing most of the speedup.
 Post-training shifts both the hidden states the drafter reads and the tokens it must predict, even on text the derivative did not write.
 We introduce \emph{\refit{}}, which re-fits a family drafter on the derivative's own responses to public instructions, without any of the original training data.
 Re-fitting the whole warm-started drafter closes 72\% of the gap to a dedicated drafter trained specifically for the derivative, and re-fitting only its \emph{feature interface}, the projection through which it reads the target (12\% of its parameters), closes 60\%, using 11 GPU-hours, two orders of magnitude less compute than the public recipe for a dedicated drafter.
-On DeepSeek-R1-Distill-Llama-8B, \refit{} raises the end-to-end speedup from 1.31$\times$ to 1.83$\times$ on SPEED-Bench (dedicated drafter: 2.05$\times$) and from 1.48$\times$ to 2.31$\times$ on MATH-500, and on Llama-3.1-Nemotron-Nano-8B from 1.29$\times$ to 1.80$\times$, outperforming independent draft models across model families, sampled decoding and reasoning traces thousands of tokens long.
-\refit{} is also, to our knowledge, the first method to repair block-diffusion drafters: on DFlash, it raises the acceptance length by 23--29\% and the speedup from 1.54--1.55$\times$ to 1.86--1.89$\times$.
+On DeepSeek-R1-Distill-Llama-8B, \refit{} raises the end-to-end speedup from 1.34$\times$ to 1.85$\times$ on SPEED-Bench (dedicated drafter: 2.08$\times$) and from 1.49$\times$ to 2.32$\times$ on MATH-500, and on Llama-3.1-Nemotron-Nano-8B from 1.33$\times$ to 1.84$\times$, outperforming independent draft models across model families, reasoning modes, sampled decoding and reasoning traces thousands of tokens long.
+\refit{} is also, to our knowledge, the first method to repair block-diffusion drafters: on DFlash, it raises the acceptance length by 23--29\% and decodes up to 1.28$\times$ faster than the reused drafter, reaching a 2.26$\times$ speedup on MATH-500.
 \end{abstract}
 
 % =====================================================================
@@ -79,10 +79,10 @@ Two questions behind this practice remain open: when does a family drafter keep 
 \end{figure}
 
 We answer the first question with a census of 174 public derivatives in the Llama-3.1-8B and Qwen3-8B families (Figure~\ref{fig:teaser}a).
-For most of the ecosystem, reuse is reliable: quantized, merged, abliterated and on-policy RL derivatives retain 96--103\% of the family drafter's acceptance, in line with evidence that on-policy training keeps models close to their initialization \citep{shenfeld2026razor,chen2026retaining}.
+For most of the ecosystem, reuse is reliable: quantized, merged, abliterated and on-policy RL derivatives retain 98--104\% of the family drafter's acceptance, in line with evidence that on-policy training keeps models close to their initialization \citep{shenfeld2026razor,chen2026retaining}.
 Reuse fails, however, for precisely the derivatives that are most expensive to serve: reasoning models produced by extensive off-policy post-training, which retain only 70--86\%.
 The failure does not depend on the drafter's design: DeepSeek-R1-Distill-Llama-8B and Llama-3.1-Nemotron-Nano-8B lose 26--30\% of first-token acceptance under both autoregressive EAGLE-3 and block-diffusion DFlash drafters.
-For R1-Distill, the speedup collapses from 2.05$\times$ with a dedicated drafter to 1.31$\times$ (Figure~\ref{fig:teaser}b), and reasoning models emit thousands of tokens per query, so the loss costs most exactly where acceleration matters most.
+For R1-Distill, the speedup collapses from 2.08$\times$ with a dedicated drafter to 1.34$\times$ (Figure~\ref{fig:teaser}b), and reasoning models emit thousands of tokens per query, so the loss costs most exactly where acceleration matters most.
 
 We then show what changes and how to repair it.
 Post-training changes two things the drafter depends on: the target's hidden states, which the drafter reads, and the target's next-token policy, which it must predict.
@@ -94,10 +94,10 @@ Unlike prior drafter adaptation, which redesigns the drafter's architecture \cit
 
 \refit{} is highly effective.
 On R1-Distill-Llama-8B, \refitF{} closes 72\% of the gap between the reused family drafter and a dedicated drafter trained by the EAGLE authors, and \refitI{} closes 60\%.
-With 11 GPU-hours of compute, two orders of magnitude less than the public recipe for a dedicated drafter, \refit{} lifts the end-to-end speedup from 1.31$\times$ to 1.83$\times$ on SPEED-Bench and from 1.48$\times$ to 2.31$\times$ on MATH-500.
-On Nemotron-Nano, for which no dedicated drafter exists, it lifts the speedup from 1.29$\times$ to 1.80$\times$.
-\refit{} carries over unchanged to block-diffusion drafters: on DFlash, it raises the acceptance length by 23--29\% and the batch-size-1 speedup from 1.54$\times$ to 1.86$\times$ on R1-Distill and from 1.55$\times$ to 1.89$\times$ on Nemotron-Nano.
-Repaired drafters are faster than independent small draft models and training-free drafting, and the gains hold across drafter checkpoints, a second model family, every SPEED-Bench domain, long reasoning traces and sampled decoding.
+With 11 GPU-hours of compute, two orders of magnitude less than the public recipe for a dedicated drafter, \refit{} lifts the end-to-end speedup from 1.34$\times$ to 1.85$\times$ on SPEED-Bench and from 1.49$\times$ to 2.32$\times$ on MATH-500.
+On Nemotron-Nano, for which no dedicated drafter exists, it lifts the speedup from 1.33$\times$ to 1.84$\times$.
+\refit{} also repairs block-diffusion drafters: on DFlash, it raises the acceptance length by 23--29\% and the batch-size-1 speedup from 1.54$\times$ to 1.86$\times$ on R1-Distill and from 1.55$\times$ to 1.89$\times$ on Nemotron-Nano, and to 2.26$\times$ and 2.11$\times$ on MATH-500.
+Repaired drafters are faster than independent small draft models and training-free drafting, and the gains hold across drafter checkpoints, a second model family, every SPEED-Bench domain, long reasoning traces, reasoning mode and sampled decoding.
 Our contributions are:
 \begin{itemize}
   \setlength\itemsep{1pt}
@@ -148,14 +148,14 @@ For every derivative, we serve the production EAGLE-3 and DFlash family drafters
 The full census uses each derivative's own prompts (Appendix~\ref{app:census}); a focused cohort of 21 widely used post-trained derivatives shares the same 128 SPEED-Bench prompts (Figure~\ref{fig:teaser}a).
 
 \paragraph{Off-policy post-training breaks the drafter.}
-Edits in weight space leave the drafter intact: across the census, quantized, merged and abliterated derivatives retain 96--100\% of the parent's acceptance under both drafters.
-On-policy RL does not disturb it either: all five RL-tuned derivatives in Figure~\ref{fig:teaser}a retain 97--103\%.
+Edits in weight space leave the drafter intact: pooled over both families, quantized, merged and abliterated derivatives retain 98--100\% of the parent's acceptance under both drafters (Appendix~\ref{app:census}).
+On-policy RL does not disturb it either: RL-tuned derivatives retain 104\% of EAGLE-3's and 100\% of DFlash's acceptance on average, and the five in Figure~\ref{fig:teaser}a retain 97--103\% of EAGLE-3's.
 Off-policy post-training is different.
-Most off-policy fine-tunes, including several small reasoning-distillation fine-tunes, retain 90--98\%, but the most extensively post-trained models lose far more: large-scale reasoning distills (R1-Distill-Llama-8B, R1-0528-Qwen3-8B) and multi-stage pipelines (Nemotron-Nano-8B, T\"ulu~3, Skywork-o1, Qwen3-Swallow) retain only 70--86\%.
+Most off-policy fine-tunes, including several small reasoning-distillation fine-tunes, retain 90--98\% under EAGLE-3, but the most extensively post-trained models lose far more: large-scale reasoning distills (R1-Distill-Llama-8B, R1-0528-Qwen3-8B) and multi-stage pipelines (Nemotron-Nano-8B, T\"ulu~3, Skywork-o1, Qwen3-Swallow) retain only 70--86\%.
 Along the T\"ulu~3 pipeline \citep{lambert2024tulu3}, the off-policy stages lower retention (SFT 92\%, preference optimization 81\%), while the final on-policy RL stage leaves it unchanged (80\%).
-This ordering mirrors how far each regime moves a model from its initialization: on-policy RL learns from the model's own samples and stays close to it \citep{shenfeld2026razor,chen2026retaining}, whereas off-policy training fits the model to another distribution \citep{hinton2015distilling,kim2016sequence}.
+This ordering mirrors how far each regime moves a model from its initialization: on-policy RL stays close to it \citep{shenfeld2026razor,chen2026retaining}, whereas off-policy training fits the model to another distribution \citep{hinton2015distilling,kim2016sequence}.
 
-The cost is substantial: on R1-Distill, the reused drafter reaches an acceptance length of only 1.76 tokens per step on SPEED-Bench, against 2.85 for a dedicated EAGLE-3 drafter trained by the EAGLE authors, and most derivatives, including Nemotron-Nano, have no dedicated drafter at all.
+The cost is substantial: on R1-Distill, the reused drafter reaches only 1.76 tokens per step on SPEED-Bench, against 2.85 for a dedicated drafter trained by the EAGLE authors, and most derivatives, including Nemotron-Nano, have no dedicated drafter at all.
 
 \paragraph{What changes.}
 A derivative differs from its parent in the text it writes, in how it encodes text, and in the token it wants next.
@@ -221,7 +221,7 @@ Both share the Llama-3.1 architecture and tokenizer, and hence the family drafte
 Our main family drafter is the EAGLE-3 drafter that the EAGLE authors released for Llama-3.1-8B-Instruct \citep{li2025eagle3}.
 We also repair the production EAGLE-3 drafter distributed with vLLM's speculators library \citep{redhat2025speculators} and the DFlash drafter \citep{chen2026dflash}.
 As an upper reference, we use the dedicated EAGLE-3 drafter that the EAGLE authors trained specifically for R1-Distill-Llama-8B.
-Nemotron-Nano is served in its default chat mode.
+Nemotron-Nano is served in its default chat mode and, in \S\ref{sec:reasoning}, in its reasoning mode.
 For a second model family, we repair the Qwen3-8B family EAGLE-3 drafter on DeepSeek-R1-0528-Qwen3-8B.
 
 \paragraph{Baselines.}
@@ -229,8 +229,9 @@ We compare against
 (i) reusing the family drafter unchanged;
 (ii) an independent draft model, Llama-3.2-1B-Instruct \citep{llama3herd}, which shares the targets' tokenizer;
 (iii) n-gram prompt lookup \citep{saxena2023pld}, a training-free drafter built into vLLM;
-(iv) training the same EAGLE-3 architecture from scratch on our repair data with the same budget; and
-(v) LoRA adapters on every drafter layer \citep{hu2022lora}, with as many trainable parameters as the interface, on the same data.
+(iv) training the same EAGLE-3 architecture from scratch on our repair data with the same budget;
+(v) LoRA adapters on every drafter layer \citep{hu2022lora}, with as many trainable parameters as the interface, on the same data; and
+(vi) training-free feature alignment, which folds a per-layer linear map from the derivative's to the parent's hidden states into the interface.
 All speculative methods propose $K{=}4$ tokens per step.
 
 \paragraph{Benchmarks and metrics.}
@@ -260,16 +261,16 @@ Further details are in Appendix~\ref{app:details}.
     Method & GPU-h & SPEED & SPEED & MATH & bs\,1 & bs\,8 & & SPEED & SPEED & MATH & bs\,1 & bs\,8 \\
     \midrule
     Autoregressive & -- & -- & 1.00 & 1.00 & 1.00$\times$ & 1.00$\times$ & & -- & 1.00 & 1.00 & 1.00$\times$ & 1.00$\times$ \\
-    Independent drafter (1B) & -- & 61.3 & 2.44 & 2.97 & 1.26$\times$ & 1.11$\times$ & & 64.7 & 2.65 & 2.79 & 1.37$\times$ & 1.24$\times$ \\
-    Family drafter, reused & 0 & 43.0 & 1.76 & 1.93 & 1.31$\times$ & 1.07$\times$ & & 42.9 & 1.76 & 1.69 & 1.29$\times$ & 1.13$\times$ \\
+    Independent drafter (1B) & -- & 61.3 & 2.44 & 2.97 & 1.29$\times$ & 1.11$\times$ & & 64.7 & 2.65 & 2.79 & 1.43$\times$ & 1.24$\times$ \\
+    Family drafter, reused & 0 & 43.0 & 1.76 & 1.93 & 1.34$\times$ & 1.07$\times$ & & 42.9 & 1.76 & 1.69 & 1.33$\times$ & 1.13$\times$ \\
     \midrule
-    \textbf{\refitI{} (ours)} & 11 & 62.6 & 2.41 & 2.78 & 1.74$\times$ & 1.27$\times$ & & 61.4 & 2.42 & 2.66 & 1.69$\times$ & 1.39$\times$ \\
-    \textbf{\refitF{} (ours)} & 11 & 65.0 & 2.54 & 2.97 & \textbf{1.83$\times$} & \textbf{1.29$\times$} & & 62.9 & 2.49 & 2.86 & \textbf{1.80$\times$} & \textbf{1.42$\times$} \\
+    \textbf{\refitI{} (ours)} & 11 & 62.6 & 2.41 & 2.78 & 1.79$\times$ & 1.27$\times$ & & 61.4 & 2.42 & 2.66 & 1.74$\times$ & 1.39$\times$ \\
+    \textbf{\refitF{} (ours)} & 11 & 65.0 & 2.54 & 2.97 & \textbf{1.85$\times$} & \textbf{1.29$\times$} & & 62.9 & 2.49 & 2.86 & \textbf{1.84$\times$} & \textbf{1.42$\times$} \\
     \midrule
-    \textcolor{black!60}{Dedicated drafter} & \textcolor{black!60}{1.3k--19k} & \textcolor{black!60}{70.5} & \textcolor{black!60}{2.85} & \textcolor{black!60}{3.84} & \textcolor{black!60}{2.05$\times$} & \textcolor{black!60}{1.41$\times$} & & \multicolumn{5}{c}{\textcolor{black!60}{\emph{not available}}} \\
+    \textcolor{black!60}{Dedicated drafter} & \textcolor{black!60}{1.3k--19k} & \textcolor{black!60}{70.5} & \textcolor{black!60}{2.85} & \textcolor{black!60}{3.84} & \textcolor{black!60}{2.08$\times$} & \textcolor{black!60}{1.41$\times$} & & \multicolumn{5}{c}{\textcolor{black!60}{\emph{not available}}} \\
     \bottomrule
   \end{tabular}
-  \caption{\textbf{Main results.} First-token acceptance $p_1$, acceptance length $\tau$ and end-to-end speedup over autoregressive decoding (vLLM, A40, batch sizes 1 and 8). MATH is MATH-500; speedups are on SPEED-Bench (MATH-500 in Table~\ref{tab:reasoning}). \refit{} improves every acceptance metric over reuse (95\% CIs exclude zero), and \refitF{} is the fastest method short of a dedicated drafter. Training cost includes data generation; the dedicated drafter's is a recipe estimate for 10--40 epochs of the public EAGLE-3 recipe. Timing CIs are in Appendix~\ref{app:timing}.}
+  \caption{\textbf{Main results.} First-token acceptance $p_1$, acceptance length $\tau$ and end-to-end speedup over autoregressive decoding (vLLM, A40, batch sizes 1 and 8). MATH is MATH-500; speedups are on SPEED-Bench (MATH-500 in Table~\ref{tab:reasoning}). \refit{} improves every acceptance metric over reuse (95\% CIs exclude zero). Training cost includes data generation; the dedicated drafter's is a recipe estimate for 10--40 epochs of the public EAGLE-3 recipe. Timing CIs are in Appendix~\ref{app:timing}.}
   \label{tab:main}
 \end{table*}
 
@@ -283,25 +284,25 @@ On Nemotron-Nano, where no dedicated drafter exists and repair is the only way t
 Both variants improve all eleven SPEED-Bench domains on both targets (Appendix~\ref{app:domains}).
 
 These gains carry over to wall-clock time.
-At batch size 1, \refitI{} and \refitF{} accelerate R1-Distill by 1.74$\times$ and 1.83$\times$, against 1.31$\times$ for the reused drafter and 2.05$\times$ for the dedicated one.
-On Nemotron-Nano, the speedup rises from 1.29$\times$ to 1.80$\times$.
-Measured directly against reuse on the same prompts and server processes, \refitF{} decodes 1.39$\times$ faster on both targets (95\% CI $[1.32, 1.47]$ on R1-Distill and $[1.31, 1.48]$ on Nemotron-Nano).
+At batch size 1, \refitI{} and \refitF{} accelerate R1-Distill by 1.79$\times$ and 1.85$\times$, against 1.34$\times$ for the reused drafter and 2.08$\times$ for the dedicated one.
+On Nemotron-Nano, the speedup rises from 1.33$\times$ to 1.84$\times$.
+Measured directly against reuse on the same prompts and server processes, \refitF{} decodes 1.39$\times$ and 1.38$\times$ faster (95\% CIs $[1.35, 1.43]$ and $[1.33, 1.44]$).
 The improvements persist under batching, where speculative decoding has less idle compute to exploit: at batch size 8, \refit{} lifts the speedup from 1.07$\times$ to 1.29$\times$ on R1-Distill and from 1.13$\times$ to 1.42$\times$ on Nemotron-Nano.
 
 \paragraph{What makes \refit{} work.}
 Three ingredients make \refit{} work.
 The first is the warm start.
-Training the same EAGLE-3 architecture from scratch on the repair data reaches an acceptance length of only 1.52 on SPEED-Bench, below even the unrepaired family drafter and a full token per step below \refitF{}.
-Even with four times as much data and 10 GPU-hours of training, a drafter trained from scratch only matches the reused one (1.74 versus 1.76 on SPEED-Bench, 1.97 versus 1.93 on MATH-500), while \refitF{} reaches 2.54 and 2.97 from 16k examples.
+The same EAGLE-3 architecture trained from scratch on the repair data reaches only 1.52 tokens per step on SPEED-Bench, below even the unrepaired family drafter, and even with four times as much data and 10 GPU-hours of training it only matches the reused drafter (1.74 versus 1.76; 1.97 versus 1.93 on MATH-500), while \refitF{} reaches 2.54 and 2.97 from 16k examples.
 A drafter's ability to draft is expensive to acquire, and the family drafter already has it.
 The second is supervision from the derivative itself.
-Training on the same derivative-generated text, but with the parent's hidden states and next-token distributions as supervision, recovers about 60\% of the gain, because the drafter adapts to the new text.
-Supervision from the derivative supplies the rest, a further 0.15 tokens per step for the interface and 0.19 for the entire drafter on SPEED-Bench (0.14 and 0.15 on MATH), with confidence intervals well above zero.
+Training on the same 16k derivative-generated responses, but with the parent's hidden states and next-token distributions as supervision, recovers 54--62\% of the gain, because the drafter adapts to the new text.
+Supervision from the derivative supplies the rest, a further 0.29 tokens per step for the interface and 0.31 for the entire drafter on SPEED-Bench and 0.39 and 0.40 on MATH-500, with every 95\% CI above 0.25.
 \refit{} needs both the derivative's text and the derivative's signals, which is exactly what eliciting the derivative provides.
 The third is a full-parameter update: LoRA adapters on every drafter layer, with as many trainable parameters as the interface, fall short of \refitF{} by 0.09 tokens per step on R1-Distill and 0.06 on Nemotron-Nano at a similar training cost.
 
 \paragraph{\refit{} versus other drafters.}
-N-gram lookup stays below 1.6 tokens per step, and the independent Llama-3.2-1B drafter, though accurate, runs sixteen layers per drafted token, which holds it to 1.26$\times$ and 1.37$\times$.
+N-gram lookup stays below 1.6 tokens per step, and the independent Llama-3.2-1B drafter, though accurate, runs sixteen layers per drafted token, which holds it to 1.29$\times$ and 1.43$\times$.
+Training-free feature alignment, a per-layer linear map from the derivative's to the parent's hidden states folded into the interface, gains at most 0.17 tokens per step and loses accuracy on Nemotron-Nano.
 Repaired drafters combine high acceptance with near-free drafting and are the fastest option on both targets and at both batch sizes.
 
 \begin{table}[t]
@@ -316,32 +317,30 @@ Repaired drafters combine high acceptance with near-free drafting and are the fa
     \cmidrule(lr){2-3} \cmidrule(lr){5-6}
     Method & bs\,1 & bs\,8 & bs\,1 & bs\,1 & bs\,8 & bs\,1 \\
     \midrule
-    Reused & 1.48 & 1.33 & 1.33 & 1.33 & 1.36 & 1.12 \\
-    Independent (1B) & 1.53 & 1.39 & -- & 1.32 & 1.50 & -- \\
-    \refitI{} & 2.14 & 1.93 & 1.63 & \textbf{2.08} & 2.12 & 1.54 \\
-    \refitF{} & \textbf{2.31} & \textbf{2.05} & \textbf{1.77} & 1.94 & \textbf{2.23} & \textbf{1.63} \\
+    Reused & 1.49 & 1.33 & 1.33 & 1.32 & 1.36 & 1.12 \\
+    Independent (1B) & 1.58 & 1.39 & -- & 1.50 & 1.50 & -- \\
+    \refitI{} & 2.15 & 1.93 & 1.63 & 2.07 & 2.12 & 1.54 \\
+    \refitF{} & \textbf{2.32} & \textbf{2.05} & \textbf{1.77} & \textbf{2.22} & \textbf{2.23} & \textbf{1.63} \\
     \midrule
-    \textcolor{black!60}{Dedicated} & \textcolor{black!60}{2.87} & \textcolor{black!60}{2.54} & \textcolor{black!60}{2.11} & -- & -- & -- \\
+    \textcolor{black!60}{Dedicated} & \textcolor{black!60}{2.94} & \textcolor{black!60}{2.54} & \textcolor{black!60}{2.11} & -- & -- & -- \\
     \bottomrule
   \end{tabular}
   \caption{\refit{} on reasoning workloads. Wall-clock speedup ($\times$) over autoregressive decoding on MATH-500 with 512-token responses (batch sizes 1 and 8) and on MATH problems with responses of up to 8,192 tokens (batch size 1). \refit{} is trained on responses of at most 512 tokens.}
   \label{tab:reasoning}
 \end{table}
 
-\begin{figure}[t]
-  \centering
-  \input{figures/fig_scaling}
-  \caption{Gap to the dedicated drafter closed by \refitF{} (full) and \refitI{} (interface) on R1-Distill-Llama-8B as a function of the number of repair examples, for the EAGLE authors' family drafter (solid) and the production drafter (dashed).}
-  \label{fig:scaling}
-\end{figure}
 
 \subsection{Reasoning Workloads}
+\label{sec:reasoning}
 
 Reasoning models are deployed on mathematical and scientific problems, with long generation budgets and often with sampling, whereas \refit{} sees responses of at most 512 tokens.
 Table~\ref{tab:reasoning} shows that its absolute speedups are largest exactly there.
-On MATH-500, \refitF{} accelerates R1-Distill by 2.31$\times$ at batch size 1 and 2.05$\times$ at batch size 8, compared with 1.48$\times$ and 1.33$\times$ for the reused drafter, and Nemotron-Nano by up to 2.23$\times$.
+On MATH-500, \refitF{} accelerates R1-Distill by 2.32$\times$ at batch size 1 and 2.05$\times$ at batch size 8, compared with 1.49$\times$ and 1.33$\times$ for the reused drafter, and Nemotron-Nano by 2.22$\times$ and 2.23$\times$.
 With responses of up to 8,192 tokens, 2.4k--3.3k on average, \refitF{} still delivers 1.77$\times$ and 1.63$\times$, against 1.33$\times$ and 1.12$\times$ for reuse.
 Its gains also hold under temperature sampling ($T{=}0.6$), where verification accepts tokens stochastically: on these long traces, \refitF{} raises the acceptance length from 1.96 to 2.58 on R1-Distill and from 1.64 to 2.63 on Nemotron-Nano (Appendix~\ref{app:long}).
+
+\paragraph{Reasoning mode.}
+In Nemotron-Nano's explicit reasoning mode, the reused drafter reaches only 1.70 tokens per step on MATH-500; the drafter repaired on default-mode responses raises this to 2.86 and decodes 1.68$\times$ faster than reuse (95\% CI $[1.66, 1.71]$), and eliciting the repair data in reasoning mode reaches 2.87 (Appendix~\ref{app:long}).
 
 \begin{table}[t]
   \centering
@@ -353,15 +352,17 @@ Its gains also hold under temperature sampling ($T{=}0.6$), where verification a
     \cmidrule(lr){2-4} \cmidrule(lr){5-7}
     & Reuse & intf. & full & Reuse & intf. & full \\
     \midrule
-    $\tau$, SPEED & 2.05 & 2.39 & \textbf{2.52} & 2.08 & 2.43 & \textbf{2.59} \\
+    $\tau$, SPEED & 2.05 & 2.39 & \textbf{2.52} & 2.08 & 2.44 & \textbf{2.58} \\
     $\tau$, MATH-500 & 2.41 & 2.79 & \textbf{3.00} & 2.17 & 2.59 & \textbf{2.80} \\
-    $\tau$, MATH 8k & 2.77 & 3.12 & \textbf{3.37} & 2.41 & 2.73 & \textbf{2.89} \\
+    $\tau$, MATH 8k & 2.77 & 3.12 & \textbf{3.37} & 2.41 & 2.73 & \textbf{2.91} \\
     \midrule
-    Speedup, bs\,1 & 1.54 & 1.77 & \textbf{1.86} & 1.55 & 1.78 & \textbf{1.89} \\
-    Speedup, bs\,8 & 1.23 & 1.38 & \textbf{1.44} & 1.34 & 1.56 & \textbf{1.62} \\
+    $\times$, SPEED bs\,1 & 1.54 & 1.77 & \textbf{1.86} & 1.55 & 1.78 & \textbf{1.89} \\
+    $\times$, SPEED bs\,8 & 1.23 & 1.38 & \textbf{1.44} & 1.34 & 1.56 & \textbf{1.62} \\
+    $\times$, MATH bs\,1 & 1.79 & 2.10 & \textbf{2.26} & 1.65 & 1.96 & \textbf{2.11} \\
+    $\times$, MATH bs\,8 & 1.53 & 1.78 & \textbf{1.93} & 1.43 & 1.68 & \textbf{1.79} \\
     \bottomrule
   \end{tabular}
-  \caption{\refit{} repairs the block-diffusion drafter DFlash (16k repair examples; intf.: \refitI{}). Speedups on SPEED-Bench. Every gain over reuse has a 95\% CI excluding zero.}
+  \caption{\refit{} repairs the block-diffusion drafter DFlash (16k repair examples; intf.: \refitI{}). $\tau$: acceptance length, averaged over three seeds; $\times$: speedup. Every gain over reuse has a 95\% CI excluding zero.}
   \label{tab:dflash}
 \end{table}
 
@@ -371,20 +372,19 @@ Its gains also hold under temperature sampling ($T{=}0.6$), where verification a
 DFlash \citep{chen2026dflash} replaces token-by-token drafting with a single parallel pass of a lightweight diffusion model that proposes a block of ten tokens.
 It is recent enough that no prior work has studied it under target post-training, yet it reads the target through the same kind of feature interface and breaks the same way under reuse, retaining only 73.5\% and 70.8\% of its first-token acceptance on R1-Distill and Nemotron-Nano.
 We apply \refit{} unchanged, with the same 16k responses and DFlash's own block objective, and it repairs DFlash on every benchmark and at every batch size (Table~\ref{tab:dflash}).
-\refitF{} raises DFlash's acceptance length by 23\% and 25\% on SPEED-Bench and by 24\% and 29\% on MATH-500, and adds 0.61 and 0.48 tokens per step on reasoning traces of up to 8,192 tokens.
-At batch size 1, the speedup rises from 1.54$\times$ to 1.86$\times$ on R1-Distill and from 1.55$\times$ to 1.89$\times$ on Nemotron-Nano; measured directly against reuse on the same prompts, the repaired drafter decodes 1.21$\times$ and 1.22$\times$ faster (95\% CIs $[1.18, 1.23]$ and $[1.19, 1.26]$).
+\refitF{} raises DFlash's acceptance length by 23\% and 24\% on SPEED-Bench and by 24\% and 29\% on MATH-500, and adds 0.61 and 0.49 tokens per step on reasoning traces of up to 8,192 tokens.
+At batch size 1, the speedup rises from 1.54$\times$ to 1.86$\times$ on R1-Distill and from 1.55$\times$ to 1.89$\times$ on Nemotron-Nano on SPEED-Bench, and from 1.79$\times$ to 2.26$\times$ and from 1.65$\times$ to 2.11$\times$ on MATH-500; against reuse on the same prompts, the repaired drafter decodes 1.21--1.28$\times$ faster at batch size 1 and 1.18--1.26$\times$ at batch size 8.
 \refitI{}, which re-fits only DFlash's 84M-parameter interface, delivers most of this gain, and repair takes at most 1.5 GPU-hours of training.
 To our knowledge, this is the first adaptation of a block-diffusion drafter to a post-trained target; both the failure and its repair are properties of target-conditioned drafting, not of one drafter design.
 
 \subsection{Scaling and Cost}
 
-Figure~\ref{fig:scaling} shows that \refit{} improves steadily with data.
+\refit{} improves steadily with data (Figure~\ref{fig:scaling} in Appendix~\ref{app:generality}).
 With the production drafter, the gap closed by \refitF{} grows from 46\% with 0.5k examples to 58\% with 4k, 66\% with 16k and 74\% with 64k.
-The curve is still rising at 64k, the EAGLE authors' drafter stays ahead at every budget, and \refitI{} follows a parallel curve.
+The curve is still rising at 64k, \refitI{} follows a parallel curve, and the EAGLE authors' drafter stays ahead at every budget, closing 53\% of the gap with only 0.5k examples and 0.4 GPU-hours including data generation.
 
-In terms of compute (Figure~\ref{fig:cost} in Appendix~\ref{app:timing}), even 0.45 GPU-hours of repair on 256 examples already yield a 1.67$\times$ speedup, and 11 GPU-hours reach 1.83$\times$.
-By contrast, we estimate that reproducing the dedicated drafter with the public EAGLE-3 recipe requires between 1.3k and 19k A40 GPU-hours including data generation, depending on the number of epochs.
-\refit{} thus recovers most of the dedicated drafter's speedup for 120 to 1,700 times less compute.
+In wall-clock terms (Figure~\ref{fig:cost} in Appendix~\ref{app:timing}), even 0.45 GPU-hours of repair on 256 examples lift the batch-size-1 speedup from 1.31$\times$ to 1.67$\times$ on the same prompts.
+By contrast, reproducing the dedicated drafter with the public EAGLE-3 recipe would take an estimated 1.3k--19k A40 GPU-hours including data generation, so \refit{} recovers most of its speedup for 120 to 1,700 times less compute.
 
 \subsection{Generality}
 
@@ -399,7 +399,7 @@ With every drafter, \refitI{} alone delivers most of \refitF{}'s gain.
 % =====================================================================
 
 \paragraph{Target-conditioned drafters and their training.}
-Beyond model-free and self-speculative drafting \citep{fu2024lookahead,he2024rest,saxena2023pld,oliaro2024suffix,zhang2024draftverify,miao2024specinfer,chen2024sequoia,xia2024survey}, the strongest drafters condition on the target's hidden states \citep{cai2024medusa,ankner2024hydra,li2024eagle,li2024eagle2,li2025eagle3,zhang2025hass,jiang2026hspec,chen2026dflash} and are trained per target by regenerating a large corpus and training from scratch for several epochs \citep{li2026specforge,redhat2025speculators}.
+Beyond model-free and self-speculative drafting \citep{fu2024lookahead,he2024rest,saxena2023pld,oliaro2024suffix,zhang2024draftverify,miao2024specinfer,chen2024sequoia,xia2024survey}, the strongest drafters condition on the target's hidden states \citep{cai2024medusa,ankner2024hydra,li2024eagle,li2024eagle2,li2025eagle3,zhang2025hass,jiang2026hspec,chen2026dflash}, trained per target from scratch \citep{li2026specforge,redhat2025speculators}.
 Recent work improves drafters for a fixed target through on-policy distillation \citep{lei2026draftopd}, normalization against prompt-side drift \citep{eldenk2026attentiondrift,eagle31} or vocabulary pruning \citep{zhao2025frspec,goel2025vocabtrim}; \refit{} takes these drafters and objectives as they are and serves them on derivatives.
 Concurrently, \citet{jiang2026hspec} note in a robustness check that their drafters lose about 30\% of their acceptance length on R1-Distill; our census characterizes when such losses occur, and \refit{} repairs them.
 
@@ -455,8 +455,12 @@ Repair costs 11.1 A40 GPU-hours on R1-Distill (8.9 for generating responses, 2.2
 \paragraph{DFlash.}
 We repair the released DFlash drafter for Llama-3.1-8B-Instruct with its native objective, a KL divergence over each drafted block with exponentially decaying position weights ($\gamma{=}4$) and up to 64 block anchors per packed sequence of 2,048 tokens, using the same 16k responses, optimizer, learning rate and schedule as for EAGLE-3.
 The target, token embedding and output projection stay frozen; \refitI{} updates the 83.9M-parameter feature projection and \refitF{} all 1.05B trainable parameters.
-Training takes 1.26--1.50 A40 GPU-hours on R1-Distill and 0.82--0.93 on Nemotron-Nano.
+Training takes 1.26--1.50 A40 GPU-hours on R1-Distill and 0.82--1.08 on Nemotron-Nano, and acceptance results average three training seeds on both targets.
 No dedicated DFlash drafter for either target is publicly available.
+
+\paragraph{Feature alignment baseline.}
+For each of the three tapped layers, we fit a least-squares map and an orthogonal Procrustes map from the derivative's to the parent's hidden states on paired forward passes over 4k repair responses and fold them block-diagonally into $W_{\text{fc}}$; no parameter is trained, and fitting takes 0.3--0.5 GPU-hours.
+On SPEED-Bench and MATH-500, the orthogonal map changes $\tau$ by $+0.14$ and $+0.17$ on R1-Distill and by $-0.08$ and $-0.06$ on Nemotron-Nano; the least-squares map by $-0.32$ and $-0.37$, and $-0.21$ and $-0.10$.
 
 \paragraph{Training resources.}
 Over the same 200 training batches, \refitI{} takes 1.57\,s per step at 25.7\,GiB peak memory, against 1.77\,s and 29.1\,GiB for \refitF{}.
@@ -498,7 +502,7 @@ Training with $k_{\max}{=}4$ instead gives the same acceptance ($\Delta\tau = -0
 All acceptance measurements use vLLM with greedy decoding, $K{=}4$ draft tokens (DFlash: its native block of ten), a maximum of 512 new tokens and batch size 8.
 Nemotron-Nano is used with its default chat template, which carries no reasoning-mode instruction.
 Prompts that produce no speculative step are excluded pairwise across compared methods.
-Speedups are measured on 32 prompts at batch size 1 and 128 at batch size 8 (DFlash: 128 at both), each in three fresh server processes with three warm repetitions, relative to autoregressive decoding of the same prompts; confidence intervals resample processes and prompt batches jointly.
+Speedups are measured on 128 prompts (for MATH-500, the first 128 problems) and on 32 problems for responses of up to 8,192 tokens, each in three fresh server processes with three warm repetitions, relative to autoregressive decoding of the same prompts; confidence intervals resample processes and prompt batches jointly.
 The dedicated drafter's cost is a recipe estimate: the public EAGLE-3 recipe trains on 532k--646k examples, and our measured A40 throughput for generation and training projects 1.3k--19k GPU-hours at 10 to 40 epochs; the cost of the released dedicated checkpoint itself is not reported.
 
 % =====================================================================
@@ -510,6 +514,8 @@ The long-reasoning panel uses the first 32 problems of our 64-problem MATH sampl
 Sampled decoding uses temperature 0.6 and top-$p$ 0.95 with a fixed seed.
 No response in any arm exceeds 50\% repeated 4-gram coverage.
 Table~\ref{tab:long} reports acceptance lengths.
+Reasoning mode adds Nemotron-Nano's \emph{detailed thinking on} system turn to the same questions for every compared drafter; the mode-matched repair regenerates the 16k repair responses with this system turn.
+On traces of up to 8,192 tokens in reasoning mode, \refitF{} raises the acceptance length from 1.68 to 2.69, and to 2.73 with mode-matched data; on SPEED-Bench, from 1.74 to 2.46 and 2.49.
 
 \begin{table}[h]
   \centering
@@ -536,7 +542,14 @@ Table~\ref{tab:long} reports acceptance lengths.
 \label{app:generality}
 % =====================================================================
 
-Table~\ref{tab:robustness} reports \refit{} on every EAGLE-3 family drafter we repair; DFlash results are in Table~\ref{tab:dflash}.
+Table~\ref{tab:robustness} reports \refit{} on every EAGLE-3 family drafter we repair; DFlash results are in Table~\ref{tab:dflash}. Figure~\ref{fig:scaling} shows how the gap closed grows with the number of repair examples.
+
+\begin{figure}[h]
+  \centering
+  \input{figures/fig_scaling}
+  \caption{Gap to the dedicated drafter closed by \refitF{} (full) and \refitI{} (interface) on R1-Distill-Llama-8B as a function of the number of repair examples, for the EAGLE authors' family drafter (solid) and the production drafter (dashed).}
+  \label{fig:scaling}
+\end{figure}
 
 \begin{table}[h]
   \centering
@@ -570,11 +583,11 @@ Tables~\ref{tab:timing} and~\ref{tab:timing-dflash} report every wall-clock spee
 \begin{figure}[h]
   \centering
   \input{figures/fig_cost}
-  \caption{Batch-size-1 speedup on R1-Distill-Llama-8B against training compute, including data generation. The dedicated drafter's range is a recipe estimate for 10 to 40 epochs of the public EAGLE-3 recipe.}
+  \caption{Batch-size-1 speedup on R1-Distill-Llama-8B against training compute, including data generation, on a 32-prompt SPEED-Bench panel. The dedicated drafter's range is a recipe estimate for 10 to 40 epochs of the public EAGLE-3 recipe.}
   \label{fig:cost}
 \end{figure}
 
-Batch-size-1 panels use 32 prompts, so their intervals are wider than those at batch size 8.
+The Nemotron-Nano reuse cell on MATH-500 at batch size 1 uses the first 32 problems.
 
 \begin{table*}[t]
   \centering
@@ -586,42 +599,44 @@ Batch-size-1 panels use 32 prompts, so their intervals are wider than those at b
     \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-7}
     Target & Method & bs\,1 & bs\,8 & bs\,1 & bs\,8 & bs\,1 \\
     \midrule
-    R1-Distill & Reused & 1.31\,{\scriptsize[1.23, 1.39]} & 1.07\,{\scriptsize[0.99, 1.17]} & 1.48\,{\scriptsize[1.44, 1.52]} & 1.33\,{\scriptsize[1.30, 1.36]} & 1.33\,{\scriptsize[1.09, 1.64]} \\
-     & Independent (1B) & 1.26\,{\scriptsize[1.20, 1.33]} & 1.11\,{\scriptsize[1.09, 1.14]} & 1.52\,{\scriptsize[1.49, 1.57]} & 1.39\,{\scriptsize[1.36, 1.42]} & -- \\
-     & \refitI{} & 1.74\,{\scriptsize[1.58, 1.89]} & 1.27\,{\scriptsize[1.10, 1.47]} & 2.14\,{\scriptsize[2.10, 2.19]} & 1.93\,{\scriptsize[1.89, 1.98]} & 1.63\,{\scriptsize[1.29, 2.08]} \\
-     & \refitF{} & 1.83\,{\scriptsize[1.65, 1.99]} & 1.29\,{\scriptsize[1.12, 1.50]} & 2.31\,{\scriptsize[2.25, 2.36]} & 2.05\,{\scriptsize[2.01, 2.10]} & 1.77\,{\scriptsize[1.44, 2.27]} \\
-     & Dedicated & 2.05\,{\scriptsize[1.85, 2.25]} & 1.41\,{\scriptsize[1.20, 1.67]} & 2.87\,{\scriptsize[2.80, 2.95]} & 2.54\,{\scriptsize[2.43, 2.63]} & 2.11\,{\scriptsize[1.68, 2.75]} \\
+    R1-Distill & Reused & 1.34\,{\scriptsize[1.29, 1.38]} & 1.07\,{\scriptsize[0.99, 1.17]} & 1.49\,{\scriptsize[1.47, 1.51]} & 1.33\,{\scriptsize[1.30, 1.36]} & 1.33\,{\scriptsize[1.09, 1.64]} \\
+     & Independent (1B) & 1.29\,{\scriptsize[1.26, 1.31]} & 1.11\,{\scriptsize[1.09, 1.14]} & 1.58\,{\scriptsize[1.55, 1.60]} & 1.39\,{\scriptsize[1.36, 1.42]} & -- \\
+     & \refitI{} & 1.79\,{\scriptsize[1.70, 1.87]} & 1.27\,{\scriptsize[1.10, 1.47]} & 2.15\,{\scriptsize[2.13, 2.18]} & 1.93\,{\scriptsize[1.89, 1.98]} & 1.63\,{\scriptsize[1.29, 2.08]} \\
+     & \refitF{} & 1.85\,{\scriptsize[1.76, 1.95]} & 1.29\,{\scriptsize[1.12, 1.50]} & 2.32\,{\scriptsize[2.29, 2.35]} & 2.05\,{\scriptsize[2.01, 2.10]} & 1.77\,{\scriptsize[1.44, 2.27]} \\
+     & Dedicated & 2.08\,{\scriptsize[1.97, 2.19]} & 1.41\,{\scriptsize[1.20, 1.67]} & 2.94\,{\scriptsize[2.90, 2.98]} & 2.54\,{\scriptsize[2.43, 2.63]} & 2.11\,{\scriptsize[1.68, 2.75]} \\
     \midrule
-    Nemotron-Nano & Reused & 1.29\,{\scriptsize[1.20, 1.38]} & 1.13\,{\scriptsize[1.05, 1.20]} & 1.32\,{\scriptsize[1.29, 1.36]} & 1.36\,{\scriptsize[1.19, 1.69]} & 1.12\,{\scriptsize[1.00, 1.28]} \\
-     & Independent (1B) & 1.37\,{\scriptsize[1.28, 1.47]} & 1.24\,{\scriptsize[1.20, 1.27]} & 1.31\,{\scriptsize[1.08, 1.52]} & 1.50\,{\scriptsize[1.29, 1.84]} & -- \\
-     & \refitI{} & 1.69\,{\scriptsize[1.48, 1.89]} & 1.39\,{\scriptsize[1.22, 1.60]} & 2.08\,{\scriptsize[2.02, 2.14]} & 2.12\,{\scriptsize[1.82, 2.64]} & 1.54\,{\scriptsize[1.31, 1.86]} \\
-     & \refitF{} & 1.80\,{\scriptsize[1.63, 1.98]} & 1.42\,{\scriptsize[1.23, 1.67]} & 1.94\,{\scriptsize[1.58, 2.25]} & 2.23\,{\scriptsize[1.92, 2.75]} & 1.63\,{\scriptsize[1.37, 2.02]} \\
+    Nemotron-Nano & Reused & 1.33\,{\scriptsize[1.27, 1.39]} & 1.13\,{\scriptsize[1.05, 1.20]} & 1.32\,{\scriptsize[1.29, 1.36]} & 1.36\,{\scriptsize[1.19, 1.69]} & 1.12\,{\scriptsize[1.00, 1.28]} \\
+     & Independent (1B) & 1.43\,{\scriptsize[1.38, 1.49]} & 1.24\,{\scriptsize[1.20, 1.27]} & 1.50\,{\scriptsize[1.48, 1.52]} & 1.50\,{\scriptsize[1.29, 1.84]} & -- \\
+     & \refitI{} & 1.74\,{\scriptsize[1.63, 1.86]} & 1.39\,{\scriptsize[1.22, 1.60]} & 2.07\,{\scriptsize[2.04, 2.10]} & 2.12\,{\scriptsize[1.82, 2.64]} & 1.54\,{\scriptsize[1.31, 1.86]} \\
+     & \refitF{} & 1.84\,{\scriptsize[1.70, 1.97]} & 1.42\,{\scriptsize[1.23, 1.67]} & 2.22\,{\scriptsize[2.18, 2.25]} & 2.23\,{\scriptsize[1.92, 2.75]} & 1.63\,{\scriptsize[1.37, 2.02]} \\
     \bottomrule
   \end{tabular}
     \caption{Wall-clock speedup over autoregressive decoding with 95\% confidence intervals (vLLM, A40; three fresh server processes with three warm repetitions each).}
   \label{tab:timing}
 \end{table*}
 
-\begin{table}[h]
+\begin{table*}[t]
   \centering
   \small
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}llcc@{}}
+  \begin{tabular}{@{}llcccc@{}}
     \toprule
-    Target & Method & bs\,1 & bs\,8 \\
+    & & \multicolumn{2}{c}{SPEED-Bench} & \multicolumn{2}{c}{MATH-500} \\
+    \cmidrule(lr){3-4} \cmidrule(lr){5-6}
+    Target & Method & bs\,1 & bs\,8 & bs\,1 & bs\,8 \\
     \midrule
-    R1-Distill & Reused & 1.54\,{\scriptsize[1.50, 1.59]} & 1.23\,{\scriptsize[1.18, 1.28]} \\
-     & \refitI{} & 1.77\,{\scriptsize[1.72, 1.82]} & 1.38\,{\scriptsize[1.30, 1.47]} \\
-     & \refitF{} & 1.86\,{\scriptsize[1.80, 1.92]} & 1.44\,{\scriptsize[1.34, 1.55]} \\
+    R1-Distill & Reused & 1.54\,{\scriptsize[1.50, 1.59]} & 1.23\,{\scriptsize[1.18, 1.28]} & 1.79\,{\scriptsize[1.76, 1.83]} & 1.53\,{\scriptsize[1.49, 1.57]} \\
+     & \refitI{} & 1.77\,{\scriptsize[1.72, 1.82]} & 1.38\,{\scriptsize[1.30, 1.47]} & 2.10\,{\scriptsize[2.06, 2.14]} & 1.78\,{\scriptsize[1.73, 1.84]} \\
+     & \refitF{} & 1.86\,{\scriptsize[1.80, 1.92]} & 1.44\,{\scriptsize[1.34, 1.55]} & 2.26\,{\scriptsize[2.22, 2.30]} & 1.93\,{\scriptsize[1.87, 1.98]} \\
     \midrule
-    Nemotron & Reused & 1.55\,{\scriptsize[1.49, 1.61]} & 1.34\,{\scriptsize[1.29, 1.39]} \\
-     & \refitI{} & 1.78\,{\scriptsize[1.71, 1.86]} & 1.56\,{\scriptsize[1.47, 1.64]} \\
-     & \refitF{} & 1.89\,{\scriptsize[1.82, 1.98]} & 1.62\,{\scriptsize[1.53, 1.71]} \\
+    Nemotron-Nano & Reused & 1.55\,{\scriptsize[1.49, 1.61]} & 1.34\,{\scriptsize[1.29, 1.39]} & 1.65\,{\scriptsize[1.62, 1.68]} & 1.43\,{\scriptsize[1.40, 1.46]} \\
+     & \refitI{} & 1.78\,{\scriptsize[1.71, 1.86]} & 1.56\,{\scriptsize[1.47, 1.64]} & 1.96\,{\scriptsize[1.92, 1.99]} & 1.68\,{\scriptsize[1.66, 1.71]} \\
+     & \refitF{} & 1.89\,{\scriptsize[1.82, 1.98]} & 1.62\,{\scriptsize[1.53, 1.71]} & 2.11\,{\scriptsize[2.07, 2.15]} & 1.79\,{\scriptsize[1.76, 1.83]} \\
     \bottomrule
   \end{tabular}
-  \caption{DFlash wall-clock speedup on SPEED-Bench over autoregressive decoding with 95\% confidence intervals (128 prompts, three fresh server processes with three warm repetitions each).}
+  \caption{DFlash wall-clock speedup over autoregressive decoding with 95\% confidence intervals (128 prompts, three fresh server processes with three warm repetitions each).}
   \label{tab:timing-dflash}
-\end{table}
+\end{table*}
 
 % =====================================================================
 \section{Per-Domain Results}
@@ -668,6 +683,7 @@ Post-training histories are taken from model cards; models whose cards describe 
 For 163 derivatives, retention is computed on 64 prompts from the derivative's own domain (Table~\ref{tab:census}); the remaining 11 use 128 general prompts.
 The reasoning distills and the controls discussed in \S\ref{sec:census} are evaluated on 128 SPEED-Bench prompts.
 Group means weight checkpoints equally, with hierarchical bootstrap intervals over checkpoints and paired prompts.
+Pooled over both families, mean retention under EAGLE-3 and DFlash is 1.00 and 1.00 for quantization (34 checkpoints; 95\% CIs within $[0.99, 1.01]$), 0.99 and 0.98 for merges (7), 1.00 and 0.98 for abliteration (30), and 1.04 and 1.00 for on-policy RL (9).
 The compatibility probe ranks derivatives by acceptance retention on 16 fixed requests; its AUROC for identifying derivatives whose retention on the remaining, disjoint requests falls below 90\% is 0.91 for EAGLE-3 (14 of 163 degraded) and 0.93 for DFlash (17 of 163), and 1.00 and 0.95 on a separate 21-checkpoint SPEED-Bench cohort.
 
 \begin{table}[h]
