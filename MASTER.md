@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-10T12:54:01.154430-04:00 (codex-1 builder/operator) |
-| Sprint day | Day 6 of 8 (Sat Oct10); ARR deadline MonOct12 23:59AoE |
-| Next gate | D54 owner-approved REV2 run list active: P0 Sat20:00, P1 Sun08:00, P2 best effort Sun12:00. Protocols and owner framing unchanged. |
+| Last updated | 2026-10-11T02:56:45.731288-04:00 (codex-1 builder/operator) |
+| Sprint day | Day 7 of 8 (Sun Oct11); ARR deadline MonOct12 23:59AoE |
+| Next gate | D56 REV4: P0 Sun14:00, P1 Mon02:00, P2 Mon10:00. All experiments authorized; no additional owner approval needed. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | REV2: E8/E10/E11/E12/E14/E16 and CPU analyses complete. Eight E9 packing-recovery trainings active; E13 scratch64k, R1E15 and finalE17 evaluations remain. Canonicalqueue4129996 only; raw-report/export watchers active. |
-| Blockers | Eight E9 first-backward OOMs preserved; all eight fresh2304-token packing retries now pass multiple backward steps. Long-repair branch delayed; no other active failure found. ICE unavailable. |
-| Owner action needed | None for D54 approved list. Results/paper selection remains owner-controlled; claude_final untouched. See reports/REV2-results-20261010.md. |
+| Jobs running | REV4 P0: 141 queued; initial 23 timing processes active. P1 first12 training jobs +14 controls queued; Y3b response generation and Y8 paired fits advancing. Y9 CPU analysis complete. REV2/REV3 established results complete. Canonicalqueue4129996 only. |
+| Blockers | No current launch failure. D47 finished-run compile-cache reclamation restored free space from348GB to~395GB; 350GB launch floor remains. New data require actual five-sample review before training. |
+| Owner action needed | None for D56. Results/paper selection remains owner-controlled; paper/ untouched. Live results: reports/REV4-results-20261011.md. |
 
 ---
 

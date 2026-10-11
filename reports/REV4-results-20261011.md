@@ -12,7 +12,7 @@ All 48 processes queued: two targets, first128 MATH500, batches1/8, none/reuse/i
 Nine frozen acceptance cells and18 timing processes queued. Explicit detailed-thinking-on system turn, same raw questions across arms. Five decoded prompts inspected for each SPEED/MATH500/MATH32 render; loss masks are inapplicable to evaluation-only prompts. Outcomes pending.
 
 ## Y3b — Thinking-on repair
-Implementation in progress; new data must pass five-sample decoded/mask review before training.
+Eight 2k-prompt shards queued; first shard running. Exact existing 16k Alpaca questions, explicit thinking-on system, cap512. Sealing and training require matching five-sample decoded/mask audit.
 
 ## Y4 — Qwen DFlash
 MIT license, ungated, pinned revision9b41424b7109f9c5413454f481b09a82b85333f4 already cached. Existing pinned native converter produces block16 and taps[2,10,18,26,34]; no trainer behavior change required. E12 16k responses reused. Outcomes pending.
@@ -27,10 +27,33 @@ The production plotted0.5k point is generic520, not the separate256-example comp
 Official init, identical R1 response tokens; alternate parent supplies taps and soft labels. Outcomes pending.
 
 ## Y8 — Linear alignment
-Per-tap least squares/orthogonal Procrustes, no affine bias, fit only training-response contexts. Implementation in progress.
+Two paired fits queued; R1 fitting started. Per-tap least squares/orthogonal Procrustes, no affine bias, first4k audited training-response contexts. Exact block-diagonal folding into fc; no optimizer. Frozen evaluations publish after exports.
 
 ## Y9 — Census statistics
-CPU pooled historical own-domain groups and focused21 per-model table; mixed histories and filter counts explicit. No supplementary/release package.
+Complete: 163/174 checkpoints have own-domain panels (326 drafter/checkpoint rows); the 11 fallback-panel checkpoints are excluded from these pooled statistics. Multi-stage histories contribute to each applicable category. Unknown/repack/adversarial histories remain in provenance but are not assigned to the requested groups.
+
+Both families pooled, equal checkpoint weights,10,000 hierarchical checkpoint/paired-query draws. Categories overlap for recorded multistage histories; group differences are associations. Unknown histories excluded from category means, retained in provenance. General-fallback queries excluded.
+
+| Category | Drafter | Checkpoints | Family counts | Query pairs | p1 retention [95% CI] |
+|---|---|---:|---|---:|---|
+| SFT | dflash | 30 | {'llama': 11, 'qwen3': 19} | 1899 | 0.985 [0.930,1.039] |
+| SFT | eagle3 | 30 | {'llama': 11, 'qwen3': 19} | 1899 | 1.052 [1.003,1.101] |
+| abliteration | dflash | 30 | {'llama': 22, 'qwen3': 8} | 1920 | 0.977 [0.956,1.000] |
+| abliteration | eagle3 | 30 | {'llama': 22, 'qwen3': 8} | 1920 | 0.998 [0.978,1.024] |
+| distillation | dflash | 9 | {'llama': 4, 'qwen3': 5} | 576 | 1.071 [0.907,1.262] |
+| distillation | eagle3 | 9 | {'llama': 4, 'qwen3': 5} | 576 | 1.141 [0.924,1.449] |
+| merge | dflash | 7 | {'llama': 3, 'qwen3': 4} | 448 | 0.980 [0.947,1.017] |
+| merge | eagle3 | 7 | {'llama': 3, 'qwen3': 4} | 448 | 0.992 [0.949,1.040] |
+| on_policy_RL | dflash | 9 | {'llama': 1, 'qwen3': 8} | 570 | 0.995 [0.971,1.020] |
+| on_policy_RL | eagle3 | 9 | {'llama': 1, 'qwen3': 8} | 570 | 1.041 [0.994,1.104] |
+| preference | dflash | 17 | {'llama': 13, 'qwen3': 4} | 1087 | 0.927 [0.883,0.967] |
+| preference | eagle3 | 17 | {'llama': 13, 'qwen3': 4} | 1087 | 0.959 [0.916,1.005] |
+| quantization | dflash | 34 | {'llama': 11, 'qwen3': 23} | 2176 | 0.999 [0.989,1.008] |
+| quantization | eagle3 | 34 | {'llama': 11, 'qwen3': 23} | 2176 | 1.001 [0.992,1.010] |
+
+**What this establishes.** Weight transformations retain approximately all first-token acceptance on own-domain prompts. The broad distillation group does not show a reliable mean loss here (wide intervals); this workload/population does not reproduce the focused reasoning-cohort association. Neither analysis substitutes for the other.
+
+[Focused 21-model table](../artifacts/REV4_Y9_20261011_0300/focused21.md), [CSV with identifiers, lineage, history and raw sources](../artifacts/REV4_Y9_20261011_0300/focused21.csv), [pooled estimates](../artifacts/REV4_Y9_20261011_0300/pooled.json), [provenance/filter counts](../artifacts/REV4_Y9_20261011_0300/provenance.json). No release package.
 
 ## Y10 — Math-domain long-budget data
 Preparation after P0/P1 queued. No dispatch yet.

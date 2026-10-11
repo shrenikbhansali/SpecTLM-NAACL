@@ -15,3 +15,6 @@
 **Caveats:** pilots; mode and cap extensions labelled; shared A40 placement; all nulls and failures retained. No paper edit or release package.
 
 **Next:** P0 immediate summary on completion, then P1/P2 reduction and board review under D56 deadlines.
+
+### 2026-10-11T02:56:45.902359-04:00 — codex-1 — Y9 complete; dependent stages
+Y9 independently recomputed own-domain groups for163models/326rows; focused21 table42rows complete. Distillation pooled retention1.071 DFlash [0.907,1.262],1.141 EAGLE [0.924,1.449]; no reliable loss on this population/workload, reported plainly. Evidence artifacts/REV4_Y9_20261011_0300. Y3b8data shards andY8two fits queued; first ofeach running. New tests for audit gate/stable pending order failed before implementation then8pass. Followup code1ab0049 tagged/pushed run-REV4-followups-20261011-0310. One canonical queue; stable pending order P0, Y4/Y6/Y7/Y5/Y3b/Y8, Y10 last. No running jobs interrupted. Y8watch2336610.
