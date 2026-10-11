@@ -10,3 +10,6 @@ Owner (direct, ~02:25): remove release promises; run all remaining experiments w
   the 350 GB floor → Codex must reclaim D-47 regenerable caches before launching.
 - Inputs confirmed: z-lab/Qwen3-8B-DFlash-b16 in census CSV (R1-0528-Qwen3 DFlash retention .81 [.79,.84]); E5c generic64k data exist.
 Next: Codex claims REV4 rows and dispatches; claude-ops verifies P0 results ~14:00 ET and folds strong results into paper/claude_final.
+
+### 2026-10-11T02:32:15.314113-04:00 — codex-1 — Claim all REV4 levels
+Read AGENTS/CLAUDE, MASTER0–4 and D51–56, complete REV4 plan/journal, established REV2/REV3 pipelines. All tasks authorized D56. One canonicalqueue4129996 remains. Disk below350GB; first reclaim only completed-launch vllm_cache directories under D47 with immutable manifest. No other outputs/weights deleted. P0 precedes P1 Y4/Y6/Y7/Y5/Y3b/Y8 with CPU Y9; Y10 after every P0/P1 job queued. No paper edits.
