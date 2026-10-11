@@ -20,7 +20,10 @@ def reference_name(r,kind='reuse'):
  if w=='math500':return 'D52-MATH500-official-'+('reused' if a=='reuse' else a) if t==0 else f'REV2-E14-t1-{a}-seed0-math500'
  return f'D50-E1-official-t{t}-speed128' if a=='reuse' else f'FIX24-official-t{t}-16k-{a}-s{4477 if t==0 else 2625}-speed128'
 
-def timing_group(r):return r['experiment']+'-'+r.get('data_label','')+'-'+r['workload']
+def timing_group(r):
+ # Y4 has one declared16k repair budget; its untrained controls have no data label.
+ label=r.get('data_label','') or ('generic16k' if r['experiment']=='Y4' else '')
+ return r['experiment']+'-'+label+'-'+r['workload']
 
 def jobpath(d,name):
  _,i=parts(d[name]);return Path(i[i.index('--output')+1])

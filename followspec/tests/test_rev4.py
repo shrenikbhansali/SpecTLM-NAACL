@@ -106,3 +106,10 @@ def test_level_completion_requires_results_analysis_and_successful_launches():
  from followspec.rev4_complete import ready
  assert not ready('P1',[],{},dict(acceptance_counts={}),[])
  assert not ready('P2',[],{},dict(acceptance_counts={'Y10':12}),[])
+
+def test_qwen_timing_controls_join_the_only_declared_training_budget():
+ from followspec.rev4_results import timing_group
+ base=dict(experiment='Y4',workload='speed128',arm='reuse')
+ repair=base|dict(arm='full',data_label='generic16k')
+ assert timing_group(base)==timing_group(repair)
+ assert timing_group(repair|dict(workload='math500'))!=timing_group(repair)
