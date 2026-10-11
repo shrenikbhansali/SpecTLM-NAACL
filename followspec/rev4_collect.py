@@ -33,15 +33,24 @@ def reduce_p0(stage,out):
  for r in records:
   m=r['result']['metrics'];q=m['tau'];text.append(f"| Y3a | {r['arm']} | {r['workload']} | {q['n']} | {q['reference']['mean']:.3f} | {f(q['arm'])} | {f(q['delta'])} | {f(m['p1']['delta'])} |")
  text+=['','All timing uses n=128, three fresh processes × three warm passes. Workloads and template modes are separate strata.']
+ for exp in ['Y1','Y2']:
+  selected=[r for r in tr if r['experiment'].startswith(exp+'-') and r['arm']=='full' and r['reference']=='none']
+  if selected:
+   text+=['',f'**{exp}: measured full-repair speedups so far.** '+ '; '.join(f"target{r['target']} {r['experiment'].split('-',1)[1]} batch{r['batch']}: {f(r['metrics']['warm']['panel_speedup'])}×" for r in selected)+'. These quantify panel completion time on the specified A40 workloads; cold/startup and output-length effects are retained below.']
+ if records:
+  selected=[r for r in records if r['arm']=='full'];text+=['','**Y3a: same-mode repair contrasts so far.** '+'; '.join(f"{r['workload']} Δp1 {f(r['result']['metrics']['p1']['delta'])}, Δτ {f(r['result']['metrics']['tau']['delta'])}" for r in selected)+'. The thinking-on renders are shared across reuse and repairs.']
  text.extend(x for x in (out/'timing/report.md').read_text().splitlines() if x.startswith('|'))
  text+=['',f'[Raw acceptance and per-depth/length/source evidence](../{(out/"acceptance.json").relative_to(WS)}); [timing evidence](../{(out/"timing/results.json").relative_to(WS)}); [completion](../{(out/"progress.json").relative_to(WS)}).'];return '\n'.join(text),progress
 
-def integrate(text):
+def integrate(text,progress=None):
  with (WS/'artifacts/REV4-report.lock').open('a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX)
   p=WS/'reports/REV4-results-20261011.md';s=p.read_text();block=BEGIN+'\n'+text+'\n'+END
   if BEGIN in s:s=s[:s.index(BEGIN)]+block+s[s.index(END)+len(END):]
   else:s+='\n'+block+'\n'
+  if progress and progress['ready']:
+   for heading in ['## Y1 —','## Y2 —','## Y3a —']:
+    start=s.index(heading);stop=s.index('\n## ',start+1);part=s[start:stop];part=part.replace('Outcomes pending.','Complete; independently reduced estimates and what they establish are in the live P0 summary below.').replace('outcomes pending.','complete; see the independently reduced P0 summary below.');s=s[:start]+part+s[stop:]
   tmp=p.with_suffix('.md.rev4-tmp');tmp.write_text(s);tmp.replace(p)
 
 def ping(out,progress):
@@ -64,7 +73,7 @@ if __name__=='__main__':
  while True:
   rows=json.loads((a.stage/'plan.json').read_text());key=tuple((r['name'],(Path(r['run_dir'])/'results.json').exists()) for r in rows)
   if key!=last or all(x[1] for x in key):
-   out=a.output/datetime.now().strftime('%Y%m%d_%H%M%S_%f');text,progress=reduce_p0(a.stage,out);integrate(text);print('REDUCED',out,progress,flush=True);last=key
+   out=a.output/datetime.now().strftime('%Y%m%d_%H%M%S_%f');text,progress=reduce_p0(a.stage,out);integrate(text,progress);print('REDUCED',out,progress,flush=True);last=key
    if progress['ready']:ping(out,progress);break
   if not a.watch:break
   time.sleep(60)

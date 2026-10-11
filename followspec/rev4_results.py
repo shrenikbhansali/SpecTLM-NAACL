@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from followspec.rev2_analysis import load_raw
-from followspec.rev2_training_analysis import combine
+from followspec.rev2_training_analysis import combine,matched_training
 from followspec.rev2_timing_analysis import analyze as timing
 from followspec.review_followup import parts
 from ops.track_t import WS,DISPATCH,lines,write
@@ -42,14 +42,22 @@ def inventory():
  return list(records.values())
 
 def reduce(out):
- out.mkdir(exist_ok=False);rows=inventory();d={j['name']:j for j in lines(DISPATCH)};groups=defaultdict(list);timings=[];costs=[];pending=[];results=[]
+ out.mkdir(exist_ok=False);rows=inventory();d={j['name']:j for j in lines(DISPATCH)};groups=defaultdict(list);timings=[];costs=[];pending=[];results=[];train_pairs=defaultdict(dict);audits=[]
  for r in rows:
   root=Path(r['run_dir'])
   if r['kind']=='timing':timings.append(r|dict(experiment=timing_group(r)));continue
   if r['kind']=='eval' and r['arm']!='reuse':groups[r['experiment'],r['target'],r.get('data_label',''),r['arm'],r['workload']].append(r);continue
   if r['kind'] in ['train','fit','data']:
    if not (root/'results.json').exists():pending.append(r['name']);continue
-   res=json.loads((root/'results.json').read_text());cfg=json.loads((root/'config.json').read_text());costs.append(r|dict(measured_gpu_hours=res.get('wall_s',res.get('elapsed_s',0))/3600,n=res.get('n'),steps=res.get('steps'),gpu_memory_gb=res.get('max_gpu_allocated_gb'),data_sha256=cfg.get('data_sha256'),config=str(root/'config.json'),results=str(root/'results.json')))
+   res=json.loads((root/'results.json').read_text());cfg=json.loads((root/'config.json').read_text());costs.append(r|dict(measured_gpu_hours=res['wall_s']/3600,n=res.get('n'),steps=res.get('steps'),gpu_memory_gb=res.get('max_gpu_allocated_gb'),data_sha256=cfg.get('data_sha256'),config=str(root/'config.json'),results=str(root/'results.json')))
+   if r['kind']=='train':train_pairs[r['experiment'],r['target'],r['data_label'],r['seed']][r['arm']]=(cfg,root)
+ for key,pair in sorted(train_pairs.items()):
+  if 'fc' not in pair or 'full' not in pair:continue
+  a,b=pair['fc'][0],pair['full'][0];matched_training(a,b)
+  for field in ['algorithm','supervision','supervision_row','training_attention','max_anchors']:
+   if a.get(field)!=b.get(field):raise ValueError('unmatched intended controls: '+str(key)+' '+field)
+  audits.append(dict(experiment=key,passed=True,configs=[str(pair[x][1]/'config.json') for x in ['fc','full']]))
+ write(out/'matched-training.json',audits)
  for key,group in sorted(groups.items()):
   exp,t,label,arm,w=key;r=group[0];group=sorted(group,key=lambda r:r['seed'])
   if exp=='Y5':
