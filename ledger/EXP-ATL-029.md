@@ -25,3 +25,6 @@ R1Y8fit4000responses/1875707positions complete,0.507A40GPU-h,31.14GiBpeak; four 
 ## 2026-10-11T09:16:59.004195-04:00 — codex-1 — P0 completion ping
 
 All141P0 jobs successful, six acceptance and56timing contrasts independently reduced. P0 moved to review; P1/P2 remain separate. Evidence /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_P0_live_20261011_0322/20261011_091644_963445. No scientific promotion.
+
+### 2026-10-11T13:47:22.648660-04:00 — codex-1 — pilot followup/recovery
+P0 complete141/141. P1 rawY4/Y5/Y6-520/Y7-interface/Y8 results including regressions in reports/REV4-results-20261011.md; latest independent source artifacts/REV4_P1_live_20261011_1345. Disk stopped10attempts; originals retained, explicit same-setting retries in artifacts/REV4_disk_retries_20261011_1345. Operational interrupted cost~7.19training+3.21timingGPU-h (allocated launch-to-exit) is additional to completed costs. No scientific promotion.

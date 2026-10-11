@@ -12,22 +12,22 @@ All 48 processes queued: two targets, first128 MATH500, batches1/8, none/reuse/i
 Nine frozen acceptance cells and18 timing processes queued. Explicit detailed-thinking-on system turn, same raw questions across arms. Five decoded prompts inspected for each SPEED/MATH500/MATH32 render; loss masks are inapplicable to evaluation-only prompts. Complete; independently reduced estimates and what they establish are in the live P0 summary below.
 
 ## Y3b — Thinking-on repair
-Eight2k-prompt shards queued; first shard running. Five complete decoded responses and exact masks inspected at03:00; the sealer must reproduce those exact IDs/text/masks before the recorded review can unlock training. Exact existing 16k Alpaca questions, explicit thinking-on system, cap512. Sealing and training require matching five-sample decoded/mask audit.
+All eight2k-prompt shards completed (16k total;8.71A40GPU-h summed generation). Both repair trainings hit the350GB disk guard and were restarted unchanged in new directories at13:45ET. Five complete decoded responses and exact masks inspected at03:00; the sealer must reproduce those exact IDs/text/masks before the recorded review can unlock training. Exact existing 16k Alpaca questions, explicit thinking-on system, cap512. Sealing and training require matching five-sample decoded/mask audit.
 
 ## Y4 — Qwen DFlash
-MIT license, ungated, pinned revision9b41424b7109f9c5413454f481b09a82b85333f4 already cached. Existing pinned native converter produces block16 and taps[2,10,18,26,34]; no trainer behavior change required. E12 16k responses reused. Outcomes pending.
+MIT license, ungated, pinned revision9b41424b7109f9c5413454f481b09a82b85333f4 already cached. Existing pinned native converter produces block16 and taps[2,10,18,26,34]; no trainer behavior change required. E12 16k responses reused. Acceptance is complete and regresses: full Δτ −0.196 [−0.243,−0.157] on SPEED128 and −0.324 [−0.348,−0.300] on MATH500; interface also regresses (table below). What this establishes: this fixed native recipe does not transfer its Llama-family repair benefit to Qwen DFlash. Six batch1 timing processes require disk-interruption retries; batch8 completed.
 
 ## Y5 — Nemotron DFlash seeds
-Seeds1–2 for interface/full follow X5 seed0, with identical native objective/data. Outcomes pending.
+Complete, pooled with X5seed0 (3seeds). Full Δτ is0.499 [0.458,0.543] on SPEED128,0.626 [0.613,0.639] on MATH500,0.494 [0.324,0.604] on MATH32@8192. Interface also improves allthree panels. What this establishes: Nemotron DFlash repair gains reproduce across seeds and persist on longer math traces.
 
 ## Y6 — Official scaling
-The production plotted0.5k point is generic520, not the separate256-example component pilot. Exact existing520 responses will be reused, with n520 explicitly recorded; one epoch per D56. The old production point was200 steps, so it is not a matched-step initialization control. The64k point preserves the Alpaca+Dolly source mixture. Outcomes pending.
+The production plotted0.5k point is generic520, not the separate256-example component pilot. Exact existing520 responses will be reused, with n520 explicitly recorded; one epoch per D56. The old production point was200 steps, so it is not a matched-step initialization control. The64k point preserves the Alpaca+Dolly source mixture; both trainings stopped at the disk floor after4320/4482 of18448steps and restart unchanged (no optimizer restart state saved). The520-example point is complete: full Δτ0.580 [0.543,0.617] SPEED128 and0.765 [0.752,0.779] MATH500; interface0.439/0.574. What this establishes: measurable gains are already present at520examples; the64k scaling conclusion remains pending.
 
 ## Y7 — Parent supervision
-Official init, identical R1 response tokens; alternate parent supplies taps and soft labels. Outcomes pending.
+Both trainings complete. Interface evaluation complete; full evaluations recovered from a disk-refused publication and running. On SPEED128 the parent-supervised interface gains Δτ0.349 [0.322,0.377] over reuse, but is0.290 [0.259,0.319] below derivative-supervised interface; on MATH500 the corresponding shortfall is0.392 [0.380,0.403]. What this establishes: adapting to the derivative text with parent supervision helps, and derivative supervision adds a further gain at16k; this is not a feature-only causal decomposition.
 
 ## Y8 — Linear alignment
-R1 fit completed: n4000 responses,1,875,707 fitted token positions,1823.95s =0.507A40GPU-h, peak31.14GiB. Both LS/Procrustes exports share the identical frozen15-key body and change only fc.weight; FIX24 embedding hash matches the target exactly. Four frozen SPEED/MATH500 cells queued; acceptance pending. Nemotron fit remains queued. Per-tap least squares/orthogonal Procrustes, no affine bias, first4k audited training-response contexts. Exact block-diagonal folding into fc; no optimizer. Frozen evaluations publish after exports.
+Both fits and all eight evaluations complete. R1 fit: n4000responses,1,875,707positions,0.507A40GPU-h,31.14GiBpeak; Nemotron0.334GPU-h. Exports change onlyfc.weight and retain the FIX24 target embedding. R1 Procrustes improves Δτ0.144 [0.121,0.167] SPEED128 and0.166 [0.157,0.176] MATH500; least squares regresses. Both mappings regress on Nemotron. What this establishes: the uncentered linear-map baselines do not provide a reliable replacement for native-objective repair across targets. Exact per-tap paired-pass maps and block-diagonal folding; no optimizer.
 
 ## Y9 — Census statistics
 Complete CPU reduction: 163/174 checkpoints have own-domain panels (326 drafter/checkpoint rows); the 11 fallback-panel checkpoints are excluded from these pooled statistics. Multi-stage histories contribute to each applicable category. Unknown/repack/adversarial histories remain in provenance but are not assigned to the requested groups.
@@ -145,26 +145,69 @@ All timing uses n=128, three fresh processes × three warm passes. Workloads and
 <!-- REV4 LIVE END -->
 
 <!-- REV4 FOLLOWUP BEGIN -->
-Updated 2026-10-11T09:16:57.505103-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
+Updated 2026-10-11T13:46:01.525184-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
 
 | Experiment | Target | Data | Arm / reference | Workload | n/seeds | τ [95% CI] | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---|---|---:|---|---|---|
+| Y4 | 2 | generic16k | fc / reuse | math500 | 500/1 | 2.821 [2.778,2.865] | -0.398 [-0.423,-0.374] | -0.102 [-0.106,-0.097] |
+| Y4 | 2 | generic16k | fc / reuse | speed128 | 128/1 | 1.937 [1.855,2.025] | -0.245 [-0.290,-0.204] | -0.088 [-0.097,-0.078] |
+| Y4 | 2 | generic16k | full / reuse | math500 | 500/1 | 2.895 [2.850,2.941] | -0.324 [-0.348,-0.300] | -0.087 [-0.092,-0.083] |
+| Y4 | 2 | generic16k | full / reuse | speed128 | 128/1 | 1.985 [1.901,2.074] | -0.196 [-0.243,-0.157] | -0.074 [-0.083,-0.066] |
+| Y5 | 1 | generic16k | fc / reuse | math32-8192 | 32/3 | 2.729 [2.648,2.815] | 0.315 [0.152,0.423] | 0.105 [0.088,0.119] |
+| Y5 | 1 | generic16k | fc / reuse | math500 | 500/3 | 2.590 [2.568,2.613] | 0.420 [0.407,0.432] | 0.136 [0.133,0.139] |
+| Y5 | 1 | generic16k | fc / reuse | speed128 | 128/3 | 2.439 [2.355,2.528] | 0.362 [0.326,0.398] | 0.125 [0.114,0.135] |
+| Y5 | 1 | generic16k | full / reuse | math32-8192 | 32/3 | 2.908 [2.819,2.997] | 0.494 [0.324,0.604] | 0.136 [0.115,0.154] |
+| Y5 | 1 | generic16k | full / reuse | math500 | 500/3 | 2.796 [2.771,2.822] | 0.626 [0.613,0.639] | 0.177 [0.174,0.181] |
+| Y5 | 1 | generic16k | full / reuse | speed128 | 128/3 | 2.576 [2.484,2.672] | 0.499 [0.458,0.543] | 0.150 [0.139,0.161] |
 | Y6 | 0 | generic520 | fc / reuse | math500 | 500/1 | 2.502 [2.485,2.520] | 0.574 [0.562,0.586] | 0.170 [0.166,0.174] |
 | Y6 | 0 | generic520 | fc / reuse | speed128 | 128/1 | 2.203 [2.137,2.265] | 0.439 [0.409,0.470] | 0.142 [0.132,0.152] |
+| Y6 | 0 | generic520 | full / reuse | math500 | 500/1 | 2.693 [2.675,2.712] | 0.765 [0.752,0.779] | 0.209 [0.205,0.213] |
 | Y6 | 0 | generic520 | full / reuse | speed128 | 128/1 | 2.344 [2.270,2.412] | 0.580 [0.543,0.617] | 0.176 [0.164,0.187] |
+| Y7 | 0 | parent16k | fc / reuse | math500 | 500/1 | 2.382 [2.365,2.400] | 0.454 [0.443,0.464] | 0.141 [0.137,0.145] |
+| Y7 | 0 | parent16k | fc / child16k | math500 | 500/1 | 2.382 [2.365,2.400] | -0.392 [-0.403,-0.380] | -0.087 [-0.091,-0.083] |
+| Y7 | 0 | parent16k | fc / reuse | speed128 | 128/1 | 2.113 [2.049,2.174] | 0.349 [0.322,0.377] | 0.120 [0.110,0.129] |
+| Y7 | 0 | parent16k | fc / child16k | speed128 | 128/1 | 2.113 [2.049,2.174] | -0.290 [-0.319,-0.259] | -0.073 [-0.082,-0.064] |
+| Y8 | 0 |  | ls / reuse | math500 | 500/1 | 1.561 [1.550,1.572] | -0.367 [-0.376,-0.358] | -0.161 [-0.164,-0.157] |
+| Y8 | 0 |  | ls / reuse | speed128 | 128/1 | 1.440 [1.412,1.470] | -0.324 [-0.347,-0.299] | -0.142 [-0.153,-0.132] |
+| Y8 | 0 |  | procrustes / reuse | math500 | 500/1 | 2.094 [2.080,2.109] | 0.166 [0.157,0.176] | 0.046 [0.042,0.050] |
+| Y8 | 0 |  | procrustes / reuse | speed128 | 128/1 | 1.907 [1.856,1.959] | 0.144 [0.121,0.167] | 0.046 [0.038,0.055] |
+| Y8 | 1 |  | ls / reuse | math500 | 500/1 | 1.588 [1.578,1.598] | -0.099 [-0.106,-0.092] | -0.061 [-0.064,-0.057] |
+| Y8 | 1 |  | ls / reuse | speed128 | 128/1 | 1.555 [1.517,1.593] | -0.208 [-0.241,-0.177] | -0.082 [-0.094,-0.071] |
+| Y8 | 1 |  | procrustes / reuse | math500 | 500/1 | 1.623 [1.613,1.632] | -0.064 [-0.071,-0.056] | -0.025 [-0.028,-0.022] |
+| Y8 | 1 |  | procrustes / reuse | speed128 | 128/1 | 1.679 [1.633,1.725] | -0.084 [-0.104,-0.064] | -0.020 [-0.029,-0.012] |
 
 Timing: paired process/query-batch intervals; workloads, data budgets and thinking mode separate.
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
+| Y4--speed128 | 2 | 1 | reuse / none | 128/3 | 1.559 [1.506,1.620] | 1.557 [1.504,1.616] | 1.361 [1.232,1.546] |
 | Y4--speed128 | 2 | 8 | reuse / none | 128/3 | 0.993 [0.975,1.013] | 0.994 [0.976,1.014] | 0.743 [0.701,0.779] |
 
 Measured per-run costs exclude unmeasured dedicated-drafter estimates. Data generation is listed separately and shared across repair arms; no zero cost is imputed for incomplete data.
 | Experiment | Target | Kind | Arm | n | GPU-h |
 |---|---|---|---|---:|---:|
+| Y4 | 2 | train | fc | 16000 | 1.922 |
+| Y4 | 2 | train | full | 16000 | 2.074 |
 | Y6 | 0 | train | fc | 520 | 0.096 |
 | Y6 | 0 | train | full | 520 | 0.111 |
+| Y7 | 0 | train | fc | 16000 | 2.473 |
+| Y7 | 0 | train | full | 16000 | 2.484 |
+| Y5 | 1 | train | fc | 16000 | 0.911 |
+| Y5 | 1 | train | full | 16000 | 1.079 |
+| Y5 | 1 | train | fc | 16000 | 0.911 |
+| Y5 | 1 | train | full | 16000 | 1.078 |
 | Y3b | 1 | data |  | 2000 | 1.099 |
+| Y3b | 1 | data |  | 2000 | 1.082 |
+| Y3b | 1 | data |  | 2000 | 1.086 |
+| Y3b | 1 | data |  | 2000 | 1.088 |
+| Y3b | 1 | data |  | 2000 | 1.089 |
+| Y3b | 1 | data |  | 2000 | 1.089 |
+| Y3b | 1 | data |  | 2000 | 1.082 |
+| Y3b | 1 | data |  | 2000 | 1.093 |
 | Y8 | 0 | fit |  | 4000 | 0.507 |
+| Y8 | 1 | fit |  | 4000 | 0.334 |
 
-[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_0322/20261011_091655_724457/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_0322/20261011_091655_724457/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_0322/20261011_091655_724457/progress.json).
+[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_1345/20261011_134538_230899/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_1345/20261011_134538_230899/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_1345/20261011_134538_230899/progress.json).
 <!-- REV4 FOLLOWUP END -->
+
+## Recovery update — 2026-10-11T13:47:22.648660-04:00
+P0 all141jobs successful, completed09:17ET. Ten P1jobs stopped at350GB guard around11:27 (four trainings,six timing); this was a storage interruption, not an OOM. D47 completed optimizer-state reclamation removed39 optimizer_state_dict.pt files (70.369GB), with hashes and exit0/results proofs in [manifest](../artifacts/REV4_disk_state_cleanup_20261011_1350/manifest.json); no weights/configs/results/records removed. Free space~420GB. Allten unchanged retries launched13:44–13:45 in [new immutable stage](../artifacts/REV4_disk_retries_20261011_1345/recovery-proof.json). Two Y7full evaluation jobs also launched. Old failures remain on disk; paired reductions resolve explicit replacement identities and never mix partial attempts. The interrupted attempts consumed approximately7.19 allocated training GPU-h and3.21 timing GPU-h (queue launch-to-exit, including setup), additional operational cost to the completed-run costs below. No budget or seed selection changed. Official64k training+evaluation ETA Mon01–03ET, conditional on current throughput; P1deadline is at risk. Y10 waits mandatory P1 publication and still requires actual new response/mask inspection.
