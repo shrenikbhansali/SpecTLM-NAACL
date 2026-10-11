@@ -102,3 +102,15 @@ OneY3bfcSPEEDb1r1 startupfailure on srv2:0(3.54GiBfree vs31.09required), notdisk
 FixedCPUtiming reportjoining:Y4control data_label absent vsrepair generic16k caused valid completedrepairtimings omitted. Testfailed first, timing_group nowassigns thatsingledeclaredbudgettoY4controls; panelsremainstratified andrawconfigmatchingunchanged. Completion mistakenlyexpected14Y4contrasts; actualfourarms×twobatches yield10(reuse/none+fc/none+fc/reuse+full/none+full/reuse perbatch). Newfailingthenpassingtest; final19PASS. Commits752b087,9def718 merged/pushed; tags run-REV4-timing-reduction-20261011-1555 and run-REV4-completion-20261011-1557. Earlierrelativegit-C attemptfailed harmlessly, reranworktree merge correctly.
 Rawcontroller3360005 (replaces2958744) uses752b087, root artifacts/REV4_P1_live_20261011_1555; firstcorrectedreduction20261011_155224_596831 yields10Y4contrasts, bothrepairssluggishvsreuse. Completioncontroller3361799(replaces2958745),9def718 runtime1557, proofrootREV4_completion_20261011_1557. Logs P1-results-timing-fixed.log/completion-timing-fixed.log. Retryexport2962058, Y10gate2958746, Y10dataflows2347610/2347737,cache2348695,health2326531 unchanged. Newresultsreportedfaithfully; paper/untouched.
 Next: timingfinish/collisionretrycheck; maintain350GBfloor.64kexports→4acceptance+6timing thenY10gateunlocks, actualfive-response/maskreviews stillrequired aspriorHandoff. P1notcomplete; P2notlaunched. Noownerinputneededforauthorizedstages.
+
+### 2026-10-11T16:06:53.871070-04:00 — codex-1 — D50 launch health
+Free disk 392.1GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV4_launch_health_20261011_0250; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T16:25-04:00 — claude-ops — REV4 fold-in to paper/claude_final
+Verified against raw JSON (P0 acceptance/timing, P1 followup tables) and folded in: Y1 (n=128 b1), Y2, Y3a/Y3b, Y5, Y6 (0.5k),
+Y7, Y8 (as baseline), Y9 (pooled census). Details: paper/claude_final/README.md "REV4 integration".
+- ANOMALY: REV4-Y1-t1-reuse-math128-b1 process r2 warm speedup 0.84x vs 1.31x/1.31x for r0/r1 (cold panel 1.31x for all three);
+  this inflates Nemotron MATH-500 full/reuse to 2.01x [1.67,2.61]. Not used; paper keeps the E10b 32-prompt reuse value 1.32
+  [1.29,1.36] for that one cell (disclosed). Filed REV4-R1 rerun (board).
+- NOT USED: Y4 Qwen3 DFlash-b16 repair regresses on acceptance and speed; paper claims scoped to the Llama-3.1 DFlash drafter.
+- Pending for the paper: Y6 official 64k (ETA Mon 01–03 ET), Y3b full timing, REV4-R1, Y10.
