@@ -23,6 +23,11 @@ def active_attempts(rows,done):
   del active[old]
  return list(active.values())
 
+def descendant_record(record):
+ r=dict(record)
+ if 'replaces_job' in r:r['training_replaces_job']=r.pop('replaces_job')
+ return r
+
 def retry_job(source,record,stage):
  j=copy.deepcopy(source);name=record['name']+'-diskretry1';out=stage/name;o,i=parts(j)
  replace(o,'--tag',name);replace(i,'--output',out)

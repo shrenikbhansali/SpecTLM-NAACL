@@ -32,12 +32,16 @@ def replace_drafter(j,path,rev,method=None,k=None):
  j['args']=o+['--']+i;return j
 
 def eval_for(d,stage,r,drafter,revision,w):
+ from followspec.rev4_recovery import descendant_record
+ r=descendant_record(r)
  t=r['target'];name=r['name']+'-'+w;out=stage/'eval'/name;src=d['REV2-E12-t2-full-generic16k-speed128'] if t==2 else source_eagle(d,t,'reuse',w)
  prompts=prompt_path(d,t,w,r.get('thinking',False));j=eval_job(src,name,out,prompts);j=replace_drafter(j,drafter,revision,r['algorithm'],16 if r['algorithm']=='dflash' and t==2 else 10 if r['algorithm']=='dflash' else 4);o,i=parts(j)
  replace(i,'--max-new-tokens',8192 if w=='math32-8192' else 512);replace(i,'--max-model-len',12288 if w=='math32-8192' else 4096);j['args']=o+['--']+i
  return j,r|dict(kind='eval',workload=w,name=name,run_dir=str(out),training_dir=r.get('run_dir'),n=32 if w.startswith('math32') else 500 if w=='math500' else 128)
 
 def timed(d,stage,code,r,drafter,rev,arms=None,w='speed128'):
+ from followspec.rev4_recovery import descendant_record
+ r=descendant_record(r)
  t=r['target'];jobs=[];rows=[];arms=arms or [r['arm']]
  for arm in arms:
   for b in ([1,8] if r['experiment']=='Y4' else [1]):
@@ -95,7 +99,11 @@ def sweep(stage,code):
   if r['experiment']=='Y3b':
    for w in ['speed128','math500']:
     jj,rr=timed(d,stage,code,r,export,cfg['code_commit'],w=w);jobs+=jj;records+=rr
-  write(stage/('final-plan-'+r['name']+'.json'),records);publish(jobs,dest)
+  plan=stage/('final-plan-'+r['name']+'.json')
+  if plan.exists():
+   if json.loads(plan.read_text())!=records:raise ValueError('immutable export plan changed: '+str(plan))
+  else:write(plan,records)
+  publish(jobs,dest)
   from followspec.rev4_priority import promote
   promote()
  return pending

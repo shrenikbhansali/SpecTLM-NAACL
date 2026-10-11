@@ -24,3 +24,10 @@ def test_retry_preserves_timing_strata(tmp_path):
  r=row()|dict(kind='timing',workload='speed128',batch=1,replicate=2)
  _,r2=retry_job(source,r,tmp_path)
  assert all(r2[k]==r[k] for k in ['kind','workload','batch','replicate'])
+
+def test_downstream_cell_is_not_a_retry_of_its_training_job():
+ from followspec.rev4_recovery import descendant_record
+ r=row('retry',replaces_job='old')
+ d=descendant_record(r)
+ assert 'replaces_job' not in d and d['training_replaces_job']=='old'
+ assert r['replaces_job']=='old'
