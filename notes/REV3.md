@@ -41,3 +41,34 @@ Free disk 367.8GB; new failures=[]; unresolved failures=[]. Each failure has an 
 ## 2026-10-10T17:01:42.289542-04:00 — codex-1 — X5 completion ping
 
 All 86 jobs and required raw/CIs complete; pilot; evidence /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_live_analysis_20261010_1420/20261010_170126_526250. Board moved to review.
+
+### 2026-10-10T17:12:30.951447-04:00 — codex-1 — D50 launch health
+Free disk 360.9GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-10T18:12:32.452701-04:00 — codex-1 — D50 launch health
+Free disk 357.1GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-10T19:12:33.938284-04:00 — codex-1 — D50 launch health
+Free disk 354.3GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-10T20:12:35.432717-04:00 — codex-1 — D50 launch health
+Free disk 354.0GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-10T21:12:36.995334-04:00 — codex-1 — D50 launch health
+Free disk 351.3GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-10T22:12:38.512799-04:00 — codex-1 — D50 launch health
+Free disk 351.2GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-10T23:12:40.029144-04:00 — codex-1 — D50 launch health
+Free disk 350.6GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T00:12:41.550050-04:00 — codex-1 — D50 launch health
+Free disk 349.7GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+### 2026-10-11T01:12:44.560004-04:00 — codex-1 — D50 launch health
+Free disk 348.8GB; new failures=[]; unresolved failures=[]. Each failure has an immutable alert file in /home/heck2/sbhansali8/SpecTLM/artifacts/REV3_X5_launch_health_20261010_1420; explicit resolution records required. No failed job is silently retried or treated as running.
+
+## 2026-10-11T02:03:03.302371-04:00 — codex-1 — Completion audit and Handoff
+
+Checked canonical queue logs, immutable completion snapshots, raw acceptance/timing reducers and board. X5 all 86 successful at Oct10 17:01; REV2 all mandatory P0/P1/P2 complete by20:33 (270/106/8 jobs). No manuscript edit. New owner-facing synthesis reports/REV2-REV3-synthesis-20261011.md records positive cross-architecture/family/long-serving evidence and unresolved matched-capacity localization, long-training-data and vocabulary controls. Board remains review. Other REV3 IDs are not present in canonical dispatch; do not conflate X5 completion with their completion. Last hourly free space ~349 GB is below350 floor; no launches. Next step is owner/claude-ops integration and remaining REV3 work under disk admission.
