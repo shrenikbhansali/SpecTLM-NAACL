@@ -139,11 +139,11 @@ Existing production, one-epoch, one-seed controls: on SPEED128, generic minus se
 <!-- REV2 LIVE RAW RESULTS BEGIN -->
 ## Live raw-result tables
 
-Independent reduction snapshot: 2026-10-10T17:07:38.377443-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
+Independent reduction snapshot: 2026-10-10T20:33:02.159506-04:00. Incomplete groups remain pending; no provisional acceptance values are substituted.
 
 ### E8 matched-capacity
 Completed comparison rows: 12; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E8/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/E8/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/E8/results.json)
 
 | Target | Parameters | Panel | n/seeds | Interface τ | Decoder τ | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---:|---:|---:|---|---|
@@ -161,8 +161,8 @@ Completed comparison rows: 12; pending inputs: 0.
 | 1 | lowrank1.229M | math500 | 500/1 | 2.455 | 2.451 | +0.004 [-0.005,+0.014] | +0.005 [+0.002,+0.009] |
 
 ### E9/E12/E13/E14/E15/E17 acceptance
-Completed comparison rows: 71; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/acceptance/results.json)
+Completed comparison rows: 74; pending inputs: 0.
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/acceptance/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/acceptance/results.json)
 
 | Experiment | Target | Arm / data | Panel | n/seeds | p1 [95% CI] | τ [95% CI] | Δτ vs reuse [95% CI] | Oracle recovery [95% CI] |
 |---|---|---|---|---:|---|---|---|---|
@@ -173,6 +173,9 @@ Completed comparison rows: 71; pending inputs: 0.
 | E12 | 2 | independent /  | math500 | 500/1 | 0.737 [0.731,0.742] | 3.181 [3.149,3.212] | 0.862 [0.838,0.886] | -- |
 | E12 | 2 | independent /  | speed128 | 128/1 | 0.603 [0.590,0.617] | 2.413 [2.345,2.483] | 0.487 [0.431,0.546] | -- |
 | E12 | 2 | reuse /  | math500 | 500/1 | 0.625 [0.620,0.630] | 2.318 [2.300,2.337] | 0.000 [0.000,0.000] | -- |
+| E13 | 0 | scratch64k /  | math500 | 500/1 | 0.536 [0.529,0.543] | 1.965 [1.947,1.983] | 0.037 [0.017,0.057] | 0.019 [0.009,0.030] |
+| E13 | 0 | scratch64k /  | math64 | 64/1 | 0.559 [0.538,0.581] | 2.025 [1.969,2.089] | 0.102 [0.037,0.170] | 0.052 [0.019,0.085] |
+| E13 | 0 | scratch64k /  | speed128 | 128/1 | 0.440 [0.420,0.459] | 1.743 [1.703,1.784] | -0.021 [-0.065,0.024] | -0.019 [-0.060,0.021] |
 | E14 | 0 | fc /  | math500 | 500/3 | 0.723 [0.719,0.727] | 2.775 [2.755,2.794] | 0.847 [0.833,0.860] | 0.442 [0.435,0.449] |
 | E14 | 0 | full /  | math500 | 500/3 | 0.755 [0.750,0.759] | 2.967 [2.945,2.988] | 1.039 [1.020,1.056] | 0.543 [0.535,0.550] |
 | E14 | 1 | fc /  | math500 | 500/1 | 0.702 [0.697,0.707] | 2.664 [2.643,2.684] | 0.978 [0.961,0.995] | -- |
@@ -241,6 +244,7 @@ Completed comparison rows: 71; pending inputs: 0.
 |---|---|---:|---:|---:|---:|---:|
 | E12 fc generic16k | 2 | 0 | 16000 | 4797 | 2048 | 2.078 |
 | E12 full generic16k | 2 | 0 | 16000 | 4797 | 2048 | 2.769 |
+| E13 scratch64k  | 0 | 0 | 64000 | 18448 | 2048 | 10.164 |
 | E15 full-reselect32k  | 0 | 0 | 16000 | 4477 | 2048 | 2.745 |
 | E15 full-reselect32k  | 1 | 0 | 16000 | 2625 | 2048 | 1.369 |
 | E17 whole-r16  | 0 | 0 | 16000 | 4477 | 2048 | 2.527 |
@@ -262,7 +266,7 @@ Completed comparison rows: 71; pending inputs: 0.
 
 ### E10/E11/E12 timing
 Completed comparison rows: 90; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/timing/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/timing/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/timing/results.json)
 
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
@@ -359,7 +363,7 @@ Completed comparison rows: 90; pending inputs: 0.
 
 ### E16 resources
 Completed comparison rows: 4; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/E16/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/E16/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/E16/results.json)
 
 | Arm | Steps | Mean all / steady s | Steady p10–p90 s | Peak allocated / reserved GiB | Mutable export MB | Compact checkpoints MB |
 |---|---:|---|---|---|---:|---:|
@@ -375,7 +379,7 @@ Completed comparison rows: 4; pending inputs: 0.
 
 ### E9/E12 response data
 Completed comparison rows: 3; pending inputs: 0.
-[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_170613_478699/data/results.json)
+[Immutable table](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/data/report.md) · [Numbers, intervals, n and sources](../artifacts/REV2_live_analysis_20261010_1255/20261010_203134_917685/data/results.json)
 
 | Target | Data | n | Answer tokens | Mean length | Capped | Repeated4gram >50% | Generation GPUh |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -392,6 +396,6 @@ Completed comparison rows: 3; pending inputs: 0.
 | Level | Successful jobs / planned / final expected | Analysis complete | Ready for review |
 |---|---:|---|---|
 | P0 | 270 / 270 / 270 | True | True |
-| P1 | 102 / 103 / 106 | False | False |
+| P1 | 106 / 106 / 106 | True | True |
 | P2 | 8 / 8 / 8 | True | True |
 <!-- REV2 LIVE RAW RESULTS END -->
