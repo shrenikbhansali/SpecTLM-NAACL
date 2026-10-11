@@ -1,5 +1,5 @@
 """REV4 independent raw reduction; timing strata never mix workloads/modes."""
-import argparse,json,time,subprocess
+import argparse,json,time,subprocess,fcntl
 from collections import defaultdict
 from pathlib import Path
 from datetime import datetime
@@ -37,10 +37,12 @@ def reduce_p0(stage,out):
  text+=['',f'[Raw acceptance and per-depth/length/source evidence](../{(out/"acceptance.json").relative_to(WS)}); [timing evidence](../{(out/"timing/results.json").relative_to(WS)}); [completion](../{(out/"progress.json").relative_to(WS)}).'];return '\n'.join(text),progress
 
 def integrate(text):
- p=WS/'reports/REV4-results-20261011.md';s=p.read_text();block=BEGIN+'\n'+text+'\n'+END
- if BEGIN in s:s=s[:s.index(BEGIN)]+block+s[s.index(END)+len(END):]
- else:s+='\n'+block+'\n'
- tmp=p.with_suffix('.md.rev4-tmp');tmp.write_text(s);tmp.replace(p)
+ with (WS/'artifacts/REV4-report.lock').open('a') as lock:
+  fcntl.flock(lock,fcntl.LOCK_EX)
+  p=WS/'reports/REV4-results-20261011.md';s=p.read_text();block=BEGIN+'\n'+text+'\n'+END
+  if BEGIN in s:s=s[:s.index(BEGIN)]+block+s[s.index(END)+len(END):]
+  else:s+='\n'+block+'\n'
+  tmp=p.with_suffix('.md.rev4-tmp');tmp.write_text(s);tmp.replace(p)
 
 def ping(out,progress):
  if not progress['ready']:return

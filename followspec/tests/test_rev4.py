@@ -69,3 +69,12 @@ def test_rev4_priority_and_data_gate():
  with pytest.raises(ValueError):checked_audit({'passed':True,'data_sha256':'old'},'new')
  with pytest.raises(ValueError):checked_audit({'passed':False,'data_sha256':'x'},'x')
  assert checked_audit({'passed':True,'data_sha256':'x'},'x')
+
+def test_rev4_reference_and_timing_strata():
+ from followspec.rev4_results import reference_name,timing_group
+ r=dict(experiment='Y7',target=0,workload='math500',arm='fc')
+ assert reference_name(r)=='D52-MATH500-official-reused'
+ assert reference_name(r,'child16k')=='D52-MATH500-official-fc'
+ assert reference_name(r|dict(experiment='Y5',target=1,workload='math32-8192'))=='REV3-X5-t1-reuse-seed0-math32-8192'
+ assert reference_name(r|dict(experiment='Y3b',target=1))=='REV4-Y3a-t1-reuse-math500'
+ assert timing_group(r|dict(data_label='a'))!=timing_group(r|dict(data_label='b'))
