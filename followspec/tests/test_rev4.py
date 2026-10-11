@@ -57,3 +57,15 @@ def test_census_multistage_membership_is_explicit():
  assert memberships('SFT+teacher_distillation+offline_preference')==['preference','SFT','distillation']
  assert memberships('unknown')==[]
  assert memberships('SFT+on_policy_RL')==['on_policy_RL','SFT']
+
+def test_rev4_priority_and_data_gate():
+ from followspec.rev4_priority import priority
+ names=['REV4-Y10-t0-data-0','REV4-Y8-t0-linearfit','REV4-Y3b-t1-data-0','REV4-Y5-t1-fc-generic16k-seed1','REV4-Y7-t0-fc-parent16k-seed0','REV4-Y6-t0-full-generic64k-seed0','REV4-Y4-t2-fc-generic16k-seed0','REV4-Y3a-t1-full-speed128','REV4-Y1-t0-none-speed128']
+ assert sorted(names,key=lambda n:priority({'name':n}))==list(reversed(names))
+ from followspec.rev4_data_training import specs,checked_audit
+ assert len(specs('Y3b',1))==2
+ assert len(specs('Y10',0))==4
+ assert all(r['thinking'] for r in specs('Y3b',1))
+ with pytest.raises(ValueError):checked_audit({'passed':True,'data_sha256':'old'},'new')
+ with pytest.raises(ValueError):checked_audit({'passed':False,'data_sha256':'x'},'x')
+ assert checked_audit({'passed':True,'data_sha256':'x'},'x')

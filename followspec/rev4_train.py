@@ -37,13 +37,15 @@ def eval_for(d,stage,r,drafter,revision,w):
  replace(i,'--max-new-tokens',8192 if w=='math32-8192' else 512);replace(i,'--max-model-len',12288 if w=='math32-8192' else 4096);j['args']=o+['--']+i
  return j,r|dict(kind='eval',workload=w,name=name,run_dir=str(out),training_dir=r.get('run_dir'),n=32 if w.startswith('math32') else 500 if w=='math500' else 128)
 
-def timed(d,stage,code,r,drafter,rev,arms=None):
- t=r['target'];jobs=[];rows=[];w='speed128';arms=arms or [r['arm']]
+def timed(d,stage,code,r,drafter,rev,arms=None,w='speed128'):
+ t=r['target'];jobs=[];rows=[];arms=arms or [r['arm']]
  for arm in arms:
   for b in ([1,8] if r['experiment']=='Y4' else [1]):
    for rep in range(3):
     src=d[f'REV2-E12-t2-timing-{ "full" if arm not in ["none","reuse"] else arm}-b{b}-r{rep}'] if t==2 else d[f'D52-timing-'+('r1' if t==0 else 'nemo')+f'-'+('none' if arm=='none' else 'official-reused')+f'-b{b}-r{rep}']
-    name=r['name']+f'-{arm}-timing-b{b}-r{rep}';out=stage/'timing'/name;j=make_timing(src,name,out,prompt_path(d,t,w),code,b)
+    prompts=prompt_path(d,t,w,r.get('thinking',False))
+    if r.get('thinking') and w=='math500':prompts=WS/'artifacts/REV4_P0_20261011_0240/panels/t1-thinking-math128.jsonl'
+    name=r['name']+f'-{arm}-{w}-timing-b{b}-r{rep}';out=stage/'timing'/name;j=make_timing(src,name,out,prompts,code,b)
     if arm!='none':j=replace_drafter(j,drafter,rev,r['algorithm'],16 if t==2 and r['algorithm']=='dflash' else 10 if r['algorithm']=='dflash' else 4)
     jobs.append(j);rows.append(r|dict(kind='timing',workload=w,name=name,run_dir=str(out),arm=arm,batch=b,replicate=rep,n=128))
  return jobs,rows
@@ -89,7 +91,12 @@ def sweep(stage,code):
    j,rr=eval_for(d,stage,r,export,cfg['code_commit'],w);jobs.append(j);records.append(rr)
   if r['experiment']=='Y4' or r['experiment']=='Y6' and r['data_label']=='generic64k':
    jj,rr=timed(d,stage,code,r,export,cfg['code_commit']);jobs+=jj;records+=rr
+  if r['experiment']=='Y3b':
+   for w in ['speed128','math500']:
+    jj,rr=timed(d,stage,code,r,export,cfg['code_commit'],w=w);jobs+=jj;records+=rr
   write(stage/('final-plan-'+r['name']+'.json'),records);publish(jobs,dest)
+  from followspec.rev4_priority import promote
+  promote()
  return pending
 
 if __name__=='__main__':
