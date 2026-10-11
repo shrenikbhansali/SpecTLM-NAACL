@@ -8,6 +8,10 @@ from followspec.rev4_results import inventory
 from followspec.rev4_math import prerequisites
 from ops.track_t import WS,lines,write
 
+def timing_counts():
+ # Y4: two batches times (reuse/none plus two repairs vs none and reuse).
+ return {'Y4':2*(1+2*2),'Y6':2*2,'Y3b':2*2}
+
 def ready(level,rows,done,progress,timing):
  expected={'Y3b':6,'Y4':4,'Y5':6,'Y6':8,'Y7':8,'Y8':8} if level=='P1' else {'Y10':24}
  subset=[r for r in rows if r['experiment'] in expected]
@@ -16,7 +20,7 @@ def ready(level,rows,done,progress,timing):
  if level=='P1':
   if not prerequisites(subset)['ready'] or not progress.get('y9_complete'):return False
   counts=Counter(r['experiment'].split('-')[0] for r in timing)
-  return all(counts[k]==v for k,v in {'Y4':14,'Y6':4,'Y3b':4}.items())
+  return all(counts[k]==v for k,v in timing_counts().items())
  c=Counter(r['kind'] for r in subset)
  return all(c[k]==v for k,v in {'data':16,'train':8,'eval':24}.items())
 

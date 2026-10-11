@@ -113,3 +113,8 @@ def test_qwen_timing_controls_join_the_only_declared_training_budget():
  repair=base|dict(arm='full',data_label='generic16k')
  assert timing_group(base)==timing_group(repair)
  assert timing_group(repair|dict(workload='math500'))!=timing_group(repair)
+
+def test_y4_completion_matches_four_arms_two_batches():
+ from followspec.rev4_complete import timing_counts
+ # Per batch: reuse/none, fc/none, fc/reuse, full/none, full/reuse.
+ assert timing_counts()=={'Y4':10,'Y6':4,'Y3b':4}
