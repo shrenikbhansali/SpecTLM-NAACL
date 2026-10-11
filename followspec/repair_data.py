@@ -14,8 +14,9 @@ def tokenizer_for(path):
     return PreTrainedTokenizerFast.from_pretrained(path,local_files_only=True)
 
 
-def render(tok,text):
-    text=tok.apply_chat_template([dict(role='user',content=text)],tokenize=False,add_generation_prompt=True,enable_thinking=False)
+def render(tok,text,system_prompt=None):
+    messages=([dict(role="system",content=system_prompt)] if system_prompt is not None else [])+[dict(role="user",content=text)]
+    text=tok.apply_chat_template(messages,tokenize=False,add_generation_prompt=True,enable_thinking=False)
     return tok.encode(text,add_special_tokens=False)
 
 
@@ -41,22 +42,23 @@ def elicited_query(text):
 
 
 def validate_context_budget(prompt_ids,max_new_tokens,budget):
-    if budget not in {2048,4096} or any(len(ids)+max_new_tokens>budget for ids in prompt_ids):
+    if budget not in {2048,4096,8192} or any(len(ids)+max_new_tokens>budget for ids in prompt_ids):
         raise ValueError('response plus prompt exceeds explicit training context budget; no truncation')
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','forbidden','output']:p.add_argument('--'+key,required=True)
+    p.add_argument('--system-prompt',help='D56 optional literal system message for public-query responses; default unchanged')
     p.add_argument('--elicitation',choices=['magpie','instruction'],default='magpie');p.add_argument('--public-queries');p.add_argument('--count',type=int,default=520)
     p.add_argument('--seed',type=int,default=7001);p.add_argument('--max-new-tokens',type=int,default=512)
-    p.add_argument('--training-context-budget',type=int,choices=[2048,4096],default=2048)
+    p.add_argument('--training-context-budget',type=int,choices=[2048,4096,8192],default=2048)
     p.add_argument('--min-free-gb',type=float,default=0)
     p.add_argument('--query-rounds',type=int,default=64);p.add_argument('--dry-run',action='store_true');a=p.parse_args()
     row=json.loads(Path(a.target_row).read_text());target=Path(row['path'])
     if target.name!=row['revision'] or not row['license']:raise ValueError('pinned licensed target required')
     if a.count<5 or a.max_new_tokens<4:raise ValueError('five examples and nonempty answers required')
-    cfg=vars(a)|dict(target=row,engine_version='0.31.0',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),forbidden_sha256=file_hash(a.forbidden),public_sha256=file_hash(a.public_queries) if a.public_queries else None,query_temperature=.8,response_temperature=0.,batch_size=8,max_model_len=4096,enable_thinking=False)
+    cfg=vars(a)|dict(target=row,engine_version='0.31.0',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),forbidden_sha256=file_hash(a.forbidden),public_sha256=file_hash(a.public_queries) if a.public_queries else None,query_temperature=.8,response_temperature=0.,batch_size=8,max_model_len=max(4096,a.training_context_budget),enable_thinking=False)
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     unpaused();require_free(a.output,a.min_free_gb)
     if importlib.metadata.version('vllm')!='0.31.0':raise ValueError('wrong engine')
@@ -66,7 +68,7 @@ def main():
     tok=tokenizer_for(target);out=Path(a.output);out.mkdir(parents=True,exist_ok=False);write(out/'config.json',cfg)
     forbidden=[r.get('raw_prompt',r.get('prompt')) for r in read(a.forbidden)]
     start=time.monotonic();queries=[]
-    with managed_engine(lambda:LLM(model=str(target),tokenizer=str(target),dtype='bfloat16',seed=a.seed,max_model_len=4096,gpu_memory_utilization=.7,enable_prefix_caching=False)) as llm:
+    with managed_engine(lambda:LLM(model=str(target),tokenizer=str(target),dtype='bfloat16',seed=a.seed,max_model_len=cfg['max_model_len'],gpu_memory_utilization=.7,enable_prefix_caching=False)) as llm:
         if a.public_queries:
             candidates=read(a.public_queries)
             candidates=sorted(candidates,key=lambda r:hashlib.sha256((str(a.seed)+r['prompt']).encode()).hexdigest())
@@ -96,7 +98,7 @@ def main():
             write(out/'query_filter.json',report);queries=queries[:a.count]
         if len(queries)!=a.count:
             jsonl(out/'partial_queries.jsonl',queries);raise ValueError(f'query shortfall {len(queries)}/{a.count}')
-        queries=[r|dict(rendered_token_ids=render(tok,r['prompt']),split='training') for r in queries]
+        queries=[r|dict(rendered_token_ids=render(tok,r['prompt'],a.system_prompt),split='training') for r in queries]
         validate_context_budget([r['rendered_token_ids'] for r in queries],a.max_new_tokens,a.training_context_budget)
         jsonl(out/'queries.jsonl',queries);samples=[]
         with (out/'per_prompt.jsonl').open('x') as f:

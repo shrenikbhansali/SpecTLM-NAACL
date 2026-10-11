@@ -32,3 +32,13 @@ def test_qwen_dflash_timing_native_k16_opt_in():
  args=['--target','t','--target-revision','r','--prompts','p','--frozen-harness','h','--output','o']
  assert parser().parse_args(args).K==4
  a=parser().parse_args(args+['--method','dflash','--K','16']);assert timing_speculation(a)['num_speculative_tokens']==16
+
+def test_response_system_prompt_opt_in_and_long_budget():
+ from followspec.repair_data import render,validate_context_budget
+ class Tok:
+  def apply_chat_template(self,messages,**kwargs):return str(messages)
+  def encode(self,text,**kwargs):return text
+ tok=Tok();default=render(tok,'q');assert 'system' not in default
+ assert 'detailed thinking on' in render(tok,'q',system_prompt='detailed thinking on')
+ validate_context_budget([[1]*200],4096,8192)
+ with pytest.raises(ValueError):validate_context_budget([[1]*5000],4096,8192)
