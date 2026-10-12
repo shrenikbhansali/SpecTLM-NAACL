@@ -133,3 +133,16 @@ Not used: REV5 drift-vs-retention (no consistent association); whole-LoRA table 
 no release statement (D-56). Pending: REV5-LONG (n=128 8k-cap acceptance) if it lands.
 Owner D-57 (14:50 ET): abstract ends with a bold single line "Codebase will be released upon publication." (\mbox, no wrap);
 abstract trimmed to 198 words ("LLMs", "a base model's released drafter", "features", "without original training data", "reuse breaks").
+
+## REV5 EDA positioning + long128 (2026-10-12 ~17:20 ET, claude-ops; sources: reports/REV5-EDA-comparison-20261012.md, reports/REV5-long128-results-20261012.md)
+- Related Work: dedicated "Adapting drafters when the target changes" paragraph opening "The closest work to ours is EDA": EDA designs
+  an adaptation-oriented EAGLE-style drafter (shared/private gated FFN experts; private experts trained on target-regenerated responses
+  selected by a representation criterion; math/code/medical fine-tunes of one base). ReFit: repairs released drafters in place, adds no
+  parameters/experts/routing, unchanged checkpoint structure and engine; ReFit-interface re-fits the input projection because the read
+  hidden states shift (crossover), decoder/head bit-identical; native objectives for multi-layer EAGLE-3 and DFlash; arbitrary
+  third-party post-training incl. reasoning pipelines; census says when. Avoided per audit: no "faster/cheaper than EDA", no "EDA
+  requires training from scratch", no "EDA never adapts fc".
+- §4: "unlike expert-based adaptation (EDA), adds no parameters or operators". Intro: "designs new drafter architectures (EDA)".
+- §6.2 + App. B: long128 (first 128 MATH-500, 8,192 cap, greedy): R1 1.90 -> 2.51/2.65 (dedicated 3.49), Nemotron 1.62 -> 2.40/2.58;
+  paired full gains 0.76 [0.68,0.83], 0.96 [0.89,1.03].
+- Space: merged online-adaptation into "Aligning drafters", inline operating points, shorter Table 1/3 captions and a few sentences.
