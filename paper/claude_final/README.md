@@ -131,3 +131,5 @@ Census wording descriptive ("Reuse fails under extensive off-policy post-trainin
 clauses (attackable: DFlash 92%, text-predictability artifact). Method figure numbers -> 1.34x/1.85x/2.08x. Abstract 199 words.
 Not used: REV5 drift-vs-retention (no consistent association); whole-LoRA table (beats ReFit-interface); Qwen DFlash (regresses);
 no release statement (D-56). Pending: REV5-LONG (n=128 8k-cap acceptance) if it lands.
+Owner D-57 (14:50 ET): abstract ends with a bold single line "Codebase will be released upon publication." (\mbox, no wrap);
+abstract trimmed to 198 words ("LLMs", "a base model's released drafter", "features", "without original training data", "reuse breaks").
