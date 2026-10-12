@@ -317,7 +317,7 @@ Repaired drafters combine high acceptance with near-free drafting and are the fa
     \cmidrule(lr){2-3} \cmidrule(lr){5-6}
     Method & bs\,1 & bs\,8 & bs\,1 & bs\,1 & bs\,8 & bs\,1 \\
     \midrule
-    Reused & 1.49 & 1.33 & 1.33 & 1.32 & 1.36 & 1.12 \\
+    Reused & 1.49 & 1.33 & 1.33 & 1.30 & 1.36 & 1.12 \\
     Independent (1B) & 1.58 & 1.39 & -- & 1.50 & 1.50 & -- \\
     \refitI{} & 2.15 & 1.93 & 1.63 & 2.07 & 2.12 & 1.54 \\
     \refitF{} & \textbf{2.32} & \textbf{2.05} & \textbf{1.77} & \textbf{2.22} & \textbf{2.23} & \textbf{1.63} \\
@@ -587,7 +587,6 @@ Tables~\ref{tab:timing} and~\ref{tab:timing-dflash} report every wall-clock spee
   \label{fig:cost}
 \end{figure}
 
-The Nemotron-Nano reuse cell on MATH-500 at batch size 1 uses the first 32 problems.
 
 \begin{table*}[t]
   \centering
@@ -605,7 +604,7 @@ The Nemotron-Nano reuse cell on MATH-500 at batch size 1 uses the first 32 probl
      & \refitF{} & 1.85\,{\scriptsize[1.76, 1.95]} & 1.29\,{\scriptsize[1.12, 1.50]} & 2.32\,{\scriptsize[2.29, 2.35]} & 2.05\,{\scriptsize[2.01, 2.10]} & 1.77\,{\scriptsize[1.44, 2.27]} \\
      & Dedicated & 2.08\,{\scriptsize[1.97, 2.19]} & 1.41\,{\scriptsize[1.20, 1.67]} & 2.94\,{\scriptsize[2.90, 2.98]} & 2.54\,{\scriptsize[2.43, 2.63]} & 2.11\,{\scriptsize[1.68, 2.75]} \\
     \midrule
-    Nemotron-Nano & Reused & 1.33\,{\scriptsize[1.27, 1.39]} & 1.13\,{\scriptsize[1.05, 1.20]} & 1.32\,{\scriptsize[1.29, 1.36]} & 1.36\,{\scriptsize[1.19, 1.69]} & 1.12\,{\scriptsize[1.00, 1.28]} \\
+    Nemotron-Nano & Reused & 1.33\,{\scriptsize[1.27, 1.39]} & 1.13\,{\scriptsize[1.05, 1.20]} & 1.30\,{\scriptsize[1.22, 1.38]} & 1.36\,{\scriptsize[1.19, 1.69]} & 1.12\,{\scriptsize[1.00, 1.28]} \\
      & Independent (1B) & 1.43\,{\scriptsize[1.38, 1.49]} & 1.24\,{\scriptsize[1.20, 1.27]} & 1.50\,{\scriptsize[1.48, 1.52]} & 1.50\,{\scriptsize[1.29, 1.84]} & -- \\
      & \refitI{} & 1.74\,{\scriptsize[1.63, 1.86]} & 1.39\,{\scriptsize[1.22, 1.60]} & 2.07\,{\scriptsize[2.04, 2.10]} & 2.12\,{\scriptsize[1.82, 2.64]} & 1.54\,{\scriptsize[1.31, 1.86]} \\
      & \refitF{} & 1.84\,{\scriptsize[1.70, 1.97]} & 1.42\,{\scriptsize[1.23, 1.67]} & 2.22\,{\scriptsize[2.18, 2.25]} & 2.23\,{\scriptsize[1.92, 2.75]} & 1.63\,{\scriptsize[1.37, 2.02]} \\

@@ -23,3 +23,10 @@ Next: watch Y6 64k timing (fc r0/r2, full r0 retry2/r2) and REV4-R1; fold 64k sp
 - Y6 64k timing (watcher reduction 20261012_031342): full/none 1.905x [1.802,2.007], full/reuse 1.426x → paper §6.4.
 - ANOMALY: Y6 64k fc timing original r1 (REV4-Y6-…-fc-speed128-timing-b1-r1, srv4:7, 21:50–23:38) 1.058x vs 1.804/1.798x;
   fc/none 1.459x [1.07,1.87]. Not used in the paper; no rerun queued (interface 64k speed not needed for the story).
+
+### 2026-10-12T05:00-04:00 — claude-ops — REV4-R1 complete
+All six processes succeeded (reuse-r1 on attempt 7, srv4:4). Reduced with followspec.rev2_timing_analysis (same reducer as Y1):
+artifacts/OPS_REV4R1_rerun_20261012_0046/analysis-plan.json → analysis_20261012_0500/results.json.
+Nemotron reuse/none, MATH-500 first 128, b1: 1.296x [1.218,1.383]; process ratios 1.291/1.370/1.232 (wider spread than usual,
+shared-node contention); cold 1.268x. Consistent with the undisturbed original processes (1.310/1.313). Paper updated (Table 2,
+App. D); 32-prompt stand-in removed. REV4-R1 → review.

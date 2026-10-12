@@ -108,3 +108,5 @@ interface 2.484 (0.721; 66.4%); MATH-500 full 3.067, interface 2.874. Training 9
 64k timing (3 processes) still running; full SPEED eval needed a GPU-collision retry (identical command).
 64k official timing (03:20 ET): full/none 1.905x [1.802,2.007] (processes 1.922/1.904/1.888), full/reuse 1.426x [1.381,1.472]
 -> §6.4. NOT used: fc 64k timing, original r1 process disturbed (1.058x vs 1.804x/1.798x; ran 1h48m on srv4:7).
+REV4-R1 (05:00 ET): Nemotron reuse/none MATH-500 first-128 b1 rerun = 1.296x [1.218,1.383] (processes 1.291/1.370/1.232;
+cold 1.268) -> Table 2 and App. D (replaces the 32-prompt 1.32 stand-in; disclosure sentence removed).
