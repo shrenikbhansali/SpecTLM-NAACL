@@ -21,3 +21,6 @@ CPU-only completion reducer artifacts/REV5_long128_20261012_1430/watch.py compil
 
 ### 2026-10-12T14:37:56.473810-04:00 — codex-1 — Handoff (queued128 panel)
 Deletion manifest/inventory committed cfae1dc and pushed; each affected invalid run now carries a DELETED_WEIGHTS_REV5.json tombstone. Canonical queue4129996 alive, seven requested cells queued once, no new GPU launch observed. CPU reducer1353062 verified alive; will record failures or publish complete paired results without another prompt. Free space~380GB. GPU occupancy remains the external blocker; srv1 and srv4 compute PIDs explicitly belong to other users, not abandoned sprint jobs. No process terminated. Next check health.jsonl/watch-resume.log and canonical queue. Estimated1–2h after parallel GPUs available; no firm wall-clock completion before slots release. Only long128 experiment submitted, all longer alternatives untouched.
+
+### 2026-10-12T15:53:01.246016-04:00 — codex-1 — long128 complete
+Seven cells complete; independent raw paired analysis at /home/heck2/sbhansali8/SpecTLM/artifacts/REV5_long128_20261012_1430/analysis/results.json; report /home/heck2/sbhansali8/SpecTLM/reports/REV5-long128-results-20261012.md. Status pilot, every outcome retained, no paper edit.

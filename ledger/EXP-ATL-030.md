@@ -18,3 +18,6 @@
 
 ### 2026-10-12T14:37:16.547025-04:00 — owner-authorized cleanup and long128 publication
 Deleted32 invalid original FIX24 official4k trainable-weight files only,30.401GB, with manifest/inventory: reports/REV5-checkpoint-cleanup-20261012.md. Scientific raw records retained. Seven supplementary long128 acceptance cells now published to canonical dispatcher; no completed numbers yet. All available servers occupied at live check, so they are queued, not running. CPU completion reducer will report every result with paired intervals.
+
+### 2026-10-12T15:53:01.246016-04:00 — long128 completed
+Seven frozen cells, n128 each, independent paired raw reduction: reports/REV5-long128-results-20261012.md and artifacts/REV5_long128_20261012_1430/analysis/results.json. Includes per-depth acceptance, lengths, paired CIs and R1 oracle-gap recovery. Pilot; no wall-clock claim.
