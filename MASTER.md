@@ -83,13 +83,13 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-11T15:54:44.580466-04:00 (codex-1 builder/operator) |
-| Sprint day | Day 7 of 8 (Sun Oct11); ARR deadline MonOct12 23:59AoE |
+| Last updated | 2026-10-12T13:32:17.767098-04:00 (codex-1 builder/operator) |
+| Sprint day | Day8of8 (MonOct12); internal submission target20:00ET |
 | Next gate | D56 REV4: P0 Sun14:00, P1 Mon02:00, P2 Mon10:00. All experiments authorized; no additional owner approval needed. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | P0 complete141/141. Y3b thinking-on acceptance,Y4QwenDFlash,Y5seeds,Y7parent-control,Y8/Y9 complete. Now14GPUjobs:2official64ktrain+12thinking-on timing (one unchanged collision retry). One canonicalqueue4129996. |
-| Blockers | 64k trainings~23–26% at15:51; current overnightETA01–03ET incltiming remains provisional. Disk392.1GB above350GBfloor. Y10 waits64k downstream publication. One srv2:0 GPU startupcollision retried unchanged on srv4:3. |
+| Jobs running | No active REV4 GPUjobs. P0 and P1 complete: P1all110logicaljobs exit0,40acceptance+19timing contrasts reduced; Y10all16 data jobs failed before response completion. Single canonicalqueue remains alive. |
+| Blockers | P2/Y10:12prompt-count failures from inherited length filter,4engine startup memory failures; no completed math-response dataset. Disk351GB, only1GB above350GBfloor. P1bookkeeping count corrected by explicit raw proof (Y6includes reuse/none as fifth timing contrast). |
 | Owner action needed | None for D56. Results/paper selection remains owner-controlled; paper/ untouched. Live results: reports/REV4-results-20261011.md. |
 
 ---
@@ -318,8 +318,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV2-P2 | D54 E15/E18 and optional sampled timing; separate results report, Claude draft untouched | P2 | codex | D54 | Sun12:00 | review | codex-1 / 2026-10-10T13:43:34.228374-04:00 | [results](reports/REV2-results-20261010.md), [completion evidence](artifacts/REV2_live_analysis_20261010_1255/progress-20261010_134334_228395.json); all mandatory runs successful and independently reduced; pilot, no owner promotion |
 | REV3-X5 | D55 DFlash16k repairs,3R1seeds, frozen panels and precision timing | P0 | codex | D55,B10 | Sun08:00 | review | codex-1 / 2026-10-10T17:01:42.289542-04:00 | [results](reports/REV3-results-20261010.md); [86-job completion evidence](artifacts/REV3_X5_live_analysis_20261010_1420/20261010_170126_526250/progress.json); independently reduced, pilot |
 | REV4-P0 | D56 Y1 EAGLE b1 n128 timing, Y2 DFlash MATH-500 timing, Y3a Nemotron thinking-on eval | P0 | codex | D56 | Sun14:00 | review | codex-1 / 2026-10-11T09:16:59.004195-04:00 | [results](reports/REV4-results-20261011.md); [all141jobs and raw analyses](artifacts/REV4_P0_live_20261011_0322/20261011_091644_963445/progress.json); pilot |
-| REV4-P1 | D56 Y3b thinking-on repair, Y4 DFlash Qwen family, Y5 DFlash Nemotron seeds1-2, Y6 official 0.5k/64k, Y7 parent-supervision 16k, Y8 linear alignment, Y9 census stats | P1 | codex | D56 | Mon02:00 | in progress | codex-1 / 2026-10-11T15:54:44.580466-04:00 | [results](reports/REV4-results-20261011.md); Y3bacceptance/Y4/Y5/Y7/Y8/Y9 complete;64ktraining+thinkingtiming active; one collisionretry; [Handoff](notes/REV4.md) |
-| REV4-P2 | D56 Y10 math-domain long-budget repair data | P2 | codex | D56,REV4-P1 dispatched | Mon10:00 | in progress | codex-1 / 2026-10-11T15:54:44.580466-04:00 | [results](reports/REV4-results-20261011.md); waits10Y6downstreamjobs published; math sources/context checked; future actual response/mask inspection required |
+| REV4-P1 | D56 Y3b thinking-on repair, Y4 DFlash Qwen family, Y5 DFlash Nemotron seeds1-2, Y6 official 0.5k/64k, Y7 parent-supervision 16k, Y8 linear alignment, Y9 census stats | P1 | codex | D56 | Mon02:00 | review | codex-1 / 2026-10-12T13:32:17.767098-04:00 | [results](reports/REV4-results-20261011.md); [all110jobs exit0, raw proof](artifacts/REV4_status_20261012_1335/P1-proof.json);40acceptance+19timing contrasts; allrequiredY3b–Y9 complete; pilot |
+| REV4-P2 | D56 Y10 math-domain long-budget repair data | P2 | codex | D56,REV4-P1 dispatched | Mon10:00 | blocked | codex-1 / 2026-10-12T13:32:17.767098-04:00 | Y10all16responsejobs failed (12length-filter query shortfall,4engine-memory startup); no completed data/training; ~351GBdisk; [diagnosis/Handoff](notes/REV4.md) |
 | REV4-R1 | D56 rerun Y1 Nemotron reuse MATH-500 (first 128) b1 timing: 3 fresh processes x 3 warm passes, same exports/renders/harness; also rerun the paired `none` arm in the same wave. Reason: process r2 of REV4-Y1-t1-reuse-math128-b1 ran at 0.84x vs 1.31x/1.31x (cold pass normal); keep the original attempt | P0 | codex | REV4-P0 | Sun22:00 | review | claude-ops / 2026-10-12T05:00-04:00 | 1.296x [1.218,1.383]; [analysis](artifacts/OPS_REV4R1_rerun_20261012_0046/analysis_20261012_0500/results.json); [journal](notes/REV4-ops.md) |
 
 ---

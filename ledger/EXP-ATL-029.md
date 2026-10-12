@@ -31,3 +31,6 @@ P0 complete141/141. P1 rawY4/Y5/Y6-520/Y7-interface/Y8 results including regress
 
 ### 2026-10-11T15:54:44.580466-04:00 — codex-1 — pilot Y3b/Y4/Y7 update
 Y3b allsixacceptancecells andY7allfourcells complete; paired estimates in reports/REV4-results-20261011.md. Y4all24timingprocessescomplete, independentcorrectedcontroljoin in artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831; bothrepairsregressvsreuse(b1full/reuse0.928[0.915,0.941]). This CPUjoining correction adds omittedcontrasts, changes no rawmeasurements. Statuspilot, noownerpromotion.
+
+### 2026-10-12T13:32:17.767098-04:00 — codex-1 — REV4 P1 complete / P2 blocked
+All110P1logicaljobs exit0 with mandatory rawfiles;40acceptance+19timing contrasts. Evidenceartifacts/REV4_status_20261012_1335/P1-proof.json. Additional paired64kvs16kseed0 analysis artifacts/REV4_status_20261012_1335/64k-vs16k.json; source-mixture change explicit. P2has no completed responses due16failed datajobs. Statuspilot.

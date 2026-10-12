@@ -145,7 +145,7 @@ All timing uses n=128, three fresh processes × three warm passes. Workloads and
 <!-- REV4 LIVE END -->
 
 <!-- REV4 FOLLOWUP BEGIN -->
-Updated 2026-10-11T15:52:55.497130-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
+Updated 2026-10-12T04:53:01.608929-04:00; pilot. Independent raw counters;10,000 paired seed/query draws. Training seeds and query counts explicit.
 
 | Experiment | Target | Data | Arm / reference | Workload | n/seeds | τ [95% CI] | Δτ [95% CI] | Δp1 [95% CI] |
 |---|---|---|---|---|---:|---|---|---|
@@ -169,6 +169,10 @@ Updated 2026-10-11T15:52:55.497130-04:00; pilot. Independent raw counters;10,000
 | Y6 | 0 | generic520 | fc / reuse | speed128 | 128/1 | 2.203 [2.137,2.265] | 0.439 [0.409,0.470] | 0.142 [0.132,0.152] |
 | Y6 | 0 | generic520 | full / reuse | math500 | 500/1 | 2.693 [2.675,2.712] | 0.765 [0.752,0.779] | 0.209 [0.205,0.213] |
 | Y6 | 0 | generic520 | full / reuse | speed128 | 128/1 | 2.344 [2.270,2.412] | 0.580 [0.543,0.617] | 0.176 [0.164,0.187] |
+| Y6 | 0 | generic64k | fc / reuse | math500 | 500/1 | 2.874 [2.853,2.895] | 0.946 [0.930,0.962] | 0.247 [0.242,0.252] |
+| Y6 | 0 | generic64k | fc / reuse | speed128 | 128/1 | 2.484 [2.405,2.559] | 0.720 [0.676,0.763] | 0.211 [0.198,0.223] |
+| Y6 | 0 | generic64k | full / reuse | math500 | 500/1 | 3.067 [3.043,3.090] | 1.139 [1.119,1.158] | 0.278 [0.273,0.283] |
+| Y6 | 0 | generic64k | full / reuse | speed128 | 128/1 | 2.622 [2.534,2.703] | 0.858 [0.802,0.911] | 0.235 [0.221,0.250] |
 | Y7 | 0 | parent16k | fc / reuse | math500 | 500/1 | 2.382 [2.365,2.400] | 0.454 [0.443,0.464] | 0.141 [0.137,0.145] |
 | Y7 | 0 | parent16k | fc / child16k | math500 | 500/1 | 2.382 [2.365,2.400] | -0.392 [-0.403,-0.380] | -0.087 [-0.091,-0.083] |
 | Y7 | 0 | parent16k | fc / reuse | speed128 | 128/1 | 2.113 [2.049,2.174] | 0.349 [0.322,0.377] | 0.120 [0.110,0.129] |
@@ -189,6 +193,10 @@ Updated 2026-10-11T15:52:55.497130-04:00; pilot. Independent raw counters;10,000
 Timing: paired process/query-batch intervals; workloads, data budgets and thinking mode separate.
 | Experiment | Target | Batch | Arm / reference | n/processes | Warm panel speedup [95% CI] | Warm token ratio [95% CI] | Cold+startup [95% CI] |
 |---|---|---:|---|---:|---|---|---|
+| Y3b-thinking16k-math500 | 1 | 1 | fc / reuse | 128/3 | 1.585 [1.566,1.605] | 1.585 [1.566,1.605] | 1.580 [1.520,1.678] |
+| Y3b-thinking16k-math500 | 1 | 1 | full / reuse | 128/3 | 1.691 [1.669,1.712] | 1.691 [1.669,1.712] | 1.734 [1.712,1.756] |
+| Y3b-thinking16k-speed128 | 1 | 1 | fc / reuse | 128/3 | 1.348 [1.283,1.414] | 1.340 [1.297,1.381] | 1.422 [1.336,1.518] |
+| Y3b-thinking16k-speed128 | 1 | 1 | full / reuse | 128/3 | 1.406 [1.351,1.457] | 1.406 [1.359,1.450] | 1.505 [1.454,1.553] |
 | Y4-generic16k-speed128 | 2 | 1 | fc / none | 128/3 | 1.400 [1.355,1.449] | 1.402 [1.358,1.449] | 1.514 [1.369,1.723] |
 | Y4-generic16k-speed128 | 2 | 1 | fc / reuse | 128/3 | 0.898 [0.887,0.906] | 0.900 [0.892,0.908] | 1.112 [1.101,1.126] |
 | Y4-generic16k-speed128 | 2 | 1 | full / none | 128/3 | 1.447 [1.399,1.498] | 1.447 [1.401,1.498] | 1.558 [1.405,1.789] |
@@ -199,6 +207,11 @@ Timing: paired process/query-batch intervals; workloads, data budgets and thinki
 | Y4-generic16k-speed128 | 2 | 8 | full / none | 128/3 | 0.924 [0.903,0.946] | 0.924 [0.901,0.946] | 0.939 [0.907,0.977] |
 | Y4-generic16k-speed128 | 2 | 8 | full / reuse | 128/3 | 0.930 [0.910,0.948] | 0.929 [0.909,0.946] | 1.263 [1.175,1.393] |
 | Y4-generic16k-speed128 | 2 | 8 | reuse / none | 128/3 | 0.993 [0.975,1.013] | 0.994 [0.976,1.014] | 0.743 [0.701,0.779] |
+| Y6-generic64k-speed128 | 0 | 1 | fc / none | 128/3 | 1.459 [1.072,1.865] | 1.464 [1.070,1.878] | 1.594 [1.422,1.751] |
+| Y6-generic64k-speed128 | 0 | 1 | fc / reuse | 128/3 | 1.092 [0.795,1.380] | 1.092 [0.794,1.377] | 1.291 [1.151,1.407] |
+| Y6-generic64k-speed128 | 0 | 1 | full / none | 128/3 | 1.905 [1.802,2.007] | 1.911 [1.807,2.012] | 1.784 [1.695,1.869] |
+| Y6-generic64k-speed128 | 0 | 1 | full / reuse | 128/3 | 1.426 [1.381,1.472] | 1.426 [1.382,1.469] | 1.445 [1.398,1.494] |
+| Y6-generic64k-speed128 | 0 | 1 | reuse / none | 128/3 | 1.335 [1.295,1.376] | 1.340 [1.301,1.379] | 1.234 [1.199,1.270] |
 
 Measured per-run costs exclude unmeasured dedicated-drafter estimates. Data generation is listed separately and shared across repair arms; no zero cost is imputed for incomplete data.
 | Experiment | Target | Kind | Arm | n | GPU-h |
@@ -223,10 +236,12 @@ Measured per-run costs exclude unmeasured dedicated-drafter estimates. Data gene
 | Y3b | 1 | data |  | 2000 | 1.093 |
 | Y8 | 0 | fit |  | 4000 | 0.507 |
 | Y8 | 1 | fit |  | 4000 | 0.334 |
+| Y6 | 0 | train | fc | 64000 | 8.056 |
+| Y6 | 0 | train | full | 64000 | 9.085 |
 | Y3b | 1 | train | fc | 16000 | 1.303 |
 | Y3b | 1 | train | full | 16000 | 1.695 |
 
-[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831/progress.json).
+[Raw acceptance, lengths and per-depth evidence](../artifacts/REV4_P1_live_20261011_1555/20261012_045228_886604/acceptance.json); [costs/configs](../artifacts/REV4_P1_live_20261011_1555/20261012_045228_886604/costs.json); [completion counts](../artifacts/REV4_P1_live_20261011_1555/20261012_045228_886604/progress.json).
 <!-- REV4 FOLLOWUP END -->
 
 ## Recovery update — 2026-10-11T13:47:22.648660-04:00
@@ -240,3 +255,14 @@ P0 all141jobs successful, completed09:17ET. Ten P1jobs stopped at350GB guard aro
 **Y4 timing complete.** All24processes successful after six disk retries. Full repair b1 speedup1.447[1.399,1.498] vs no-spec compared with reuse1.559[1.506,1.620]; paired full/reuse0.928[0.915,0.941]. Atb8 full0.924[0.903,0.946] vs no-spec, and0.930[0.910,0.948] vs reuse. Interface is also slower than reuse. Both acceptance and timing regress on this fixed QwenDFlash recipe. A CPU report grouping bug kept the no-data-label controls apart from generic16k repair arms; corrected with failing-then-passing test and independent raw reduction. No generation code/config/results changed. There are10mandatory Y4timing contrasts (five perbatch), not14; completion bookkeeping corrected to the actual declared four-arm matrix. Evidence: artifacts/REV4_P1_live_20261011_1555/20261011_155224_596831.
 
 **Operations.** One new Y3binterface SPEED timing startup failed on srv2:0 with3.54GiBfree against31.09GiBrequired. Immutable same-settings retry published and launched on srv4:3 at15:51, artifacts/REV4_collision_retry_20261011_1553; failure retained. Disk~392GB,350GBguard unchanged. Both64ktrainings healthy,4771/4229 of18448steps at15:51. OvernightETA remains provisional; Y10 publication remains gated on64kexports.
+
+## Overnight completion — 2026-10-12T13:32:17.767098-04:00
+**P1 complete, pilot review.** Explicit audit found110/110 active logical jobs successful after preserving/replacing failed attempts;40acceptance contrasts and19timing contrasts independently reduced. [Completion evidence](../artifacts/REV4_status_20261012_1335/P1-proof.json). The automated completion check expected fourY6timing contrasts, but the reducer correctly emits an additional reuse/none reference, giving five. Manual audit verifies allrequiredoutputs; no scientific threshold changed.
+
+**64k versus16k, paired seed0.** Official R1 interface τ2.484 on SPEED128 and2.874 on MATH500; full2.622 and3.067. Independent paired raw-counter comparison to16k gives interface Δτ0.0816[0.0577,0.1054] SPEED and0.1005[0.0889,0.1117] MATH; full0.0859[0.0604,0.1105] SPEED and0.0978[0.0846,0.1109] MATH. n128/500, one seed each. [Paired source evidence](../artifacts/REV4_status_20261012_1335/64k-vs16k.json). Gains are modest and positive;64k includes the Alpaca+Dolly source-mixture change, so this is not an isolated data-volume intervention. Training wall cost8.056A40GPU-h interface,9.085full, excluding shared data generation and previously disclosed interrupted attempts.
+
+**64k timing.** Full SPEED128 b1 measured speedup1.905[1.802,2.007] over no-spec,1.426[1.381,1.472] over reuse; threeprocesses×threewarmpasses. Interface1.459[1.072,1.865] over no-spec has wide between-process variation; its versusreuse interval includes1. Do not present its latency gain as established.
+
+**Thinking-on timing complete.** Mode-matched16k Nemotron full runs1.406[1.351,1.457]× faster than reuse on SPEED128 and1.691[1.669,1.712]× on MATH128; interface1.348[1.283,1.414] and1.585[1.566,1.605]. These are ratios versus reused drafter, not versus no speculation.
+
+**Y10 not complete.** All16responsejobs failed:12query-count shortfalls after the inherited length filter rejected1–5of500questions, fourengine-startup memory failures. The4000-query CPU selection had checked token-budget fit and dedup but not the responsegenerator's character-length filter. No completed math-response dataset or Y10repair exists; no GPUjobs currentlyactive. Disk351GB is barely above350GBfloor. P2markedblocked; next recovery must preflight the exactgeneratorfilter, select replacements deterministically from licensed training splits, preserve4000total/sourcebalance/evalexclusions, use fresh outputs and inspectfiveactualresponses/masks beforetraining. No evaluation or failedartifact removed.
