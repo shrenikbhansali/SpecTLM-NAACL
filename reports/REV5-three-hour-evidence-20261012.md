@@ -111,3 +111,6 @@ PYTHONPATH=/home/heck2/sbhansali8/SpecTLM python artifacts/REV5_longdata_2026101
 The second script writes immutable results beside itself; copy it to a new output directory to rerun. GPU followup is resource-blocked, not running in the background. Existing REV4 P0/P1 results are complete; REV4 Y10 math-domain4096-response work remains blocked by failed data selection/launches and is not claimed as finished here.
 
 Seven enlarged long-panel jobs are prepared at `artifacts/REV5_long128_20261012_1430`, with hashed source panels, inspected prompt samples and immutable job/plan files. They are **not submitted**. Latest preparation check:349.718GB free, below350GB. Board row `REV5-LONG` records the blocker separately from the completed CPU deliverable.
+
+## Update 2026-10-12T14:37:16.547025-04:00: authorized cleanup completed; panel queued
+Owner authorized documented deletion of old checkpoints. Removed30.401GB of original FIX24-invalid trainable weights, preserving all raw results/configs and corrected repairs; [inventory](REV5-checkpoint-cleanup-20261012.md). Seven long128 cells published successfully to the sole dispatcher. Disk approximately380GB free. All A40s currently occupied on srv1–5; no new cell has started yet. Elapsed estimate is1–2hours after parallel slots become available, not a guaranteed17:13finish. No longer alternatives launched.
