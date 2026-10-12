@@ -323,6 +323,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV4-R1 | D56 rerun Y1 Nemotron reuse MATH-500 (first 128) b1 timing: 3 fresh processes x 3 warm passes, same exports/renders/harness; also rerun the paired `none` arm in the same wave. Reason: process r2 of REV4-Y1-t1-reuse-math128-b1 ran at 0.84x vs 1.31x/1.31x (cold pass normal); keep the original attempt | P0 | codex | REV4-P0 | Sun22:00 | review | claude-ops / 2026-10-12T05:00-04:00 | 1.296x [1.218,1.383]; [analysis](artifacts/OPS_REV4R1_rerun_20261012_0046/analysis_20261012_0500/results.json); [journal](notes/REV4-ops.md) |
 | REV5 | Three-hour review evidence: drift, amortization, longer-data paired analysis and experiment ETA | P0 | codex | owner chat 2026-10-12 | Mon17:13ET | review | codex-1 / 2026-10-12T14:25:36.476122-04:00 | [report](reports/REV5-three-hour-evidence-20261012.md); [journal](notes/REV5.md); tests4pass, code a3ebdaa; GPU extension separately blocked |
 | REV5-LONG | Supplementary first128 MATH500,8192-cap acceptance on existing official repairs | P0 | codex | seven frozen cells complete | Mon17:13ET target | review | codex-1 / 2026-10-12T15:53:01.246016-04:00 | [results](reports/REV5-long128-results-20261012.md); independent paired raw reduction; pilot |
+| REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | in progress | codex-1 / 2026-10-12T16:02:08.834428-04:00 | Read-only upstream audit; no new experiment authorized/launched; [journal](notes/REV5.md) |
 
 ---
 
