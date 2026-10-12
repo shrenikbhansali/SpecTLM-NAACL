@@ -110,3 +110,11 @@ interface 2.484 (0.721; 66.4%); MATH-500 full 3.067, interface 2.874. Training 9
 -> §6.4. NOT used: fc 64k timing, original r1 process disturbed (1.058x vs 1.804x/1.798x; ran 1h48m on srv4:7).
 REV4-R1 (05:00 ET): Nemotron reuse/none MATH-500 first-128 b1 rerun = 1.296x [1.218,1.383] (processes 1.291/1.370/1.232;
 cold 1.268) -> Table 2 and App. D (replaces the 32-prompt 1.32 stand-in; disclosure sentence removed).
+
+## Final pass for submission (2026-10-12 ~13:55 ET, claude-ops)
+No new results after REV4-R1/Y6 (Codex 4538e47 confirms P1 complete; Y10 blocked, no dataset). Final edits:
+- Abstract rewritten to 193 words (ACL formatting.md: <= 200 words); same headline numbers; fixed scope of "outperforming
+  independent draft models" (no longer implies comparisons in reasoning mode / sampled decoding).
+- Intro: 64k result (79% / 66% gap closed). App. A evaluation: Nemotron default template except reasoning-mode runs.
+Checks: 0 undefined refs/cites, 0 bibtex warnings, no "??", no overfull boxes, all fonts embedded (no Type 3), PDF metadata
+has no author, content ends p. 8 (Limitations starts p. 8), 15 pages total, acl.sty identical to the template's.

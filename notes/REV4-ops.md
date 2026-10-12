@@ -30,3 +30,9 @@ artifacts/OPS_REV4R1_rerun_20261012_0046/analysis-plan.json → analysis_2026101
 Nemotron reuse/none, MATH-500 first 128, b1: 1.296x [1.218,1.383]; process ratios 1.291/1.370/1.232 (wider spread than usual,
 shared-node contention); cold 1.268x. Consistent with the undisturbed original processes (1.310/1.313). Paper updated (Table 2,
 App. D); 32-prompt stand-in removed. REV4-R1 → review.
+
+### 2026-10-12T13:55-04:00 — claude-ops — final paper pass; correction
+- CORRECTION: my 00:57 entry attributed all Y10 data failures to GPU collisions. Codex's audit (4538e47) and the logs show 12 of 16
+  failed with "query shortfall" (generator length filter rejected 1–5 of 500 questions; e.g. REV4-Y10-t1-data-0: 496/500) and 4
+  with engine-startup memory failures. Decision unchanged (Y10 not restarted for the submission).
+- No new results since REV4-R1 (05:00). paper/claude_final finalized for submission (see paper README "Final pass").

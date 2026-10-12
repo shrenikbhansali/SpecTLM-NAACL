@@ -46,14 +46,11 @@
 \maketitle
 
 \begin{abstract}
-Speculative decoding with target-conditioned drafters, from autoregressive EAGLE-3 to block-diffusion DFlash, is among the fastest ways to serve large language models, and the drafter released with a base model is routinely reused for its many post-trained derivatives.
-We show that this reuse breaks for an important and growing class of models: derivatives shaped by extensive off-policy post-training, such as today's distilled reasoning models.
-In a census of public derivatives, quantized, merged and on-policy RL models retain 98--104\% of the family drafter's acceptance, while extensively post-trained reasoning models lose up to 30\%, erasing most of the speedup.
-Post-training shifts both the hidden states the drafter reads and the tokens it must predict, even on text the derivative did not write.
-We introduce \emph{\refit{}}, which re-fits a family drafter on the derivative's own responses to public instructions, without any of the original training data.
-Re-fitting the whole warm-started drafter closes 72\% of the gap to a dedicated drafter trained specifically for the derivative, and re-fitting only its \emph{feature interface}, the projection through which it reads the target (12\% of its parameters), closes 60\%, using 11 GPU-hours, two orders of magnitude less compute than the public recipe for a dedicated drafter.
-On DeepSeek-R1-Distill-Llama-8B, \refit{} raises the end-to-end speedup from 1.34$\times$ to 1.85$\times$ on SPEED-Bench (dedicated drafter: 2.08$\times$) and from 1.49$\times$ to 2.32$\times$ on MATH-500, and on Llama-3.1-Nemotron-Nano-8B from 1.33$\times$ to 1.84$\times$, outperforming independent draft models across model families, reasoning modes, sampled decoding and reasoning traces thousands of tokens long.
-\refit{} is also, to our knowledge, the first method to repair block-diffusion drafters: on DFlash, it raises the acceptance length by 23--29\% and decodes up to 1.28$\times$ faster than the reused drafter, reaching a 2.26$\times$ speedup on MATH-500.
+Speculative decoding with target-conditioned drafters, from autoregressive EAGLE-3 to block-diffusion DFlash, is among the fastest ways to serve large language models, and the drafter released with a base model is routinely reused for its post-trained derivatives.
+A census of 174 public derivatives shows that this reuse breaks for extensively post-trained reasoning models: quantized, merged and on-policy RL derivatives retain 98--104\% of the drafter's acceptance, but reasoning distills lose up to 30\%, erasing most of the speedup.
+Post-training shifts both the hidden states the drafter reads and the tokens it must predict, so we introduce \emph{\refit{}}, which re-fits the family drafter on the derivative's own responses to public instructions, without any original training data.
+On DeepSeek-R1-Distill-Llama-8B, re-fitting the warm-started drafter closes 72\% of the gap to a dedicated drafter, and re-fitting only its \emph{feature interface} closes 60\%, for two orders of magnitude less compute; \refit{} raises the speedup from 1.34$\times$ to 1.85$\times$ on SPEED-Bench (dedicated: 2.08$\times$) and from 1.49$\times$ to 2.32$\times$ on MATH-500, and on Llama-3.1-Nemotron-Nano-8B from 1.33$\times$ to 1.84$\times$, outperforming independent draft models.
+\refit{} is also, to our knowledge, the first method to repair block-diffusion drafters, raising DFlash's speedup to 2.26$\times$ on MATH-500.
 \end{abstract}
 
 % =====================================================================
@@ -93,7 +90,7 @@ This observation leads to \emph{\refit{}} (Figure~\ref{fig:method}): elicit the 
 Unlike prior drafter adaptation, which redesigns the drafter's architecture \citep{lin2026eda}, restricts how the target may be fine-tuned \citep{li2026flexspec}, or updates a drafter online for a fixed target \citep{liu2024online,zhang2026evospec}, \refit{} repairs the drafters that are already deployed, offline, after arbitrary third-party post-training.
 
 \refit{} is highly effective.
-On R1-Distill-Llama-8B, \refitF{} closes 72\% of the gap between the reused family drafter and a dedicated drafter trained by the EAGLE authors, and \refitI{} closes 60\%.
+On R1-Distill-Llama-8B, \refitF{} closes 72\% of the gap between the reused family drafter and a dedicated drafter trained by the EAGLE authors, and \refitI{} closes 60\%; with 64k repair examples, these rise to 79\% and 66\%.
 With 11 GPU-hours of compute, two orders of magnitude less than the public recipe for a dedicated drafter, \refit{} lifts the end-to-end speedup from 1.34$\times$ to 1.85$\times$ on SPEED-Bench and from 1.49$\times$ to 2.32$\times$ on MATH-500.
 On Nemotron-Nano, for which no dedicated drafter exists, it lifts the speedup from 1.33$\times$ to 1.84$\times$.
 \refit{} also repairs block-diffusion drafters: on DFlash, it raises the acceptance length by 23--29\% and the batch-size-1 speedup from 1.54$\times$ to 1.86$\times$ on R1-Distill and from 1.55$\times$ to 1.89$\times$ on Nemotron-Nano, and to 2.26$\times$ and 2.11$\times$ on MATH-500.
@@ -500,7 +497,7 @@ Training with $k_{\max}{=}4$ instead gives the same acceptance ($\Delta\tau = -0
 
 \paragraph{Evaluation.}
 All acceptance measurements use vLLM with greedy decoding, $K{=}4$ draft tokens (DFlash: its native block of ten), a maximum of 512 new tokens and batch size 8.
-Nemotron-Nano is used with its default chat template, which carries no reasoning-mode instruction.
+Nemotron-Nano is used with its default chat template, which carries no reasoning-mode instruction, except in the reasoning-mode experiments (Appendix~\ref{app:long}).
 Prompts that produce no speculative step are excluded pairwise across compared methods.
 Speedups are measured on 128 prompts (for MATH-500, the first 128 problems) and on 32 problems for responses of up to 8,192 tokens, each in three fresh server processes with three warm repetitions, relative to autoregressive decoding of the same prompts; confidence intervals resample processes and prompt batches jointly.
 The dedicated drafter's cost is a recipe estimate: the public EAGLE-3 recipe trains on 532k--646k examples, and our measured A40 throughput for generation and training projects 1.3k--19k GPU-hours at 10 to 40 epochs; the cost of the released dedicated checkpoint itself is not reported.
