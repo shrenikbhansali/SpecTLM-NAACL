@@ -324,6 +324,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5 | Three-hour review evidence: drift, amortization, longer-data paired analysis and experiment ETA | P0 | codex | owner chat 2026-10-12 | Mon17:13ET | review | codex-1 / 2026-10-12T14:25:36.476122-04:00 | [report](reports/REV5-three-hour-evidence-20261012.md); [journal](notes/REV5.md); tests4pass, code a3ebdaa; GPU extension separately blocked |
 | REV5-LONG | Supplementary first128 MATH500,8192-cap acceptance on existing official repairs | P0 | codex | seven frozen cells complete | Mon17:13ET target | review | codex-1 / 2026-10-12T15:53:01.246016-04:00 | [results](reports/REV5-long128-results-20261012.md); independent paired raw reduction; pilot |
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
+| REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | in progress | codex-1 / 2026-10-12T16:07:17.701033-04:00 | [journal](notes/REV5.md); read-only research, no paper edits |
 
 ---
 

@@ -30,3 +30,6 @@ Owner asks elapsed time for S2D/SoFT, CARD, SPD, FastEagle, especially EDA; owne
 
 ### 2026-10-12T16:03:24.580288-04:00 — codex-1 — Handoff (competitor ETA audit)
 Completed reports/REV5-competitor-feasibility-20261012.md, REV5-COMP review. Rough conditional engineering estimates explicitly separated from measured runtime; EDA highest relevance but no matching stage1 weights located, custom nonlinear FFN/runtime; authors2h is4H200 adaptation, not our end-to-end port. CARD smallest setup, two GPUs/custom runtime; S2D requires nested training; SPD confirmed by owner, v10/v11 and theoretical-versus-actual timing separation; FastEagle code/checkpoints not verified. Read-only, no new model/download/compute/env change, paper untouched. Long128 already complete and committed93c913e; no pending scientific results for this audit. Next decision belongs to owner; no proxy mislabeled as EDA.
+
+### 2026-10-12T16:07:17.701033-04:00 — codex-1 — EDA in-depth audit claimed
+Owner requests detailed source-backed methodological comparison, transfer burden and proposed paper wording, separate from paper/claude_final. Read AGENTS, MASTER0–4, journal and papers skill. No launches or environment changes. Will inspect full paper and pinned released implementation, distinguishing paper design, code behavior and our engineering inference.
