@@ -146,3 +146,22 @@ abstract trimmed to 198 words ("LLMs", "a base model's released drafter", "featu
 - §6.2 + App. B: long128 (first 128 MATH-500, 8,192 cap, greedy): R1 1.90 -> 2.51/2.65 (dedicated 3.49), Nemotron 1.62 -> 2.40/2.58;
   paired full gains 0.76 [0.68,0.83], 0.96 [0.89,1.03].
 - Space: merged online-adaptation into "Aligning drafters", inline operating points, shorter Table 1/3 captions and a few sentences.
+
+## Analysis-not-restatement pass (2026-10-12 evening, claude-ops; owner + two AI feedback notes)
+- §6 rewritten to lead with implications and use derived quantities, leaving raw values to the tables:
+  §6.1 repair turns the weakest option into one approaching a dedicated drafter; 72% tau / 69% wall-clock gap; English-only data
+  improve multilingual -> "repair teaches the derivative, not a domain"; MATH-500 gap explained (strong dedicated drafter); paired
+  1.39x/1.38x; ReFit-I delivers 87%/82% of ReFit-F's b1 speedup gain with 12% of parameters (from raw timing values).
+  §6.2 largest speedups on deployed reasoning workloads; long traces 5-6x the repair cap; "what a drafter must learn is present at the
+  start of traces"; reasoning mode: "one repair serves both modes". §6.3 failure is a property of reading a moving target; one
+  elicitation serves every drafter of a family (DFlash adds <=1.5 GPU-h); 20-29% tau on every benchmark; ReFit-I 65-73% of gain with
+  8% of params. §6.4 not saturated; generation dominates cost (8.9/11.1) -> variants cost the same; break-even method stated.
+  §6.5 transfer across checkpoints from different groups and families.
+- §3: failure concentrated (14/163 EAGLE-3, 17/163 DFlash below 90%); history flags risk, probe confirms per checkpoint.
+- Contributions reorganized: census / diagnosis / ReFit (+ most extensive evaluation, first block-diffusion study).
+- Setup: K=4 vs DFlash block of ten; seeds vs processes in main text; Table 2 caption sample sizes; "fastest option short of a
+  dedicated drafter".
+- Appendix: Table 4 crossover effects (feature/policy/interaction, 3 text sources, R1/Nemotron/R1-Qwen3 + GRPO control, 95% CIs);
+  Table 10 per-model retention for the 21-model focused cohort with HF identifiers (same data as Fig. 1a).
+Not adopted: comparison table vs other adaptation methods (checkmark accuracy risk), Qwen DFlash failure, probe precision/recall,
+E8 16k location null (main text makes no location-superiority claim). Kim et al. (quantized-target DFlash fine-tune) not cited per owner.
