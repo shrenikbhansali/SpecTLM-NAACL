@@ -15,3 +15,11 @@ State at 00:42: no Codex agent activity since 16:09 (watchers alive); canonical 
   trainings on the untested SDPA path + evals; with ≤3 free A40s it cannot land before the Mon 16:00 writing freeze, and E9
   (long Alpaca data) was null. Owner can override.
 Next: watch Y6 64k timing (fc r0/r2, full r0 retry2/r2) and REV4-R1; fold 64k speedup and R1 cell into the paper when reduced.
+
+### 2026-10-12T03:20-04:00 — claude-ops — retries complete; 64k timing; REV4-R1 last process
+- Collision watcher (scratchpad ops_autoretry.py) finished 03:14: Y6 64k timing all 6 processes succeeded (full r0 on attempt 6).
+  REV4-R1: 5/6 processes succeeded; reuse-r1 hit the 6-attempt cap (all collisions on srv4:5/srv4:6, jdu333 cycling jobs);
+  relaunched watcher with cap 12 → OPS-REV4R1-Y1-t1-reuse-math128-b1-r1-a7 published 03:15 (srv2/srv4:4–7 free now).
+- Y6 64k timing (watcher reduction 20261012_031342): full/none 1.905x [1.802,2.007], full/reuse 1.426x → paper §6.4.
+- ANOMALY: Y6 64k fc timing original r1 (REV4-Y6-…-fc-speed128-timing-b1-r1, srv4:7, 21:50–23:38) 1.058x vs 1.804/1.798x;
+  fc/none 1.459x [1.07,1.87]. Not used in the paper; no rerun queued (interface 64k speed not needed for the story).

@@ -380,7 +380,7 @@ To our knowledge, this is the first adaptation of a block-diffusion drafter to a
 \subsection{Scaling and Cost}
 
 \refit{} improves steadily with data (Figure~\ref{fig:scaling} in Appendix~\ref{app:generality}).
-With the EAGLE authors' drafter, the gap closed by \refitF{} grows from 53\% with only 0.5k examples, 0.4 GPU-hours including data generation, to 64\% with 4k, 72\% with 16k and 79\% with 64k, where the acceptance length reaches 2.62 on SPEED-Bench and 3.07 on MATH-500.
+With the EAGLE authors' drafter, the gap closed by \refitF{} grows from 53\% with only 0.5k examples, 0.4 GPU-hours including data generation, to 64\% with 4k, 72\% with 16k and 79\% with 64k, where the acceptance length reaches 2.62 on SPEED-Bench and 3.07 on MATH-500 and the batch-size-1 speedup 1.90$\times$, close to the dedicated drafter's 2.08$\times$.
 \refitI{} follows a parallel curve (40\% to 66\%), and the production drafter shows the same steady trend (46\% to 74\%).
 
 In wall-clock terms (Figure~\ref{fig:cost} in Appendix~\ref{app:timing}), even 0.45 GPU-hours of repair on 256 examples lift the batch-size-1 speedup from 1.31$\times$ to 1.67$\times$ on the same prompts.

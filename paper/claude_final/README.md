@@ -106,3 +106,5 @@ Pending: Y6 official 64k (ETA Mon 01-03 ET), Y3b full timing, Y10, REV4-R1 rerun
 Y6 official 64k (Alpaca+Dolly, one epoch, seed 0): SPEED tau full 2.622 (delta 0.858 [0.802,0.911]; gap closed 79.1%),
 interface 2.484 (0.721; 66.4%); MATH-500 full 3.067, interface 2.874. Training 9.09 / 8.06 GPU-h. Added to §6.4 text and Fig. 4.
 64k timing (3 processes) still running; full SPEED eval needed a GPU-collision retry (identical command).
+64k official timing (03:20 ET): full/none 1.905x [1.802,2.007] (processes 1.922/1.904/1.888), full/reuse 1.426x [1.381,1.472]
+-> §6.4. NOT used: fc 64k timing, original r1 process disturbed (1.058x vs 1.804x/1.798x; ran 1h48m on srv4:7).
