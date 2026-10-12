@@ -118,3 +118,16 @@ No new results after REV4-R1/Y6 (Codex 4538e47 confirms P1 complete; Y10 blocked
 - Intro: 64k result (79% / 66% gap closed). App. A evaluation: Nemotron default template except reasoning-mode runs.
 Checks: 0 undefined refs/cites, 0 bibtex warnings, no "??", no overfull boxes, all fonts embedded (no Type 3), PDF metadata
 has no author, content ends p. 8 (Limitations starts p. 8), 15 pages total, acl.sty identical to the template's.
+
+## Review-response prose pass (2026-10-12 ~15:10 ET, claude-ops; two AI NAACL reviews; evidence: reports/REV5-three-hour-evidence-20261012.md)
+Added (existing, raw-verified evidence): paired long-trace speedup vs reuse 1.33x [1.15,1.62] / 1.47x [1.28,1.65] (§6.2);
+repair-data cap rates (R1 72%, Nemotron 19%) and longer-data (2,048-token) repairs within ±0.07 tau on the 8k panel (§6.2, App. B);
+measured break-even 13.6k SPEED / 11.7k MATH requests vs reuse (§6.4); wall-clock gap closed 69% (§6.1); probe AUROC and Jiang et al.
+in §3; ReFit-interface use case (multi-derivative providers, bit-identical decoder, 100 MB) (§4); crossover interaction +6.3/+7.7 pts
+(App. A); retention >1 explanation (App. F); Nemotron b8>=b1 note and seed-0 timing note (App. D); default template for repair data.
+Novelty: intro contrasts the standard per-target recipe (500k+ responses, from scratch, many epochs) and EDA (architecture change,
+domain fine-tunes of one base model; verified from arXiv 2603.09527); related work expanded; contribution 3 = most extensive evaluation.
+Census wording descriptive ("Reuse fails under extensive off-policy post-training"); removed Qwen3 thinking-mode 104% and base-model 122%
+clauses (attackable: DFlash 92%, text-predictability artifact). Method figure numbers -> 1.34x/1.85x/2.08x. Abstract 199 words.
+Not used: REV5 drift-vs-retention (no consistent association); whole-LoRA table (beats ReFit-interface); Qwen DFlash (regresses);
+no release statement (D-56). Pending: REV5-LONG (n=128 8k-cap acceptance) if it lands.
