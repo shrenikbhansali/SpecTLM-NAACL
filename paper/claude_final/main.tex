@@ -380,8 +380,8 @@ To our knowledge, this is the first adaptation of a block-diffusion drafter to a
 \subsection{Scaling and Cost}
 
 \refit{} improves steadily with data (Figure~\ref{fig:scaling} in Appendix~\ref{app:generality}).
-With the production drafter, the gap closed by \refitF{} grows from 46\% with 0.5k examples to 58\% with 4k, 66\% with 16k and 74\% with 64k.
-The curve is still rising at 64k, \refitI{} follows a parallel curve, and the EAGLE authors' drafter stays ahead at every budget, closing 53\% of the gap with only 0.5k examples and 0.4 GPU-hours including data generation.
+With the EAGLE authors' drafter, the gap closed by \refitF{} grows from 53\% with only 0.5k examples, 0.4 GPU-hours including data generation, to 64\% with 4k, 72\% with 16k and 79\% with 64k, where the acceptance length reaches 2.62 on SPEED-Bench and 3.07 on MATH-500.
+\refitI{} follows a parallel curve (40\% to 66\%), and the production drafter shows the same steady trend (46\% to 74\%).
 
 In wall-clock terms (Figure~\ref{fig:cost} in Appendix~\ref{app:timing}), even 0.45 GPU-hours of repair on 256 examples lift the batch-size-1 speedup from 1.31$\times$ to 1.67$\times$ on the same prompts.
 By contrast, reproducing the dedicated drafter with the public EAGLE-3 recipe would take an estimated 1.3k--19k A40 GPU-hours including data generation, so \refit{} recovers most of its speedup for 120 to 1,700 times less compute.
@@ -547,7 +547,7 @@ Table~\ref{tab:robustness} reports \refit{} on every EAGLE-3 family drafter we r
 \begin{figure}[h]
   \centering
   \input{figures/fig_scaling}
-  \caption{Gap to the dedicated drafter closed by \refitF{} (full) and \refitI{} (interface) on R1-Distill-Llama-8B as a function of the number of repair examples, for the EAGLE authors' family drafter (solid) and the production drafter (dashed).}
+  \caption{Gap to the dedicated drafter closed by \refitF{} (full) and \refitI{} (interface) on R1-Distill-Llama-8B as a function of the number of repair examples, for the EAGLE authors' family drafter (solid) and the production drafter (dashed). The 64k points add Dolly instructions to Alpaca.}
   \label{fig:scaling}
 \end{figure}
 
