@@ -1,8 +1,8 @@
 """E4/E5 dependency planning and held-out-only selection; no second GPU queue."""
-import argparse,copy,fcntl,json,time
+import argparse,copy,fcntl,json,time,os
 from pathlib import Path
 import numpy as np
-from rebuttal.jobs import ROOT,FROZEN,job,submit
+from rebuttal.jobs import ROOT,FROZEN,CANONICAL,job,submit
 from rebuttal.dispatch_exports import write_immutable
 
 
@@ -26,7 +26,45 @@ def choose_model(grid,records,heldout_ids):
  return sorted(scored,key=lambda r:(-r['validation_tau'],r['epochs'],r['lr']))[0]
 
 
+def choose_k(records,heldout_ids):
+ if set(records)!={2,3,4,5}:raise ValueError('incomplete K timing sweep')
+ scores={}
+ for k,data in records.items():
+  if len(data['passes'])!=4:raise ValueError('expected one cold and three warm passes')
+  for p in data['passes']:
+   if len(p['per_prompt'])!=len(heldout_ids) or {r['prompt_id'] for r in p['per_prompt']}!=heldout_ids:raise ValueError('K selection requires the fixed held-out repair panel')
+  warm=data['passes'][1:];tokens=sum(p['output_tokens'] for p in warm);seconds=sum(p['generation_wall_s'] for p in warm)
+  if seconds<=0 or tokens<=0:raise ValueError('invalid timing sweep')
+  scores[k]=tokens/seconds
+ return {'best_k':min(scores,key=lambda k:(-scores[k],k)),'criterion':'highest aggregate warm tokens/s on fixed32 held-out repair queries; selected separately per batch; never selected on SPEED/MATH','tokens_per_s':{str(k):v for k,v in scores.items()},'n':len(heldout_ids),'processes_per_K':1,'warm_passes':3}
+
+
 def read_rows(p):return [json.loads(x) for x in Path(p).read_text().splitlines()]
+
+
+def dispatch_rank(name):
+ if name in ['E4_t0_reference_cache_s0','E4_t0_selection_s0']:return 0
+ if name.startswith('E4') and ('selected8k' in name or 'random8k' in name):return 1
+ if name.startswith('E5') and ('_student_' in name or '_validation256' in name):return 2
+ return 3
+
+
+def prioritize_ready(stage):
+ # Only order changes. Every job identity and argument remains byte-for-byte.
+ with (CANONICAL.parent/'append.lock').open('a') as lock:
+  fcntl.flock(lock,fcntl.LOCK_EX);jobs=read_rows(CANONICAL);ordered=sorted(jobs,key=lambda j:dispatch_rank(j['name']))
+  if jobs==ordered:return
+  stamp=str(time.time_ns());write_immutable(stage/('order-'+stamp+'.json'),{'before':[j['name'] for j in jobs],'after':[j['name'] for j in ordered],'reason':'ready E4 selection/training and E5 training before acceptance/timing sweeps; no running job interrupted'})
+  temp=CANONICAL.with_name('jobs.priority-'+stamp+'.tmp');temp.write_text(''.join(json.dumps(j)+'\n' for j in ordered));os.replace(temp,CANONICAL)
+
+
+def advance_offtheshelf(stage,code,student):
+ jobs=[]
+ for t in [0,1]:
+  for k in [2,3,4,5]:
+   for bench in ['speed128','math128']:
+    jobs.append(eval_job(stage,code,f'E5_t{t}_offtheshelf_k{k}_{bench}_s0',t,student,'9213176726f574b556790deb65791e0c5aa438b6','draft_model',bench,k,metadata={'arm':'offtheshelf'}))
+ return jobs
 
 def completed(name):
  p=ROOT/'rebuttal/runs'/name/'metrics.json'
@@ -51,12 +89,15 @@ def eval_job(stage,code,name,t,export,revision,method,bench,k=4,experiment='E5',
 
 
 def timing_job(stage,code,name,t,drafter,revision,method,bench,batch,rep,k=4):
- source=json.loads((ROOT/f'rebuttal/ready_20261124_1504/E2_t{t}_interface_{bench}_s0.json').read_text());base=source['command'];prompts=Path(base[base.index('--prompts')+1]);target=json.loads((ROOT/f'rebuttal/inputs/target-{t}.json').read_text())
+ if isinstance(bench,Path):prompts=bench;benchmark='validation32'
+ else:
+  source=json.loads((ROOT/f'rebuttal/ready_20261124_1504/E2_t{t}_interface_{bench}_s0.json').read_text());base=source['command'];prompts=Path(base[base.index('--prompts')+1]);benchmark=bench
+ target=json.loads((ROOT/f'rebuttal/inputs/target-{t}.json').read_text())
  command=[ROOT/'.venv-atlas-031-clean/bin/python','-u','-m','rebuttal.timing','--rebuttal-draft-k','--target',target['path'],'--target-revision',target['revision'],'--prompts',prompts,'--frozen-harness',FROZEN,'--batch-size',str(batch),'--replicate',str(rep),'--K',str(k),'--min-free-gb','350']
  if drafter is None:command+=['--no-speculation']
  else:command+=['--drafter',str(drafter),'--drafter-revision',revision,'--method',method]
  if method=='draft_model':command+=['--draft-vocab-mapping']
- return job(stage,code,name,'E5',t,command,[prompts]+([Path(drafter)/'config.json'] if drafter else []),metadata={'K':k,'benchmark':bench,'batch_size':batch,'replicate':rep,'kind':'timing','method':method})
+ return job(stage,code,name,'E5',t,command,[prompts]+([Path(drafter)/'config.json'] if drafter else []),metadata={'K':k,'benchmark':benchmark,'batch_size':batch,'replicate':rep,'kind':'k_selection' if isinstance(bench,Path) else 'timing','method':method})
 
 
 def next_student(stage,code,t,student,lr=2e-5,epochs=1,smoke=False):
@@ -127,21 +168,29 @@ def advance_student(stage,code,student):
   selected=choose_model(grid,records,{r['prompt_id'] for r in read_rows(validation)})
   selection_file=stage/f'E5_t{t}_selected.json';write_immutable(selection_file,selected|{'criterion':'paired tau on256 held-out repair prompts atK4; no SPEED/MATH selection'})
   selected_run=ROOT/'rebuttal/runs'/selected['name'];trained=selected_run/'cell/export';revision=json.loads((selected_run/'config.yaml').read_text())['harness_commit']
+  panel=stage/f'E5_t{t}_K_validation32.jsonl';panel_rows=read_rows(validation)[:32]
+  panel_text=''.join(json.dumps(r)+'\n' for r in panel_rows)
+  if panel.exists():
+   if panel.read_text()!=panel_text:raise ValueError('changed K selection panel')
+  else:
+   with panel.open('x') as f:f.write(panel_text)
   for arm,export,rev in [('distilled',trained,revision),('offtheshelf',student,'9213176726f574b556790deb65791e0c5aa438b6')]:
    ready={}
    for k in [2,3,4,5]:
     for bench in ['speed128','math128']:
      name=f'E5_t{t}_{arm}_k{k}_{bench}_s0'
-     jobs.append(eval_job(stage,code,name,t,export,rev,'draft_model',bench,k,metadata={'arm':arm,'selected_training_run':selected['name']}))
+     jobs.append(eval_job(stage,code,name,t,export,rev,'draft_model',bench,k,metadata={'arm':arm,**({'selected_training_run':selected['name']} if arm=='distilled' else {})}))
      if completed(name):ready[k,bench]=read_rows(ROOT/'rebuttal/runs'/name/'cell/per_prompt.jsonl')
-   if len(ready)!=8:continue
-   # Full sweep retained; per-benchmark largest acceptance is the explicit best-K criterion.
-   for bench in ['speed128','math128']:
-    valid_ids=set.intersection(*[{r['prompt_id'] for r in ready[k,bench] if raw_scores(r,k) is not None} for k in [2,3,4,5]])
-    scores={k:float(np.mean([raw_scores(r,k)[0] for r in ready[k,bench] if r['prompt_id'] in valid_ids])) for k in [2,3,4,5]}
-    best=min(scores,key=lambda k:(-scores[k],k));write_immutable(stage/f'E5_t{t}_{arm}_{bench}_K.json',{'best_k':best,'criterion':'highest tau, not a claim of latency-optimal K','all_tau':{str(k):v for k,v in scores.items()},'n_paired':len(valid_ids)})
-    for batch in [1,8]:
-     for rep in range(3):jobs.append(timing_job(stage,code,f'E5_t{t}_timing_{arm}_{bench}_b{batch}_r{rep}',t,export,rev,'draft_model',bench,batch,rep,best))
+   for batch in [1,8]:
+    ktimes={}
+    for k in [2,3,4,5]:
+     name=f'E5_t{t}_Ktune_{arm}_k{k}_b{batch}'
+     jobs.append(timing_job(stage,code,name,t,export,rev,'draft_model',panel,batch,0,k))
+     if completed(name):ktimes[k]=json.loads((ROOT/'rebuttal/runs'/name/'cell/timing.json').read_text())
+    if len(ktimes)!=4 or len(ready)!=8:continue
+    choice=choose_k(ktimes,{r['prompt_id'] for r in panel_rows});write_immutable(stage/f'E5_t{t}_{arm}_b{batch}_K.json',choice)
+    for bench in ['speed128','math128']:
+     for rep in range(3):jobs.append(timing_job(stage,code,f'E5_t{t}_timing_{arm}_{bench}_b{batch}_r{rep}',t,export,rev,'draft_model',bench,batch,rep,choice['best_k']))
   # Retimed references live in the identical pinned environment and campaign.
   templates=ROOT/'rebuttal/preflight_20261124_exactfamily'
   gate=json.loads((ROOT/'rebuttal/advance_r1_20261124_1523/gate/results.json').read_text())
@@ -159,8 +208,8 @@ def main():
  with (a.output/'controller.lock').open('a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   while True:
-   jobs=advance_eda(a.output,a.code)+advance_student(a.output,a.code,a.student)
-   if jobs:submit(a.output,jobs)
+   jobs=advance_eda(a.output,a.code)+advance_student(a.output,a.code,a.student)+advance_offtheshelf(a.output,a.code,a.student)
+   if jobs:submit(a.output,jobs);prioritize_ready(a.output)
    if a.once:return
    time.sleep(40)
 if __name__=='__main__':main()

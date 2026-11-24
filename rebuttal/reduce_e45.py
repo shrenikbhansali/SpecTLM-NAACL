@@ -88,7 +88,7 @@ def main():
     t=a.workspace/'rebuttal/runs'/record['training_run'];tc=json.loads((t/'config.yaml').read_text());record.update(lr=tc.get('lr'),epochs=tc.get('epochs'),train_gpu_h=json.loads((t/'metrics.json').read_text())['gpu_hours'])
     if (t/'cell/parameters.json').exists():pr=json.loads((t/'cell/parameters.json').read_text());record.update(trainable_params=pr['trainable_parameters'],added_params=pr.get('added_parameters',0))
    acceptance.append(record);sources.append({'run':run.name,'raw_sha256':record['raw_sha256']})
-  if (cell/'timing.json').exists():
+  if (cell/'timing.json').exists() and cfg.get('kind')=='timing':
    c=json.loads((cell/'config.json').read_text());v=json.loads((cell/'timing.json').read_text())
    if c['harness_commit']!=FROZEN or c['engine_version']!='0.31.0' or c['gpu_type']!='NVIDIA A40':raise ValueError('nonfrozen timing')
    arm=run.name.split('_timing_',1)[1].split('_',1)[0];key=(cfg['target'],cfg['benchmark'],cfg['batch_size'])
