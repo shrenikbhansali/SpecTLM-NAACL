@@ -110,3 +110,6 @@ Nemotron full16k teacher capture completed, first full E5 lr1e-5/1epoch launched
 
 ## 2026-11-24T16:38:57.807651-05:00 — codex-1
 Three Nemotron full student runs active; R1 capture nearly complete and prioritized ahead of pending Nemotron work when ready. All already-running jobs retained. Added plain-text E4/E5 report renderer over independent raw reductions; it never labels unfinished comparisons final or drops negative contrasts.57tests pass (report section isolation, CI formatting, R1 pending-job priority included). New off-the-shelfK2 cells complete on SPEED/MATH; awaiting reduction, no trained1B quality claim.
+
+## 2026-11-24T16:43:51.293301-05:00 — codex-1
+Health check found two newly idle A40s, srv1:1 and srv5:5. Rechecked zero memory/utilization/compute PIDs, then resumed the SAME canonical dispatcher log with16slots: queue1195503 replaces884838; all GPU workers retained. Receipt capacity_20261124_1643/launch.json, idle-checks.json. R1 full teacher capture complete, four R1 student plans present; newly available slots start R1. E45 controller1181202 remains independent CPU planner. Implemented CPU analysis/report watcher, smoke tested against22completed reference/off-the-shelf acceptance cells with zero failures; report preserves all paired signs, current partial status and source hashes.

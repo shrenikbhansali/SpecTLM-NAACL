@@ -1,5 +1,11 @@
 # Rebuttal status
 
+### 2026-11-24T16:43:51.293301-05:00 — codex-1 — E4/E5 production comparison
+Finished: both full16k exact teacher caches; two EDA and two1B training/export/serving smoke paths;57tests. EDA frozen-state audit verifies16tensors against family/target sources. First off-the-shelfK2 SPEED/MATH cells completed; trained comparisons pending.
+Running: canonical queue1195503 on16live-free A40s (added srv1:1 and srv5:5); four Nemotron student settings, ready R1 grid, EDA reference generation. E2/E3b retained. CPU controller1181202 advances dependencies; sample audits gate EDA selection subsets.
+Needs a decision: E5 full120GPUh budget request remains pending. Guard still15GPUh (12+25%); it cannot cover the entire training/timing matrix. No larger budget assumed. E4 guard18.75; E2 guard40.
+Deviations: exact factorized full-vocabulary cache; K chosen by held-out warm throughput, not highest tau; exact reference prefix reuse verified from rendered IDs and raw hashes. No paper edits.
+
 ### 2026-11-24T16:17:49-05:00 — codex-1 — E4/E5 ready to advance automatically
 Finished: both targets' exact full-vocabulary teacher-cache checks and full-student training/export smokes; both EDA sizes' native training/export smokes;50CPU tests.
 Running: full16k teacher capture for R1 and Nemotron, ShareGPT reference2000 generation, frozen trained-export serving checks. E5 training/selection/evaluation and E4 selection/native training dependencies are implemented in a tagged controller; manual five-sample audits gate new E4 paths.
