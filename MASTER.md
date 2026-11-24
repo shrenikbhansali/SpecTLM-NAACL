@@ -88,7 +88,7 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | Next gate | Owner Nov24 rebuttal handoff: reference acceptance checks10/10PASS; E1/E10 complete; E2/E3b/E4 advancing. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | ONE canonical queue PID1202986 on16 A40 slots. E2/E3b continue; six E5 student trainings active, two R1 settings pending; E4 reference responses2000/2000 generated; audit/capture/selection next. CPU E45 controller1327856; result publisher1314126. |
+| Jobs running | ONE canonical queue PID1202986 on16 A40 slots. E2/E3b continue; seven E5 student trainings active, final R1 setting pending; E4 reference2000 audit passed; capture queued first, then selection. CPU E45 controller1327856; result publisher1314126. |
 | Blockers | E4 reference completion gates selection/audit/training. E5 budget approval received; no external blocker. Disk ~5.1TiB free. |
 | Owner action needed | None for E4/E5: owner approved E5 ceiling120 A40 GPU-hours on Nov24. E4 ceiling18.75 and E2 ceiling40 unchanged. |
 

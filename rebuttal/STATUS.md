@@ -1,5 +1,8 @@
 # Rebuttal status
 
+### 2026-11-24T17:14:40.341766-05:00 — E4 reference complete; E5 budget active
+E4 reference2000 completed and passed the five-sample/mask/provenance audit; capture is first pending in the canonical queue. Seven E5 student settings now running, one pending. E5 ceiling120GPUh is live; approval recorded in MASTER D-59. Canonical queue1202986, dependency controller1327856, report publisher1314126; no current alerts.62tests pass. Trained acceptance results remain pending.
+
 ### 2026-11-24T17:09:01.671911-05:00 — codex-1 — E5 budget approved, full comparison continuing
 Finished: both exact full-vocabulary teacher caches; two EDA and two independent-student train/export/serving smoke paths; frozen tensor checks. Owner approved E5 ceiling120 A40 GPU-hours (previous15). Live guard acknowledged120 with4.28GPUh used at17:07; no pending E5 cancellations and no worker restart.
 Running: six student grid runs (four Nemotron, two R1); remaining two R1 settings queued. EDA2k reference generation is near completion, then automatic audited selection and training. ONE canonical queue1202986 on16 A40 slots; CPU dependency controller1181202. Existing E2/E3b continue.
