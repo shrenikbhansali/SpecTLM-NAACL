@@ -1,0 +1,70 @@
+[
+  {
+    "host": "heck-srv1.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "free": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "owned_gpu": [],
+      "competing_workers": []
+    }
+  },
+  {
+    "host": "heck-srv2.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "free": [],
+      "owned_gpu": [],
+      "competing_workers": []
+    }
+  },
+  {
+    "host": "heck-srv3.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "free": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "owned_gpu": [],
+      "competing_workers": []
+    }
+  },
+  {
+    "host": "heck-srv4.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "free": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "owned_gpu": [],
+      "competing_workers": []
+    }
+  },
+  {
+    "host": "heck-srv5.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "free": [
+        6
+      ],
+      "owned_gpu": [
+        {
+          "gpu": 4,
+          "pid": 2422858,
+          "cwd": "/home/heck2/sbhansali8/ReFit/rebuttal/worktrees/frozen-6da2e42"
+        }
+      ],
+      "competing_workers": []
+    }
+  }
+]

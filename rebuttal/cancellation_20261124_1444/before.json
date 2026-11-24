@@ -1,0 +1,336 @@
+[
+  {
+    "host": "heck-srv1.ece.gatech.edu",
+    "rc": 0,
+    "data": {
+      "jobs": [
+        {
+          "pid": 2411402,
+          "ppid": 2411401,
+          "args": "bash -c cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=0 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2411447,
+          "ppid": 2411402,
+          "args": ".venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.jsonl 8",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2411871,
+          "ppid": 2411870,
+          "args": "bash -c cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=2 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2411916,
+          "ppid": 2411871,
+          "args": ".venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.jsonl 8",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        }
+      ],
+      "gpus": [
+        {
+          "uuid": "GPU-3cdea4c2-8bd2-b0c2-84bf-af5b2ece2def",
+          "pid": "2411447",
+          "process": ".venv/bin/python",
+          "memory": "28812",
+          "owner": "sbhansali8"
+        },
+        {
+          "uuid": "GPU-1bdaa569-b785-c667-636e-e33645764512",
+          "pid": "2411916",
+          "process": ".venv/bin/python",
+          "memory": "28802",
+          "owner": "sbhansali8"
+        },
+        {
+          "uuid": "GPU-0fcca780-f3ef-757b-0af5-a8b962a26504",
+          "pid": "1976970",
+          "process": "VLLM::Worker_TP0",
+          "memory": "44092",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-5dfa076b-b62f-8c85-55a2-7946dc3fd4ee",
+          "pid": "1981349",
+          "process": "VLLM::Worker_TP1",
+          "memory": "44092",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-8225e223-ae1c-9393-2b69-d512d18c26a0",
+          "pid": "1987093",
+          "process": "VLLM::Worker_TP2",
+          "memory": "44092",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-c0a5f6ac-8ee5-08bb-ccad-8087d448360d",
+          "pid": "1991482",
+          "process": "VLLM::Worker_TP3",
+          "memory": "44092",
+          "owner": "adokme3"
+        }
+      ]
+    }
+  },
+  {
+    "host": "heck-srv2.ece.gatech.edu",
+    "rc": 0,
+    "data": {
+      "jobs": [
+        {
+          "pid": 566765,
+          "ppid": 2556284,
+          "args": "ssh -o BatchMode=yes heck-srv1 cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=0 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 567870,
+          "ppid": 2541223,
+          "args": "ssh -o BatchMode=yes heck-srv1 cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=2 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2541223,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv1 2 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2541227,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv5 5 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2541228,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv5 6 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2556284,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv1 0 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2562549,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv3 2 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 2562551,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv5 4 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea"
+        },
+        {
+          "pid": 4070854,
+          "ppid": 2562551,
+          "args": "bash scripts/queue_slot.sh heck-srv5 4 v19 configs/claude_v19/v19-01j-spaced_letters-cot_oracle-atomic-joint-q14b-s23.json",
+          "cwd": "/home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface"
+        },
+        {
+          "pid": 4168460,
+          "ppid": 2562549,
+          "args": "bash scripts/queue_slot.sh heck-srv3 2 v19 configs/claude_v19/v19-01j-spaced_letters-cot_oracle-atomic-joint-q14b-s41.json",
+          "cwd": "/home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface"
+        }
+      ],
+      "gpus": [
+        {
+          "uuid": "GPU-13ceb117-3075-a1ac-570a-0321fa744f9d",
+          "pid": "1764385",
+          "process": ".venv-omni/bin/python",
+          "memory": "36814",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-24945dee-a0bf-deed-393d-564dd7d4cb24",
+          "pid": "1764385",
+          "process": ".venv-omni/bin/python",
+          "memory": "38838",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-00ed67b5-c34f-faeb-decb-797df8c29247",
+          "pid": "1764385",
+          "process": ".venv-omni/bin/python",
+          "memory": "34562",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-edc85abe-d7b2-ae0c-01a3-8afef5cffadd",
+          "pid": "2045607",
+          "process": ".venv-tts/bin/python",
+          "memory": "9786",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-a78a8d74-58ef-2651-93e3-e273f33c235a",
+          "pid": "20392",
+          "process": "VLLM::Worker_TP0",
+          "memory": "43154",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-f3bbc50f-02c8-1e3b-099c-647e9ca89372",
+          "pid": "20393",
+          "process": "VLLM::Worker_TP1",
+          "memory": "43154",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-df85aec8-5e92-6375-7774-451e7b68f579",
+          "pid": "20390",
+          "process": "VLLM::Worker_TP0",
+          "memory": "43154",
+          "owner": "swoo81"
+        },
+        {
+          "uuid": "GPU-ea566167-fb02-e7fe-fdbb-69d9228905d9",
+          "pid": "20391",
+          "process": "VLLM::Worker_TP1",
+          "memory": "43154",
+          "owner": "swoo81"
+        }
+      ]
+    }
+  },
+  {
+    "host": "heck-srv3.ece.gatech.edu",
+    "rc": 0,
+    "data": {
+      "jobs": [],
+      "gpus": [
+        {
+          "uuid": "GPU-3b65b6fe-3425-e880-064c-7c5c8e88513a",
+          "pid": "1451759",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-cd3d41ca-fcdf-6502-f303-3d1037fab0d2",
+          "pid": "1452227",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-48a18d1d-1816-c3bf-3fb4-e1431b3071a4",
+          "pid": "1452711",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-a1dee4dc-b722-962c-0c19-09f51622b07a",
+          "pid": "1453201",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        }
+      ]
+    }
+  },
+  {
+    "host": "heck-srv4.ece.gatech.edu",
+    "rc": 0,
+    "data": {
+      "jobs": [],
+      "gpus": [
+        {
+          "uuid": "GPU-e491e8ff-7a54-39d8-2f0f-b9b89898c1b8",
+          "pid": "387521",
+          "process": "/home/heck2/jdu333/mamba3codec/.venv/bin/python",
+          "memory": "38044",
+          "owner": "jdu333"
+        },
+        {
+          "uuid": "GPU-52e4ea62-910c-f699-651e-4979a96aefde",
+          "pid": "387522",
+          "process": "/home/heck2/jdu333/mamba3codec/.venv/bin/python",
+          "memory": "38042",
+          "owner": "jdu333"
+        },
+        {
+          "uuid": "GPU-7d5a294c-2b22-fc78-0814-d6ad54bdf712",
+          "pid": "387523",
+          "process": "/home/heck2/jdu333/mamba3codec/.venv/bin/python",
+          "memory": "38044",
+          "owner": "jdu333"
+        },
+        {
+          "uuid": "GPU-8017b47f-f83b-8035-ea2f-c0097369eb1e",
+          "pid": "387524",
+          "process": "/home/heck2/jdu333/mamba3codec/.venv/bin/python",
+          "memory": "38042",
+          "owner": "jdu333"
+        }
+      ]
+    }
+  },
+  {
+    "host": "heck-srv5.ece.gatech.edu",
+    "rc": 0,
+    "data": {
+      "jobs": [],
+      "gpus": [
+        {
+          "uuid": "GPU-66da950b-7b29-a090-ccc9-48b1b8615367",
+          "pid": "2571885",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-6fc68ac2-ee51-37a3-63bc-16153fb3bab8",
+          "pid": "2572322",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-383141a9-8be8-6e53-54da-3e8cc43a291b",
+          "pid": "2572632",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-314a2c8b-bd27-d3be-c439-68ab4a4c21dc",
+          "pid": "2572739",
+          "process": "/usr/scratch/adokme3/vllm_env/bin/python3.12",
+          "memory": "44064",
+          "owner": "adokme3"
+        },
+        {
+          "uuid": "GPU-36a2434e-51fb-88cc-094e-43dc423c16fc",
+          "pid": "2422858",
+          "process": "VLLM::EngineCore",
+          "memory": "32034",
+          "owner": "sbhansali8"
+        },
+        {
+          "uuid": "GPU-3a292d68-1aca-94c8-b39f-91285eb30117",
+          "pid": "2423438",
+          "process": "python",
+          "memory": "7786",
+          "owner": "swebster36"
+        },
+        {
+          "uuid": "GPU-c7241934-cad4-3d61-736d-b63471f6313c",
+          "pid": "2423448",
+          "process": "python",
+          "memory": "8818",
+          "owner": "swebster36"
+        }
+      ]
+    }
+  }
+]

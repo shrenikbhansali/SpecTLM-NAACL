@@ -1,0 +1,153 @@
+[
+  {
+    "host": "heck-srv2.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "roots": [
+        2541223,
+        2541227,
+        2541228,
+        2556284,
+        2562549,
+        2562551
+      ],
+      "terminated": [
+        {
+          "pid": 566765,
+          "ppid": 2556284,
+          "args": "ssh -o BatchMode=yes heck-srv1 cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=0 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 567870,
+          "ppid": 2541223,
+          "args": "ssh -o BatchMode=yes heck-srv1 cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=2 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 580733,
+          "ppid": 2541228,
+          "args": "sleep 60",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 582809,
+          "ppid": 4168460,
+          "args": "sleep 20",
+          "cwd": "/home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 582810,
+          "ppid": 4070854,
+          "args": "sleep 20",
+          "cwd": "/home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 583175,
+          "ppid": 2541227,
+          "args": "sleep 60",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 4070854,
+          "ppid": 2562551,
+          "args": "bash scripts/queue_slot.sh heck-srv5 4 v19 configs/claude_v19/v19-01j-spaced_letters-cot_oracle-atomic-joint-q14b-s23.json",
+          "cwd": "/home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 4168460,
+          "ppid": 2562549,
+          "args": "bash scripts/queue_slot.sh heck-srv3 2 v19 configs/claude_v19/v19-01j-spaced_letters-cot_oracle-atomic-joint-q14b-s41.json",
+          "cwd": "/home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2541223,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv1 2 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2541227,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv5 5 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2541228,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv5 6 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2556284,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv1 0 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2562549,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv3 2 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2562551,
+          "ppid": 1,
+          "args": "bash artifacts/ops/qp2_worker.sh heck-srv5 4 artifacts/queues/v19.queue",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        }
+      ]
+    }
+  },
+  {
+    "host": "heck-srv1.ece.gatech.edu",
+    "rc": 0,
+    "result": {
+      "roots": [],
+      "terminated": [
+        {
+          "pid": 2411402,
+          "ppid": 1,
+          "args": "bash -c cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=0 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2411447,
+          "ppid": 2411402,
+          "args": ".venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s17-a1.jsonl 8",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2411871,
+          "ppid": 1,
+          "args": "bash -c cd /home/heck2/sbhansali8/amazidea && CUDA_VISIBLE_DEVICES=2 HF_HOME=/home/heck2/sbhansali8/caches/huggingface TOKENIZERS_PARALLELISM=false .venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.jsonl 8 > /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.log 2>&1",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        },
+        {
+          "pid": 2411916,
+          "ppid": 2411871,
+          "args": ".venv/bin/python scripts/probe_all_pairs.py /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface /home/heck2/sbhansali8/amazidea/_workspace/worktrees/feedback-surface/artifacts/runs/v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1 /home/heck2/sbhansali8/amazidea/artifacts/probes/allpairs/ap-v19-v19-01j-lookup-cot_oracle-atomic-joint-q14b-s23-a1.jsonl 8",
+          "cwd": "/home/heck2/sbhansali8/amazidea",
+          "signal": "SIGTERM"
+        }
+      ]
+    }
+  }
+]

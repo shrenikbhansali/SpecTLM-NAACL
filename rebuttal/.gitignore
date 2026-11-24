@@ -6,3 +6,6 @@ artifacts/
 *.log
 
 test-tools/
+models/
+shared-shards/
+E*/exports/
