@@ -1,0 +1,11 @@
+# E4 — implementation choices fixed before evaluation
+
+Reference implementation: https://github.com/Lyn-Lucy/Efficient-Draft-Adaptation at a29f0381479a92d0f3114fd264cd790bab3a208b. `git ls-remote HEAD` on 2026-11-24 confirms the release is unchanged from the pinned October audit. Paper: https://arxiv.org/abs/2603.09527, v1.
+
+The primary port follows the released training script's one shared and one private expert, with independent singleton softmax gates. These gates each equal one, so their gradients are zero and the output is the sum of two SwiGLU experts. Both routing vectors remain present/trainable as requested by the handoff; their zero-gradient behavior is recorded. The shared expert is initialized from the released EAGLE-3 MLP. Interface, attention, norms, head and shared expert remain frozen. Private weights use nn.Linear's initialization. This comparison preserves the native EAGLE-3 TTT objective and three target taps.
+
+Matched private width:4096, yielding 50,339,840 private/router parameters at hidden size4096. Repo-default private width is the released decoder intermediate size14336. Report the exact instantiated parameter counts for each run. PCA dimension128 and per-response90th-percentile squared Mahalanobis score are explicit port choices because the repository does not implement or specify them. Keep the highest-scoring8k of16k; freeze scoring choices before acceptance evaluation. PCA statistics use only the separate general-generation reference.
+
+Deployment finding from implementation/tests: the released-code additive pair can be folded into one wider ordinary SwiGLU by concatenating gate/up rows and down columns. This preserves the mathematical function and standard state-dict keys, with a larger intermediate_size. FP64 forward/input-gradient and native merged-state round-trip tests pass. This is a potentially compatible export for unmodified vLLM; actual engine loading, untrained acceptance and bf16 numerical behavior are still unverified. It must not be reported as demonstrated serving compatibility yet.
+
+The paper's joint gate would be a separate variant, not silently substituted for the release. No variant or selection hyperparameter will be chosen by obtaining a weak baseline result. The experiment reports the actual outcomes.

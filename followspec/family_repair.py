@@ -22,7 +22,13 @@ class RepairLinear(torch.nn.Module):
         return self.base(x)+torch.nn.functional.linear(torch.nn.functional.linear(x,self.lora_A),self.lora_B)*self.scale
 
 
-def configure_variant(model,variant,rank=16,alpha=32,algorithm="eagle3"):
+def configure_variant(model,variant,rank=16,alpha=32,algorithm="eagle3",private_width=None):
+    if variant=='eda_private':
+        if algorithm!='eagle3' or private_width is None:raise ValueError('EDA requires EAGLE and explicit private width')
+        from rebuttal.eda import install_eda
+        proof=install_eda(model,private_width)
+        model.config.transformer_layer_config.intermediate_size += private_width
+        return proof
     if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora','decoder_head_lora'}:raise ValueError('unknown repair variant')
     model.requires_grad_(False)
     if variant in {'whole_lora','decoder_head_lora'}:
@@ -65,6 +71,16 @@ def merged_state(model):
         if not isinstance(module,RepairLinear):continue
         state[name+'.weight']=state.pop(name+'.base.weight')+state.pop(name+'.lora_B')@state.pop(name+'.lora_A')*module.scale
         if name+'.base.bias' in state:state[name+'.bias']=state.pop(name+'.base.bias')
+    from rebuttal.eda import SharedPrivateMLP
+    for name,module in model.named_modules():
+        if not isinstance(module,SharedPrivateMLP):continue
+        # Sum of two released-code SwiGLUs folds into one wider standard SwiGLU.
+        for leaf in ['gate_proj','up_proj','down_proj']:
+            state[name+'.'+leaf+'.weight']=torch.cat([
+                state[name+'.shared.'+leaf+'.weight'],state[name+'.private.'+leaf+'.weight']],
+                dim=1 if leaf=='down_proj' else 0)
+        for key in list(state):
+            if any(key.startswith(name+'.'+part+'.') for part in ['shared','private','shared_gate','private_gate']):del state[key]
     return state
 
 
@@ -203,7 +219,8 @@ def save_final_trainable(export_only,compact,omit_optimizer,exports,steps):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
-    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora','decoder_head_lora'],required=True)
+    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora','decoder_head_lora','eda_private'],required=True)
+    p.add_argument('--eda-private-width',type=int,help='rebuttal E4 opt-in: released-code additive private SwiGLU width')
     p.add_argument('--reselect-draft-vocab',action='store_true',help='D54 E15 training-response frequency support; initialize new head rows from target')
     p.add_argument('--profile-training',action='store_true',help='D54 synchronized whole-step timings including online capture')
     p.add_argument('--omit-final-optimizer',action='store_true',help='D54 nonresumable final compact weights, no optimizer persistence')
@@ -230,6 +247,8 @@ def main():
     validate_rows(rows,forbidden,a.batch_tokens+(a.algorithm=='eagle3'),allow_response_pairs=a.allow_response_pairs)
     save_final_optimizer=final_optimizer_policy(a.omit_final_optimizer,a.compact_checkpoints)
     shift=int(a.algorithm=='eagle3')
+    if (a.variant=='eda_private') != (a.eda_private_width is not None):raise ValueError('EDA variant and private width must be specified together')
+    if a.variant=='eda_private' and (a.algorithm!='eagle3' or a.continue_epoch_from or a.scratch):raise ValueError('EDA supports fresh EAGLE warm-start only')
     if a.algorithm=='dflash' and (a.variant not in {'fc','full'} or a.scratch):raise ValueError('D48 DFlash fc/full warm-start only')
     if a.algorithm!='eagle3' and a.training_attention!='eager':raise ValueError('SDPA training opt-in is EAGLE only')
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
@@ -323,7 +342,7 @@ def main():
         del target_head
     if a.scratch:
         write(out/'scratch_initialization.json',initialize_scratch(model))
-    proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm)
+    proof=configure_variant(model,a.variant,a.lora_rank,a.lora_alpha,algorithm=a.algorithm,private_width=a.eda_private_width)
     if previous:
         from safetensors.torch import load_file
         state=load_file(checkpoint/'trainable.safetensors');expected={n for n,p in model.named_parameters() if p.requires_grad}
@@ -386,6 +405,7 @@ def main():
         profiler=StepProfiler(time.perf_counter,torch.cuda.synchronize,lambda:(torch.cuda.max_memory_allocated(),torch.cuda.max_memory_reserved()))
     original_step=trainer._optimizers_step;completed=0
     mutable=set(proof['trainable_names'])
+    if a.variant=='eda_private':mutable.update('layers.0.mlp.'+name+'.weight' for name in ['gate_proj','up_proj','down_proj'])
     if a.reselect_draft_vocab:mutable.update(['d2t','t2d'])
     for name in list(mutable):
         if '.lora_' in name:mutable.add(name.rsplit('.',1)[0]+'.weight')

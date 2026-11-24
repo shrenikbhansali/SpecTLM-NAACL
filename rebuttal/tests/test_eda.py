@@ -46,5 +46,19 @@ class EDATests(unittest.TestCase):
         self.assertFalse(model.fc.weight.requires_grad)
         self.assertFalse(model.lm_head.weight.requires_grad)
 
+    def test_native_merged_export_has_only_standard_mlp_keys(self):
+        from followspec.family_repair import configure_variant,merged_state
+        from types import SimpleNamespace
+        model=torch.nn.Module();layer=torch.nn.Module();layer.mlp=MLP()
+        model.layers=torch.nn.ModuleList([layer]);model.fc=torch.nn.Linear(12,4)
+        model.config=SimpleNamespace(transformer_layer_config=SimpleNamespace(intermediate_size=7))
+        configure_variant(model,'eda_private',private_width=3)
+        x=torch.randn(2,4);expected=model.layers[0].mlp(x)
+        state=merged_state(model)
+        self.assertEqual(set(state),{'fc.weight','fc.bias'}|{f'layers.0.mlp.{n}.weight' for n in ['gate_proj','up_proj','down_proj']})
+        model.layers[0].mlp=MLP(10);model.load_state_dict(state)
+        torch.testing.assert_close(model.layers[0].mlp(x),expected)
+        self.assertEqual(model.config.transformer_layer_config.intermediate_size,10)
+
 
 if __name__=='__main__':unittest.main()
