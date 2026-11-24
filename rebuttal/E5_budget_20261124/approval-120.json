@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-11-24T17:04:20.991601-05:00",
+  "previous": {
+    "prefix": "E5",
+    "limit_gpu_hours": 15.0,
+    "cancel_file": "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/cancel-pending.json",
+    "modules": [
+      "rebuttal.train_student",
+      "rebuttal.teacher_cache",
+      "rebuttal.eda_selection",
+      "rebuttal.eda_latency",
+      "rebuttal.timing",
+      "followspec.family_repair",
+      "followspec.repair_data",
+      "atlas.frozen_baselines"
+    ],
+    "authorization": "owner rebuttal handoff baseline budget plus <=25% allowed headroom; no larger approval assumed"
+  },
+  "approved": {
+    "prefix": "E5",
+    "limit_gpu_hours": 120.0,
+    "cancel_file": "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/cancel-pending.json",
+    "modules": [
+      "rebuttal.train_student",
+      "rebuttal.teacher_cache",
+      "rebuttal.eda_selection",
+      "rebuttal.eda_latency",
+      "rebuttal.timing",
+      "followspec.family_repair",
+      "followspec.repair_data",
+      "atlas.frozen_baselines"
+    ],
+    "authorization": "Owner direct approval2026-11-24: Raise E5 to120GPU-hours",
+    "approved_at_et": "2026-11-24T17:04:20.991601-05:00"
+  },
+  "owner_message": "Raise E5 to 120 GPU-hours (recommended)"
+}

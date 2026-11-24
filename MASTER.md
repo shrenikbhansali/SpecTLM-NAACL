@@ -88,7 +88,7 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | Next gate | Owner Nov24 rebuttal handoff: reference acceptance checks10/10PASS; E1/E10 complete; E2/E3b/E4 advancing. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | ONE canonical queue PID1202986 on16 A40 slots. E2/E3b continue; six E5 student trainings active, two R1 settings pending; E4 reference generation near completion. CPU E45 controller1181202. |
+| Jobs running | ONE canonical queue PID1202986 on16 A40 slots. E2/E3b continue; six E5 student trainings active, two R1 settings pending; E4 reference responses2000/2000 generated; audit/capture/selection next. CPU E45 controller1327856; result publisher1314126. |
 | Blockers | E4 reference completion gates selection/audit/training. E5 budget approval received; no external blocker. Disk ~5.1TiB free. |
 | Owner action needed | None for E4/E5: owner approved E5 ceiling120 A40 GPU-hours on Nov24. E4 ceiling18.75 and E2 ceiling40 unchanged. |
 
@@ -1095,6 +1095,8 @@ citing where it was stated.*
 | D-56 | 2026-10-11 | **Owner direct (~02:25): remove every release promise from the paper; run all remaining experiments we want.** claude-ops plan reports/REV4-plan-20261011.md: P0 (Sun 14:00 ET) Y1 EAGLE b1 n=128 precision timing, Y2 DFlash MATH-500 timing, Y3a Nemotron thinking-on evaluation; P1 (Mon 02:00) Y3b thinking-on repair, Y4 DFlash on R1-0528-Qwen3 (z-lab/Qwen3-8B-DFlash-b16), Y5 DFlash Nemotron seeds 1-2, Y6 official 0.5k/64k scaling points, Y7 parent-supervision control at 16k, Y8 training-free linear alignment, Y9 census statistics (no supplementary package); P2 (Mon 10:00) Y10 math-domain long-budget data. Paper: census appendix release clause removed (paper/claude_final). | Decided |
 | D-57 | 2026-10-12 | **Owner direct (~14:50): add a single bold line at the end of the abstract stating that the codebase will be released upon publication.** Supersedes D-56's no-release-promise rule for this one statement only; no other release statements added. paper/claude_final abstract kept at 198 words (ACL <=200). | Decided |
 | D-58 | 2026-11-24 | **Owner direct: execute the supplied ARR rebuttal E1–E10 handoff, prioritize it over own competing jobs, and raise E2 to40A40GPU-hours (approved15:36ET).** Use the existing frozen acceptance protocol; new outputs under rebuttal/. All results, including nulls, remain reported. This changes the E2 compute allowance, not its data/recipe/selection criteria. [status](rebuttal/STATUS.md); [approval](rebuttal/budget_control_20261124/owner_approval_40gpuh.json). | Decided |
+
+| D-59 | 2026-11-24 | **Owner direct, approved17:04ET: raise rebuttal E5 to120 A40 GPU-hours to finish the distilled1B training/selection/acceptance/timing comparison.** Supersedes the handoff12GPUh budget plus25% allowance for E5 only. Same fixed held-out selection, frozen acceptance and three-process timing protocol; all outcomes reported. Live guard updated without interrupting workers. [receipt](rebuttal/E5_budget_20261124/approval-120.json); [journal](rebuttal/JOURNAL.md). | Decided |
 
 ---
 
