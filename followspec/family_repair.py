@@ -230,6 +230,7 @@ def main():
     p.add_argument('--schedule-steps',type=int,help='shared schedule horizon for a shorter scratch control');p.add_argument('--seed',type=int,default=0);p.add_argument('--batch-tokens',type=int,default=2048)
     p.add_argument('--lr',type=float,default=2e-5);p.add_argument('--lora-rank',type=int,default=16);p.add_argument('--lora-alpha',type=int,default=32)
     p.add_argument('--scratch',action='store_true');p.add_argument('--offload-saved-tensors',action='store_true');p.add_argument('--release-grad-before-forward',action='store_true');p.add_argument('--dry-run',action='store_true')
+    p.add_argument('--preserve-offload-strides',action='store_true',help='rebuttal opt-in: preserve exact activation view strides for compiled backward')
     p.add_argument('--min-free-gb',type=float,default=0);p.add_argument('--compact-checkpoints',action='store_true');p.add_argument('--shared-export-root')
     p.add_argument('--one-epoch',action='store_true',help='derive steps and quarter/half/final exports from one complete shuffled pass')
     p.add_argument('--epochs',type=int,help='rebuttal E3b opt-in: uninterrupted scratch run over complete epochs')
@@ -243,6 +244,7 @@ def main():
     p.add_argument('--probe-batches',type=int,default=0,help='FIX24 diagnostic: frozen step-zero forwards only, no optimizer or exports')
     p.add_argument('--continue-epoch-from',help='D50 continue one epoch from a completed compact run, restoring named optimizer state')
     a=p.parse_args();target=json.loads(Path(a.target_row).read_text());rows=read(a.data);audit=json.loads(Path(a.audit).read_text())
+    if a.preserve_offload_strides and not a.offload_saved_tensors:raise ValueError('stride preservation requires saved-tensor offload')
     forbidden={prompt_hash(r.get('raw_prompt',r.get('prompt'))) for r in read(a.forbidden)}
     validate_rows(rows,forbidden,a.batch_tokens+(a.algorithm=='eagle3'),allow_response_pairs=a.allow_response_pairs)
     save_final_optimizer=final_optimizer_policy(a.omit_final_optimizer,a.compact_checkpoints)
@@ -314,6 +316,9 @@ def main():
     from atlas.run_cell import read_drafter_config
     from followspec.online_capture import OnlinePairCapture
     from followspec.training_memory import saved_tensor_context,release_grad_before_forward,serial_adamw
+    if a.preserve_offload_strides:
+        from rebuttal.offload import stride_preserving_offload
+        saved_tensor_context=lambda enabled:stride_preserving_offload()
     out=Path(a.output);out.mkdir(parents=True,exist_ok=False);write(out/'config.json',cfg)
     torch.manual_seed(a.seed);start=time.monotonic()
     base_config=json.loads((Path(target['path'])/'config.json').read_text())
