@@ -1,0 +1,18 @@
+# EXP-ATL-031 — ARR rebuttal reproduction and E1/E2/E4 partial evidence
+
+**Landed:** 2026-11-24T15:35:19.759301-05:00; codex-1, Nov24 rebuttal campaign.
+
+**Status:** pilot; E1/E10 complete, E2/E3/E4 partial. No scientific promotion.
+
+**What / why:** Respond to the supplied ARR reviews using the owner's Nov24 E1–E10 handoff. Reproduce paper anchors before extension, decompose whole-drafter LoRA updates, measure longer scratch training, and port released EDA behavior fairly.
+
+**New:** Ten exact frozen acceptance reproductions; independent12-group crossover reduction; new seed-matched E2 acceptance cells, native strided-offload training recovery, and EDA step-zero native-vLLM loadability check. No change to frozen acceptance code or pinned environments.
+
+**Artifacts:** rebuttal/RESULTS.md (self-contained tables); rebuttal/E1/cells.csv; rebuttal/E10/versions.txt; rebuttal/advance_r1_20261124_1523/gate/results.json; rebuttal/E2/reduction_20261124_1533/results.json; rebuttal/E2/v2-audit.json; rebuttal/E4/sanity_20261124_1533/results.json; rebuttal/runs/ with per-run configs, commands, raw counters and GPU-hours. Canonical log artifacts/M2_D28_20261006/response_queue.log.
+
+**Config + results:** Frozen6da2e42/vLLM0.31.0/A40/greedy/K4/batch8/cap512; identical rendered IDs. Every paper reproduction within0.03tau, n128SPEED/n500MATH. New E2 panels n128 each;10,000 paired seed/query bootstrap. Nemotron seed0 wholeLoRA minus densefc delta tau0.052[0.027,0.076]SPEED and0.065[0.048,0.083]MATH; complete corrected ablation table in RESULTS. EDA default-width untrained tau1.787[1.739,1.834], p143.4%[41.5,45.2], paired delta0.004[-0.009,0.017],n128; smaller width pending. E1 table contains all12groups and every interaction. Eight E2train runs plus scratch are active; no pending-run result imputed.
+
+**Caveats:** Initial four E2 ablation cells invalid because duplicate physical shard keys could override restorations; preserve and exclude via rebuttal/E2/INVALID-v1.md. Five failed first-backward E2 runs and failed scratch compiler startup retained/cost-counted. E2 current comparisons only seed0; other seeds running. EDA is a released-code architecture port with explicit selection choices, not yet a trained baseline. MATH paper-anchor reproduction uses full500 whereas new rebuttal comparisons use first128. No new timing result. E2 larger budget remains pending; cap25GPUh enforced until approval.
+
+### 2026-11-24T15:38:56.145250-05:00 — second EDA sanity and owner budget approval
+Matched-width4096 EDA step-zero also completes: tau1.7854[1.7385,1.8307],p143.5%[41.6,45.2],n128,paired delta vs reuse0.0023[-0.0093,0.0145]. Both sizes in rebuttal/E4/sanity_20261124_1538/results.json. Owner explicitly approved40GPUh for E2; guard now enforces40. Full comparison continues; no data/recipe or result-selection change.

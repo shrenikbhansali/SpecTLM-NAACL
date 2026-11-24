@@ -1,0 +1,32 @@
+{
+  "pid": 884838,
+  "command": [
+    "/nethome/sbhansali8/conda/base/bin/python",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/worktrees/ops-20261124/ops/queue.py",
+    "--slots",
+    "heck-srv3:2,heck-srv5:4,heck-srv3:0,heck-srv1:0,heck-srv1:2,heck-srv4:0,heck-srv4:1,heck-srv4:2,heck-srv1:3,heck-srv3:1,heck-srv3:3,heck-srv4:3,heck-srv5:6,heck-srv5:7",
+    "--jobs",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/preflight_20261124_exactfamily/jobs.jsonl",
+    "--log",
+    "/home/heck2/sbhansali8/ReFit/artifacts/M2_D28_20261006/response_queue.log",
+    "--owner",
+    "method-M1",
+    "--exclusive-owner",
+    "--reload-jobs",
+    "--poll",
+    "20",
+    "--no-wait-launch-pid",
+    "--min-free-gb",
+    "350",
+    "--disk-path",
+    "/home/heck2/sbhansali8/ReFit",
+    "--require-idle-gpu",
+    "--resume-path-map",
+    "/home/heck2/sbhansali8/SpecTLM=/home/heck2/sbhansali8/ReFit",
+    "--reservations",
+    "/home/heck2/sbhansali8/ReFit/ops/gpu_reservations.json",
+    "--cancel-file",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/cancel-pending.json"
+  ],
+  "previous_pid": 652502
+}

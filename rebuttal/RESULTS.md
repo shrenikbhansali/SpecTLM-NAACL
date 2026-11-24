@@ -1,14 +1,14 @@
 # Rebuttal results
 
-E1 and E10 are complete. New GPU experiments await baseline reproduction and free A40 slots. Reference acceptance numbers are not represented as reproduced results.
+E1 and E10 are complete. All10 exact acceptance reference checks passed. E2 has partial newly evaluated comparisons; eight training runs and the continuous scratch run are underway. E4 has a successful untrained-port sanity check, not a trained baseline result.
 
 ## E10 — Software versions
-Status: final (version inventory; fresh numerical reproductions pending GPU slots)
+Status: final (version inventory; all10 exact acceptance reproductions passed)
 Answers: u4ad engine-version question
 
 Paper and current inference environment both use vLLM 0.31.0. The frozen acceptance harness is 6da2e4265c0398ec0de5affaf23b0bd1df0be445. Current inference: Python 3.11.5, PyTorch 2.13.0, CUDA 13.0, transformers 5.17.0, NVIDIA A40, driver 620.70.06. Trainer: transformers 5.16.1, Speculators 0.9.0a0, same Python/PyTorch/CUDA. SGLang has not been used. Full environment freezes and source timing-config evidence are saved.
 
-Result in one sentence: the current inference engine version matches the submitted timing runs; numerical reproduction remains a prerequisite for the new GPU experiments.
+Result in one sentence: the current inference engine version matches the submitted timing runs, and all10 matching acceptance references reproduce within0.03tau; fresh wall-clock references remain required before new timing comparisons.
 GPU-hours: 0.0 (budget 0).
 Deviations from spec: none.
 
@@ -50,17 +50,57 @@ Verification: independent NumPy reduction, 10,000 paired sequence resamples, see
 GPU-hours: 0.0 (budget 2).
 Deviations from spec: none.
 
+## Exact reference acceptance reproduction
+
+All cells use frozen6da2e42, vLLM0.31.0, A40, greedyK4, batch8,512tokens and exact original rendered IDs/model-file hashes. MATH here is full500 because these are the submitted-paper anchors; new E2 MATH uses first128. Repaired references are seed0. CIs below use10,000 paired prompt resamples. Every check passes both the paper-anchor and matched historical-run0.03tau tolerances.
+
+| Target | Arm | Panel | n | Reproduced tau [95%CI] |
+|---|---|---|---|---|
+| R1 | reuse | speed128 | 128 | 1.78 [1.74, 1.83] |
+| R1 | full | speed128 | 128 | 2.52 [2.44, 2.60] |
+| R1 | dedicated | speed128 | 128 | 2.86 [2.76, 2.95] |
+| R1 | reuse | math500 | 500 | 1.93 [1.92, 1.94] |
+| R1 | full | math500 | 500 | 2.97 [2.95, 2.99] |
+| R1 | dedicated | math500 | 500 | 3.84 [3.81, 3.86] |
+| Nemotron | reuse | speed128 | 128 | 1.75 [1.70, 1.81] |
+| Nemotron | full | speed128 | 128 | 2.50 [2.40, 2.58] |
+| Nemotron | reuse | math500 | 500 | 1.69 [1.68, 1.70] |
+| Nemotron | full | math500 | 500 | 2.85 [2.83, 2.88] |
+
+Source: rebuttal/advance_r1_20261124_1523/gate/results.json; raw hashes and paired historical differences recorded per cell. This is acceptance reproduction, not a new wall-clock measurement.
+
 ## E2 — LoRA decomposition
-Status: not run (preflight and reproduction in progress)
-GPU-hours: 0 measured for new runs.
+Status: partial (Nemotron seed0; seeds1–2 and matched decoder/head-only training still running; R1 evaluations in progress)
+Answers: RLU2 W2, u4ad W2
+
+Nemotron, n128 per panel, seed0, first128 MATH. All means and paired differences recomputed from raw per-step counters;10,000 query resamples. The LoRA ablations restore exact initial weights after training; they are not separately trained fc-only/no-fc models. p1 and full provenance are in the accompanying JSON/CSV.
+
+| Variant | SPEED tau [95%CI] | MATH tau [95%CI] | Delta SPEED vs dense fc | Delta MATH vs dense fc |
+|---|---|---|---|---|
+| Dense interface | 2.39 [2.30, 2.47] | 2.68 [2.64, 2.73] | reference | reference |
+| Whole LoRA | 2.44 [2.35, 2.52] | 2.75 [2.71, 2.79] | 0.05 [0.03, 0.08] | 0.07 [0.05, 0.08] |
+| Whole LoRA with fc restored | 2.31 [2.23, 2.39] | 2.55 [2.51, 2.59] | -0.07 [-0.10, -0.05] | -0.13 [-0.15, -0.11] |
+| Whole LoRA with only fc updates retained | 1.98 [1.92, 2.05] | 2.06 [2.03, 2.09] | -0.40 [-0.44, -0.36] | -0.62 [-0.65, -0.60] |
+
+Result in one sentence: whole-drafter LoRA modestly exceeds the dense interface on this seed, while removing either group of its jointly trained updates reduces acceptance.
+GPU-hours: 1.8 completed at the reduction snapshot, including failures/invalid attempts; active training additional (budget40GPUh approved by ownerNov24).
+Deviations from spec: operational stride-preserving CPU offload fixes compiled backward layouts without changing the objective; four initial ablation cells were invalidated for duplicate physical tensor keys and rerun. No invalid numbers included. Three-seed dense-interface results are also saved, but this table pairs seed0 with seed0.
+Sources: rebuttal/E2/reduction_20261124_1533/results.json and results.csv; eight exports in exports_v2; v2-audit.json proves unique physical tensor keys and bit-exact restored weights. INVALID-v1.md enumerates retained invalid cells.
 
 ## E4 — EDA baseline
-Status: not run (preflight and reproduction in progress)
-GPU-hours: 0 measured for new runs.
+Status: partial (untrained port sanity only; selected-data training and E4b remain)
+
+Released-code additive singleton-expert behavior, with private widths4096 (50,339,840added/trainable params) and14336 (176,168,960); no paper-style joint-softmax gate substituted. Concatenated SwiGLU export loads through the unmodified frozen vLLM EAGLE-3 path. FIX-24 target embedding is used. The default-width14336 step-zero check on R1 SPEED, n128, gives p143.4% [41.5,45.2], tau1.79 [1.74, 1.83], versus reuse1.78; paired delta tau0.004 [-0.009,0.017]. The matched-width4096 port also completed: p143.5% [41.6,45.2], tau1.79 [1.74,1.83], paired delta tau0.002 [-0.009,0.014], n128. Both port sizes load without an engine modification.
+
+Result in one sentence: both untrained port sizes preserve reuse acceptance within their paired intervals, establishing loadability and a non-degraded starting point; repair performance is not yet measured.
+GPU-hours: 0.3 completed sanity checks (budget15plus port).
+Deviations from spec: the release omits PCA/quantile values; PCA128 and90th-percentile score are frozen port choices before selection. Released additive behavior is primary. No variant is chosen for weaker observed performance.
+Sources: rebuttal/E4/sanity_20261124_1538/results.json; step0_exports_20261124/width-14336/preparation.json records exact initialization, embedding hash, parameter count and code commit.
 
 ## E3 — Dedicated training cost
-Status: not run (preflight and reproduction in progress)
-GPU-hours: 0 measured for new runs.
+Status: partial (E3b continuous scratch run training; no completed epoch/evaluation yet; E3a throughput data preparation remains)
+E3b uses existing audited64k Alpaca+Dolly data, one20epoch cosine horizon, exports at epochs1/2/5/10/15/20 and forced stop Nov28noon. First attempt failed before an optimizer update on GCC8; retry uses installed GCC13.3.1 and is progressing.
+GPU-hours: failed attempt0.0245; active runtime recorded by the wrapper; no completed training-quality result claimed.
 
 ## E5 — Distilled independent drafter
 Status: not run (preflight and reproduction in progress)

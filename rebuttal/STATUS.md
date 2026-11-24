@@ -1,5 +1,20 @@
 # Rebuttal status
 
+### 2026-11-24T15:38:56.145250-05:00 — codex-1 — owner approved E2 budget40GPUh
+Finished: both EDA step-zero port sizes successfully load through frozen vLLM, tau1.79 for each, n128; paired CIs versus reuse include zero. All10 exact acceptance references PASS. CPU reductions and35regression tests pass.
+Running: nine training jobs (eight E2 plus continuous E3b scratch) and frozen E2 evaluations across14available A40slots. Automatic export evaluator and launch-failure alerts active. Canonical queue PID884838; export watcher836737; budget guard885584.
+GPU-hours: E2 measured completed+active5.0 at15:37, including failures/invalid attempts. Owner raised E2 to40GPUh at15:36:40ET; guard confirmed the new40GPUh limit without stopping/restarting any job. Estimated training completion remains roughly3–6hours for E2, followed by evaluation; actual measurements will replace estimates.
+Needs a decision: none now. Remaining build priorities: E4 selection/training, E3a throughput data, E5 student KL pipeline. EDA port is verified for export/serving, not yet for training.
+Deviations: same recorded operational fixes; no experiment recipe/acceptance changes, no outcome-based baseline selection. No paper files edited.
+
+### 2026-11-24T15:35:19.759301-05:00 — codex-1 — 14 A40 slots; reference reproduction complete
+Finished: all10 exact acceptance reference checks PASS; E1/E10 complete; eight corrected LoRA ablation exports audited; Nemotron seed0 E2 comparisons reduced independently. EDA default-width step-zero export loads in frozen vLLM and retains reuse acceptance (delta tau0.004, paired95%CI[-0.009,0.017],n128).
+Running: one canonical queue PID884838 with14 slots: srv1:0/2/3, srv3:0–3, srv4:0–3, srv5:4/6/7. Eight E2 training runs progressing; E3b continuous20epoch scratch now progresses with installed GCC13 after an initial compiler failure. Corrected E2 held-out evaluations and second EDA sanity cell are underway. These are live-free slots, not a guaranteed reservation through Nov28.
+ETA: E2 training about3–6more hours at measured pace, then automatic paired evaluation. Scratch stops no later than Nov28noon and evaluates every completed scheduled checkpoint; no promise of reaching20epochs. E4 selection/training and E3a/E5 implementation still remain.
+GPU-hours: E2 measured completed+currently elapsed 4.5 as of this entry, including invalid and failed attempts; other totals are in per-run gpu_hours.txt. E1/E10 each0. E3b failed startup0.0245GPUh, new run active. EDA completed sanity0.1244GPUh, other sanity active.
+Needs a decision: E2 budget increase to40GPUh requested because measured4.5–5.6s/forward projects above the plan's25GPUh allowance. While pending, budget guard PID885584 enforces25GPUh, with0.2GPUh teardown margin; no larger budget assumed. Control: rebuttal/budget_control_20261124/E2.json. It will cancel pending and active E2 work at the cap; other experiments continue.
+Deviations/fixes: activation offload preserves exact view strides via an opt-in flag; pinned env/objective unchanged. First four ablation cells are INVALID due to duplicate physical shard keys; all are retained and replaced with audited exports_v2/_shards2 cells. Scratch uses installed GCC13.3.1 via job-only CC/CXX; original failed output retained. E2 MATH means refer to first128; exact paper-anchor reproduction used full500. Export watcher PID836737 appends evaluations to the same queue and alerts on launch_failed. Paper files untouched.
+
 ### 2026-11-24T14:48:13-05:00 — codex-1 — owner jobs preempted; reproduction running
 Finished: E1 independent raw crossover reduction (12 groups, n64 each); E10 environment audit; eight existing LoRA checkpoint ablations; EDA additive-expert export implementation and unit tests. Cancelled four own competing GPU workloads and six dispatcher workers, with before/after evidence in cancellation_20261124_1444.
 Running: one canonical queue PID590758, seven remaining exact reference reproductions; three raw-counter checks already pass (R1 full/dedicated SPEED, Nemotron full SPEED). New training is staged but gated on complete reference checks.

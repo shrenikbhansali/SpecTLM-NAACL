@@ -1,0 +1,272 @@
+[
+  {
+    "target": 0,
+    "arm": "reuse",
+    "benchmark": "speed128",
+    "name": "BASELINE_t0_reuse_speed128_s0_exactfamily",
+    "old_source": "artifacts/P3_D50_20261009_0200/E1-reuse/runs/D50-E1-official-t0-speed128",
+    "n": 128,
+    "excluded_zero_step": 0,
+    "old_tau": 1.7638046187461247,
+    "new_tau": 1.783120951497624,
+    "old_p1": 0.429554326010948,
+    "new_p1": 0.43403080861734084,
+    "delta_tau": 0.019316332751499563,
+    "delta_tau_ci95": [
+      -0.0013588992380083674,
+      0.040608903369777516
+    ],
+    "new_tau_ci95": [
+      1.7370937043267336,
+      1.8282527241742976
+    ],
+    "status": "pass",
+    "paper_anchor": 1.76,
+    "paper_delta": 0.023120951497624054,
+    "gpu_hours": 0.11058287053999569,
+    "raw_sha256": "4963378422f4ff7ec681a31498442af9e734c810127aa3f1a0ee175201644a22"
+  },
+  {
+    "target": 0,
+    "arm": "full",
+    "benchmark": "speed128",
+    "name": "BASELINE_t0_full_speed128_s0_cachefix1",
+    "old_source": "artifacts/FIX24_20261009_1420/repair-eval/runs/FIX24-official-t0-16k-full-s4477-speed128",
+    "n": 128,
+    "excluded_zero_step": 0,
+    "old_tau": 2.5357161931678136,
+    "new_tau": 2.523922512880032,
+    "old_p1": 0.6503246298853964,
+    "new_p1": 0.6447554543543201,
+    "delta_tau": -0.011793680287781848,
+    "delta_tau_ci95": [
+      -0.0349550720782563,
+      0.010711866942795847
+    ],
+    "new_tau_ci95": [
+      2.4408842078717456,
+      2.602412876943329
+    ],
+    "status": "pass",
+    "paper_anchor": 2.54,
+    "paper_delta": -0.016077487119968037,
+    "gpu_hours": 0.1164363170421954,
+    "raw_sha256": "e153b4e2b3567418bee4bfc190af0130bde073f90fa897cfe9786a8bfe22a896"
+  },
+  {
+    "target": 0,
+    "arm": "dedicated",
+    "benchmark": "speed128",
+    "name": "BASELINE_t0_dedicated_speed128_s0_cachefix1",
+    "old_source": "artifacts/T1b_cells_20261008_0145/runs/T4-phase1b-R1-dedicated",
+    "n": 128,
+    "excluded_zero_step": 0,
+    "old_tau": 2.848407312174198,
+    "new_tau": 2.855685628473002,
+    "old_p1": 0.704837889918402,
+    "new_p1": 0.7066519514345144,
+    "delta_tau": 0.0072783162988035825,
+    "delta_tau_ci95": [
+      -0.0015932510507617572,
+      0.01770477065696221
+    ],
+    "new_tau_ci95": [
+      2.7581224659184675,
+      2.946972707339948
+    ],
+    "status": "pass",
+    "paper_anchor": 2.85,
+    "paper_delta": 0.0056856284730018025,
+    "gpu_hours": 0.13857679296000344,
+    "raw_sha256": "3b9af64a1aa63ca51a9c067fc2eb8ca20f25f0f2a0027ab73e2180be22456027"
+  },
+  {
+    "target": 0,
+    "arm": "reuse",
+    "benchmark": "math500",
+    "name": "BASELINE_t0_reuse_math500_s0_cachefix1",
+    "old_source": "artifacts/D52_official_followups_20261009/math500/runs/D52-MATH500-official-reused",
+    "n": 500,
+    "excluded_zero_step": 0,
+    "old_tau": 1.9279885681904612,
+    "new_tau": 1.9297289814759346,
+    "old_p1": 0.49461776756772186,
+    "new_p1": 0.4943429320739254,
+    "delta_tau": 0.0017404132854735707,
+    "delta_tau_ci95": [
+      -0.005511168805976769,
+      0.00916557818462385
+    ],
+    "new_tau_ci95": [
+      1.915354625718073,
+      1.9443822155965003
+    ],
+    "status": "pass",
+    "paper_anchor": 1.93,
+    "paper_delta": -0.0002710185240653029,
+    "gpu_hours": 0.2668011225316635,
+    "raw_sha256": "3442b5b84d2f6dae26c0b08c36f507d4170bc825bb81f137204f6c2359633985"
+  },
+  {
+    "target": 0,
+    "arm": "full",
+    "benchmark": "math500",
+    "name": "BASELINE_t0_full_math500_s0_cachefix1",
+    "old_source": "artifacts/D52_official_followups_20261009/math500/runs/D52-MATH500-official-full",
+    "n": 500,
+    "excluded_zero_step": 0,
+    "old_tau": 2.968931631144136,
+    "new_tau": 2.969742892907171,
+    "old_p1": 0.7560251849154537,
+    "new_p1": 0.7565209413308142,
+    "delta_tau": 0.0008112617630344738,
+    "delta_tau_ci95": [
+      -0.00449421953824867,
+      0.006094965848470427
+    ],
+    "new_tau_ci95": [
+      2.9476174845617695,
+      2.991840720465953
+    ],
+    "status": "pass",
+    "paper_anchor": 2.97,
+    "paper_delta": -0.00025710709282922295,
+    "gpu_hours": 0.18183221907972538,
+    "raw_sha256": "2902c591f9717e1febf0fbab447369750d28d0c6a25c4129800a0d612b29adb9"
+  },
+  {
+    "target": 0,
+    "arm": "dedicated",
+    "benchmark": "math500",
+    "name": "BASELINE_t0_dedicated_math500_s0_cachefix1",
+    "old_source": "artifacts/P3_D50_20261009_0200/math500/runs/D50-MATH500-oracle",
+    "n": 500,
+    "excluded_zero_step": 0,
+    "old_tau": 3.842156621308859,
+    "new_tau": 3.8354701910346076,
+    "old_p1": 0.8720288430514218,
+    "new_p1": 0.8712078745023346,
+    "delta_tau": -0.0066864302742517855,
+    "delta_tau_ci95": [
+      -0.019446573329973335,
+      0.006128018222468207
+    ],
+    "new_tau_ci95": [
+      3.807669892346005,
+      3.8627035116200377
+    ],
+    "status": "pass",
+    "paper_anchor": 3.84,
+    "paper_delta": -0.004529808965392235,
+    "gpu_hours": 0.14984089455418548,
+    "raw_sha256": "28431582bdee8e1e23a9b2f82be6b2772714b737442498b40f28c4538e3ef58c"
+  },
+  {
+    "target": 1,
+    "arm": "reuse",
+    "benchmark": "speed128",
+    "name": "BASELINE_t1_reuse_speed128_s0_exactfamily",
+    "old_source": "artifacts/P3_D50_20261009_0200/E1-reuse/runs/D50-E1-official-t1-speed128",
+    "n": 128,
+    "excluded_zero_step": 0,
+    "old_tau": 1.7632977839219515,
+    "new_tau": 1.754021490110643,
+    "old_p1": 0.42919022458526124,
+    "new_p1": 0.42674315400294993,
+    "delta_tau": -0.009276293811308428,
+    "delta_tau_ci95": [
+      -0.02801408169421755,
+      0.00848632516189658
+    ],
+    "new_tau_ci95": [
+      1.701669755549323,
+      1.8093772846406189
+    ],
+    "status": "pass",
+    "paper_anchor": 1.76,
+    "paper_delta": -0.005978509889356998,
+    "gpu_hours": 0.1033452897872323,
+    "raw_sha256": "6902bc31f40ddf2e8c44b3e52b3458fca583e2f75d43604aea03b5607c32356b"
+  },
+  {
+    "target": 1,
+    "arm": "full",
+    "benchmark": "speed128",
+    "name": "BASELINE_t1_full_speed128_s0_cachefix1",
+    "old_source": "artifacts/FIX24_20261009_1420/repair-eval/runs/FIX24-official-t1-16k-full-s2625-speed128",
+    "n": 128,
+    "excluded_zero_step": 0,
+    "old_tau": 2.486977329098281,
+    "new_tau": 2.4959899131629824,
+    "old_p1": 0.6286891028915229,
+    "new_p1": 0.6297504171059696,
+    "delta_tau": 0.009012584064701398,
+    "delta_tau_ci95": [
+      -0.015880292160816975,
+      0.03440589194485111
+    ],
+    "new_tau_ci95": [
+      2.404823463830342,
+      2.58402497985782
+    ],
+    "status": "pass",
+    "paper_anchor": 2.49,
+    "paper_delta": 0.005989913162982141,
+    "gpu_hours": 0.09226819253358473,
+    "raw_sha256": "3909bcd65a09c0a1f2ab8174e45defeb1ec033b2629c4f02b5c6ccf009394723"
+  },
+  {
+    "target": 1,
+    "arm": "reuse",
+    "benchmark": "math500",
+    "name": "BASELINE_t1_reuse_math500_s0_exactfamily",
+    "old_source": "artifacts/REV2_panels_20261010_0430_v2/runs/REV2-E14-t1-reuse-seed0-math500",
+    "n": 500,
+    "excluded_zero_step": 0,
+    "old_tau": 1.6862703523284048,
+    "new_tau": 1.6872289354603873,
+    "old_p1": 0.4438861296341274,
+    "new_p1": 0.4448564002321522,
+    "delta_tau": 0.0009585831319822966,
+    "delta_tau_ci95": [
+      -0.001212586945457687,
+      0.0031619859917662104
+    ],
+    "new_tau_ci95": [
+      1.6765417274236183,
+      1.6983650149705352
+    ],
+    "status": "pass",
+    "paper_anchor": 1.69,
+    "paper_delta": -0.002771064539612622,
+    "gpu_hours": 0.27252472969554625,
+    "raw_sha256": "862ff748c633eeae5c693a396c00d3a937a3f2a60abdc7b39c1b4f22d627379e"
+  },
+  {
+    "target": 1,
+    "arm": "full",
+    "benchmark": "math500",
+    "name": "BASELINE_t1_full_math500_s0_cachefix1",
+    "old_source": "artifacts/REV2_panels_20261010_0430_v2/runs/REV2-E14-t1-full-seed0-math500",
+    "n": 500,
+    "excluded_zero_step": 0,
+    "old_tau": 2.859166552477881,
+    "new_tau": 2.854956967557794,
+    "old_p1": 0.7376257602006822,
+    "new_p1": 0.7372049834000184,
+    "delta_tau": -0.004209584920086813,
+    "delta_tau_ci95": [
+      -0.013568585383098622,
+      0.005004376985553397
+    ],
+    "new_tau_ci95": [
+      2.8316874729773773,
+      2.877434199183807
+    ],
+    "status": "pass",
+    "paper_anchor": 2.86,
+    "paper_delta": -0.005043032442205941,
+    "gpu_hours": 0.1879733429583333,
+    "raw_sha256": "f022a49e8eca1057c2e9105a7369b6f2ae388422d07b4223d3b07cd7087ff371"
+  }
+]

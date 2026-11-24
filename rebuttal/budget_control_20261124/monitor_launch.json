@@ -1,0 +1,15 @@
+{
+  "pid": 885584,
+  "command": [
+    "/nethome/sbhansali8/conda/base/bin/python",
+    "-u",
+    "-m",
+    "rebuttal.budget_guard",
+    "--workspace",
+    "/home/heck2/sbhansali8/ReFit",
+    "--control",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/E2.json",
+    "--output",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/monitor"
+  ]
+}

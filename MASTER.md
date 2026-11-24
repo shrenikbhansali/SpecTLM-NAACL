@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-10-12T13:32:17.767098-04:00 (codex-1 builder/operator) |
-| Sprint day | Day8of8 (MonOct12); internal submission target20:00ET |
-| Next gate | D56 REV4: P0 Sun14:00, P1 Mon02:00, P2 Mon10:00. All experiments authorized; no additional owner approval needed. |
+| Last updated | 2026-11-24T15:38:56.145250-05:00 (codex-1 builder/operator) |
+| Sprint day | ARR rebuttal phase; P0 targetNov27, finalNov28 EOD ET |
+| Next gate | Owner Nov24 rebuttal handoff: reference acceptance checks10/10PASS; E1/E10 complete; E2/E3b/E4 advancing. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | No active REV4 GPUjobs. P0 and P1 complete: P1all110logicaljobs exit0,40acceptance+19timing contrasts reduced; Y10all16 data jobs failed before response completion. Single canonicalqueue remains alive. |
-| Blockers | P2/Y10:12prompt-count failures from inherited length filter,4engine startup memory failures; no completed math-response dataset. Disk351GB, only1GB above350GBfloor. P1bookkeeping count corrected by explicit raw proof (Y6includes reuse/none as fifth timing contrast). |
-| Owner action needed | None for D56. Results/paper selection remains owner-controlled; paper/ untouched. Live results: reports/REV4-results-20261011.md. |
+| Jobs running | ONE canonical queue PID884838 on14 A40 slots; eight E2 training runs, one continuous E3b scratch run, frozen evaluations; export watcher836737. |
+| Blockers | No current E2 launch blocker;40GPUh budget approved and enforced. E4 selection/training and E3a/E5 implementation remain. Disk~5.2TiB free. |
+| Owner action needed | None for current runs; E2 budget40GPUh approvedNov24. Results in rebuttal/RESULTS.md; paper/ untouched. |
 
 ---
 
@@ -326,7 +326,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
 | REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | review | codex-1 / 2026-10-12T16:13:06.386247-04:00 | [report](reports/REV5-EDA-comparison-20261012.md); full paper + pinned code audit, CPU algebra check; paper untouched |
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
-| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-24T14:48:13-05:00 | [status](rebuttal/STATUS.md); [results](rebuttal/RESULTS.md); E1/E10 complete, exact baseline queue active; own competing jobs cancelled ([audit](rebuttal/cancellation_20261124_1444/README.md)) |
+| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-24T15:38:56.145250-05:00 | [status](rebuttal/STATUS.md); [results](rebuttal/RESULTS.md);10/10referencePASS;14A40 slots,8E2train+scratch; partial E2 and EDA sanity; [journal](rebuttal/JOURNAL.md) |
 
 ---
 
@@ -1094,6 +1094,7 @@ citing where it was stated.*
 | D-55 | 2026-10-10 | **Owner direct (~13:40): make the submission as strong as possible; position against prior work and state novelty; a third AI review informs but does not dictate.** claude-ops plan reports/REV3-plan-20261010.md: Nemotron reasoning-mode evaluation and repair (X1), training-free linear feature alignment (X2), n=128 batch-1 timing (X4), DFlash at 16k (X5), long-budget reasoning-prompt repair (X3), parent-supervision control at 16k (X8), census statistics and supplementary package (X6). P0 by Sun 08:00 ET, P1 by Sun 14:00. Writing: census reframed around extent of off-policy post-training (focused SPEED-128 cohort); text/feature/policy decomposition stated plainly; related work categorized with explicit novelty statements. | Decided |
 | D-56 | 2026-10-11 | **Owner direct (~02:25): remove every release promise from the paper; run all remaining experiments we want.** claude-ops plan reports/REV4-plan-20261011.md: P0 (Sun 14:00 ET) Y1 EAGLE b1 n=128 precision timing, Y2 DFlash MATH-500 timing, Y3a Nemotron thinking-on evaluation; P1 (Mon 02:00) Y3b thinking-on repair, Y4 DFlash on R1-0528-Qwen3 (z-lab/Qwen3-8B-DFlash-b16), Y5 DFlash Nemotron seeds 1-2, Y6 official 0.5k/64k scaling points, Y7 parent-supervision control at 16k, Y8 training-free linear alignment, Y9 census statistics (no supplementary package); P2 (Mon 10:00) Y10 math-domain long-budget data. Paper: census appendix release clause removed (paper/claude_final). | Decided |
 | D-57 | 2026-10-12 | **Owner direct (~14:50): add a single bold line at the end of the abstract stating that the codebase will be released upon publication.** Supersedes D-56's no-release-promise rule for this one statement only; no other release statements added. paper/claude_final abstract kept at 198 words (ACL <=200). | Decided |
+| D-58 | 2026-11-24 | **Owner direct: execute the supplied ARR rebuttal E1–E10 handoff, prioritize it over own competing jobs, and raise E2 to40A40GPU-hours (approved15:36ET).** Use the existing frozen acceptance protocol; new outputs under rebuttal/. All results, including nulls, remain reported. This changes the E2 compute allowance, not its data/recipe/selection criteria. [status](rebuttal/STATUS.md); [approval](rebuttal/budget_control_20261124/owner_approval_40gpuh.json). | Decided |
 
 ---
 

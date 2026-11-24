@@ -1,0 +1,7 @@
+{
+  "prefix": "E2_",
+  "limit_gpu_hours": 40.0,
+  "cancel_file": "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/cancel-pending.json",
+  "basis": "Owner direct approval 2026-11-24T15:36:40.802489-05:00",
+  "approval_record": "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/owner_approval_40gpuh.json"
+}
