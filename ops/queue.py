@@ -54,6 +54,34 @@ def gpu_busy(node, gpu, limit_mib=1000):
 
 
 
+def gpu_idle_busy(node, gpu, limit_mib=1000):
+    """Opt-in shared-cluster guard: utilization, allocation and compute PIDs must all be idle."""
+    try:
+        gpu = int(gpu)
+        command = (f'nvidia-smi -i {gpu} --query-gpu=memory.used,utilization.gpu --format=csv,noheader,nounits'
+                   f' && nvidia-smi -i {gpu} --query-compute-apps=pid --format=csv,noheader,nounits')
+        result = subprocess.run(['ssh','-n','-o','BatchMode=yes','-o','GSSAPIAuthentication=yes',
+                                 '-o','LogLevel=ERROR',node,command],capture_output=True,text=True,timeout=20)
+        if result.returncode: return True
+        lines = result.stdout.strip().splitlines()
+        memory, utilization = [int(x.strip()) for x in lines[0].split(',')]
+        return memory > limit_mib or utilization > 0 or any(x.strip() for x in lines[1:])
+    except Exception:
+        return True
+
+
+def remap_resume_path(path, mappings):
+    """Rebase only logged paths in memory after a workspace move; never rewrite old records."""
+    for mapping in mappings:
+        old,new = mapping.split('=',1)
+        old=old.rstrip('/');new=new.rstrip('/')
+        if not old.startswith('/') or not new.startswith('/'):
+            raise ValueError('resume path mappings must be absolute OLD=NEW')
+        if path == old or path.startswith(old+'/'):
+            return new + path[len(old):]
+    return path
+
+
 def acquire_owner_lock(owner, directory=None):
     """One opted-in dispatcher per owner across shared-workspace processes."""
     if not owner:raise ValueError('--exclusive-owner requires a nonempty --owner')
@@ -109,6 +137,7 @@ def disk_admission(path, minimum_gb):
 
 
 def main():
+    global RESERVATIONS
     ap = argparse.ArgumentParser()
     ap.add_argument("--slots", required=True)
     ap.add_argument("--jobs", required=True)
@@ -121,7 +150,11 @@ def main():
     ap.add_argument('--no-wait-launch-pid',action='store_true',help='opt-in: skip launcher PID visibility wait; still track artifact exit_code')
     ap.add_argument('--min-free-gb',type=float,default=0,help='opt-in decimal GB floor before each launch; holds pending jobs without cancelling them')
     ap.add_argument('--disk-path',help='filesystem to check; defaults to job-list directory')
+    ap.add_argument('--require-idle-gpu',action='store_true',help='opt-in: also require zero utilization and no compute processes')
+    ap.add_argument('--resume-path-map',action='append',default=[],help='opt-in OLD=NEW prefix for historical output paths after workspace relocation')
+    ap.add_argument('--reservations',type=Path,help='opt-in reservations path after workspace relocation; also locates the shared owner lock')
     a = ap.parse_args()
+    if a.reservations is not None: RESERVATIONS=a.reservations
     lock=acquire_owner_lock(a.owner) if a.exclusive_owner else None
     try:
         dispatch(a)
@@ -143,7 +176,7 @@ def dispatch(a):
             if e.get('event')=='cancelled':done_names.add(e['name'])
             if e.get("event") == "launched":
                 done_names.add(e["name"])
-                busy[e["slot"]] = e["out_dir"]
+                busy[e["slot"]] = remap_resume_path(e["out_dir"],getattr(a,'resume_path_map',[]))
     pending = [j for j in jobs if j["name"] not in done_names]
 
     def emit(**e):
@@ -174,7 +207,8 @@ def dispatch(a):
                 continue
             node, gpu = slot.split(":")
             index=eligible_job_index(pending,node)
-            if index is None or gpu_busy(node, gpu):
+            busy_check = gpu_idle_busy if getattr(a,'require_idle_gpu',False) else gpu_busy
+            if index is None or busy_check(node, gpu):
                 continue
             disk_path=getattr(a,'disk_path',None) or Path(a.jobs).parent
             minimum=getattr(a,'min_free_gb',0)

@@ -23,12 +23,12 @@ class RepairLinear(torch.nn.Module):
 
 
 def configure_variant(model,variant,rank=16,alpha=32,algorithm="eagle3"):
-    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora'}:raise ValueError('unknown repair variant')
+    if variant not in {'fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora','decoder_head_lora'}:raise ValueError('unknown repair variant')
     model.requires_grad_(False)
-    if variant=='whole_lora':
+    if variant in {'whole_lora','decoder_head_lora'}:
         if rank<1:raise ValueError('positive LoRA rank required')
         for name,module in list(model.named_modules()):
-            if isinstance(module,torch.nn.Linear) and (name in {'fc','lm_head'} or name.startswith('layers.')):
+            if isinstance(module,torch.nn.Linear) and (name in ({'fc','lm_head'} if variant=='whole_lora' else {'lm_head'}) or name.startswith('layers.')):
                 if '.' in name:
                     parent,leaf=name.rsplit('.',1);model.get_submodule(parent)._modules[leaf]=RepairLinear(module,rank,alpha)
                 else:model._modules[name]=RepairLinear(module,rank,alpha)
@@ -95,6 +95,22 @@ def step_batches(rows,steps,ceiling,seed,shift=1):
             batch.append(i);length+=lengths[i]
         if batch:batches.append(batch)
     return batches[:steps]
+
+
+def multi_epoch_batches(rows,epochs,ceiling,seed,shift=1):
+    """Complete shuffled passes with the native RNG stream, one uninterrupted schedule."""
+    lengths=[len(r['input_ids'])-shift for r in rows]
+    if type(epochs) is not int or epochs<1:raise ValueError('positive integer epochs required')
+    if not rows or min(lengths)<1 or max(lengths)>ceiling:raise ValueError('invalid lengths; no truncation')
+    rng=random.Random(seed);batches=[];ends=[]
+    for _ in range(epochs):
+        indices=list(range(len(rows)));rng.shuffle(indices);batch=[];length=0
+        for i in indices:
+            if batch and length+lengths[i]>ceiling:batches.append(batch);batch=[];length=0
+            batch.append(i);length+=lengths[i]
+        if batch:batches.append(batch)
+        ends.append(len(batches))
+    return batches,ends
 
 
 def epoch_batches(rows,ceiling,seed,shift=1):
@@ -187,7 +203,7 @@ def save_final_trainable(export_only,compact,omit_optimizer,exports,steps):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['target-row','drafter','data','audit','forbidden','output']:p.add_argument('--'+key,required=True)
-    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora'],required=True)
+    p.add_argument('--variant',choices=['fc','fc_lora','full','fc_lowrank','decoder_lora','fc_decoder_lora','head','decoder_dense','decoder_qo','whole_lora','decoder_head_lora'],required=True)
     p.add_argument('--reselect-draft-vocab',action='store_true',help='D54 E15 training-response frequency support; initialize new head rows from target')
     p.add_argument('--profile-training',action='store_true',help='D54 synchronized whole-step timings including online capture')
     p.add_argument('--omit-final-optimizer',action='store_true',help='D54 nonresumable final compact weights, no optimizer persistence')
@@ -199,6 +215,8 @@ def main():
     p.add_argument('--scratch',action='store_true');p.add_argument('--offload-saved-tensors',action='store_true');p.add_argument('--release-grad-before-forward',action='store_true');p.add_argument('--dry-run',action='store_true')
     p.add_argument('--min-free-gb',type=float,default=0);p.add_argument('--compact-checkpoints',action='store_true');p.add_argument('--shared-export-root')
     p.add_argument('--one-epoch',action='store_true',help='derive steps and quarter/half/final exports from one complete shuffled pass')
+    p.add_argument('--epochs',type=int,help='rebuttal E3b opt-in: uninterrupted scratch run over complete epochs')
+    p.add_argument('--export-epochs',nargs='+',type=int,help='epoch boundaries to export in an --epochs run')
     p.add_argument('--epoch-export-fractions',nargs='+',type=float,help='explicit export fractions for --one-epoch; default remains .25 .5 1')
     p.add_argument('--algorithm',choices=['eagle3','dflash'],default='eagle3');p.add_argument('--max-anchors',type=int,default=64)
     p.add_argument('--checkpoint-dflash-layers',action='store_true')
@@ -227,7 +245,17 @@ def main():
         special_aliases=supervision_vocabulary(child_tok.get_vocab(),parent_tok.get_vocab(),min(child_tok.vocab_size,parent_tok.vocab_size))
     if a.reselect_draft_vocab and (a.variant!='full' or a.algorithm!='eagle3' or a.scratch or a.continue_epoch_from):raise ValueError('vocabulary reselection requires fresh full EAGLE warm-start')
     if a.scratch and a.variant!='full':raise ValueError('scratch control uses full drafter')
-    previous=None;resume_step=0
+    previous=None;resume_step=0;multi_batches=None;epoch_ends=None
+    if a.epochs is not None:
+        if not a.scratch or a.variant!='full' or a.algorithm!='eagle3' or a.one_epoch or a.continue_epoch_from or a.epoch_export_fractions:
+            raise ValueError('--epochs requires a fresh full EAGLE scratch run, without other epoch modes')
+        multi_batches,epoch_ends=multi_epoch_batches(rows,a.epochs,a.batch_tokens,a.seed,shift=shift)
+        if not a.export_epochs or a.epochs not in a.export_epochs or any(x<1 or x>a.epochs for x in a.export_epochs):
+            raise ValueError('export epochs must be within run and include final epoch')
+        a.steps=len(multi_batches);a.export_steps=[epoch_ends[i-1] for i in sorted(set(a.export_epochs))]
+        if a.schedule_steps is not None and a.schedule_steps!=a.steps:
+            raise ValueError('multi-epoch schedule must span the entire run')
+    elif a.export_epochs is not None:raise ValueError('--export-epochs requires --epochs')
     if a.continue_epoch_from:
         from followspec.repair_continuation import continuation_batches
         if not a.one_epoch or a.scratch or a.algorithm!='eagle3':raise ValueError('continuation requires one-epoch Eagle warm-start')
@@ -247,9 +275,10 @@ def main():
     save_native_final=save_final_trainable(a.export_only_final,a.compact_checkpoints,a.omit_final_optimizer,a.export_steps,a.steps)
     schedule_steps=a.schedule_steps or a.steps
     if schedule_steps<a.steps:raise ValueError('schedule horizon shorter than run')
-    batches=one_epoch if previous else step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
+    batches=multi_batches if multi_batches is not None else one_epoch if previous else step_batches(rows,a.steps,a.batch_tokens,a.seed,shift=shift)
     cfg=vars(a)|dict(target=target,initialization_revision=Path(a.drafter).name,schedule_horizon=schedule_steps,backend_revision=BACKEND,engine_version='0.31.0',status='pilot',code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),data_sha256=file_hash(a.data),audit_sha256=file_hash(a.audit),forbidden_sha256=file_hash(a.forbidden),n=len(rows),token_budget=sum(len(rows[i]['input_ids'])-shift for b in batches for i in b),batch_plan=batches,ttt_steps=a.ttt_steps,ttt_step_loss_decay=1.,optimizer='adamw',weight_decay=.01,scheduler='cosine',warmup_ratio=.03,loss='native KL, answer positions, no paired or delta terms',scratch_scope='random fc/layers/head/norm; fixed family embeddings and vocabulary map' if a.scratch else None)
     if a.algorithm=='dflash':cfg.update(ttt_steps=None,ttt_step_loss_decay=None,loss='native DFlash fused KL; gamma4 fixed-exp-decay; answer positions',max_anchors=a.max_anchors)
+    if epoch_ends is not None:cfg.update(epoch_end_steps=epoch_ends,epoch_schedule='One cosine schedule over all epochs; intermediate exports are not separately annealed runs')
     if a.supervision_row:cfg.update(supervision=supervision,supervision_row_sha256=file_hash(a.supervision_row),special_token_aliases=special_aliases,control='Derivative token IDs and initialization fixed; alternate model supplies both taps and soft labels. Special token aliases are logged, never remapped.')
     if previous:cfg.update(schedule_horizon=resume_step+a.steps,resume_source=str(prior),resume_source_config_sha256=file_hash(prior/'config.json'),resume_checkpoint=str(checkpoint),resume_global_step=resume_step,completed_epochs=epoch_index+1,continuation_schedule='Restore AdamW moments; extend cosine total horizon to prior+new steps, no replay. First epoch retains original shorter schedule; not equivalent to uninterrupted two-epoch training.',rng_policy='Prior checkpoint lacks RNG state; deterministic seed reset at continuation, next epoch data order matches native shuffle stream',cumulative_token_budget=previous['token_budget']+cfg['token_budget'])
     if a.dry_run:print(json.dumps(cfg,indent=2));return
