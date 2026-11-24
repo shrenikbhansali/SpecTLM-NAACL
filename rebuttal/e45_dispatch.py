@@ -45,8 +45,8 @@ def read_rows(p):return [json.loads(x) for x in Path(p).read_text().splitlines()
 def dispatch_rank(name):
  if name in ['E4_t0_reference_cache_s0','E4_t0_selection_s0']:return 0
  if name.startswith('E4') and ('selected8k' in name or 'random8k' in name):return 1
- if name.startswith('E5') and ('_student_' in name or '_validation256' in name):return 2
- return 3
+ if name.startswith('E5') and ('_student_' in name or '_validation256' in name):return 2 if name.startswith('E5_t0_') else 3
+ return 4
 
 
 def prioritize_ready(stage):

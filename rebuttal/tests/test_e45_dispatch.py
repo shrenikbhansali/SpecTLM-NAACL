@@ -26,3 +26,4 @@ class E45DispatchTests(unittest.TestCase):
  def test_ready_critical_path_precedes_larger_sweeps(self):
   names=['E5_t0_offtheshelf_k2_speed128_s0','E5_t0_student_lr1e-05_ep1_s0','E4_t0_selection_s0']
   self.assertEqual(sorted(names,key=dispatch_rank),list(reversed(names)))
+  self.assertLess(dispatch_rank('E5_t0_student_lr1e-05_ep1_s0'),dispatch_rank('E5_t1_student_lr1e-05_ep3_s0'))
