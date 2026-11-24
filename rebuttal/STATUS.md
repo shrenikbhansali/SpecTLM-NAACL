@@ -1,5 +1,11 @@
 # Rebuttal status
 
+### 2026-11-24T17:38:57.253727-05:00 — codex-1 — first distilled checkpoints complete
+Finished: both Nemotron one-epoch student trainings/exports; EDA reference capture, PCA selection and both8k audits. Two new Nemotron decoder/head seed trainings also completed.
+Running: two EDA widths, two selected8k controls, five student settings, existing E2/scratch;16A40slots. Two random8k controls and final R1student setting pending. Frozen heldout/evaluation jobs advance automatically; no new trained EDA/student acceptance result yet.
+ETA (conditional on present capacity): EDA acceptance19:30–20:30ET; selected student Nemotron20–21ET, R1~22–23:30ET; full retiming overnight into Wednesday. These are forecasts, not results.
+GPU-hours at17:35: E4 2.15/18.75; E5 7.28/120; E2 22.54/40. Needs a decision: none. No new failure alerts or protocol deviations.
+
 ### 2026-11-24T17:14:40.341766-05:00 — E4 reference complete; E5 budget active
 E4 reference2000 completed and passed the five-sample/mask/provenance audit; capture is first pending in the canonical queue. Seven E5 student settings now running, one pending. E5 ceiling120GPUh is live; approval recorded in MASTER D-59. Canonical queue1202986, dependency controller1327856, report publisher1314126; no current alerts.62tests pass. Trained acceptance results remain pending.
 
