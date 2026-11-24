@@ -15,3 +15,6 @@ Both private widths4096/14336 load through frozen6da2e42/vLLM0.31 without source
 
 ## 2026-11-24T16:08:19-05:00 — native training smoke
 Width4096 completed two optimizer steps through the FIX24/nativeTTT3 path and exported, with only private expert/router trainable. Source run E4_t0_train_smoke_w4096_s0. Reference2000 generation and exact target-state captures are now in the canonical queue. No trained acceptance claim yet.
+
+## 2026-11-24T16:34:20.917107-05:00 — trained export and frozen-weight checks
+Both widths also pass native two-step training/export and frozen-vLLM serving smoke checks. Independent direct safetensors inspection of width4096 proves all16 frozen tensors (including the shared FFN prefix and FIX24 target embedding) exactly match their intended source. The same check gates production EDA acceptance. Standalone b1 first-draft medians after50warmup/1000measured forwards are3.317ms released,3.364ms width4096,3.378ms width14336. These CUDA-event measurements include fc/decoder/head, no existing KV context or verifier; they are not end-to-end speedups. No trained-baseline acceptance result yet.

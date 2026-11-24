@@ -12,6 +12,14 @@ def metric(row,k):
  return (1+sum(a)/len(a),sum(x>0 for x in a)/len(a)) if a else None
 
 
+def matched_reference_rows(raw,original_prompts,panel_prompts):
+ identity=lambda rr:[(r['prompt_id'],r['rendered_token_ids']) for r in rr]
+ if identity(original_prompts[:len(panel_prompts)])!=identity(panel_prompts):raise ValueError('reference panel is not the identical rendered prefix')
+ mapping={r['prompt_id']:r for r in raw}
+ if len(mapping)!=len(raw) or set(mapping)!={r['prompt_id'] for r in original_prompts}:raise ValueError('incomplete reference raw counters')
+ return [mapping[r['prompt_id']] for r in panel_prompts]
+
+
 def acceptance_contrast(reference,candidate,reference_k,candidate_k):
  seeds=sorted(reference.keys()&candidate.keys())
  if not seeds:raise ValueError('no paired seeds')
@@ -66,6 +74,21 @@ def csv_write(path,records):
   writer=csv.DictWriter(f,fields);writer.writeheader();writer.writerows({k:json.dumps(v) if isinstance(v,(list,dict)) else v for k,v in r.items()} for r in records)
 
 
+def reference_records(root):
+ result=[];gate=json.loads((root/'rebuttal/advance_r1_20261124_1523/gate/results.json').read_text())
+ for entry in gate:
+  if entry['status']!='pass':raise ValueError('failed acceptance reference')
+  run=root/'rebuttal/runs'/entry['name'];cell=run/'cell';cfg=json.loads((cell/'config.json').read_text());t=entry['target']
+  bench='speed128' if entry['benchmark']=='speed128' else 'math128'
+  if cfg['code_commit']!=FROZEN or cfg['engine_version']!='0.31.0' or cfg['seed']!=0 or cfg['max_new_tokens']!=512 or cfg['batch_size']!=8 or cfg['temperature']!=0:raise ValueError('changed reference protocol')
+  if sha(cell/'per_prompt.jsonl')!=entry['raw_sha256'] or sha(cfg['prompts'])!=cfg['prompt_sha256']:raise ValueError('reference evidence changed')
+  plan=json.loads((root/f'rebuttal/ready_20261124_1504/E2_t{t}_interface_{bench}_s0.json').read_text());cmd=plan['command'];panel=Path(cmd[cmd.index('--prompts')+1]);prompts=rows(panel)
+  data=matched_reference_rows(rows(cell/'per_prompt.jsonl'),rows(cfg['prompts']),prompts);stat=acceptance_contrast({0:data},{0:data},4,4)
+  for exp in ['E4','E5']:
+   result.append({'experiment':exp,'target':t,'benchmark':bench,'run':run.name,'training_run':None,'seed':0,'K':4,'kind':'acceptance','variant':'reference_'+entry['arm'],'n':stat['n'],'tau':stat['candidate_tau'],'tau_ci95':stat['candidate_tau_ci95'],'p1':stat['candidate_p1'],'p1_ci95':stat['candidate_p1_ci95'],'prompt_sha256':sha(panel),'raw_sha256':sha(cell/'per_prompt.jsonl'),'subset_prompt_ids':[r['prompt_id'] for r in prompts],'source_n':cfg['n'],'reference_proof':'identical rendered prefix of completed current-campaign gate cell; raw/config hashes verified'})
+ return result
+
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--workspace',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();out=a.output;out.mkdir(parents=True,exist_ok=False)
  acceptance=[];timings={};sources=[];costs=defaultdict(float);pending=[];failed=[];latency=[]
@@ -94,6 +117,7 @@ def main():
    arm=run.name.split('_timing_',1)[1].split('_',1)[0];key=(cfg['target'],cfg['benchmark'],cfg['batch_size'])
    timings.setdefault(key,{})[arm,cfg['replicate']]={'config':c,'timing':v,'path':str(cell),'sha256':sha(cell/'timing.json')}
   if cfg.get('kind')=='latency':latency+=json.loads((cell/'results.json').read_text())['records']
+ acceptance+=reference_records(a.workspace)
  paired=[]
  # Every reported comparison has matching rendered prompt-file hashes and query IDs.
  groups=defaultdict(dict)
@@ -107,7 +131,14 @@ def main():
     ss=sorted(arms[left].keys()&arms[right].keys());lr={s:arms[left][s] for s in ss};rr={s:arms[right][s] for s in ss}
     if not ss:continue
     if any(lr[s]['prompt_sha256']!=rr[s]['prompt_sha256'] for s in ss):raise ValueError('unpaired prompt render')
-    load=lambda rr:{s:rows(a.workspace/'rebuttal/runs'/r['run']/'cell/per_prompt.jsonl') for s,r in rr.items()}
+    def load(records):
+     result={}
+     for seed,r in records.items():
+      data=rows(a.workspace/'rebuttal/runs'/r['run']/'cell/per_prompt.jsonl')
+      if 'subset_prompt_ids' in r:
+       byid={x['prompt_id']:x for x in data};data=[byid[x] for x in r['subset_prompt_ids']]
+      result[seed]=data
+     return result
     result=acceptance_contrast(load(lr),load(rr),lr[ss[0]]['K'],rr[ss[0]]['K']);paired.append({'experiment':group[0],'target':group[1],'benchmark':group[2],'reference':left,'candidate':right,**result})
  timed=[]
  for key,cells in timings.items():

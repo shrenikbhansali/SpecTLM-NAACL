@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-11-24T15:38:56.145250-05:00 (codex-1 builder/operator) |
+| Last updated | 2026-11-24T16:34:20.917107-05:00 (codex-1 builder/operator) |
 | Sprint day | ARR rebuttal phase; P0 targetNov27, finalNov28 EOD ET |
 | Next gate | Owner Nov24 rebuttal handoff: reference acceptance checks10/10PASS; E1/E10 complete; E2/E3b/E4 advancing. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | ONE canonical queue PID884838 on14 A40 slots; eight E2 training runs, one continuous E3b scratch run, frozen evaluations; export watcher836737. |
-| Blockers | No current E2 launch blocker;40GPUh budget approved and enforced. E4 selection/training and E3a/E5 implementation remain. Disk~5.2TiB free. |
-| Owner action needed | None for current runs; E2 budget40GPUh approvedNov24. Results in rebuttal/RESULTS.md; paper/ untouched. |
+| Jobs running | ONE canonical queue PID884838 on14 A40slots. E2/E3b continue; E5 full teacher capture and student training, E4 reference generation, frozen acceptance cells. CPU E45 controller1136119. |
+| Blockers | E4 waits for reference generation, then selection/audit. E5 full timing exceeds handoff budget;120GPUh requested,15GPUh guard retained. Disk~5.1TiB free. |
+| Owner action needed | E5 full-comparison budget request120GPUh pending; current runs remain within15GPUh ceiling. E2 limit40GPUh unchanged. |
 
 ---
 
@@ -326,7 +326,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
 | REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | review | codex-1 / 2026-10-12T16:13:06.386247-04:00 | [report](reports/REV5-EDA-comparison-20261012.md); full paper + pinned code audit, CPU algebra check; paper untouched |
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
-| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-24T15:53:36-05:00 | [status](rebuttal/STATUS.md); owner directs completion and launch of E4 trained EDA and E5 distilled 1B; existing jobs continue; [journal](rebuttal/JOURNAL.md) |
+| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-24T16:34:20.917107-05:00 | [results](rebuttal/RESULTS.md); [journal](rebuttal/JOURNAL.md); E4/E5 trained-export smokes pass; full1B training launched, EDA reference generation active;55tests. E5 budget request pending. |
 
 ---
 

@@ -141,6 +141,12 @@ def advance_eda(stage,code):
   for export in exports:
    if not (export/'repair_provenance.json').exists():continue
    provenance=json.loads((run/'config.yaml').read_text());variant=provenance.get('variant','unknown')
+   if variant=='eda_private':
+    proof=stage/(run.name+'-frozen-proof.json')
+    if not proof.exists():
+     from rebuttal.eda_export_audit import verify
+     target=json.loads((ROOT/'rebuttal/inputs/target-0.json').read_text())
+     write_immutable(proof,verify(ROOT/'artifacts/P3_D50_20261009_0200/E1-official-native-v2-t0',export,target['path']))
    for bench in ['speed128','math128']:
     jobs.append(eval_job(stage,code,run.name+'_'+bench,0,export,provenance['harness_commit'],'eagle3',bench,experiment='E4',metadata={'training_run':run.name,'training_seed':provenance['seed'],'variant':variant}))
  return jobs

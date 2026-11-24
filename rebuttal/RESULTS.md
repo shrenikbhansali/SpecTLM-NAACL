@@ -103,8 +103,13 @@ E3b uses existing audited64k Alpaca+Dolly data, one20epoch cosine horizon, expor
 GPU-hours: failed attempt0.0245; active runtime recorded by the wrapper; no completed training-quality result claimed.
 
 ## E5 — Distilled independent drafter
-Status: not run (preflight and reproduction in progress)
-GPU-hours: 0 measured for new runs.
+Status: partial (full production training has started; selection, acceptance sweep and timing pending).
+
+Both targets pass full-vocabulary KL training/export and frozen-vLLM serving smokes. Exact factorized teacher distributions reproduce direct teacher logits bit-for-bit on five checked examples per target. Nemotron full16k capture completed and its first full student run started Nov24 16:31ET. R1 capture is finishing. All four independent learning-rate/epoch settings will be compared on256 held-out repair examples;15744 examples train each student. K2/3/4/5 acceptance is retained for both selected and off-the-shelf students. K for timing is selected on32 held-out repair queries by warm tokens/s, separately atb1/b8.
+
+Result in one sentence: the end-to-end implementation passes smoke checks, but no completed trained1B comparison is available yet.
+GPU-hours: live per-run measurements are recorded; guard enforces15GPUh while a120GPUh full-comparison request is pending (original budget12 plus25% allowance). The historical-timing projection is a planning estimate, not a new result.
+Deviations from spec: teacher distributions use an exact hidden-state/head factorization instead of dense logit storage, avoiding top-k truncation; trained tokenizer aliases preserve the exact teacher IDs used in KL. No evaluation prompts enter training or selection.
 
 ## E6 — Tree drafting
 Status: not run (preflight and reproduction in progress)

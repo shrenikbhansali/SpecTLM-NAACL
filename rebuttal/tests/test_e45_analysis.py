@@ -1,6 +1,13 @@
 import unittest
-from rebuttal.reduce_e45 import acceptance_contrast,timing_contrast
+from rebuttal.reduce_e45 import acceptance_contrast,timing_contrast,matched_reference_rows
 class E45AnalysisTests(unittest.TestCase):
+ def test_reference_subset_requires_identical_rendered_prefix(self):
+  prompts=[{'prompt_id':str(i),'rendered_token_ids':[1,i]} for i in range(4)]
+  raw=[{'prompt_id':str(i),'value':i} for i in range(4)]
+  self.assertEqual(matched_reference_rows(raw,prompts,prompts[:2]),raw[:2])
+  with self.assertRaises(ValueError):matched_reference_rows(raw,prompts,prompts[1:3])
+  changed=[dict(prompts[0],rendered_token_ids=[3,4])]
+  with self.assertRaises(ValueError):matched_reference_rows(raw,prompts,changed)
  def test_seed_query_paired_constant_delta_arbitrary_k(self):
   def rows(a,k):return [{'prompt_id':str(i),'per_step_accepted':[a],'per_step_drafted':[k]} for i in range(4)]
   r=acceptance_contrast({0:rows(1,4),1:rows(1,4)},{0:rows(3,5),1:rows(3,5)},4,5)
