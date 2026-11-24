@@ -18,6 +18,29 @@ def interval(value, ci, percent=False):
     return f'{value * scale:.{digits}f} [{ci[0] * scale:.{digits}f}, {ci[1] * scale:.{digits}f}]'
 
 
+def wide_acceptance(records, experiment):
+    grouped = {}
+    for r in records:
+        if r['experiment'] != experiment or r['kind'] != 'acceptance':
+            continue
+        key = (r['target'], r['variant'], r['seed'], r['K'])
+        item = grouped.setdefault(key, dict(target=r['target'], variant=r['variant'], model=r['variant'],
+                                           seed=r['seed'], K=r['K'], lr=r.get('lr'), epochs=r.get('epochs'),
+                                           trainable_params=r.get('trainable_params'), added_params=r.get('added_params'),
+                                           gpu_h=r.get('train_gpu_h'),
+                                           gpu_h_scope='training including online teacher capture/export; shared preprocessing reported separately',
+                                           data_subset='selected8k' if 'selected8k' in r['variant'] else 'random8k' if 'random8k' in r['variant'] else None))
+        bench = {'speed128': 'speed', 'math128': 'math'}[r['benchmark']]
+        if 'tau_' + bench in item:
+            raise ValueError('duplicate result cell in wide table')
+        for name in ['tau', 'tau_ci95', 'n']:
+            item[name + '_' + bench] = r[name]
+        item['p1_' + bench] = 100 * r['p1']
+        item['p1_ci95_' + bench] = [100 * v for v in r['p1_ci95']]
+        item['source_' + bench] = r['run']
+    return list(grouped.values())
+
+
 def section(data, experiment, source):
     title = 'EDA baseline' if experiment == 'E4' else 'Distilled independent drafter'
     lines = [f'## {experiment} — {title}',
@@ -87,6 +110,25 @@ def main():
     with a.output.open('x') as f:
         f.write('\n'.join(sections.values()))
     if a.publish:
+        from rebuttal.reduce_e45 import csv_write
+        snapshot = a.output.parent / 'deliverables'
+        snapshot.mkdir(exist_ok=False)
+        for experiment in ['E4', 'E5']:
+            dest = snapshot / experiment
+            dest.mkdir()
+            csv_write(dest / ('results.csv' if experiment == 'E4' else 'sweep.csv'), wide_acceptance(data['acceptance'], experiment))
+            csv_write(dest / ('latency.csv' if experiment == 'E4' else 'timing.csv'), data['latency'] if experiment == 'E4' else data['timing'])
+            if experiment == 'E5':
+                csv_write(dest / 'selection.csv', [r for r in data['acceptance'] if r['experiment'] == 'E5' and r['kind'] == 'selection'])
+            current = a.publish.parent / experiment
+            current.mkdir(exist_ok=True)
+            for source in list(dest.iterdir()):
+                target = current / source.name
+                if target.exists():
+                    (dest / ('previous-' + source.name)).write_bytes(target.read_bytes())
+                temporary = target.with_suffix('.tmp')
+                temporary.write_bytes(source.read_bytes())
+                temporary.replace(target)
         text = a.publish.read_text()
         for exp, replacement in sections.items():
             text = replace_section(text, exp, replacement)
