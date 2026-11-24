@@ -1,5 +1,12 @@
 # Rebuttal status
 
+### 2026-11-24T15:46:00-05:00 — codex-1 — live ETA check
+Measured nine active training streams twice, then again over a longer interval; evidence: rebuttal/eta_20261124_1542/sample1.json, sample2.json, sample3.json. One canonical dispatcher remains PID884838. No new jobs launched for this check.
+
+Expected independently reduced result windows (ET, assuming continued GPU access): existing R1 three-seed component evaluations today16:15–16:45; new Nemotron matched decoder/head and whole-LoRA comparisons today19:00–21:00; new R1 matched decoder/head cells today21:30–23:30 if the approved E2 budget permits. These include evaluation/reduction time and are estimates, not reservations. First scratch one-epoch checkpoint is now projected WedNov25 late afternoon (allow16:00–20:00 including evaluation), second ThuNov26 evening. At current pace, five epochs would miss Nov28noon; do not promise the20epoch horizon.
+
+Budget caveat: longer live sample projects34.46GPUh of remaining E2 training alone; current completed+active spend is already>6.49GPUh, before pending evaluations. Thus the complete optional matched decoder/head matrix is not guaranteed within40GPUh. Keep the existing guard; do not silently raise the cap. Core existing-checkpoint comparisons and Nemotron runs land earlier. E4 trained EDA and E5 distilled1B are not launched: implementation remains, so no measured completion ETA yet. EDA step-zero serving checks are complete and must not be presented as trained-baseline results.
+
 ### 2026-11-24T15:38:56.145250-05:00 — codex-1 — owner approved E2 budget40GPUh
 Finished: both EDA step-zero port sizes successfully load through frozen vLLM, tau1.79 for each, n128; paired CIs versus reuse include zero. All10 exact acceptance references PASS. CPU reductions and35regression tests pass.
 Running: nine training jobs (eight E2 plus continuous E3b scratch) and frozen E2 evaluations across14available A40slots. Automatic export evaluator and launch-failure alerts active. Canonical queue PID884838; export watcher836737; budget guard885584.

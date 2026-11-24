@@ -1,0 +1,189 @@
+[
+  {
+    "name": "E2_t0_decoder_head_lora_s0",
+    "time": 1795553122.77154,
+    "forwards": 288,
+    "steps": 4477,
+    "export_steps": [
+      4477
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 4.7288397864291545,
+    "remaining_gpu_hours": 5.502530518153258,
+    "export_etas": [
+      {
+        "step": 4477,
+        "eta": "2026-11-24T21:15:31.881405-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t0_decoder_head_lora_s1",
+    "time": 1795553122.77154,
+    "forwards": 255,
+    "steps": 4472,
+    "export_steps": [
+      4472
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 5.796642318848641,
+    "remaining_gpu_hours": 6.790122405162422,
+    "export_etas": [
+      {
+        "step": 4472,
+        "eta": "2026-11-24T22:32:47.212198-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t0_decoder_head_lora_s2",
+    "time": 1795553122.77154,
+    "forwards": 299,
+    "steps": 4481,
+    "export_steps": [
+      4481
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 4.492397797107697,
+    "remaining_gpu_hours": 5.218668774306774,
+    "export_etas": [
+      {
+        "step": 4481,
+        "eta": "2026-11-24T20:58:29.979127-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s0_strides1",
+    "time": 1795553122.77154,
+    "forwards": 392,
+    "steps": 2625,
+    "export_steps": [
+      2625
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 5.796642318848641,
+    "remaining_gpu_hours": 3.59552841610806,
+    "export_etas": [
+      {
+        "step": 2625,
+        "eta": "2026-11-24T19:21:06.673838-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s1_strides1",
+    "time": 1795553122.77154,
+    "forwards": 402,
+    "steps": 2615,
+    "export_steps": [
+      2615
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 4.492397797107697,
+    "remaining_gpu_hours": 2.761576756944259,
+    "export_etas": [
+      {
+        "step": 2615,
+        "eta": "2026-11-24T18:31:04.447865-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s2_strides1",
+    "time": 1795553122.77154,
+    "forwards": 392,
+    "steps": 2621,
+    "export_steps": [
+      2621
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 4.856646267143455,
+    "remaining_gpu_hours": 3.007073480406323,
+    "export_etas": [
+      {
+        "step": 2621,
+        "eta": "2026-11-24T18:45:48.236069-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_whole_lora_s1_strides1",
+    "time": 1795553122.77154,
+    "forwards": 301,
+    "steps": 2615,
+    "export_steps": [
+      2615
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 5.989863729476928,
+    "remaining_gpu_hours": 3.8501512972248926,
+    "export_etas": [
+      {
+        "step": 2615,
+        "eta": "2026-11-24T19:36:23.316210-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_whole_lora_s2_strides1",
+    "time": 1795553122.77154,
+    "forwards": 301,
+    "steps": 2621,
+    "export_steps": [
+      2621
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 5.796642318848641,
+    "remaining_gpu_hours": 3.7356139388135685,
+    "export_etas": [
+      {
+        "step": 2621,
+        "eta": "2026-11-24T19:29:30.981720-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E3b_t0_scratch20ep_s0_gcc13",
+    "time": 1795553122.77154,
+    "forwards": 176,
+    "steps": 368664,
+    "export_steps": [
+      18448,
+      36886,
+      92175,
+      184290,
+      276487,
+      368664
+    ],
+    "sample_seconds": 179.69591188430786,
+    "seconds_per_forward": 4.991553107897441,
+    "remaining_gpu_hours": 510.9242837841423,
+    "export_etas": [
+      {
+        "step": 18448,
+        "eta": "2026-11-25T17:05:28.429927-05:00"
+      },
+      {
+        "step": 36886,
+        "eta": "2026-11-26T18:39:22.686131-05:00"
+      },
+      {
+        "step": 92175,
+        "eta": "2026-11-29T23:19:00.665913-05:00"
+      },
+      {
+        "step": 184290,
+        "eta": "2026-12-05T07:02:17.580447-05:00"
+      },
+      {
+        "step": 276487,
+        "eta": "2026-12-10T14:52:23.802336-05:00"
+      },
+      {
+        "step": 368664,
+        "eta": "2026-12-15T22:40:50.193163-05:00"
+      }
+    ]
+  }
+]

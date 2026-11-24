@@ -1,0 +1,157 @@
+[
+  {
+    "name": "E2_t0_decoder_head_lora_s0",
+    "time": 1795552993.0757184,
+    "forwards": 261,
+    "delta": 11,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 4.545462760058316,
+    "remaining_hours": 5.323241943446073,
+    "export_etas": [
+      {
+        "step": 4477,
+        "eta": "2026-11-24T21:02:36.746715-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t0_decoder_head_lora_s1",
+    "time": 1795552993.0757184,
+    "forwards": 233,
+    "delta": 9,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 5.555565595626831,
+    "remaining_hours": 6.541678488850594,
+    "export_etas": [
+      {
+        "step": 4472,
+        "eta": "2026-11-24T22:15:43.118278-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t0_decoder_head_lora_s2",
+    "time": 1795552993.0757184,
+    "forwards": 270,
+    "delta": 11,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 4.545462760058316,
+    "remaining_hours": 5.31692880072377,
+    "export_etas": [
+      {
+        "step": 4481,
+        "eta": "2026-11-24T21:02:14.019401-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s0_strides1",
+    "time": 1795552993.0757184,
+    "forwards": 370,
+    "delta": 9,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 5.555565595626831,
+    "remaining_hours": 3.4799445605940287,
+    "export_etas": [
+      {
+        "step": 2625,
+        "eta": "2026-11-24T19:12:00.876137-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s1_strides1",
+    "time": 1795552993.0757184,
+    "forwards": 374,
+    "delta": 12,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 4.166674196720123,
+    "remaining_hours": 2.5937546874582766,
+    "export_etas": [
+      {
+        "step": 2615,
+        "eta": "2026-11-24T18:18:50.592593-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s2_strides1",
+    "time": 1795552993.0757184,
+    "forwards": 366,
+    "delta": 11,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 4.545462760058316,
+    "remaining_hours": 2.8472273677587507,
+    "export_etas": [
+      {
+        "step": 2621,
+        "eta": "2026-11-24T18:34:03.094242-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_whole_lora_s1_strides1",
+    "time": 1795552993.0757184,
+    "forwards": 279,
+    "delta": 8,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 6.250011295080185,
+    "remaining_hours": 4.055562884807586,
+    "export_etas": [
+      {
+        "step": 2615,
+        "eta": "2026-11-24T19:46:33.102104-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E2_t1_whole_lora_s2_strides1",
+    "time": 1795552993.0757184,
+    "forwards": 278,
+    "delta": 8,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 6.250011295080185,
+    "remaining_hours": 4.067715684548021,
+    "export_etas": [
+      {
+        "step": 2621,
+        "eta": "2026-11-24T19:47:16.852183-05:00"
+      }
+    ]
+  },
+  {
+    "name": "E3b_t0_scratch20ep_s0_gcc13",
+    "time": 1795552993.0757184,
+    "forwards": 151,
+    "delta": 11,
+    "sample_seconds": 50.00009036064148,
+    "seconds_per_forward": 4.545462760058316,
+    "remaining_hours": 465.2950328048251,
+    "export_etas": [
+      {
+        "step": 18448,
+        "eta": "2026-11-25T14:49:21.407839-05:00"
+      },
+      {
+        "step": 36886,
+        "eta": "2026-11-26T14:06:10.650209-05:00"
+      },
+      {
+        "step": 92175,
+        "eta": "2026-11-29T11:54:44.740750-05:00"
+      },
+      {
+        "step": 184290,
+        "eta": "2026-12-04T08:13:10.042893-05:00"
+      },
+      {
+        "step": 276487,
+        "eta": "2026-12-09T04:37:48.072982-05:00"
+      },
+      {
+        "step": 368664,
+        "eta": "2026-12-14T01:00:55.193816-05:00"
+      }
+    ]
+  }
+]

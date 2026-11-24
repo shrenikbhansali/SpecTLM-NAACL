@@ -1,0 +1,88 @@
+[
+  {
+    "name": "E2_t0_decoder_head_lora_s0",
+    "time": 1795552943.075628,
+    "forwards": 250,
+    "steps": 4477,
+    "export_steps": [
+      4477
+    ]
+  },
+  {
+    "name": "E2_t0_decoder_head_lora_s1",
+    "time": 1795552943.075628,
+    "forwards": 224,
+    "steps": 4472,
+    "export_steps": [
+      4472
+    ]
+  },
+  {
+    "name": "E2_t0_decoder_head_lora_s2",
+    "time": 1795552943.075628,
+    "forwards": 259,
+    "steps": 4481,
+    "export_steps": [
+      4481
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s0_strides1",
+    "time": 1795552943.075628,
+    "forwards": 361,
+    "steps": 2625,
+    "export_steps": [
+      2625
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s1_strides1",
+    "time": 1795552943.075628,
+    "forwards": 362,
+    "steps": 2615,
+    "export_steps": [
+      2615
+    ]
+  },
+  {
+    "name": "E2_t1_decoder_head_lora_s2_strides1",
+    "time": 1795552943.075628,
+    "forwards": 355,
+    "steps": 2621,
+    "export_steps": [
+      2621
+    ]
+  },
+  {
+    "name": "E2_t1_whole_lora_s1_strides1",
+    "time": 1795552943.075628,
+    "forwards": 271,
+    "steps": 2615,
+    "export_steps": [
+      2615
+    ]
+  },
+  {
+    "name": "E2_t1_whole_lora_s2_strides1",
+    "time": 1795552943.075628,
+    "forwards": 270,
+    "steps": 2621,
+    "export_steps": [
+      2621
+    ]
+  },
+  {
+    "name": "E3b_t0_scratch20ep_s0_gcc13",
+    "time": 1795552943.075628,
+    "forwards": 140,
+    "steps": 368664,
+    "export_steps": [
+      18448,
+      36886,
+      92175,
+      184290,
+      276487,
+      368664
+    ]
+  }
+]
