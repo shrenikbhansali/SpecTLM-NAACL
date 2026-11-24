@@ -15,7 +15,9 @@ from rebuttal.run_recorded import check_baseline_gate
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--workspace',type=Path,required=True)
-    p.add_argument('--output',type=Path,required=True);a=p.parse_args();root=a.workspace
+    p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--source',type=Path,help='approved ready-plan directory; defaults to the initial capacity stage')
+    a=p.parse_args();root=a.workspace
     a.output.mkdir(parents=True,exist_ok=False)
     required=root/'rebuttal/runs/BASELINE_t0_reuse_math500_s0_cachefix1/metrics.json'
     mapping=json.loads((root/'rebuttal/preflight_20261124_exactfamily/run-map.json').read_text())
@@ -30,7 +32,7 @@ def main():
     # Inspect the existing queue and new stage before appending, never start a dispatcher.
     probe=subprocess.run(['pgrep','-af','[q]ueue.py'],capture_output=True,text=True,check=True)
     print(probe.stdout,flush=True);print('Stage contents:',sorted(x.name for x in a.output.iterdir()),flush=True)
-    source=root/'rebuttal/ready_20261124_1504';jobs=[]
+    source=a.source or root/'rebuttal/ready_20261124_1504';jobs=[]
     for line in (source/'jobs.jsonl').read_text().splitlines():
         job=json.loads(line)
         if '_t0_' not in job['name']:continue

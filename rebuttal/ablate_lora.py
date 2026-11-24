@@ -31,19 +31,30 @@ def ablate(trained,base,output,mode,adapted_keys):
         replacements[key]=old.to(new.dtype).contiguous()
         proof[key]=dict(base_dtype=str(old.dtype),export_dtype=str(new.dtype),shape=list(old.shape))
     output.mkdir(parents=True,exist_ok=False)
-    # Reuse immutable source tensors without making duplicate embedding copies.
-    for shard in set(source.values()):os.link(trained/shard,output/shard)
+    # Every tensor key must occur in exactly one physical shard. vLLM streams
+    # all tensors in included files, even keys redirected in the HF index.
+    mapping={}
+    for i,shard in enumerate(sorted(set(source.values()))):
+        retained={k for k,v in source.items() if v==shard and k not in keys}
+        if not retained:continue
+        with safe_open(trained/shard,framework='pt') as f:
+            if set(f.keys())==retained:
+                name=shard;os.link(trained/shard,output/name)
+            else:
+                name=f'ablation-retained-{i:03d}.safetensors'
+                save_file({k:f.get_tensor(k).contiguous() for k in sorted(retained)},output/name,metadata={'format':'pt'})
+        mapping.update({k:name for k in retained})
     for name in ['config.json','config.py']:
         if (trained/name).exists():shutil.copyfile(trained/name,output/name)
     name='ablation-restored.safetensors';save_file(replacements,output/name,metadata={'format':'pt'})
-    mapping=source|{k:name for k in keys}
+    mapping.update({k:name for k in keys})
     total=0
     for key,shard in mapping.items():
         with safe_open(output/shard,framework='pt') as f:
             x=f.get_tensor(key);total+=x.numel()*x.element_size()
     (output/'model.safetensors.index.json').write_text(json.dumps({'metadata':{'total_size':total},'weight_map':mapping},indent=2)+'\n')
     (output/'ablation_provenance.json').write_text(json.dumps(dict(mode=mode,trained=str(trained.resolve()),base=str(base.resolve()),restored=proof,
-        adapted_keys=sorted(adapted_keys),operation='Exact initial weights cast to trained dtype; remaining tensors hardlinked unchanged'),indent=2)+'\n')
+        adapted_keys=sorted(adapted_keys),operation='Exact initial weights cast to trained dtype; all other tensor values unchanged; physically unique keys across shards'),indent=2)+'\n')
 
 
 def main():

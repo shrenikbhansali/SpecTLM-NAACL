@@ -9,3 +9,5 @@ test-tools/
 models/
 shared-shards/
 E*/exports/
+E*/exports*/
+E*/step0_exports*/

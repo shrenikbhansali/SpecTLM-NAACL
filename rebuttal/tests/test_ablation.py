@@ -21,6 +21,15 @@ class AblationTests(unittest.TestCase):
                 ablate(trained,base,out,mode,{'fc.weight','layers.0.q.weight','lm_head.weight'})
                 index=json.loads((out/'model.safetensors.index.json').read_text())['weight_map']
                 self.assertEqual(set(index),set(new))
+                # vLLM streams every tensor in selected shards; it does not use
+                # weight_map to suppress stale duplicate keys inside a shard.
+                seen=[]
+                for shard in sorted(set(index.values())):
+                    for key in load_file(out/shard):
+                        seen.append(key)
+                        self.assertEqual(index[key],shard)
+                self.assertEqual(len(seen),len(set(seen)))
+                self.assertEqual(set(seen),set(index))
                 for key,shard in index.items():
                     actual=load_file(out/shard)[key]
                     self.assertTrue(torch.equal(actual,old[key] if key in restored else new[key]))
