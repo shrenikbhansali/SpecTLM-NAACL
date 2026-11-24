@@ -122,3 +122,20 @@ GPU-hours: 0 measured for new runs.
 Status: not run (preflight and reproduction in progress)
 GPU-hours: 0 measured for new runs.
 
+
+## E4/E5 implementation status — Nov24 16:18ET
+Status: partial; production training/evaluation pending. Both EDA private sizes completed native TTT3 training and export smoke checks. Both independent1B targets completed full-vocabulary forward-KL training/export smoke checks. These smoke runs are implementation evidence, not trained-baseline acceptance results. Teacher full-vocabulary reconstruction agrees exactly with direct teacher logits on five checked samples for each target. Full16k captures and the separate2000-prompt EDA reference generation are running.
+
+## E2 — new R1 three-seed decomposition, Nov24
+Status: partial; R1 existing-checkpoint decomposition complete, new matched decoder/head runs pending. n128 per benchmark, seeds0/1/2,10000 paired seed/query bootstrap resamples.
+
+| Benchmark | Variant | tau | Delta tau vs interface [95% CI] |
+|---|---|---:|---|
+| SPEED | Whole LoRA |2.4650|+0.0452 [0.0267,0.0646]|
+| SPEED | Whole LoRA, interface delta removed |2.3579|-0.0618 [-0.0881,-0.0363]|
+| SPEED | Only whole-LoRA interface delta retained |1.9710|-0.4488 [-0.4784,-0.4178]|
+| MATH128 | Whole LoRA |2.8622|+0.0705 [0.0506,0.0885]|
+| MATH128 | Whole LoRA, interface delta removed |2.7344|-0.0572 [-0.0752,-0.0382]|
+| MATH128 | Only whole-LoRA interface delta retained |2.1893|-0.6024 [-0.6232,-0.5812]|
+
+Result: the joint whole-LoRA model modestly exceeds dense-interface repair; either post-training removal reduces its acceptance. These are interventions on jointly trained weights, not separately optimized component-only controls. Sources: rebuttal/E2/reduction_20261124_1613/results.json and immutable raw per_prompt files listed there. All invalid v1 ablations remain excluded by the previously recorded physical-key bug criterion.

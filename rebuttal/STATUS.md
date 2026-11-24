@@ -1,5 +1,12 @@
 # Rebuttal status
 
+### 2026-11-24T16:17:49-05:00 — codex-1 — E4/E5 ready to advance automatically
+Finished: both targets' exact full-vocabulary teacher-cache checks and full-student training/export smokes; both EDA sizes' native training/export smokes;50CPU tests.
+Running: full16k teacher capture for R1 and Nemotron, ShareGPT reference2000 generation, frozen trained-export serving checks. E5 training/selection/evaluation and E4 selection/native training dependencies are implemented in a tagged controller; manual five-sample audits gate new E4 paths.
+Needs a decision: E5 budget120GPUh requested because its specified b1 timing matrix alone projects85.52GPUh from historical measured runs. Existing15GPUh ceiling remains enforced while pending; current work proceeds within it. E2 limit40 unchanged.
+Deviations: teacher distributions are stored in an exact factorized representation, verified bit-identical to direct logits, with no top-k approximation. Trained1B exports preserve the teacher's special-token aliases at unchanged IDs; lexical vocabulary is identical. No paper edits.
+
+
 ### 2026-11-24T15:46:00-05:00 — codex-1 — live ETA check
 Measured nine active training streams twice, then again over a longer interval; evidence: rebuttal/eta_20261124_1542/sample1.json, sample2.json, sample3.json. One canonical dispatcher remains PID884838. No new jobs launched for this check.
 
