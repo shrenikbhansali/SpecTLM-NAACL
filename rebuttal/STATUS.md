@@ -1,5 +1,12 @@
 # Rebuttal status
 
+### 2026-11-24T17:09:01.671911-05:00 — codex-1 — E5 budget approved, full comparison continuing
+Finished: both exact full-vocabulary teacher caches; two EDA and two independent-student train/export/serving smoke paths; frozen tensor checks. Owner approved E5 ceiling120 A40 GPU-hours (previous15). Live guard acknowledged120 with4.28GPUh used at17:07; no pending E5 cancellations and no worker restart.
+Running: six student grid runs (four Nemotron, two R1); remaining two R1 settings queued. EDA2k reference generation is near completion, then automatic audited selection and training. ONE canonical queue1202986 on16 A40 slots; CPU dependency controller1181202. Existing E2/E3b continue.
+GPU-hours: E5 cap120, E4 cap18.75, E2 cap40. E5 measured costs include the teacher pass, grid/selection, acceptance and all timing attempts. Reports separate model preparation from evaluation costs.
+Needs a decision: none for this comparison. Do not change any recipe, selection rule, or run identity; the new approval changes only the E5 ceiling.
+Deviations: previously recorded exact factorized teacher cache and held-out throughput selection for K. No paper edits.
+
 ### 2026-11-24T16:43:51.293301-05:00 — codex-1 — E4/E5 production comparison
 Finished: both full16k exact teacher caches; two EDA and two1B training/export/serving smoke paths;57tests. EDA frozen-state audit verifies16tensors against family/target sources. First off-the-shelfK2 SPEED/MATH cells completed; trained comparisons pending.
 Running: canonical queue1195503 on16live-free A40s (added srv1:1 and srv5:5); four Nemotron student settings, ready R1 grid, EDA reference generation. E2/E3b retained. CPU controller1181202 advances dependencies; sample audits gate EDA selection subsets.

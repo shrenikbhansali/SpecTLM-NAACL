@@ -16,3 +16,6 @@
 
 ### 2026-11-24T15:38:56.145250-05:00 — second EDA sanity and owner budget approval
 Matched-width4096 EDA step-zero also completes: tau1.7854[1.7385,1.8307],p143.5%[41.6,45.2],n128,paired delta vs reuse0.0023[-0.0093,0.0145]. Both sizes in rebuttal/E4/sanity_20261124_1538/results.json. Owner explicitly approved40GPUh for E2; guard now enforces40. Full comparison continues; no data/recipe or result-selection change.
+
+### 2026-11-24T17:09:01.671911-05:00 — E5 owner budget authorization
+Owner approved120 A40 GPU-hours for the complete distilled1B comparison; live guard acknowledged. Exact receipt: rebuttal/E5_budget_20261124/approval-120.json. Teacher captures complete, six student settings active, no trained acceptance outcome yet. No scientific protocol or fixed selection rule changed. E4 remains18.75 and E2 remains40.

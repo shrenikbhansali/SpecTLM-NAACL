@@ -43,6 +43,33 @@ def acceptance_contrast(reference,candidate,reference_k,candidate_k):
  return result
 
 
+def gap_recovery(reuse,dedicated,candidate):
+ seeds=sorted(candidate);reference=[{r['prompt_id']:metric(r,4) for r in arm} for arm in [reuse,dedicated]]
+ if any(len(m)!=len(r) for m,r in zip(reference,[reuse,dedicated])) or set(reference[0])!=set(reference[1]):raise ValueError('unpaired gap references')
+ maps={s:{r['prompt_id']:metric(r,4) for r in candidate[s]} for s in seeds};ids=set(reference[0])
+ if not seeds or any(len(maps[s])!=len(candidate[s]) or set(maps[s])!=ids for s in seeds):raise ValueError('unpaired recovery candidates')
+ kept=sorted(i for i in ids if all(m[i] is not None for m in [*reference,*maps.values()]))
+ if not kept:raise ValueError('no valid recovery queries')
+ values=np.array([[[reference[0][i][0],reference[1][i][0],maps[s][i][0]] for i in kept] for s in seeds])
+ rng=np.random.default_rng(0);si=rng.integers(len(seeds),size=(10000,len(seeds)));qi=rng.integers(len(kept),size=(10000,len(kept)))
+ boot=values[si[:,:,None],qi[:,None,:]].mean((1,2));mean=values.mean((0,1));denom=mean[1]-mean[0];bd=boot[:,1]-boot[:,0];valid=bd!=0
+ ratios=(boot[valid,2]-boot[valid,0])/bd[valid]
+ return {'n':len(kept),'seeds':seeds,'K':4,'excluded_zero_step':len(ids)-len(kept),'recovery':float((mean[2]-mean[0])/denom) if denom!=0 else None,'recovery_ci95':np.quantile(ratios,[.025,.975]).tolist() if len(ratios) else None,'undefined_bootstrap_samples':int((~valid).sum()),'reuse_tau':float(mean[0]),'dedicated_tau':float(mean[1]),'candidate_tau':float(mean[2]),'definition':'(candidate tau - reuse tau)/(dedicated tau - reuse tau); ratio recomputed within each shared seed/query resample; K4 only'}
+
+
+def pair_seed_records(left_name,left,right_name,right):
+ # A fixed released reference has no training-seed variation. Reuse the same
+ # query observations for each trained seed, never invent a learned seed.
+ if left_name.startswith('reference_') and not right_name.startswith('reference_'):
+  if set(left)!={0}:raise ValueError('expected one fixed reference')
+  return {s:left[0] for s in right},right
+ if right_name.startswith('reference_') and not left_name.startswith('reference_'):
+  if set(right)!={0}:raise ValueError('expected one fixed reference')
+  return left,{s:right[0] for s in left}
+ shared=left.keys()&right.keys()
+ return {s:left[s] for s in shared},{s:right[s] for s in shared}
+
+
 def timing_contrast(candidate,reference):
  if len(candidate)!=3 or len(reference)!=3:raise ValueError('three fresh processes per arm required')
  arrays=[[],[],[],[]];startup=[[],[]];mismatch=[]
@@ -91,12 +118,12 @@ def reference_records(root):
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--workspace',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();out=a.output;out.mkdir(parents=True,exist_ok=False)
- acceptance=[];timings={};sources=[];costs=defaultdict(float);pending=[];failed=[];latency=[]
+ acceptance=[];timings={};sources=[];costs=defaultdict(float);run_costs=[];pending=[];failed=[];latency=[]
  for run in sorted((a.workspace/'rebuttal/runs').iterdir()):
   if not run.name.startswith(('E4','E5')) or not (run/'config.yaml').exists():continue
   cfg=json.loads((run/'config.yaml').read_text());exp=cfg['experiment'];meta=run/'metrics.json'
   if not meta.exists():pending.append(run.name);continue
-  result=json.loads(meta.read_text());costs[exp]+=result['gpu_hours']
+  result=json.loads(meta.read_text());costs[exp]+=result['gpu_hours'];run_costs.append({'run':run.name,'experiment':exp,'target':cfg.get('target'),'kind':cfg.get('kind'),'gpu_h':result['gpu_hours'],'status':result['status']})
   if result['exit_code']!=0:failed.append({'run':run.name,'status':result['status']});continue
   cell=run/'cell'
   if cfg.get('smoke') or 'smoke' in run.name:continue
@@ -109,6 +136,9 @@ def main():
    record['variant']=re.sub(r'_s[0-9]+$','',record['training_run'] or record['run']) if exp=='E4' else cfg.get('arm',cfg.get('training_run',record['run']))+'_k'+str(c['K'])
    if record['training_run']:
     t=a.workspace/'rebuttal/runs'/record['training_run'];tc=json.loads((t/'config.yaml').read_text());record.update(lr=tc.get('lr'),epochs=tc.get('epochs'),train_gpu_h=json.loads((t/'metrics.json').read_text())['gpu_hours'])
+    if exp=='E5':
+     teacher=a.workspace/f"rebuttal/runs/E5_t{cfg['target']}_teacher_full16k_s0/metrics.json"
+     record['teacher_gpu_h']=json.loads(teacher.read_text())['gpu_hours']
     if (t/'cell/parameters.json').exists():pr=json.loads((t/'cell/parameters.json').read_text());record.update(trainable_params=pr['trainable_parameters'],added_params=pr.get('added_parameters',0))
    acceptance.append(record);sources.append({'run':run.name,'raw_sha256':record['raw_sha256']})
   if (cell/'timing.json').exists() and cfg.get('kind')=='timing':
@@ -118,7 +148,7 @@ def main():
    timings.setdefault(key,{})[arm,cfg['replicate']]={'config':c,'timing':v,'path':str(cell),'sha256':sha(cell/'timing.json')}
   if cfg.get('kind')=='latency':latency+=json.loads((cell/'results.json').read_text())['records']
  acceptance+=reference_records(a.workspace)
- paired=[]
+ paired=[];recoveries=[]
  # Every reported comparison has matching rendered prompt-file hashes and query IDs.
  groups=defaultdict(dict)
  for r in acceptance:
@@ -128,7 +158,7 @@ def main():
   keys=sorted(arms)
   for ai,left in enumerate(keys):
    for right in keys[ai+1:]:
-    ss=sorted(arms[left].keys()&arms[right].keys());lr={s:arms[left][s] for s in ss};rr={s:arms[right][s] for s in ss}
+    lr,rr=pair_seed_records(left,arms[left],right,arms[right]);ss=sorted(lr)
     if not ss:continue
     if any(lr[s]['prompt_sha256']!=rr[s]['prompt_sha256'] for s in ss):raise ValueError('unpaired prompt render')
     def load(records):
@@ -140,6 +170,13 @@ def main():
       result[seed]=data
      return result
     result=acceptance_contrast(load(lr),load(rr),lr[ss[0]]['K'],rr[ss[0]]['K']);paired.append({'experiment':group[0],'target':group[1],'benchmark':group[2],'reference':left,'candidate':right,**result})
+  if group[1]==0 and 'reference_reuse' in arms and 'reference_dedicated' in arms:
+   for name,records in arms.items():
+    if name.startswith('reference_') or any(r['K']!=4 for r in records.values()):continue
+    hashes={r['prompt_sha256'] for rr in [records,arms['reference_reuse'],arms['reference_dedicated']] for r in rr.values()}
+    if len(hashes)!=1:raise ValueError('unmatched recovery prompt IDs')
+    rec=gap_recovery(load(arms['reference_reuse'])[0],load(arms['reference_dedicated'])[0],load(records))
+    recoveries.append({'experiment':group[0],'target':0,'benchmark':group[2],'variant':name,**rec})
  timed=[]
  for key,cells in timings.items():
   for arm in sorted({x[0] for x in cells}-{'none'}):
@@ -149,6 +186,6 @@ def main():
     timed.append({'target':key[0],'benchmark':key[1],'batch':key[2],'arm':arm,'reference':ref,**result})
  for exp in ['E4','E5']:
   dest=out/exp;dest.mkdir();csv_write(dest/('results.csv' if exp=='E4' else 'sweep.csv'),[r for r in acceptance if r['experiment']==exp]);csv_write(dest/('latency.csv' if exp=='E4' else 'timing.csv'),latency if exp=='E4' else timed)
- (out/'results.json').write_text(json.dumps({'status':'pilot','acceptance':acceptance,'paired':paired,'timing':timed,'latency':latency,'gpu_hours_completed_including_failures':dict(costs),'pending':pending,'failed':failed,'sources':sources,'uncertainty':'10000 paired query/seed or process/prompt-batch resamples; repeats averaged within process'},indent=2)+'\n')
+ (out/'results.json').write_text(json.dumps({'status':'pilot','acceptance':acceptance,'paired':paired,'recoveries':recoveries,'timing':timed,'latency':latency,'gpu_hours_completed_including_failures':dict(costs),'completed_run_costs':run_costs,'pending':pending,'failed':failed,'sources':sources,'uncertainty':'10000 paired query/seed or process/prompt-batch resamples; repeats averaged within process'},indent=2)+'\n')
  print(json.dumps({'acceptance_cells':len(acceptance),'timing_contrasts':len(timed),'pending':pending,'failed':failed}))
 if __name__=='__main__':main()

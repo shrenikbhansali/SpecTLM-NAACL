@@ -1,6 +1,19 @@
 import unittest
-from rebuttal.reduce_e45 import acceptance_contrast,timing_contrast,matched_reference_rows
+from rebuttal.reduce_e45 import acceptance_contrast,timing_contrast,matched_reference_rows,gap_recovery,pair_seed_records
 class E45AnalysisTests(unittest.TestCase):
+ def test_fixed_reference_keeps_every_training_seed(self):
+  fixed={0:{'run':'reuse'}};trained={0:{'run':'train0'},1:{'run':'train1'}}
+  left,right=pair_seed_records('reference_reuse',fixed,'trained',trained)
+  self.assertEqual(set(left),{0,1});self.assertEqual(left[1],fixed[0]);self.assertEqual(right,trained)
+  left,right=pair_seed_records('trained',trained,'reference_reuse',fixed)
+  self.assertEqual(set(right),{0,1});self.assertEqual(left,trained)
+  left,right=pair_seed_records('trained_one',fixed,'trained_two',trained)
+  self.assertEqual(set(left),{0});self.assertEqual(set(right),{0})
+ def test_gap_recovery_bootstraps_the_ratio_and_preserves_undefined(self):
+  def rows(n):return [{'prompt_id':str(i),'per_step_accepted':[n],'per_step_drafted':[4]} for i in range(4)]
+  x=gap_recovery(rows(1),rows(3),{0:rows(2),1:rows(2)})
+  self.assertEqual(x['recovery'],.5);self.assertEqual(x['recovery_ci95'],[.5,.5])
+  self.assertIsNone(gap_recovery(rows(1),rows(1),{0:rows(2)})['recovery'])
  def test_reference_subset_requires_identical_rendered_prefix(self):
   prompts=[{'prompt_id':str(i),'rendered_token_ids':[1,i]} for i in range(4)]
   raw=[{'prompt_id':str(i),'value':i} for i in range(4)]

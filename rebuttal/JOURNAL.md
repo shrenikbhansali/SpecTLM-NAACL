@@ -120,3 +120,9 @@ Operational incident: capacity restart omitted WS/PAUSE_MARKER environment, so t
 
 ## 2026-11-24T16:59:28.776265-05:00 — codex-1
 Finished wide deliverable tables preserving separate SPEED/MATH means,95%CIs,n,training cost,parameter counts,source run IDs and all K settings. Snapshot copies precede replacement of derived canonical CSVs; raw artifacts unchanged.59tests pass plus end-to-end report/CSV smoke at E45_wide_report_smoke_20261124_1659. Subset audit waiter1246664 is active; reference audit waiter1124270 active. Six1B training runs healthy (R1two,Nemotronfour), twoR1 settings pending. At16:58 measured E5spend3.38GPUh/15, E4spend1.43/18.75, E2spend17.91/40. E5 full budget approval remains necessary before cap.
+
+## 2026-11-24T17:09:01.671911-05:00 — codex-1 — E5 budget120 approved
+Owner message: "Raise E5 to 120 GPU-hours (recommended)". Atomically updated rebuttal/E5_budget_20261124/control.json, preserving prior/new controls and exact authorization in approval-120.json. Guard PID1058485 acknowledged limit120 at17:07, used4.28GPUh; shared cancel file remained empty. Six student workers continue unchanged; no second queue. MASTER/STATUS updated. Acceptance/timing rules and fixed held-out model/K selection remain unchanged.
+Analysis tests first: missing pair_seed_records import failed as expected, then implemented fixed-reference pairing across every learned seed (without inventing learned seeds). Added K4-only oracle-gap ratio bootstrap and explicit teacher/training/evaluation cost accounting. Earlier60test suite passed; expanded suite and live raw reduction recorded below after completion. Reference traces currently1864/2000; EDA trained results still pending.
+
+Verification:61 regression tests passed; actual raw reduction and self-contained report succeeded at rebuttal/E45_recovery_analysis_20261124_1710 (22 records:20 reference copies and2 off-the-shelfK2 cells, no trained comparison imputed).

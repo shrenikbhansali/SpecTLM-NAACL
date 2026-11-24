@@ -27,8 +27,8 @@ def wide_acceptance(records, experiment):
         item = grouped.setdefault(key, dict(target=r['target'], variant=r['variant'], model=r['variant'],
                                            seed=r['seed'], K=r['K'], lr=r.get('lr'), epochs=r.get('epochs'),
                                            trainable_params=r.get('trainable_params'), added_params=r.get('added_params'),
-                                           gpu_h=r.get('train_gpu_h'),
-                                           gpu_h_scope='training including online teacher capture/export; shared preprocessing reported separately',
+                                           gpu_h=r.get('train_gpu_h'), teacher_gpu_h=r.get('teacher_gpu_h'),
+                                           gpu_h_scope='training including online target capture/export; selection preprocessing separate' if experiment=='E4' else 'student training/export; cached teacher pass listed separately; existing response generation not included',
                                            data_subset='selected8k' if 'selected8k' in r['variant'] else 'random8k' if 'random8k' in r['variant'] else None))
         bench = {'speed128': 'speed', 'math128': 'math'}[r['benchmark']]
         if 'tau_' + bench in item:
@@ -93,6 +93,13 @@ def section(data, experiment, source):
                 lines.append(f"| {r['target']} / {r['benchmark']} / b{r['batch']} | {r['arm']} | {r['reference']} | "
                              f"{interval(v['token_speedup'],v['token_ci95'])} | {interval(v['panel_speedup'],v['panel_ci95'])} | 3 / 3 |")
             lines.append('Timing intervals resample process and paired prompt batch; cold/startup and output mismatches are retained in the source JSON.')
+    recovered = [r for r in data.get('recoveries', []) if r['experiment'] == experiment]
+    if recovered:
+        lines += ['', 'R1 dedicated-gap recovery at matched K4; the ratio is recomputed in each paired resample.', '',
+                  '| Variant | Panel | n / seeds | Recovery % [95% CI] |', '|---|---|---|---|']
+        for r in recovered:
+            value = interval(r['recovery'], r['recovery_ci95'], True) if r['recovery'] is not None and r['recovery_ci95'] is not None else 'undefined'
+            lines.append(f"| {r['variant']} | {r['benchmark']} | {r['n']} / {len(r['seeds'])} | {value} |")
     lines += ['', f"Result status: {len(new)} completed non-reference cells in this snapshot; no unfinished outcome inferred.",
               f"GPU-hours: {data['gpu_hours_completed_including_failures'].get(experiment,0):.1f} completed, including failures; active runtime additional.",
               'Sources: ' + str(source), 'Failed runs retained: ' + json.dumps(data['failed']), '']
@@ -118,6 +125,8 @@ def main():
             dest.mkdir()
             csv_write(dest / ('results.csv' if experiment == 'E4' else 'sweep.csv'), wide_acceptance(data['acceptance'], experiment))
             csv_write(dest / ('latency.csv' if experiment == 'E4' else 'timing.csv'), data['latency'] if experiment == 'E4' else data['timing'])
+            csv_write(dest / 'recovery.csv', [r for r in data.get('recoveries', []) if r['experiment'] == experiment])
+            csv_write(dest / 'costs.csv', [r for r in data.get('completed_run_costs', []) if r['experiment'] == experiment])
             if experiment == 'E5':
                 csv_write(dest / 'selection.csv', [r for r in data['acceptance'] if r['experiment'] == 'E5' and r['kind'] == 'selection'])
             current = a.publish.parent / experiment
