@@ -1,0 +1,11 @@
+run,experiment,target,kind,gpu_h,status
+E5_t0_offtheshelf_k2_math128_s0,E5,0,acceptance,0.10790383656221417,completed
+E5_t0_offtheshelf_k2_speed128_s0,E5,0,acceptance,0.11721213713805709,completed
+E5_t0_student_serving_smoke16_s0,E5,0,acceptance,0.07484644110139925,completed
+E5_t0_student_smoke2_s0,E5,0,train,0.011459823560564675,completed
+E5_t0_teacher_full16k_s0,E5,0,,0.5379085852766488,completed
+E5_t0_teacher_smoke16_s0,E5,0,,0.009708171827789758,completed
+E5_t1_student_serving_smoke16_s0,E5,1,acceptance,0.0679837510758403,completed
+E5_t1_student_smoke2_s0,E5,1,train,0.014505702588066924,completed
+E5_t1_teacher_full16k_s0,E5,1,,0.3936379438644508,completed
+E5_t1_teacher_smoke16_s0,E5,1,,0.008961783476374371,completed

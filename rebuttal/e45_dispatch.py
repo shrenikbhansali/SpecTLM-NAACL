@@ -1,5 +1,5 @@
 """E4/E5 dependency planning and held-out-only selection; no second GPU queue."""
-import argparse,copy,fcntl,json,time,os
+import argparse,copy,fcntl,json,time,os,traceback,datetime
 from pathlib import Path
 import numpy as np
 from rebuttal.jobs import ROOT,FROZEN,CANONICAL,job,submit
@@ -209,13 +209,29 @@ def advance_student(stage,code,student):
  return jobs
 
 
+def advance_phases(stage,phases):
+ ok=True
+ for name,advance in phases:
+  try:advance()
+  except Exception as error:
+   ok=False
+   record={'timestamp':datetime.datetime.now().astimezone().isoformat(),'phase':name,'error':repr(error),'traceback':traceback.format_exc()}
+   with (stage/'alerts.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')
+   print('DEPENDENCY FAILED',json.dumps(record),flush=True)
+ return ok
+
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--code',type=Path,required=True);p.add_argument('--student',type=Path,required=True);p.add_argument('--once',action='store_true');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
  with (a.output/'controller.lock').open('a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-  while True:
-   jobs=advance_eda(a.output,a.code)+advance_student(a.output,a.code,a.student)+advance_offtheshelf(a.output,a.code,a.student)
+  def dispatch(make):
+   jobs=make()
    if jobs:submit(a.output,jobs);prioritize_ready(a.output)
-   if a.once:return
+  while True:
+   ok=advance_phases(a.output,[('E4',lambda:dispatch(lambda:advance_eda(a.output,a.code))),('E5',lambda:dispatch(lambda:advance_student(a.output,a.code,a.student))),('offtheshelf',lambda:dispatch(lambda:advance_offtheshelf(a.output,a.code,a.student)))])
+   if a.once:
+    if not ok:raise RuntimeError('dependency phase failed; see alerts.jsonl')
+    return
    time.sleep(40)
 if __name__=='__main__':main()

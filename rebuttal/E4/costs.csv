@@ -1,0 +1,8 @@
+run,experiment,target,kind,gpu_h,status
+E4_t0_eda-width14336_step0_speed128_s0,E4,0,,0.12439501378277783,completed
+E4_t0_eda-width4096_step0_speed128_s0,E4,0,,0.13983852980807165,completed
+E4_t0_eda_serving_smoke_w14336_s0,E4,0,acceptance,0.06949194618471666,completed
+E4_t0_eda_serving_smoke_w4096_s0,E4,0,acceptance,0.08086780393638442,completed
+E4_t0_standalone_latency_s0,E4,0,latency,0.019745086297755027,completed
+E4_t0_train_smoke_w14336_s0,E4,0,,0.045326802390304184,completed
+E4_t0_train_smoke_w4096_s0,E4,0,,0.034984836604724276,completed

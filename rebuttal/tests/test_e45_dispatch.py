@@ -1,9 +1,18 @@
-import unittest
-from rebuttal.e45_dispatch import choose_model,choose_k,raw_scores,dispatch_rank
+import unittest,json,tempfile
+from pathlib import Path
+from rebuttal.e45_dispatch import choose_model,choose_k,raw_scores,dispatch_rank,advance_phases
 from rebuttal.timing import extend_parser
 from atlas.timing_panel import parser
 
 class E45DispatchTests(unittest.TestCase):
+ def test_dependency_error_is_visible_and_does_not_block_other_experiment(self):
+  visited=[]
+  def bad():raise ValueError('incomplete proof')
+  with tempfile.TemporaryDirectory() as directory:
+   advance_phases(Path(directory),[('E4',bad),('E5',lambda:visited.append('E5'))])
+   self.assertEqual(visited,['E5'])
+   error=json.loads((Path(directory)/'alerts.jsonl').read_text())
+   self.assertEqual(error['phase'],'E4');self.assertIn('incomplete proof',error['error'])
  def test_selection_requires_exact_heldout_ids_and_all_grid_cells(self):
   grid=[{'lr':lr,'epochs':ep,'name':f'{lr}-{ep}'} for lr in [1e-5,2e-5] for ep in [1,3]]
   records={x['name']:[{'prompt_id':str(i),'per_step_accepted':[j%4],'per_step_drafted':[4]} for i in range(4)] for j,x in enumerate(grid)}

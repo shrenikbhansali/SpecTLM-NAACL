@@ -88,14 +88,43 @@ Deviations from spec: operational stride-preserving CPU offload fixes compiled b
 Sources: rebuttal/E2/reduction_20261124_1533/results.json and results.csv; eight exports in exports_v2; v2-audit.json proves unique physical tensor keys and bit-exact restored weights. INVALID-v1.md enumerates retained invalid cells.
 
 ## E4 — EDA baseline
-Status: partial (untrained port sanity only; selected-data training and E4b remain)
+Status: partial; automatic raw-counter reduction, pending operator completion check.
+All acceptance cells use frozen6da2e42/vLLM0.31.0/A40, greedy, batch8, cap512. MATH is first128. Intervals are paired10,000 query/seed bootstrap95%CIs. Smoke runs are excluded. Reference rows use the identical rendered prefix of current-campaign gate cells; hashes verified.
 
-Released-code additive singleton-expert behavior, with private widths4096 (50,339,840added/trainable params) and14336 (176,168,960); no paper-style joint-softmax gate substituted. Concatenated SwiGLU export loads through the unmodified frozen vLLM EAGLE-3 path. FIX-24 target embedding is used. The default-width14336 step-zero check on R1 SPEED, n128, gives p143.4% [41.5,45.2], tau1.79 [1.74, 1.83], versus reuse1.78; paired delta tau0.004 [-0.009,0.017]. The matched-width4096 port also completed: p143.5% [41.6,45.2], tau1.79 [1.74,1.83], paired delta tau0.002 [-0.009,0.014], n128. Both port sizes load without an engine modification.
+R1-Distill-Llama:
 
-Result in one sentence: both untrained port sizes preserve reuse acceptance within their paired intervals, establishing loadability and a non-degraded starting point; repair performance is not yet measured.
-GPU-hours: 0.3 completed sanity checks (budget15plus port).
-Deviations from spec: the release omits PCA/quantile values; PCA128 and90th-percentile score are frozen port choices before selection. Released additive behavior is primary. No variant is chosen for weaker observed performance.
-Sources: rebuttal/E4/sanity_20261124_1538/results.json; step0_exports_20261124/width-14336/preparation.json records exact initialization, embedding hash, parameter count and code commit.
+| Variant / seed / K | Panel | n | tau [95% CI] | p1 % [95% CI] | Train GPUh |
+|---|---|---:|---|---|---:|
+| reference_reuse / s0 / K4 | speed128 | 128 | 1.78 [1.74, 1.83] | 43.4 [41.4, 45.2] | — |
+| reference_full / s0 / K4 | speed128 | 128 | 2.52 [2.44, 2.60] | 64.5 [61.7, 67.0] | — |
+| reference_dedicated / s0 / K4 | speed128 | 128 | 2.86 [2.76, 2.95] | 70.7 [67.8, 73.2] | — |
+| reference_reuse / s0 / K4 | math128 | 128 | 1.92 [1.89, 1.95] | 49.3 [48.4, 50.1] | — |
+| reference_full / s0 / K4 | math128 | 128 | 2.99 [2.95, 3.03] | 76.0 [75.2, 76.8] | — |
+| reference_dedicated / s0 / K4 | math128 | 128 | 3.82 [3.76, 3.88] | 86.8 [85.9, 87.7] | — |
+
+Nemotron:
+
+| Variant / seed / K | Panel | n | tau [95% CI] | p1 % [95% CI] | Train GPUh |
+|---|---|---:|---|---|---:|
+| reference_reuse / s0 / K4 | speed128 | 128 | 1.75 [1.70, 1.81] | 42.7 [40.5, 44.8] | — |
+| reference_full / s0 / K4 | speed128 | 128 | 2.50 [2.40, 2.58] | 63.0 [60.0, 65.7] | — |
+| reference_reuse / s0 / K4 | math128 | 128 | 1.69 [1.66, 1.71] | 44.4 [43.5, 45.3] | — |
+| reference_full / s0 / K4 | math128 | 128 | 2.88 [2.83, 2.93] | 74.3 [73.2, 75.3] | — |
+
+
+Port: released additive singleton shared/private experts; shared FFN, fc, attention, norms and head frozen. Private widths4096/14336; PCA128 and90th-percentile Mahalanobis are predeclared port choices. Selected8k and random8k full-repair controls remain separate. Frozen tensor checks and FIX24 embedding proof gate production EDA evaluation.
+
+| Standalone drafter | n | Median ms |
+|---|---:|---:|
+| /home/heck2/sbhansali8/ReFit/artifacts/P3_D50_20261009_0200/E1-official-native-v2-t0 | 1000 | 3.317 |
+| /home/heck2/sbhansali8/ReFit/rebuttal/runs/E4_t0_train_smoke_w4096_s0/cell/export-2 | 1000 | 3.364 |
+| /home/heck2/sbhansali8/ReFit/rebuttal/runs/E4_t0_train_smoke_w14336_s0/cell/export-2 | 1000 | 3.378 |
+Standalone PyTorch first-draft forward:50warmup,1000measured CUDA-event steps, batch1, one-token context, no verifier. Not end-to-end speedup.
+
+Result status: 0 completed non-reference cells in this snapshot; no unfinished outcome inferred.
+GPU-hours: 0.5 completed, including failures; active runtime additional.
+Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261124_170935_022600/results.json
+Failed runs retained: []
 
 ## E3 — Dedicated training cost
 Status: partial (E3b continuous scratch run training; no completed epoch/evaluation yet; E3a throughput data preparation remains)
@@ -103,13 +132,48 @@ E3b uses existing audited64k Alpaca+Dolly data, one20epoch cosine horizon, expor
 GPU-hours: failed attempt0.0245; active runtime recorded by the wrapper; no completed training-quality result claimed.
 
 ## E5 — Distilled independent drafter
-Status: partial (full production training has started; selection, acceptance sweep and timing pending).
+Status: partial; automatic raw-counter reduction, pending operator completion check.
+All acceptance cells use frozen6da2e42/vLLM0.31.0/A40, greedy, batch8, cap512. MATH is first128. Intervals are paired10,000 query/seed bootstrap95%CIs. Smoke runs are excluded. Reference rows use the identical rendered prefix of current-campaign gate cells; hashes verified.
 
-Both targets pass full-vocabulary KL training/export and frozen-vLLM serving smokes. Exact factorized teacher distributions reproduce direct teacher logits bit-for-bit on five checked examples per target. Nemotron full16k capture completed and its first full student run started Nov24 16:31ET. R1 capture is finishing. All four independent learning-rate/epoch settings will be compared on256 held-out repair examples;15744 examples train each student. K2/3/4/5 acceptance is retained for both selected and off-the-shelf students. K for timing is selected on32 held-out repair queries by warm tokens/s, separately atb1/b8.
+R1-Distill-Llama:
 
-Result in one sentence: the end-to-end implementation passes smoke checks, but no completed trained1B comparison is available yet.
-GPU-hours: live per-run measurements are recorded; guard enforces15GPUh while a120GPUh full-comparison request is pending (original budget12 plus25% allowance). The historical-timing projection is a planning estimate, not a new result.
-Deviations from spec: teacher distributions use an exact hidden-state/head factorization instead of dense logit storage, avoiding top-k truncation; trained tokenizer aliases preserve the exact teacher IDs used in KL. No evaluation prompts enter training or selection.
+| Variant / seed / K | Panel | n | tau [95% CI] | p1 % [95% CI] | Train GPUh |
+|---|---|---:|---|---|---:|
+| offtheshelf_k2 / s0 / K2 | math128 | 128 | 2.28 [2.26, 2.31] | 73.2 [72.3, 74.1] | — |
+| offtheshelf_k2 / s0 / K2 | speed128 | 128 | 2.02 [2.00, 2.05] | 62.3 [61.0, 63.6] | — |
+| reference_reuse / s0 / K4 | speed128 | 128 | 1.78 [1.74, 1.83] | 43.4 [41.4, 45.2] | — |
+| reference_full / s0 / K4 | speed128 | 128 | 2.52 [2.44, 2.60] | 64.5 [61.7, 67.0] | — |
+| reference_dedicated / s0 / K4 | speed128 | 128 | 2.86 [2.76, 2.95] | 70.7 [67.8, 73.2] | — |
+| reference_reuse / s0 / K4 | math128 | 128 | 1.92 [1.89, 1.95] | 49.3 [48.4, 50.1] | — |
+| reference_full / s0 / K4 | math128 | 128 | 2.99 [2.95, 3.03] | 76.0 [75.2, 76.8] | — |
+| reference_dedicated / s0 / K4 | math128 | 128 | 3.82 [3.76, 3.88] | 86.8 [85.9, 87.7] | — |
+
+Nemotron:
+
+| Variant / seed / K | Panel | n | tau [95% CI] | p1 % [95% CI] | Train GPUh |
+|---|---|---:|---|---|---:|
+| reference_reuse / s0 / K4 | speed128 | 128 | 1.75 [1.70, 1.81] | 42.7 [40.5, 44.8] | — |
+| reference_full / s0 / K4 | speed128 | 128 | 2.50 [2.40, 2.58] | 63.0 [60.0, 65.7] | — |
+| reference_reuse / s0 / K4 | math128 | 128 | 1.69 [1.66, 1.71] | 44.4 [43.5, 45.3] | — |
+| reference_full / s0 / K4 | math128 | 128 | 2.88 [2.83, 2.93] | 74.3 [73.2, 75.3] | — |
+
+Paired differences are candidate minus reference; no sign filtering.
+
+| Target / panel | Reference | Candidate | n / seeds | Delta tau [95% CI] | Delta p1 points [95% CI] |
+|---|---|---|---|---|---|
+| 0 / math128 | offtheshelf_k2 | reference_dedicated | 128 / 1 | 1.54 [1.49, 1.58] | 13.6 [12.9, 14.3] |
+| 0 / math128 | offtheshelf_k2 | reference_full | 128 / 1 | 0.71 [0.67, 0.74] | 2.8 [1.9, 3.7] |
+| 0 / math128 | offtheshelf_k2 | reference_reuse | 128 / 1 | -0.36 [-0.39, -0.33] | -23.9 [-24.9, -22.9] |
+| 0 / speed128 | offtheshelf_k2 | reference_dedicated | 128 / 1 | 0.83 [0.74, 0.91] | 8.4 [5.4, 11.0] |
+| 0 / speed128 | offtheshelf_k2 | reference_full | 128 / 1 | 0.50 [0.42, 0.57] | 2.2 [-0.8, 4.8] |
+| 0 / speed128 | offtheshelf_k2 | reference_reuse | 128 / 1 | -0.24 [-0.28, -0.20] | -18.9 [-20.8, -17.1] |
+
+Recipe: exact full-vocabulary forward KL,15744train/256heldout repair prompts per target, lr1e-5/2e-5 x1/3epochs. Select checkpoint by heldout tau atK4; select timing K by warm tokens/s on32heldout repair queries, separately b1/b8. Full K2–5 acceptance sweep retained. Teacher hidden-state/head factorization is exact, not top-k; lexical IDs match and export special-token aliases preserve training IDs.
+
+Result status: 2 completed non-reference cells in this snapshot; no unfinished outcome inferred.
+GPU-hours: 1.3 completed, including failures; active runtime additional.
+Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261124_170935_022600/results.json
+Failed runs retained: []
 
 ## E6 — Tree drafting
 Status: not run (preflight and reproduction in progress)
