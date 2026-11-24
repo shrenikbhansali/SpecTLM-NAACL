@@ -23,7 +23,7 @@ def job(stage,code,name,experiment,target,command,inputs=(),seed=0,metadata=None
  out=ROOT/'rebuttal/runs'/name
  command=[str(x) for x in command]+['--output',str(out/'cell')]
  files=[targetrow,GATE,*map(Path,inputs)]
- plan=dict(name=name,workspace=str(ROOT),run_dir=str(out),cwd=str(code),command=command,harness_commit=commit,engine_version='0.31.0',gpu='A40',seed=seed,K=4,input_sha256={str(p):digest(p) for p in files},target=target,experiment=experiment,requires_baseline_pass=True,baseline_report=str(GATE),**(metadata or {}))
+ plan=dict(name=name,workspace=str(ROOT),run_dir=str(out),cwd=str(code),command=command,harness_commit=commit,engine_version='0.31.0',gpu='A40',seed=seed,K=4,input_sha256={str(p):digest(p) for p in files},target=target,experiment=experiment,requires_baseline_pass=True,baseline_report=str(GATE)) | (metadata or {})
  path=stage/(name+'.json');write_immutable(path,plan)
  prompts=next((str(p) for p in inputs if str(p).endswith('.jsonl')),str(ROOT/'artifacts/P3_repair_20261008_0305/eval/forbidden.jsonl'))
  args=['--task','REBUTTAL','--base','llama','--drafter','eagle3','--k',str(plan['K']),'--seed',str(seed),'--no-resolve','--tag',name,'--prompts',prompts,'--engine-lock',str(FROZEN/'atlas/env/requirements.lock'),'--python',command[0],'--code-repo',str(code),'--target',t['path'],'--target-rev',t['revision'],'--drafter-model',str(ROOT/f'artifacts/P3_D50_20261009_0200/E1-official-native-v2-t{target}'),'--drafter-rev','ada412b672e293d682423de84a095447bf38a637']

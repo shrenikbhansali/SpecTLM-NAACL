@@ -33,7 +33,7 @@ def main():
     student_tok=PreTrainedTokenizerFast.from_pretrained(a.model,local_files_only=True)
     from followspec.family_repair import supervision_vocabulary
     aliases=supervision_vocabulary(teacher_tok.get_vocab(),student_tok.get_vocab(),128000)
-    write(out/'tokenizer_alignment.json',{'lexical_ids_identical':True,'special_aliases':aliases,'training_ids':'teacher token IDs retained; special-ID aliases explicitly logged','export_tokenizer':'original student tokenizer; frozen draft_model vocabulary adapter handles serving'})
+    write(out/'tokenizer_alignment.json',{'lexical_ids_identical':True,'special_aliases':aliases,'training_ids':'teacher token IDs retained; special-ID aliases explicitly logged','export_tokenizer':'teacher special-token aliases at identical IDs; lexical vocabulary unchanged; exports retain the same IDs used for KL'})
     random.seed(a.seed);torch.manual_seed(a.seed);start=time.monotonic()
     model=AutoModelForCausalLM.from_pretrained(a.model,local_files_only=True,torch_dtype=torch.float32,attn_implementation='sdpa').to('cuda')
     model.config.use_cache=False;model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={'use_reentrant':False});model.train()
@@ -61,7 +61,10 @@ def main():
             optimizer.step();scheduler.step();torch.cuda.synchronize()
             log.write(json.dumps({'step':step,'loss':total_loss,'answer_tokens':total_tokens,'step_s':time.monotonic()-step_start,'elapsed_s':time.monotonic()-start,'lr':scheduler.get_last_lr()[0],'grad_norm':float(norm),'peak_allocated_gib':torch.cuda.max_memory_allocated()/2**30})+'\n');log.flush()
     require_free(out,a.min_free_gb);model.eval();model.config.use_cache=True
-    dest=out/'export';model.to(dtype=torch.bfloat16).save_pretrained(dest,safe_serialization=True);student_tok.save_pretrained(dest)
+    for key in ['bos_token_id','eos_token_id','pad_token_id']:
+        value=getattr(teacher_tok,key,None)
+        setattr(model.config,key,value);setattr(model.generation_config,key,value)
+    dest=out/'export';model.to(dtype=torch.bfloat16).save_pretrained(dest,safe_serialization=True);teacher_tok.save_pretrained(dest)
     write(dest/'distillation_provenance.json',{'config_sha256':file_hash(out/'config.json'),'steps':len(batches),'trainable_parameters':sum(p.numel() for p in model.parameters()),'wall_s':time.monotonic()-start,'status':'smoke_only' if a.smoke_steps else 'trained_pending_heldout_selection','teacher_cache':str(a.cache)})
     write(out/'results.json',{'status':'smoke_only' if a.smoke_steps else 'trained_pending_heldout_selection','export':str(dest),'steps':len(batches),'wall_s':time.monotonic()-start,'peak_allocated_gib':torch.cuda.max_memory_allocated()/2**30})
 if __name__=='__main__':main()

@@ -23,5 +23,11 @@ class BudgetTests(unittest.TestCase):
         self.assertFalse(is_target_process(args,100,100,{'/different'}))
         self.assertFalse(is_target_process(['python','-c',' '.join(args)],100,100,{'/run/cell'}))
 
+    def test_new_modules_require_explicit_allowlist(self):
+        args=['python','-m','rebuttal.train_student','--output','/run/cell']
+        self.assertFalse(is_target_process(args,100,100,{'/run/cell'}))
+        self.assertTrue(is_target_process(args,100,100,{'/run/cell'},modules=['rebuttal.train_student']))
+        self.assertFalse(is_target_process(args,101,100,{'/run/cell'},modules=['rebuttal.train_student']))
+
 
 if __name__ == '__main__':unittest.main()

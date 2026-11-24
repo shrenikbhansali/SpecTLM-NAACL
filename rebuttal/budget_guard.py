@@ -20,10 +20,10 @@ def usage(runs, prefix, now=None):
     return total
 
 
-def is_target_process(args, owner, current_uid, outputs):
+def is_target_process(args, owner, current_uid, outputs, modules=None):
+    modules=modules or ['followspec.family_repair','atlas.run_cell']
     return (owner == current_uid and '-m' in args and
-            args[args.index('-m')+1:args.index('-m')+2] in
-            [['followspec.family_repair'], ['atlas.run_cell']] and
+            any(args[args.index('-m')+1:args.index('-m')+2]==[m] for m in modules) and
             '--output' in args and args[args.index('--output')+1:args.index('--output')+2]
             and args[args.index('--output')+1] in outputs)
 
@@ -62,13 +62,13 @@ def main():
  if not proc.name.isdigit():continue
  try:
   args=(proc/'cmdline').read_bytes().decode().strip('\\0').split('\\0')
-  if not is_target_process(args,proc.stat().st_uid,os.getuid(),outputs):continue
+  if not is_target_process(args,proc.stat().st_uid,os.getuid(),outputs,MODULES):continue
   pid=int(proc.name)
   if os.getpgid(pid)!=pid:raise RuntimeError('Expected isolated native run process group')
   os.killpg(pid,getattr(signal,SIGNAME));actions.append({'pid':pid,'signal':SIGNAME,'output':args[args.index('--output')+1]})
  except (FileNotFoundError,ProcessLookupError,PermissionError):pass
 print(json.dumps(actions))
-'''.replace('SIGNAME',repr(signame))
+'''.replace('SIGNAME',repr(signame)).replace('MODULES',repr(control.get('modules')))
                 for host in ['heck-srv1','heck-srv3','heck-srv4','heck-srv5']:
                     result=subprocess.run(['ssh','-o','BatchMode=yes','-o','GSSAPIAuthentication=yes',host+'.ece.gatech.edu','python3 -'],input=script,text=True,capture_output=True,timeout=30)
                     record=dict(host=host,time=time.time(),returncode=result.returncode,stdout=result.stdout,stderr=result.stderr)

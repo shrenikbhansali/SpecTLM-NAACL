@@ -12,3 +12,6 @@ The paper's joint gate would be a separate variant, not silently substituted for
 
 ## 2026-11-24T15:38:56.145250-05:00 — serving sanity complete
 Both private widths4096/14336 load through frozen6da2e42/vLLM0.31 without source patches. Native target embedding is recorded by the FIX24 proof. On identical R1 SPEED128 renders, tau1.7854/1.7869 against reuse1.7831;10k paired CIs include zero for both differences. Independent raw reduction: sanity_20261124_1538/results.json. This supersedes the earlier unverified-serving status, not the fixed implementation/selection choices. Training and selection are still pending.
+
+## 2026-11-24T16:08:19-05:00 — native training smoke
+Width4096 completed two optimizer steps through the FIX24/nativeTTT3 path and exported, with only private expert/router trainable. Source run E4_t0_train_smoke_w4096_s0. Reference2000 generation and exact target-state captures are now in the canonical queue. No trained acceptance claim yet.
