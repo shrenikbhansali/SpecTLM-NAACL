@@ -1,0 +1,11 @@
+Rebuttal environment inventory 2026-11-24T14:18:48-05:00
+Repo commit: 539b1f179b303419ef5db314e24eac932ea5ba61
+Frozen acceptance harness: 6da2e4265c0398ec0de5affaf23b0bd1df0be445
+Inference: {"python": "3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]", "executable": "/home/heck2/sbhansali8/ReFit/.venv-atlas-031-clean/bin/python", "packages": {"vllm": "0.31.0", "torch": "2.13.0", "transformers": "5.17.0"}, "cuda": "13.0", "cudnn": 92000, "cuda_available": true}
+Training: {"python": "3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]", "executable": "/home/heck2/sbhansali8/ReFit/.venv-transport/bin/python", "packages": {"torch": "2.13.0", "transformers": "5.16.1", "speculators": "0.9.0a0"}, "cuda": "13.0", "cuda_available": true}
+GPU: NVIDIA A40; driver 620.70.06 on all five heck nodes checked.
+Paper timing vLLM: 0.31.0, identical to current pinned inference environment.
+Evidence: artifacts/REV4_P0_20261011_0240/runs/REV4-Y1-t0-fc-math128-b1-r0/config.json; frozen_harness commit 6da2e4265c0398ec0de5affaf23b0bd1df0be445.
+SGLang: not used; no installed distribution in trainer environment.
+Full pip freeze: pip-freeze-atlas.txt and pip-freeze-trainer.txt.
+Package-version agreement does not substitute for numerical baseline reproduction; GPU reproduction is pending.

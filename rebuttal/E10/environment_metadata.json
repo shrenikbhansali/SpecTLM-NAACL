@@ -1,0 +1,27 @@
+{
+  ".venv-atlas-031": {
+    "stdout": "{\"python\": \"3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]\"}\n",
+    "stderr": "",
+    "rc": 0
+  },
+  ".venv-atlas-031-clean": {
+    "stdout": "{\"python\": \"3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]\", \"torch\": \"2.13.0\", \"transformers\": \"5.17.0\", \"vllm\": \"0.31.0\"}\n",
+    "stderr": "",
+    "rc": 0
+  },
+  ".venv-atlas-031-pypi": {
+    "stdout": "{\"python\": \"3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]\"}\n",
+    "stderr": "",
+    "rc": 0
+  },
+  ".venv-followspec": {
+    "stdout": "{\"python\": \"3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]\", \"torch\": \"2.13.0\", \"transformers\": \"5.16.1\"}\n",
+    "stderr": "",
+    "rc": 0
+  },
+  ".venv-followspec-clean": {
+    "stdout": "{\"python\": \"3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]\", \"torch\": \"2.13.0\", \"transformers\": \"5.16.1\"}\n",
+    "stderr": "",
+    "rc": 0
+  }
+}

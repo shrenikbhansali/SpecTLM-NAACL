@@ -1,0 +1,6 @@
+worktrees/
+source_text/
+runs/
+inputs/
+artifacts/
+*.log

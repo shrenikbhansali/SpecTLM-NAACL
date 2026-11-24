@@ -1,0 +1,12 @@
+{
+  "python": "3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]",
+  "executable": "/home/heck2/sbhansali8/ReFit/.venv-atlas-031-clean/bin/python",
+  "packages": {
+    "vllm": "0.31.0",
+    "torch": "2.13.0",
+    "transformers": "5.17.0"
+  },
+  "cuda": "13.0",
+  "cudnn": 92000,
+  "cuda_available": true
+}
