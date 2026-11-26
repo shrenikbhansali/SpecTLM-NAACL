@@ -162,10 +162,17 @@ def final_optimizer_policy(omit,compact):
     return not omit
 
 
-def supervision_source(target, rows, alternate):
+def supervision_source(target, rows, alternate, external=None):
     """Keep response provenance fixed while explicitly intervening on HF supervision."""
-    if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):
-        raise ValueError('wrong response teacher')
+    if external is None:
+        if any(r['generation_target']!=target['id'] or r['generation_revision']!=target['revision'] for r in rows):
+            raise ValueError('wrong response teacher')
+    else:
+        if external.get('mode')!='E3a-native-throughput' or external.get('dataset_id')!='open-thoughts/OpenThoughts-114k' or len(external.get('dataset_revision',''))!=40 or not external.get('response_model'):
+            raise ValueError('external throughput data requires pinned native provenance')
+        if alternate is not None:raise ValueError('external throughput mode cannot change supervision')
+        if any(r.get('response_dataset')!=external['dataset_id'] or r.get('response_dataset_revision')!=external['dataset_revision'] or r.get('generation_target')!=external['response_model'] or r.get('generation_revision')!=external.get('response_model_revision') for r in rows):
+            raise ValueError('external response provenance differs from manifest')
     source=target if alternate is None else alternate
     if any(not source.get(k) for k in ['id','revision','path']):
         raise ValueError('supervision source requires pinned id/revision/path')
@@ -223,6 +230,7 @@ def main():
     p.add_argument('--eda-private-width',type=int,help='rebuttal E4 opt-in: released-code additive private SwiGLU width')
     p.add_argument('--reselect-draft-vocab',action='store_true',help='D54 E15 training-response frequency support; initialize new head rows from target')
     p.add_argument('--profile-training',action='store_true',help='D54 synchronized whole-step timings including online capture')
+    p.add_argument('--external-response-manifest',help='E3a only: pinned native OpenThoughts responses for 200-step scratch throughput; does not change target supervision')
     p.add_argument('--omit-final-optimizer',action='store_true',help='D54 nonresumable final compact weights, no optimizer persistence')
     p.add_argument('--allow-response-pairs',action='store_true',help='D54 explicit short512/long2048 mixture on identical prompts')
     p.add_argument('--supervision-row',help='REV1 fixed-text control: alternate pinned teacher for taps and soft labels; response provenance and initialization stay unchanged')
@@ -254,7 +262,12 @@ def main():
     if a.algorithm=='dflash' and (a.variant not in {'fc','full'} or a.scratch):raise ValueError('D48 DFlash fc/full warm-start only')
     if a.algorithm!='eagle3' and a.training_attention!='eager':raise ValueError('SDPA training opt-in is EAGLE only')
     if not audit.get('passed') or audit.get('data_sha256')!=file_hash(a.data):raise ValueError('five sample manual audit must match sealed responses')
-    supervision=supervision_source(target,rows,json.loads(Path(a.supervision_row).read_text()) if a.supervision_row else None)
+    external=json.loads(Path(a.external_response_manifest).read_text()) if a.external_response_manifest else None
+    if external is not None:
+        if not a.scratch or not a.profile_training or a.variant!='full' or a.algorithm!='eagle3' or a.steps!=200 or a.one_epoch or a.epochs or a.continue_epoch_from or a.supervision_row:
+            raise ValueError('external responses restricted to the E3a 200-step scratch throughput diagnostic')
+        if external.get('data_sha256')!=file_hash(a.data):raise ValueError('external manifest data hash mismatch')
+    supervision=supervision_source(target,rows,json.loads(Path(a.supervision_row).read_text()) if a.supervision_row else None,external)
     if a.supervision_row:
         if a.algorithm!='eagle3' or a.continue_epoch_from:raise ValueError('alternate supervision supports fresh EAGLE repair only')
         child_cfg=json.loads((Path(target['path'])/'config.json').read_text())
@@ -301,6 +314,7 @@ def main():
     if a.algorithm=='dflash':cfg.update(ttt_steps=None,ttt_step_loss_decay=None,loss='native DFlash fused KL; gamma4 fixed-exp-decay; answer positions',max_anchors=a.max_anchors)
     if epoch_ends is not None:cfg.update(epoch_end_steps=epoch_ends,epoch_schedule='One cosine schedule over all epochs; intermediate exports are not separately annealed runs')
     if a.supervision_row:cfg.update(supervision=supervision,supervision_row_sha256=file_hash(a.supervision_row),special_token_aliases=special_aliases,control='Derivative token IDs and initialization fixed; alternate model supplies both taps and soft labels. Special token aliases are logged, never remapped.')
+    if external is not None:cfg.update(external_response_provenance=external,external_response_manifest_sha256=file_hash(a.external_response_manifest),supervision=supervision)
     if previous:cfg.update(schedule_horizon=resume_step+a.steps,resume_source=str(prior),resume_source_config_sha256=file_hash(prior/'config.json'),resume_checkpoint=str(checkpoint),resume_global_step=resume_step,completed_epochs=epoch_index+1,continuation_schedule='Restore AdamW moments; extend cosine total horizon to prior+new steps, no replay. First epoch retains original shorter schedule; not equivalent to uninterrupted two-epoch training.',rng_policy='Prior checkpoint lacks RNG state; deterministic seed reset at continuation, next epoch data order matches native shuffle stream',cumulative_token_budget=previous['token_budget']+cfg['token_budget'])
     if a.dry_run:print(json.dumps(cfg,indent=2));return
     ensure_unpaused();ensure_unpaused(Path.cwd());require_free(a.output,a.min_free_gb)
