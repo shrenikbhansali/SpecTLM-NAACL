@@ -1,0 +1,11 @@
+{
+  "prefix": "E3a",
+  "limit_gpu_hours": 37.5,
+  "cancel_file": "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/cancel-pending.json",
+  "modules": [
+    "followspec.repair_data",
+    "followspec.family_repair",
+    "rebuttal.native_throughput"
+  ],
+  "authorization": "Approved handoff E3a30GPUh plus25pct guard; D60 completion"
+}

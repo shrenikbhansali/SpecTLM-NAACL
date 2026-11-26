@@ -1,5 +1,9 @@
 # Rebuttal status
 
+### 2026-11-25T20:24:35-05:00 — codex-1 — quick audit delivered; remaining jobs advancing
+Audit: [reviewer strategy](REBUTTAL-STRATEGY-20261125.md). Independently derived interface/whole-LoRA improvement ratio92.5–94.6% across4panels/3seeds; absolute LoRA advantage retained. All findings pilot.
+Running: scratch plus3R1 b1 timing retries on4A40s. Queued:9remaining timing retries, both EDA widths seed1,2E3a generation caps. Canonical queue1202986; E5guard150GPUh, E4guard18.75, E3aguard37.5. E3a2000prompt mixture prepared and five prompts inspected; response/mask audit and throughput training still pending. Timing output divergence diagnostic remains open. Paper untouched.
+
 ### 2026-11-25T20:18:43-05:00 — codex-1 — completion resumed; reviewer-focused audit
 Finished: audited actual reviews against verified results; strategy proposal in REBUTTAL-STRATEGY-20261125.md. New paired ratio: interface retains92.5–94.6%of equal-capacity whole-LoRA improvement across all4panels, with3seeds. This does not reverse the absolute LoRA advantage.65tests pass. Source data for E3a/E8 pinned/license-checked/downloaded.
 Running:12E5R1b1 retries queued with identical commands exceptoutput/tag;3running srv4:0/2/3. Scratch on srv4:1. Existing other12slots now occupied byadokme3; queue remains1202986, no interference. E4bothwidthsseed1 additionally queued under existingapprovedseed scope and18.75GPUhguard. E3a CPU input preparation running.

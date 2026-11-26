@@ -1,0 +1,17 @@
+{
+  "pid": 3521366,
+  "command": [
+    "/home/heck2/sbhansali8/ReFit/.venv-transport/bin/python",
+    "-u",
+    "-m",
+    "rebuttal.budget_guard",
+    "--workspace",
+    "/home/heck2/sbhansali8/ReFit",
+    "--control",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_launch_20261125_2027/control.json",
+    "--output",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_launch_20261125_2027/budget-monitor"
+  ],
+  "cwd": "/home/heck2/sbhansali8/ReFit/rebuttal/worktrees/e45-control-20261124",
+  "time": "2026-11-25T20:23:46.349339-05:00"
+}

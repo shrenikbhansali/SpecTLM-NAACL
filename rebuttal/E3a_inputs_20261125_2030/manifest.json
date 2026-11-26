@@ -1,0 +1,41 @@
+{
+  "n": 2000,
+  "quotas": {
+    "sharegpt": 256,
+    "ultrachat": 1744
+  },
+  "available_source_counts": {
+    "sharegpt": 58820,
+    "ultrachat": 463896
+  },
+  "sources": {
+    "sharegpt": {
+      "repo": "anon8231489123/ShareGPT_Vicuna_unfiltered",
+      "revision": "192ab2185289094fc556ec8ce5ce1e8e587154ca",
+      "license": "apache-2.0"
+    },
+    "ultrachat": {
+      "repo": "HuggingFaceH4/ultrachat_200k",
+      "revision": "8049631c405ae6576f93f445c6b8166f76f5505a",
+      "license": "mit"
+    }
+  },
+  "query_sha256": "a70cdba4e8e302020b297636c2b296042bebc0f9e3c7e453be710e1534b2ce87",
+  "forbidden_sha256": "b0566098839217840647e30ecbe02ce501f231a3937fcfa8222e3366ef49a7d2",
+  "deduplication": {
+    "total": 8000,
+    "length_rejected": 1591,
+    "exact_duplicates": 676,
+    "near_duplicates": 0,
+    "forbidden": 2,
+    "kept": 5731,
+    "duplicate_rate": 0.0845,
+    "near_evaluation_rejected": 0
+  },
+  "selection": "fixed seed0 hash ordering; first user instruction; max1536 rendered prompt tokens; no source answers",
+  "response_caps": [
+    512,
+    2048
+  ],
+  "training_context_budget": 4096
+}
