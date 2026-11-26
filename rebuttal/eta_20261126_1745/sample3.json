@@ -1,0 +1,38 @@
+[
+  {
+    "name": "E3b_t0_scratch20ep_s0_gcc13",
+    "n": 69316,
+    "at": "2026-11-26T17:46:46.813208-05:00",
+    "mtime": 1795733204.6670606,
+    "interval_s": 118.529684,
+    "increment": 39,
+    "s_per_record": 3.039222666666667
+  },
+  {
+    "name": "E4c_t0_interface_selected8k_s0",
+    "n": 1189,
+    "at": "2026-11-26T17:46:46.815708-05:00",
+    "mtime": 1795733206.0580945,
+    "interval_s": 118.530098,
+    "increment": 46,
+    "s_per_record": 2.5767412608695652
+  },
+  {
+    "name": "E4c_t0_interface_selected8k_s1",
+    "n": 906,
+    "at": "2026-11-26T17:46:46.817665-05:00",
+    "mtime": 1795733205.5620825,
+    "interval_s": 118.530379,
+    "increment": 41,
+    "s_per_record": 2.8909848536585363
+  },
+  {
+    "name": "E3a_t0_generation2000_cap2048_s0_retry1",
+    "n": 1064,
+    "at": "2026-11-26T17:46:46.872561-05:00",
+    "mtime": 1795733197.0488741,
+    "interval_s": 118.532646,
+    "increment": 16,
+    "s_per_record": 7.408290375
+  }
+]

@@ -326,7 +326,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
 | REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | review | codex-1 / 2026-10-12T16:13:06.386247-04:00 | [report](reports/REV5-EDA-comparison-20261012.md); full paper + pinned code audit, CPU algebra check; paper untouched |
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
-| REBUTTAL | Owner Nov26 update: E4c, timing divergence, E3 and conditional E8-lite | P0 | codex | D-61 / D-62 | Nov27 noon ET | in progress | codex-1 / 2026-11-26T17:45:52.033897-05:00 | [results](rebuttal/RESULTS.md); four A40s active; matched EDA tonight, scratch epoch5 Friday morning/noon risk; [ETA](rebuttal/ETA-20261126.md). |
+| REBUTTAL | Owner Nov26 update: E4c, timing divergence, E3 and conditional E8-lite | P0 | codex | D-61 / D-62 | Nov27 noon ET | in progress | codex-1 / 2026-11-26T17:45:52.033897-05:00 | codex-1 / 2026-11-26T17:47:32.224140-05:00
 
 ---
 
