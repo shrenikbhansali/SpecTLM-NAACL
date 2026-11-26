@@ -85,12 +85,12 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 | --- | --- |
 | Last updated | 2026-11-25T19:54:06-05:00 (codex-1 builder/operator) |
 | Sprint day | ARR rebuttal phase; P0 targetNov27, finalNov28 EOD ET |
-| Next gate | Rebuttal E2/E4 complete and operator-recomputed; E5 acceptance complete,12R1b1 timing processes blocked at approved budget; scratch continues. |
+| Next gate | Rebuttal E2/E4 complete and operator-recomputed; E5 acceptance complete,12R1b1 timing retries authorized by D-60; scratch continues. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
 | Jobs running | ONE canonical queue1202986; only E3b scratch training active.330unique manifest jobs, all started. E4/E5 CPU controller/publisher remain active. |
 | Blockers | E5 guard stopped12R1b1 timing jobs at119.837/120GPUh. Timing-output audit detects later-token divergence; source not established. [Landed evidence](rebuttal/LANDED-20261125.md). |
-| Owner action needed | Larger E5 budget needed to retry the12missing R1b1 timing processes; no restart or overrun assumed. E2/E4 within approved caps. |
+| Owner action needed | None for remaining E5 retries: D-60 authorizes completion; operator guard150GPUh. Only3A40s currently live-free, plus scratch active. |
 
 ---
 
@@ -326,7 +326,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
 | REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | review | codex-1 / 2026-10-12T16:13:06.386247-04:00 | [report](reports/REV5-EDA-comparison-20261012.md); full paper + pinned code audit, CPU algebra check; paper untouched |
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
-| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-25T19:54:06-05:00 | [landed](rebuttal/LANDED-20261125.md); [journal](rebuttal/JOURNAL.md); E2/E4 complete/review, E5acceptance complete and108/120timing;12R1b1 budget-blocked; scratch epoch2 evaluated, training active. |
+| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-25T20:09:18-05:00 | [landed](rebuttal/LANDED-20261125.md); [journal](rebuttal/JOURNAL.md); D-60 completion authorized; preparing12E5 retries and remaining E3a/P1 work; only3freeA40s plus scratch. |
 
 ---
 
@@ -1097,6 +1097,8 @@ citing where it was stated.*
 | D-58 | 2026-11-24 | **Owner direct: execute the supplied ARR rebuttal E1–E10 handoff, prioritize it over own competing jobs, and raise E2 to40A40GPU-hours (approved15:36ET).** Use the existing frozen acceptance protocol; new outputs under rebuttal/. All results, including nulls, remain reported. This changes the E2 compute allowance, not its data/recipe/selection criteria. [status](rebuttal/STATUS.md); [approval](rebuttal/budget_control_20261124/owner_approval_40gpuh.json). | Decided |
 
 | D-59 | 2026-11-24 | **Owner direct, approved17:04ET: raise rebuttal E5 to120 A40 GPU-hours to finish the distilled1B training/selection/acceptance/timing comparison.** Supersedes the handoff12GPUh budget plus25% allowance for E5 only. Same fixed held-out selection, frozen acceptance and three-process timing protocol; all outcomes reported. Live guard updated without interrupting workers. [receipt](rebuttal/E5_budget_20261124/approval-120.json); [journal](rebuttal/JOURNAL.md). | Decided |
+
+| D-60 | 2026-11-25 | **Owner direct, after the budget-stop/results update: "Go ahead and finish whatever else needs to run".** Authorizes completing the remaining rebuttal work, including the12E5 R1b1 timing retries identified as budget-blocked. Operator sets a bounded E5 guard of150A40GPUh (estimated18–22additional, not an owner-specified numeric cap); unchanged recipes/selection, new immutable retry dirs, all prior costs counted. Continue remaining E3a/P1 work under their existing limits. [journal](rebuttal/JOURNAL.md). | Decided |
 
 ---
 
