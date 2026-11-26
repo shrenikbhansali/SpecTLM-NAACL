@@ -1,5 +1,8 @@
 # Rebuttal status
 
+### 2026-11-26T16:07:09-05:00 — codex-1 — return handoff ready
+Created [HANDOFF-TO-PLANNER-20261126.md](HANDOFF-TO-PLANNER-20261126.md), a self-contained return against the Nov24 plan: allE1–E10statuses, measured tables/CIs/n, both favorable and unfavorable comparisons, EDAport choices, student selection, timing-output caveat, costs and remaining execution. Validated24local evidence links and headline values against immutable raw-reduction JSON. Live16:03check confirmed existing3retries generating andscratch retained; no new launches, no paper edits.
+
 ### 2026-11-26T15:35:06-05:00 — codex-1 — trained comparisons landed;3startup retries running
 Finished: EDA seed1 both widths and evaluations; all trained1B timing including R1b1. Independent raw reduction exactly matches automatic results:76acceptance records,77timing contrasts. R1 ReFit/distilled throughput b1:1.19[1.14,1.24]SPEED,1.29[1.28,1.30]MATH, n128 each. EDA2seed matched-data ReFit delta tau+.260[.228,.290]SPEED,+.282[.256,.309]MATH. Allpilot; output-divergence qualification retained. [Evidence](LANDED-20261126.md).
 Running: canonical queue1202986; scratch srv4:1, last off-the-shelf timing retry2 srv4:0, E3a generation512/2048 retries srv4:2/3, launched15:33. Three prior attempts failed startup free-memory check; same settings/input hashes, newdirs, oldfailures/costs retained. E5cost134.382/150GPUh before retry, E4=16.519/18.75, E3a~.05/37.5.
