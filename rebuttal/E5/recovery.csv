@@ -1,1 +1,5 @@
-status
+experiment,target,benchmark,variant,n,seeds,K,excluded_zero_step,recovery,recovery_ci95,undefined_bootstrap_samples,reuse_tau,dedicated_tau,candidate_tau,definition
+E5,0,math128,distilled_k4,128,[0],4,0,0.7857449277817706,"[0.7671821215274761, 0.804393516707806]",0,1.9213154371430112,3.82163488102996,3.4144818013422564,(candidate tau - reuse tau)/(dedicated tau - reuse tau); ratio recomputed within each shared seed/query resample; K4 only
+E5,0,math128,offtheshelf_k4,128,[0],4,0,0.5481198248633897,"[0.5303431503739204, 0.5659635194525637]",0,1.9213154371430112,3.82163488102996,2.96291819791082,(candidate tau - reuse tau)/(dedicated tau - reuse tau); ratio recomputed within each shared seed/query resample; K4 only
+E5,0,speed128,distilled_k4,128,[0],4,0,1.0330533486912614,"[0.9602385826188655, 1.1245827001050688]",0,1.7831209514976243,2.8556856284730014,2.8911374827349987,(candidate tau - reuse tau)/(dedicated tau - reuse tau); ratio recomputed within each shared seed/query resample; K4 only
+E5,0,speed128,offtheshelf_k4,128,[0],4,0,0.6262237504456195,"[0.5645753144738086, 0.7013499520962757]",0,1.7831209514976243,2.8556856284730014,2.4547864261086394,(candidate tau - reuse tau)/(dedicated tau - reuse tau); ratio recomputed within each shared seed/query resample; K4 only

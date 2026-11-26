@@ -1,5 +1,12 @@
 # Rebuttal status
 
+### 2026-11-25T19:54:06-05:00 — codex-1 — trained comparisons landed / budget-limited timing
+Finished: E4 trained EDA at both widths and selected/random8k controls; E2 full three-seed matrix; E5 both held-out-selected students, K2–5 acceptance,108/120 final timing processes. Independently reran E4/E5 reduction: exact match to02:40 snapshot. Scratch epoch1/2 frozen evaluations also complete.62tests pass.
+Results: ReFit-full exceeds larger EDA port on same8k by+0.271tau SPEED and+0.270 MATH (paired95%CIs exclude0). Distilled1B has higher K4acceptance than ReFit-full on all four target/panel groups. Completed timing favors ReFit-full on MATH and Nemotronb1; SPEEDb8 differences not conclusive. E2 matched decoder/head and wholeLoRA modestly exceed interface-only. Full evidence: [landed summary](LANDED-20261125.md).
+Running: only continuous scratch worker; canonical queue1202986 and CPU watchers remain.330unique manifest identities; all started. No duplicate launch or restart.
+Blocker: E5 guard stopped12R1b1 distilled/off-the-shelf timing runs at119.837/120GPUh; no results imputed. Resume requires a larger approved E5 cap. E4cost13.152/18.75; E2cost31.182/40. Timing-output audit finds later-token differences between greedy arms; cause unestablished, retained explicitly for follow-up. No paper edits.
+
+
 ### 2026-11-24T17:38:57.253727-05:00 — codex-1 — first distilled checkpoints complete
 Finished: both Nemotron one-epoch student trainings/exports; EDA reference capture, PCA selection and both8k audits. Two new Nemotron decoder/head seed trainings also completed.
 Running: two EDA widths, two selected8k controls, five student settings, existing E2/scratch;16A40slots. Two random8k controls and final R1student setting pending. Frozen heldout/evaluation jobs advance automatically; no new trained EDA/student acceptance result yet.
