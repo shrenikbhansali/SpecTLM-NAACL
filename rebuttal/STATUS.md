@@ -1,3 +1,8 @@
+### 2026-11-26T17:20:22.687749-05:00 — codex-1 — D61 P0 running; report-only additions delivered
+E4c: selected8k interface seeds0/1 running; four further trainings and frozen evals use the same canonical queue, separate15GPUhguard. E3b continuous scratch remains active; epoch5 auto-eval and Nov28noon stop unchanged. E3a512 generation complete; audited native/512200stepthroughput jobs queued;2048 generation active with firstfive responses/masks already reviewed and finalhashgate ready. All120E5timingprocesses complete.
+RESULTS.md now contains requested raw E1cells/ratio, E2restoration table, EDA50Mselected vsfull and measured scratch/data costs, plus full timing-divergence audit. Divergence affects no-spec andspec but not at equal rates; matched-output b1 subsets are small, no wholematchingb8batch, no per-token timestamps for truncation. One-query no-spec3repeat check pending. E4c2x2 remains pending; no inferred outcomes.
+E8-lite preparedCPUonly, conditionalonP0started/idleGPU; newresponseaudit remains beforetraining. DroppedE6/E7/E9/nativeEDA20ep/EDAseed2 recordednotrun. DeadlineNov28EOD. No decisionneeded; no paperedits. See planner_analysis_20261126_1730 and timing_divergence_20261126_all120.
+
 # Rebuttal status
 
 ### 2026-11-26T16:07:09-05:00 — codex-1 — return handoff ready

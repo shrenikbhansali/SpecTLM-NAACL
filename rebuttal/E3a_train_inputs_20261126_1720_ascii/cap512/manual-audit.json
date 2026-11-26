@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "reviewer": "codex-1",
+  "time_et": "2026-11-26T17:07:18.752593-05:00",
+  "data_sha256": "1eba1a07244c68f33df84788e6acfaa48c7bea344baea89f19c4c3d01044f921",
+  "n": 2000,
+  "five_sample_file": "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_train_inputs_20261126_1720_ascii/cap512/five_decoded_masks.json",
+  "five_sample_sha256": "c899242a760381a2fb9a31e4a1595bab497264c1cec089e62c63b0b4f77af458",
+  "sample_ids": [
+    "E3a-ultrachat-89a6c4d21a724c13b943cf20688b7f2732e9cdc421ebc36c3cd9d127c1e2ae19",
+    "E3a-ultrachat-73a2acccf341d84534b44412c752982ccfe98972da6f836b198a74d6cf9404cf",
+    "E3a-ultrachat-efc0715dbfc1a88963e8ca10826c39acb206321e1b31fa3d6253d294dcf0163b",
+    "E3a-ultrachat-aa9b7c9ff8f0b723fb6113a55ca83a4977d1664bb346d6a85a56524e9dfd4782",
+    "E3a-ultrachat-14aac6bc2b59c81bdcfd3b15ad20a46d8d2897c3982475d94c36291c151ca697"
+  ],
+  "observations": "Museum narrative, sports-drink business strategy, museum reimbursement letter, mental-health essay, cargo capacity: coherent target reasoning prefixes; 512 cap, no additional training truncation; numerical factual errors in cargo example retained.",
+  "ascii_container_correction": {
+    "source": "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_train_inputs_20261126_1720/cap512",
+    "reason": "escape Unicode line separators for existing splitlines reader; all2000parsed records proven identical",
+    "all_parsed_records_equal": true
+  }
+}

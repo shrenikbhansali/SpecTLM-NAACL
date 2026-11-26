@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "reviewer": "codex-1",
+  "time_et": "2026-11-26T17:15:12.524197-05:00",
+  "preview_sha256": "362f818e0875594463d429323a1f7d437952d2fddbef35effcc555e346aac657",
+  "scope": "manual review of decoded first five complete stream records and clipped training masks while generation continues; seal only if final first5 exactly match recorded hashes",
+  "observations": "Museum narrative, sports drink strategy, reimbursement letter, mental-health essay, cargo capacity. Full coherent reasoning+answers with EOS for all5; prompt masks false, response masks true. Cargo capacity answer contains factual errors; retained. No truncation for these5; whole-corpus truncation must be reported separately."
+}

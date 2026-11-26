@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "scope": "prompt/template review only; response and mask audit still required after generation",
+  "reviewer": "codex-1",
+  "time_et": "2026-11-26T17:18:59.843351-05:00",
+  "five_sample_sha256": "7f89e652197f15281553f724ddd829a02ab5e1d1b4a6db9b2fe0f42092b63fed",
+  "notes": "Five Vietnamese queries decoded: adopted-child story, world population year, arithmetic, integer spelling, mathematician doctorate country. One BOS, intact user turn, default R1 assistant/think prefix. Source responses unused. Dataset pin and multilingual quotas in manifest."
+}

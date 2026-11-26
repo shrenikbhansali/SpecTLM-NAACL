@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "reviewer": "codex-1",
+  "time_et": "2026-11-26T17:07:18.756221-05:00",
+  "data_sha256": "0e32d2f258055830ad05e498cde42cdae397a3a285101bcc08c2e2f1a0e30190",
+  "n": 2000,
+  "five_sample_file": "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_train_inputs_20261126_1720_ascii/native/five_decoded_masks.json",
+  "five_sample_sha256": "08022d9273a1b7c97b471a8a0456c2a8cafe3746fe05e3398da01196a94eb3e5",
+  "sample_ids": [
+    "E3a-native-fe8112f766af3880f3a0222f15d331d57e2cf3b5c7d833ea5830ed60e60adb5d",
+    "E3a-native-c7162005a222de7e3fcd8b24debe86147d8b614dd261d7782dcff3fb8ec98a1c",
+    "E3a-native-e029dfd67f5e41eb72d6f46c241fe271da77d7785a9a4aff8039a04e8bdb1744",
+    "E3a-native-cd03ba68bf9ec0fb82a32da975f97514d1a92bc6551d46bcb3718b84d14799c5",
+    "E3a-native-18f0f6d1d5120ca868c1ca5743e0d3f87ac36393ad981bdb6042bf5d1a846018"
+  ],
+  "observations": "Five native math reasoning responses: Pythagorean inequality, recurrence range, integer divisibility, odd periodic function, quadratic inequality. Full prompt, one BOS, answer-only mask. All five explicitly truncated; whole sample1763/2000 truncated; native mean6657 input tokens retained1988. Dataset-pinned native answers, unknown original teacher model revision recorded, current R1-distill supplies online taps/labels.",
+  "ascii_container_correction": {
+    "source": "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_train_inputs_20261126_1720/native",
+    "reason": "escape Unicode line separators for existing splitlines reader; all2000parsed records proven identical",
+    "all_parsed_records_equal": true
+  }
+}

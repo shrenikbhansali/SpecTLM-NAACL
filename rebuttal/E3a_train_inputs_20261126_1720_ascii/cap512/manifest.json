@@ -1,0 +1,20 @@
+{
+  "mode": "E3a-regenerated-throughput",
+  "source": "/home/heck2/sbhansali8/ReFit/rebuttal/runs/E3a_t0_generation2000_cap512_s0_retry1/cell",
+  "source_sha256": "1eba1a07244c68f33df84788e6acfaa48c7bea344baea89f19c4c3d01044f921",
+  "measured_generation_s": 3991.4995473020244,
+  "n": 2000,
+  "data_sha256": "1eba1a07244c68f33df84788e6acfaa48c7bea344baea89f19c4c3d01044f921",
+  "length_policy": "full prompt, response clipped to fit 2049 input IDs (2048 shifted training tokens); no regenerated native answers",
+  "original_mean_input_tokens": 579.6475,
+  "kept_mean_input_tokens": 579.6475,
+  "original_mean_answer_tokens": 507.479,
+  "kept_mean_answer_tokens": 507.479,
+  "truncated_examples": 0,
+  "removed_answer_tokens": 0,
+  "ascii_container_correction": {
+    "source": "/home/heck2/sbhansali8/ReFit/rebuttal/E3a_train_inputs_20261126_1720/cap512",
+    "reason": "escape Unicode line separators for existing splitlines reader; all2000parsed records proven identical",
+    "all_parsed_records_equal": true
+  }
+}

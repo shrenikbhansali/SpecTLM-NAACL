@@ -12,13 +12,19 @@ def write(path,value):
     with path.open('x') as f:f.write(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
 
 
+def jsonl_line(row):
+    # Existing consumers use str.splitlines(), which recognizes U+2028/U+0085.
+    # Escape Unicode in the container; decoded prompt contents stay identical.
+    return json.dumps(row,ensure_ascii=True)+'\n'
+
+
 def seal(out,rows,tokenizer,provenance):
     out.mkdir(parents=True,exist_ok=False);trimmed=[];cuts=[]
     for r in rows:
         rr,cut=clip_response(r);trimmed.append(rr);cuts.append(cut)
     data=out/'per_prompt.jsonl'
     with data.open('x') as f:
-        for r in trimmed:f.write(json.dumps(r,ensure_ascii=False)+'\n')
+        for r in trimmed:f.write(jsonl_line(r))
     original=np.array([c['original_tokens'] for c in cuts]);kept=np.array([c['kept_tokens'] for c in cuts])
     manifest=provenance|{'n':len(rows),'data_sha256':hashlib.sha256(data.read_bytes()).hexdigest(),
         'length_policy':'full prompt, response clipped to fit 2049 input IDs (2048 shifted training tokens); no regenerated native answers',

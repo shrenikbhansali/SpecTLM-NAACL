@@ -70,8 +70,15 @@ def e3(root):
     run=root/'rebuttal/runs/E3b_t0_scratch20ep_s0_gcc13';cfg=json.loads((run/'cell/config.json').read_text());checkpoints=[]
     for p in sorted((run/'cell').glob('export-*/repair_provenance.json'),key=lambda p:int(p.parent.name.split('-')[-1])):
         r=json.loads(p.read_text());step=r['step'];epoch=cfg['epoch_end_steps'].index(step)+1
-        checkpoints.append({'epoch':epoch,'step':step,'train_gpu_h_cumulative':r['elapsed_s']/3600,'generation_gpu_h':cost,
-                            'total_gpu_h':r['elapsed_s']/3600+cost if cost is not None else None,'source':str(p),'sha256':sha(p)})
+        record={'epoch':epoch,'step':step,'train_gpu_h_cumulative':r['elapsed_s']/3600,'generation_gpu_h':cost,
+                'total_gpu_h':r['elapsed_s']/3600+cost if cost is not None else None,'source':str(p),'sha256':sha(p),'acceptance':{}}
+        for panel in ['speed128','math128']:
+            evaluation=root/'rebuttal/runs'/f'{run.name}_all_step{step}_{panel}'
+            if not (evaluation/'metrics.json').exists() or json.loads((evaluation/'metrics.json').read_text())['exit_code']!=0:continue
+            ec=json.loads((evaluation/'cell/config.json').read_text());raw=evaluation/'cell/per_prompt.jsonl'
+            if ec.get('frozen_harness_commit',ec.get('code_commit'))!=FROZEN or ec['engine_version']!='0.31.0' or ec['K']!=4:raise ValueError('nonfrozen scratch acceptance')
+            rr=rows(raw);record['acceptance'][panel]={'source':str(raw),'sha256':sha(raw),**acceptance_contrast({0:rr},{0:rr},4,4)}
+        checkpoints.append(record)
     return {'generation_gpu_h':cost,'generation_sources':sources,'checkpoints':checkpoints,
             'cost_scope':'sum of recorded successful generation wall_s on one A40 per shard; training is cumulative trainer elapsed_s on one A40 including initialization/checkpoint exports, excluding outer launch wrapper, acceptance and failed attempts; no inferred missing times',
             'source_mixture':'existing16k Alpaca +48k Alpaca/Dolly extension; continuous20epoch cosine schedule; mandatory stop Nov28 noon ET'}
