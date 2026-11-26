@@ -21,3 +21,6 @@ Both widths also pass native two-step training/export and frozen-vLLM serving sm
 
 ## Candidate/subset inspection
 Fixed seed904 random24 candidate strings and masks were read before PCA selection (E4_candidate_review_20261124_1648). Each new subset must contain at least five byte-identical inspected members, with explicit sample IDs in its audit; otherwise training remains blocked. This is structural/provenance inspection, not answer-correctness certification. Some target factual errors and a repeated phrase were observed and retained to preserve the specified shared corpus. Full16k descriptive counts: R1 repeated4gram>50%5/16000 and cap11517/16000; Nemotron14/16000 and cap3019/16000. Selection-subset counts are generated separately without filtering.
+
+## 2026-11-25T20:18:43-05:00 — trained results and fixed-seed replication
+Both seed0widths complete, plus ReFitselected/random8kseeds0/1. Fullresults inLANDED-20261125.md. Added seed1 forbothunchangedEDAwidths under originalhandoff optionalseeds0–2; plannedadditional~4GPUh includingeval,withinremaining18.75guard. This pairs withalreadycompletedselected8kReFitseed1. No selectionhyperparameterorarchitecturechanges; frozenproof andevaluation auto-dispatchremain. Proposed same8kinterfacecontrol isnotyetlaunched.

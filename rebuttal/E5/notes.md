@@ -10,3 +10,6 @@ Report the complete K2–5 SPEED/MATH acceptance sweep for the selected student 
 
 ## 2026-11-24T17:09:01.671911-05:00 — budget supersession
 Owner explicitly raised E5 to120 A40 GPU-hours. This supersedes the earlier15GPUh guard in this document, with no training/evaluation recipe changes. Full model grid, held-out selection, K2–5 acceptance sweep and same-campaign three-process timing remain required. The guard reads the new cap live; existing workers were not restarted.
+
+## 2026-11-25T20:18:43-05:00 — completion authorization and retry
+D-60 ownerinstruction tofinishremainingwork supersedes the120GPUh stop for the12missing R1b1processes. Operatorboundedguard150GPUh, receipt E5_completion_20261125_2010/authorization.json. New `_retry1` directories; onlyname/outputchanged. Existingcost119.837retained. Oldguard1058485 latched, so restarted onlyguard as3083467; canonicalqueue unchanged. Three retries active, nine queued. No model/K selection repeated. Cross-processoutputaudit finds differences also insome no-spec/family runs; cause remains unproven.

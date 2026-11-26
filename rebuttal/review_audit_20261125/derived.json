@@ -1,0 +1,148 @@
+{
+  "interface_fraction": [
+    {
+      "target": 0,
+      "panel": "speed128",
+      "n": 128,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "reuse_tau": 1.7831209514976234,
+      "interface_tau": 2.4197602757060355,
+      "whole_lora_tau": 2.464989881420462,
+      "fraction_whole_lora_gain": 0.9336681820660976,
+      "fraction_ci95": [
+        0.9072248900655832,
+        0.9601473469658126
+      ],
+      "definition": "(interface - reuse)/(whole-LoRA - reuse), recomputed within every paired seed/query bootstrap sample"
+    },
+    {
+      "target": 0,
+      "panel": "math128",
+      "n": 128,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "reuse_tau": 1.9213154371430126,
+      "interface_tau": 2.7916609708341333,
+      "whole_lora_tau": 2.8621512641934994,
+      "fraction_whole_lora_gain": 0.9250769461231588,
+      "fraction_ci95": [
+        0.9068776312830865,
+        0.9454448161204942
+      ],
+      "definition": "(interface - reuse)/(whole-LoRA - reuse), recomputed within every paired seed/query bootstrap sample"
+    },
+    {
+      "target": 1,
+      "panel": "speed128",
+      "n": 128,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "reuse_tau": 1.7540214901106435,
+      "interface_tau": 2.3909014014765835,
+      "whole_lora_tau": 2.4385307395735842,
+      "fraction_whole_lora_gain": 0.9304182695348964,
+      "fraction_ci95": [
+        0.8987149856454908,
+        0.9646625718804236
+      ],
+      "definition": "(interface - reuse)/(whole-LoRA - reuse), recomputed within every paired seed/query bootstrap sample"
+    },
+    {
+      "target": 1,
+      "panel": "math128",
+      "n": 128,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "reuse_tau": 1.685153764208936,
+      "interface_tau": 2.6856245354432,
+      "whole_lora_tau": 2.742692949777659,
+      "fraction_whole_lora_gain": 0.9460365959831842,
+      "fraction_ci95": [
+        0.9310013196963015,
+        0.9612669446180424
+      ],
+      "definition": "(interface - reuse)/(whole-LoRA - reuse), recomputed within every paired seed/query bootstrap sample"
+    }
+  ],
+  "throughput_ratio": [
+    {
+      "target": 0,
+      "panel": "math128",
+      "batch": 8,
+      "refit_over_distilled": 1.2798616021253981,
+      "ci95": [
+        1.2521479655004686,
+        1.3080003926192023
+      ],
+      "status": "observed throughput; output-equivalence diagnostic remains open"
+    },
+    {
+      "target": 0,
+      "panel": "speed128",
+      "batch": 8,
+      "refit_over_distilled": 0.9318358413084026,
+      "ci95": [
+        0.8177204597180263,
+        1.0752952879247335
+      ],
+      "status": "observed throughput; output-equivalence diagnostic remains open"
+    },
+    {
+      "target": 1,
+      "panel": "math128",
+      "batch": 1,
+      "refit_over_distilled": 1.2699408585612866,
+      "ci95": [
+        1.2565705502012567,
+        1.2837256591658117
+      ],
+      "status": "observed throughput; output-equivalence diagnostic remains open"
+    },
+    {
+      "target": 1,
+      "panel": "math128",
+      "batch": 8,
+      "refit_over_distilled": 1.2516372502156772,
+      "ci95": [
+        1.2292341798819029,
+        1.2734780127228724
+      ],
+      "status": "observed throughput; output-equivalence diagnostic remains open"
+    },
+    {
+      "target": 1,
+      "panel": "speed128",
+      "batch": 1,
+      "refit_over_distilled": 1.17910379751421,
+      "ci95": [
+        1.1080411405648893,
+        1.2463455145648619
+      ],
+      "status": "observed throughput; output-equivalence diagnostic remains open"
+    },
+    {
+      "target": 1,
+      "panel": "speed128",
+      "batch": 8,
+      "refit_over_distilled": 0.9886185437313456,
+      "ci95": [
+        0.8507342783467028,
+        1.159324979640443
+      ],
+      "status": "observed throughput; output-equivalence diagnostic remains open"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "owner_message": "Go ahead and finish whatever else needs to run",
+  "interpretation": "completion of the12E5R1b1timing jobs disclosed as budget-blocked; finite operator guard150GPUh",
+  "previous_limit": 120,
+  "operator_limit": 150,
+  "estimated_remaining_gpu_h_range": [
+    18,
+    22
+  ],
+  "decision": "MASTER D-60",
+  "at": "2026-11-25T20:09:53.329014-05:00",
+  "retry_jobs": [
+    "E5_t0_timing_distilled_math128_b1_r0_retry1",
+    "E5_t0_timing_distilled_math128_b1_r1_retry1",
+    "E5_t0_timing_distilled_math128_b1_r2_retry1",
+    "E5_t0_timing_distilled_speed128_b1_r0_retry1",
+    "E5_t0_timing_distilled_speed128_b1_r1_retry1",
+    "E5_t0_timing_distilled_speed128_b1_r2_retry1",
+    "E5_t0_timing_offtheshelf_math128_b1_r0_retry1",
+    "E5_t0_timing_offtheshelf_math128_b1_r1_retry1",
+    "E5_t0_timing_offtheshelf_math128_b1_r2_retry1",
+    "E5_t0_timing_offtheshelf_speed128_b1_r0_retry1",
+    "E5_t0_timing_offtheshelf_speed128_b1_r1_retry1",
+    "E5_t0_timing_offtheshelf_speed128_b1_r2_retry1"
+  ]
+}

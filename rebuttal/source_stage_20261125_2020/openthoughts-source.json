@@ -1,0 +1,136 @@
+{
+  "repo": "open-thoughts/OpenThoughts-114k",
+  "revision": "bd093c3994fd54d2390985b66988ddf282a55eb6",
+  "license": "apache-2.0",
+  "card": {
+    "license": "apache-2.0",
+    "dataset_info": [
+      {
+        "config_name": "default",
+        "features": [
+          {
+            "name": "system",
+            "dtype": "string"
+          },
+          {
+            "name": "conversations",
+            "list": [
+              {
+                "name": "from",
+                "dtype": "string"
+              },
+              {
+                "name": "value",
+                "dtype": "string"
+              }
+            ]
+          }
+        ],
+        "splits": [
+          {
+            "name": "train",
+            "num_bytes": 2635015668,
+            "num_examples": 113957
+          }
+        ],
+        "download_size": 1078777193,
+        "dataset_size": 2635015668
+      },
+      {
+        "config_name": "metadata",
+        "features": [
+          {
+            "name": "problem",
+            "dtype": "string"
+          },
+          {
+            "name": "deepseek_reasoning",
+            "dtype": "string"
+          },
+          {
+            "name": "deepseek_solution",
+            "dtype": "string"
+          },
+          {
+            "name": "ground_truth_solution",
+            "dtype": "string"
+          },
+          {
+            "name": "domain",
+            "dtype": "string"
+          },
+          {
+            "name": "source",
+            "dtype": "string"
+          },
+          {
+            "name": "test_cases",
+            "dtype": "string"
+          },
+          {
+            "name": "starter_code",
+            "dtype": "string"
+          }
+        ],
+        "splits": [
+          {
+            "name": "train",
+            "num_bytes": 5525214077.699433,
+            "num_examples": 113957
+          }
+        ],
+        "download_size": 2469729724,
+        "dataset_size": 5525214077.699433
+      }
+    ],
+    "configs": [
+      {
+        "config_name": "default",
+        "data_files": [
+          {
+            "split": "train",
+            "path": "data/train-*"
+          }
+        ]
+      },
+      {
+        "config_name": "metadata",
+        "data_files": [
+          {
+            "split": "train",
+            "path": "metadata/train-*"
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "curator",
+      "synthetic"
+    ]
+  },
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "data/train-00000-of-00006.parquet",
+    "data/train-00001-of-00006.parquet",
+    "data/train-00002-of-00006.parquet",
+    "data/train-00003-of-00006.parquet",
+    "data/train-00004-of-00006.parquet",
+    "data/train-00005-of-00006.parquet",
+    "diagram.png",
+    "diagram_dark.png",
+    "metadata/train-00000-of-00012.parquet",
+    "metadata/train-00001-of-00012.parquet",
+    "metadata/train-00002-of-00012.parquet",
+    "metadata/train-00003-of-00012.parquet",
+    "metadata/train-00004-of-00012.parquet",
+    "metadata/train-00005-of-00012.parquet",
+    "metadata/train-00006-of-00012.parquet",
+    "metadata/train-00007-of-00012.parquet",
+    "metadata/train-00008-of-00012.parquet",
+    "metadata/train-00009-of-00012.parquet",
+    "metadata/train-00010-of-00012.parquet",
+    "metadata/train-00011-of-00012.parquet",
+    "open_thoughts.png"
+  ]
+}

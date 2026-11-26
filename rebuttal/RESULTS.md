@@ -1,6 +1,6 @@
 # Rebuttal results
 
-Updated Nov25: E1/E10 and E2 three-seed comparisons complete; trained E4/EDA comparison complete. E5 trained acceptance complete;108/120 final timing processes complete,12R1 batch-1 jobs budget-stopped. Scratch epoch1/2 evaluations complete; training continues. See [newly landed results and timing-output audit](LANDED-20261125.md) for the verified summary, complete E2 table and current qualifications.
+Updated Nov25: E1/E10 and E2 three-seed comparisons complete; trained E4/EDA comparison complete. E5 trained acceptance complete;108/120 final timing processes complete,12R1 batch-1 retries now authorized/queued under D-60; three running. Scratch epoch1/2 evaluations complete; training continues. See [newly landed results and timing-output audit](LANDED-20261125.md) for the verified summary, complete E2 table and current qualifications.
 
 ## E10 — Software versions
 Status: final (version inventory; all10 exact acceptance reproductions passed)
@@ -93,6 +93,19 @@ The full table also retains post-training restoration ablations: restoring fc or
 
 
 Sources: E2/reduction_20261125_2010/results.json and CSV; independent raw-counter seed/query reduction.
+
+
+Derived capacity-control summary (all three paired seeds, n128 per panel): dense-interface repair retains93.4%[90.7,96.0] of whole-LoRA's improvement over reuse on R1SPEED,92.5%[90.7,94.5] on R1MATH,93.0%[89.9,96.5] on NemotronSPEED,94.6%[93.1,96.1] on NemotronMATH. Definition=(tau_interface−tau_reuse)/(tau_whole_LoRA−tau_reuse), recomputed in every paired seed/query bootstrap sample. This is a descriptive secondary ratio, not noninferiority or a claim that interface beats whole-LoRA. Absolute differences remain above. Source:review_audit_20261125/derived.json and reduce.py.
+
+## E3b — scratch curve in progress
+Status: partial; continuous scratch training running. Fixed20epoch cosine schedule, intermediate checkpoints are not separately annealed runs. n128,seed0,greedyK4,frozen0.31/A40.
+
+| Epoch | SPEED tau [95%CI] | MATH tau [95%CI] |
+|---|---|---|
+| 1 | 1.75 [1.70,1.79] | 1.98 [1.94,2.02] |
+| 2 | 1.93 [1.87,1.98] | 2.31 [2.26,2.35] |
+
+Current warm-full references are2.52SPEED/2.99MATH on the same panels; both scratch points remain lower. Cumulative checkpointGPUh and later checkpoints pending. Source:landed_audit_20261125/results.json.
 
 ## E4 — EDA baseline
 Status: trained EDA and E4b comparisons complete; independently recomputed Nov25; pilot.

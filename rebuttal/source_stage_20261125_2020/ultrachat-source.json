@@ -1,0 +1,102 @@
+{
+  "repo": "HuggingFaceH4/ultrachat_200k",
+  "revision": "8049631c405ae6576f93f445c6b8166f76f5505a",
+  "license": "mit",
+  "card": {
+    "language": [
+      "en"
+    ],
+    "license": "mit",
+    "size_categories": [
+      "100K<n<1M"
+    ],
+    "task_categories": [
+      "text-generation"
+    ],
+    "pretty_name": "UltraChat 200k",
+    "configs": [
+      {
+        "config_name": "default",
+        "data_files": [
+          {
+            "split": "train_sft",
+            "path": "data/train_sft-*"
+          },
+          {
+            "split": "test_sft",
+            "path": "data/test_sft-*"
+          },
+          {
+            "split": "train_gen",
+            "path": "data/train_gen-*"
+          },
+          {
+            "split": "test_gen",
+            "path": "data/test_gen-*"
+          }
+        ]
+      }
+    ],
+    "dataset_info": {
+      "features": [
+        {
+          "name": "prompt",
+          "dtype": "string"
+        },
+        {
+          "name": "prompt_id",
+          "dtype": "string"
+        },
+        {
+          "name": "messages",
+          "list": [
+            {
+              "name": "content",
+              "dtype": "string"
+            },
+            {
+              "name": "role",
+              "dtype": "string"
+            }
+          ]
+        }
+      ],
+      "splits": [
+        {
+          "name": "train_sft",
+          "num_bytes": 1397058554,
+          "num_examples": 207865
+        },
+        {
+          "name": "test_sft",
+          "num_bytes": 154695659,
+          "num_examples": 23110
+        },
+        {
+          "name": "train_gen",
+          "num_bytes": 1347396812,
+          "num_examples": 256032
+        },
+        {
+          "name": "test_gen",
+          "num_bytes": 148276089,
+          "num_examples": 28304
+        }
+      ],
+      "download_size": 1624049723,
+      "dataset_size": 3047427114
+    }
+  },
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "data/test_gen-00000-of-00001-3d4cd8309148a71f.parquet",
+    "data/test_sft-00000-of-00001-f7dfac4afe5b93f4.parquet",
+    "data/train_gen-00000-of-00003-a6c9fb894be3e50b.parquet",
+    "data/train_gen-00001-of-00003-d6a0402e417f35ca.parquet",
+    "data/train_gen-00002-of-00003-c0db75b92a2f48fd.parquet",
+    "data/train_sft-00000-of-00003-a3ecf92756993583.parquet",
+    "data/train_sft-00001-of-00003-0a1804bcb6ae68c6.parquet",
+    "data/train_sft-00002-of-00003-ee46ed25cfae92c6.parquet"
+  ]
+}

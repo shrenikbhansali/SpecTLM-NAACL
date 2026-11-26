@@ -1,0 +1,9 @@
+{
+  "scope": "Handoff E4 matched seeds0\u20132 if time; add seed1 of both fixed widths",
+  "before_evaluation": true,
+  "selection_or_recipe_changes": false,
+  "existing_paired_control": "E4b_t0_full_selected8k_s1",
+  "estimated_additional_gpu_hours": 4.0,
+  "existing_budget_guard": 18.75,
+  "used_gpu_hours": 13.151636344849408
+}

@@ -1,5 +1,10 @@
 # Rebuttal status
 
+### 2026-11-25T20:18:43-05:00 — codex-1 — completion resumed; reviewer-focused audit
+Finished: audited actual reviews against verified results; strategy proposal in REBUTTAL-STRATEGY-20261125.md. New paired ratio: interface retains92.5–94.6%of equal-capacity whole-LoRA improvement across all4panels, with3seeds. This does not reverse the absolute LoRA advantage.65tests pass. Source data for E3a/E8 pinned/license-checked/downloaded.
+Running:12E5R1b1 retries queued with identical commands exceptoutput/tag;3running srv4:0/2/3. Scratch on srv4:1. Existing other12slots now occupied byadokme3; queue remains1202986, no interference. E4bothwidthsseed1 additionally queued under existingapprovedseed scope and18.75GPUhguard. E3a CPU input preparation running.
+Budget: D-60 ownercompletion instruction applied as boundedoperatorE5guard150GPUh; restarted only latchedguard (now3083467), retaining allhistoricalcosts. All experiments keep recipes and fixedselection. Needsdecision:none for these existingjobs. Proposed new same8k/50Minterface-vs-EDAcontrol is not launched. Timingoutputmismatchdiagnostic stillopen; cross-process differences also occur forsome same-arm runs.
+
 ### 2026-11-25T19:54:06-05:00 — codex-1 — trained comparisons landed / budget-limited timing
 Finished: E4 trained EDA at both widths and selected/random8k controls; E2 full three-seed matrix; E5 both held-out-selected students, K2–5 acceptance,108/120 final timing processes. Independently reran E4/E5 reduction: exact match to02:40 snapshot. Scratch epoch1/2 frozen evaluations also complete.62tests pass.
 Results: ReFit-full exceeds larger EDA port on same8k by+0.271tau SPEED and+0.270 MATH (paired95%CIs exclude0). Distilled1B has higher K4acceptance than ReFit-full on all four target/panel groups. Completed timing favors ReFit-full on MATH and Nemotronb1; SPEEDb8 differences not conclusive. E2 matched decoder/head and wholeLoRA modestly exceed interface-only. Full evidence: [landed summary](LANDED-20261125.md).

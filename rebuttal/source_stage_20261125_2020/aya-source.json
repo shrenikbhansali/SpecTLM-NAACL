@@ -1,0 +1,218 @@
+{
+  "repo": "CohereLabs/aya_dataset",
+  "revision": "f9ea04583f02a8f86404ff6c58bf75fe637df8a2",
+  "license": "apache-2.0",
+  "card": {
+    "annotations_creators": [
+      "crowdsourced",
+      "expert-generated"
+    ],
+    "language_creators": [
+      "crowdsourced",
+      "expert-generated"
+    ],
+    "language": [
+      "amh",
+      "arb",
+      "ary",
+      "ars",
+      "acq",
+      "arz",
+      "apc",
+      "ben",
+      "ceb",
+      "dan",
+      "deu",
+      "ell",
+      "eng",
+      "eus",
+      "fil",
+      "fin",
+      "fra",
+      "gle",
+      "guj",
+      "hat",
+      "hau",
+      "hin",
+      "hun",
+      "ibo",
+      "ind",
+      "ita",
+      "jav",
+      "jpn",
+      "kan",
+      "kir",
+      "kor",
+      "kur",
+      "lit",
+      "mal",
+      "mar",
+      "mlg",
+      "msa",
+      "mya",
+      "nep",
+      "nld",
+      "nso",
+      "nya",
+      "pan",
+      "pes",
+      "pol",
+      "por",
+      "pus",
+      "rus",
+      "sin",
+      "sna",
+      "snd",
+      "som",
+      "spa",
+      "sqi",
+      "srp",
+      "sun",
+      "swa",
+      "swe",
+      "tam",
+      "tel",
+      "tha",
+      "tur",
+      "ukr",
+      "urd",
+      "vie",
+      "wol",
+      "xho",
+      "yor",
+      "zho",
+      "zul"
+    ],
+    "license": "apache-2.0",
+    "multilinguality": [
+      "multilingual"
+    ],
+    "size_categories": [
+      "100K<n<1M"
+    ],
+    "source_datasets": [
+      "original"
+    ],
+    "task_categories": [
+      "other"
+    ],
+    "task_ids": [],
+    "pretty_name": "Aya Dataset",
+    "dataset_info": [
+      {
+        "config_name": "default",
+        "features": [
+          {
+            "name": "inputs",
+            "dtype": "string"
+          },
+          {
+            "name": "targets",
+            "dtype": "string"
+          },
+          {
+            "name": "language",
+            "dtype": "string"
+          },
+          {
+            "name": "language_code",
+            "dtype": "string"
+          },
+          {
+            "name": "annotation_type",
+            "dtype": "string"
+          },
+          {
+            "name": "user_id",
+            "dtype": "string"
+          }
+        ],
+        "splits": [
+          {
+            "name": "test",
+            "num_bytes": 1782208,
+            "num_examples": 1750
+          },
+          {
+            "name": "train",
+            "num_bytes": 254591851,
+            "num_examples": 202362
+          }
+        ],
+        "download_size": 275359572,
+        "dataset_size": 256374059
+      },
+      {
+        "config_name": "demographics",
+        "features": [
+          {
+            "name": "user_id",
+            "dtype": "string"
+          },
+          {
+            "name": "age_range",
+            "sequence": "int64"
+          },
+          {
+            "name": "gender",
+            "dtype": "string"
+          },
+          {
+            "name": "country",
+            "dtype": "string"
+          },
+          {
+            "name": "languages",
+            "sequence": "string"
+          },
+          {
+            "name": "dialects",
+            "sequence": "string"
+          }
+        ],
+        "splits": [
+          {
+            "name": "train",
+            "num_bytes": 202127,
+            "num_examples": 1456
+          }
+        ],
+        "download_size": 113702,
+        "dataset_size": 202127
+      }
+    ],
+    "configs": [
+      {
+        "config_name": "default",
+        "data_files": [
+          {
+            "split": "train",
+            "path": "data/train-*"
+          },
+          {
+            "split": "test",
+            "path": "data/test-*"
+          }
+        ]
+      },
+      {
+        "config_name": "demographics",
+        "data_files": [
+          {
+            "split": "train",
+            "path": "demographics/train-*"
+          }
+        ]
+      }
+    ],
+    "tags": []
+  },
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "aya_header.png",
+    "data/test-00000-of-00001.parquet",
+    "data/train-00000-of-00001.parquet",
+    "demographics/train-00000-of-00001.parquet"
+  ]
+}
