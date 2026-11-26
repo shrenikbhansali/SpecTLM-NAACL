@@ -1,6 +1,6 @@
 # Rebuttal results
 
-Updated Nov25: E1/E10 and E2 three-seed comparisons complete; trained E4/EDA comparison complete. E5 trained acceptance complete;108/120 final timing processes complete,12R1 batch-1 retries now authorized/queued under D-60; three running. Scratch epoch1/2 evaluations complete; training continues. See [newly landed results and timing-output audit](LANDED-20261125.md) for the verified summary, complete E2 table and current qualifications.
+Updated Nov26: E2 complete; E4 both widths now have2seeds; all trained1B timing cells complete. Total E5timing119/120processes; one off-the-shelf repeat being retried. E3a generation retries running; scratch ~3.6epochs, next scheduled export5. Independent raw reduction exactly matches the automatic report. See [Nov26 landed summary](LANDED-20261126.md). Timing-output divergence remains an open diagnostic.
 
 ## E10 — Software versions
 Status: final (version inventory; all10 exact acceptance reproductions passed)
@@ -108,7 +108,7 @@ Status: partial; continuous scratch training running. Fixed20epoch cosine schedu
 Current warm-full references are2.52SPEED/2.99MATH on the same panels; both scratch points remain lower. Cumulative checkpointGPUh and later checkpoints pending. Source:landed_audit_20261125/results.json.
 
 ## E4 — EDA baseline
-Status: trained EDA and E4b comparisons complete; independently recomputed Nov25; pilot.
+Status: partial; automatic raw-counter reduction, pending operator completion check.
 All acceptance cells use frozen6da2e42/vLLM0.31.0/A40, greedy, batch8, cap512. MATH is first128. Intervals are paired10,000 query/seed bootstrap95%CIs. Smoke runs are excluded. Reference rows use the identical rendered prefix of current-campaign gate cells; hashes verified.
 
 R1-Distill-Llama:
@@ -117,8 +117,12 @@ R1-Distill-Llama:
 |---|---|---:|---|---|---:|
 | E4_t0_eda_w14336_selected8k / s0 / K4 | math128 | 128 | 2.38 [2.34, 2.41] | 60.5 [59.5, 61.5] | 1.4 |
 | E4_t0_eda_w14336_selected8k / s0 / K4 | speed128 | 128 | 2.18 [2.12, 2.23] | 55.0 [52.8, 57.1] | 1.4 |
+| E4_t0_eda_w14336_selected8k / s1 / K4 | math128 | 128 | 2.37 [2.33, 2.40] | 60.2 [59.2, 61.2] | 1.7 |
+| E4_t0_eda_w14336_selected8k / s1 / K4 | speed128 | 128 | 2.18 [2.12, 2.24] | 55.1 [52.7, 57.2] | 1.7 |
 | E4_t0_eda_w4096_selected8k / s0 / K4 | math128 | 128 | 2.34 [2.31, 2.37] | 59.5 [58.5, 60.4] | 1.6 |
 | E4_t0_eda_w4096_selected8k / s0 / K4 | speed128 | 128 | 2.15 [2.09, 2.21] | 54.1 [51.7, 56.2] | 1.6 |
+| E4_t0_eda_w4096_selected8k / s1 / K4 | math128 | 128 | 2.35 [2.31, 2.38] | 60.0 [59.0, 60.9] | 1.3 |
+| E4_t0_eda_w4096_selected8k / s1 / K4 | speed128 | 128 | 2.14 [2.08, 2.20] | 54.2 [51.9, 56.2] | 1.3 |
 | E4b_t0_full_random8k / s0 / K4 | math128 | 128 | 2.94 [2.90, 2.98] | 74.8 [74.0, 75.6] | 1.6 |
 | E4b_t0_full_random8k / s0 / K4 | speed128 | 128 | 2.49 [2.41, 2.56] | 63.9 [61.1, 66.4] | 1.6 |
 | E4b_t0_full_random8k / s1 / K4 | math128 | 128 | 2.93 [2.89, 2.96] | 74.7 [74.0, 75.5] | 1.3 |
@@ -147,17 +151,17 @@ Paired differences are candidate minus reference; no sign filtering.
 
 | Target / panel | Reference | Candidate | n / seeds | Delta tau [95% CI] | Delta p1 points [95% CI] |
 |---|---|---|---|---|---|
-| 0 / math128 | E4_t0_eda_w14336_selected8k | E4_t0_eda_w4096_selected8k | 128 / 1 | -0.04 [-0.06, -0.02] | -1.0 [-1.6, -0.5] |
-| 0 / math128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_random8k | 128 / 1 | 0.56 [0.53, 0.59] | 14.3 [13.5, 15.2] |
-| 0 / math128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_selected8k | 128 / 1 | 0.27 [0.25, 0.29] | 8.8 [8.1, 9.6] |
-| 0 / math128 | E4_t0_eda_w14336_selected8k | reference_dedicated | 128 / 1 | 1.44 [1.39, 1.50] | 26.3 [25.1, 27.5] |
-| 0 / math128 | E4_t0_eda_w14336_selected8k | reference_full | 128 / 1 | 0.61 [0.57, 0.65] | 15.5 [14.4, 16.5] |
-| 0 / math128 | E4_t0_eda_w14336_selected8k | reference_reuse | 128 / 1 | -0.46 [-0.48, -0.43] | -11.2 [-12.0, -10.5] |
-| 0 / math128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_random8k | 128 / 1 | 0.60 [0.57, 0.63] | 15.3 [14.4, 16.3] |
-| 0 / math128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_selected8k | 128 / 1 | 0.31 [0.29, 0.33] | 9.8 [9.1, 10.7] |
-| 0 / math128 | E4_t0_eda_w4096_selected8k | reference_dedicated | 128 / 1 | 1.48 [1.43, 1.54] | 27.3 [26.1, 28.5] |
-| 0 / math128 | E4_t0_eda_w4096_selected8k | reference_full | 128 / 1 | 0.65 [0.61, 0.69] | 16.5 [15.5, 17.6] |
-| 0 / math128 | E4_t0_eda_w4096_selected8k | reference_reuse | 128 / 1 | -0.42 [-0.44, -0.40] | -10.2 [-11.0, -9.4] |
+| 0 / math128 | E4_t0_eda_w14336_selected8k | E4_t0_eda_w4096_selected8k | 128 / 2 | -0.03 [-0.05, -0.01] | -0.6 [-1.4, 0.1] |
+| 0 / math128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_random8k | 128 / 2 | 0.56 [0.53, 0.59] | 14.4 [13.6, 15.3] |
+| 0 / math128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_selected8k | 128 / 2 | 0.28 [0.26, 0.31] | 9.1 [8.3, 10.0] |
+| 0 / math128 | E4_t0_eda_w14336_selected8k | reference_dedicated | 128 / 2 | 1.45 [1.39, 1.51] | 26.4 [25.3, 27.6] |
+| 0 / math128 | E4_t0_eda_w14336_selected8k | reference_full | 128 / 2 | 0.62 [0.58, 0.65] | 15.6 [14.6, 16.7] |
+| 0 / math128 | E4_t0_eda_w14336_selected8k | reference_reuse | 128 / 2 | -0.45 [-0.47, -0.43] | -11.1 [-11.8, -10.3] |
+| 0 / math128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_random8k | 128 / 2 | 0.59 [0.55, 0.62] | 15.1 [14.1, 16.0] |
+| 0 / math128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_selected8k | 128 / 2 | 0.31 [0.29, 0.33] | 9.8 [9.1, 10.5] |
+| 0 / math128 | E4_t0_eda_w4096_selected8k | reference_dedicated | 128 / 2 | 1.48 [1.42, 1.53] | 27.1 [25.9, 28.3] |
+| 0 / math128 | E4_t0_eda_w4096_selected8k | reference_full | 128 / 2 | 0.65 [0.61, 0.68] | 16.3 [15.2, 17.3] |
+| 0 / math128 | E4_t0_eda_w4096_selected8k | reference_reuse | 128 / 2 | -0.42 [-0.44, -0.40] | -10.5 [-11.3, -9.6] |
 | 0 / math128 | E4b_t0_full_random8k | E4b_t0_full_selected8k | 128 / 2 | -0.28 [-0.31, -0.24] | -5.3 [-6.2, -4.4] |
 | 0 / math128 | E4b_t0_full_random8k | reference_dedicated | 128 / 2 | 0.89 [0.85, 0.93] | 12.0 [11.3, 12.8] |
 | 0 / math128 | E4b_t0_full_random8k | reference_full | 128 / 2 | 0.06 [0.03, 0.08] | 1.2 [0.6, 1.9] |
@@ -165,17 +169,17 @@ Paired differences are candidate minus reference; no sign filtering.
 | 0 / math128 | E4b_t0_full_selected8k | reference_dedicated | 128 / 2 | 1.17 [1.11, 1.22] | 17.3 [16.2, 18.4] |
 | 0 / math128 | E4b_t0_full_selected8k | reference_full | 128 / 2 | 0.33 [0.30, 0.37] | 6.5 [5.5, 7.5] |
 | 0 / math128 | E4b_t0_full_selected8k | reference_reuse | 128 / 2 | -0.73 [-0.76, -0.71] | -20.2 [-21.2, -19.3] |
-| 0 / speed128 | E4_t0_eda_w14336_selected8k | E4_t0_eda_w4096_selected8k | 128 / 1 | -0.03 [-0.05, -0.01] | -0.9 [-1.6, -0.3] |
-| 0 / speed128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_random8k | 128 / 1 | 0.31 [0.28, 0.35] | 8.9 [7.8, 9.8] |
-| 0 / speed128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_selected8k | 128 / 1 | 0.27 [0.24, 0.30] | 8.0 [7.1, 8.9] |
-| 0 / speed128 | E4_t0_eda_w14336_selected8k | reference_dedicated | 128 / 1 | 0.68 [0.62, 0.73] | 15.6 [14.4, 16.8] |
-| 0 / speed128 | E4_t0_eda_w14336_selected8k | reference_full | 128 / 1 | 0.35 [0.31, 0.39] | 9.4 [8.4, 10.5] |
-| 0 / speed128 | E4_t0_eda_w14336_selected8k | reference_reuse | 128 / 1 | -0.39 [-0.42, -0.36] | -11.6 [-12.6, -10.6] |
-| 0 / speed128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_random8k | 128 / 1 | 0.34 [0.30, 0.37] | 9.8 [8.8, 10.7] |
-| 0 / speed128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_selected8k | 128 / 1 | 0.30 [0.28, 0.32] | 8.9 [8.2, 9.7] |
-| 0 / speed128 | E4_t0_eda_w4096_selected8k | reference_dedicated | 128 / 1 | 0.71 [0.66, 0.76] | 16.6 [15.4, 17.7] |
-| 0 / speed128 | E4_t0_eda_w4096_selected8k | reference_full | 128 / 1 | 0.38 [0.34, 0.41] | 10.4 [9.4, 11.4] |
-| 0 / speed128 | E4_t0_eda_w4096_selected8k | reference_reuse | 128 / 1 | -0.37 [-0.39, -0.34] | -10.7 [-11.7, -9.7] |
+| 0 / speed128 | E4_t0_eda_w14336_selected8k | E4_t0_eda_w4096_selected8k | 128 / 2 | -0.03 [-0.05, -0.01] | -0.9 [-1.5, -0.3] |
+| 0 / speed128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_random8k | 128 / 2 | 0.31 [0.27, 0.35] | 8.7 [7.7, 9.7] |
+| 0 / speed128 | E4_t0_eda_w14336_selected8k | E4b_t0_full_selected8k | 128 / 2 | 0.26 [0.23, 0.29] | 7.6 [6.5, 8.6] |
+| 0 / speed128 | E4_t0_eda_w14336_selected8k | reference_dedicated | 128 / 2 | 0.68 [0.62, 0.73] | 15.6 [14.4, 16.7] |
+| 0 / speed128 | E4_t0_eda_w14336_selected8k | reference_full | 128 / 2 | 0.35 [0.31, 0.38] | 9.4 [8.4, 10.4] |
+| 0 / speed128 | E4_t0_eda_w14336_selected8k | reference_reuse | 128 / 2 | -0.39 [-0.42, -0.37] | -11.7 [-12.7, -10.6] |
+| 0 / speed128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_random8k | 128 / 2 | 0.34 [0.31, 0.38] | 9.6 [8.6, 10.6] |
+| 0 / speed128 | E4_t0_eda_w4096_selected8k | E4b_t0_full_selected8k | 128 / 2 | 0.29 [0.27, 0.32] | 8.5 [7.5, 9.5] |
+| 0 / speed128 | E4_t0_eda_w4096_selected8k | reference_dedicated | 128 / 2 | 0.71 [0.66, 0.76] | 16.5 [15.4, 17.6] |
+| 0 / speed128 | E4_t0_eda_w4096_selected8k | reference_full | 128 / 2 | 0.38 [0.34, 0.42] | 10.4 [9.3, 11.4] |
+| 0 / speed128 | E4_t0_eda_w4096_selected8k | reference_reuse | 128 / 2 | -0.36 [-0.39, -0.33] | -10.7 [-11.7, -9.8] |
 | 0 / speed128 | E4b_t0_full_random8k | E4b_t0_full_selected8k | 128 / 2 | -0.05 [-0.08, -0.02] | -1.1 [-2.0, -0.3] |
 | 0 / speed128 | E4b_t0_full_random8k | reference_dedicated | 128 / 2 | 0.37 [0.34, 0.40] | 6.9 [6.1, 7.8] |
 | 0 / speed128 | E4b_t0_full_random8k | reference_full | 128 / 2 | 0.04 [0.02, 0.05] | 0.7 [0.2, 1.3] |
@@ -197,19 +201,19 @@ R1 dedicated-gap recovery at matched K4; the ratio is recomputed in each paired 
 
 | Variant | Panel | n / seeds | Recovery % [95% CI] |
 |---|---|---|---|
-| E4_t0_eda_w14336_selected8k | math128 | 128 / 1 | 24.0 [22.7, 25.4] |
-| E4_t0_eda_w4096_selected8k | math128 | 128 / 1 | 22.0 [20.7, 23.3] |
+| E4_t0_eda_w14336_selected8k | math128 | 128 / 2 | 23.8 [22.5, 25.1] |
+| E4_t0_eda_w4096_selected8k | math128 | 128 / 2 | 22.2 [21.0, 23.5] |
 | E4b_t0_full_random8k | math128 | 128 / 2 | 53.2 [52.0, 54.4] |
 | E4b_t0_full_selected8k | math128 | 128 / 2 | 38.6 [37.0, 40.2] |
-| E4_t0_eda_w14336_selected8k | speed128 | 128 / 1 | 36.7 [34.2, 39.1] |
-| E4_t0_eda_w4096_selected8k | speed128 | 128 / 1 | 34.0 [31.9, 36.2] |
+| E4_t0_eda_w14336_selected8k | speed128 | 128 / 2 | 36.8 [34.5, 39.2] |
+| E4_t0_eda_w4096_selected8k | speed128 | 128 / 2 | 33.7 [31.4, 35.8] |
 | E4b_t0_full_random8k | speed128 | 128 / 2 | 65.7 [63.5, 67.9] |
 | E4b_t0_full_selected8k | speed128 | 128 / 2 | 61.0 [57.9, 64.2] |
 
-Result status: 12 completed non-reference cells in this snapshot; no unfinished outcome inferred.
-GPU-hours: 13.2 completed, including failures; active runtime additional.
-Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261125_024027_708211/results.json
-Failed runs retained: [{"run": "E5_t0_timing_distilled_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2", "status": "failed"}]
+Result status: 16 completed non-reference cells in this snapshot; no unfinished outcome inferred.
+GPU-hours: 16.5 completed, including failures; active runtime additional.
+Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261126_025328_278105/results.json
+Failed runs retained: [{"run": "E5_t0_timing_distilled_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2_retry1", "status": "failed"}]
 
 ## E3 — Dedicated training cost
 Status: partial (E3b continuous scratch run training; no completed epoch/evaluation yet; E3a throughput data preparation remains)
@@ -217,7 +221,7 @@ E3b uses existing audited64k Alpaca+Dolly data, one20epoch cosine horizon, expor
 GPU-hours: failed attempt0.0245; active runtime recorded by the wrapper; no completed training-quality result claimed.
 
 ## E5 — Distilled independent drafter
-Status: acceptance complete;108/120 final timing processes complete;12R1 batch-1 jobs stopped at approved budget. Pilot; output mismatch audit in LANDED-20261125.md.
+Status: partial; automatic raw-counter reduction, pending operator completion check.
 All acceptance cells use frozen6da2e42/vLLM0.31.0/A40, greedy, batch8, cap512. MATH is first128. Intervals are paired10,000 query/seed bootstrap95%CIs. Smoke runs are excluded. Reference rows use the identical rendered prefix of current-campaign gate cells; hashes verified.
 
 R1-Distill-Llama:
@@ -481,6 +485,16 @@ Recipe: exact full-vocabulary forward KL,15744train/256heldout repair prompts pe
 
 | Target / panel / batch | Arm | Reference | Warm token speedup [95% CI] | Panel speedup [95% CI] | Processes / warm passes |
 |---|---|---|---|---|---|
+| 0 / math128 / b1 | distilled | none | 1.79 [1.77, 1.81] | 1.79 [1.77, 1.82] | 3 / 3 |
+| 0 / math128 / b1 | distilled | reuse | 1.20 [1.19, 1.22] | 1.21 [1.19, 1.22] | 3 / 3 |
+| 0 / math128 / b1 | distilled | full | 0.78 [0.77, 0.78] | 0.78 [0.77, 0.79] | 3 / 3 |
+| 0 / math128 / b1 | full | none | 2.31 [2.28, 2.34] | 2.31 [2.28, 2.34] | 3 / 3 |
+| 0 / math128 / b1 | full | reuse | 1.55 [1.54, 1.57] | 1.55 [1.53, 1.57] | 3 / 3 |
+| 0 / math128 / b1 | offtheshelf | none | 1.56 [1.54, 1.57] | 1.56 [1.54, 1.58] | 3 / 3 |
+| 0 / math128 / b1 | offtheshelf | reuse | 1.05 [1.03, 1.06] | 1.05 [1.03, 1.06] | 3 / 3 |
+| 0 / math128 / b1 | offtheshelf | full | 0.67 [0.67, 0.68] | 0.67 [0.67, 0.68] | 3 / 3 |
+| 0 / math128 / b1 | reuse | none | 1.49 [1.47, 1.50] | 1.49 [1.47, 1.51] | 3 / 3 |
+| 0 / math128 / b1 | reuse | full | 0.64 [0.64, 0.65] | 0.64 [0.64, 0.65] | 3 / 3 |
 | 0 / math128 / b8 | distilled | none | 1.61 [1.58, 1.64] | 1.61 [1.58, 1.64] | 3 / 3 |
 | 0 / math128 / b8 | distilled | reuse | 1.21 [1.17, 1.24] | 1.21 [1.18, 1.24] | 3 / 3 |
 | 0 / math128 / b8 | distilled | full | 0.78 [0.76, 0.80] | 0.78 [0.76, 0.80] | 3 / 3 |
@@ -491,6 +505,13 @@ Recipe: exact full-vocabulary forward KL,15744train/256heldout repair prompts pe
 | 0 / math128 / b8 | offtheshelf | full | 0.69 [0.67, 0.70] | 0.69 [0.67, 0.70] | 3 / 3 |
 | 0 / math128 / b8 | reuse | none | 1.33 [1.31, 1.36] | 1.33 [1.30, 1.36] | 3 / 3 |
 | 0 / math128 / b8 | reuse | full | 0.65 [0.63, 0.66] | 0.65 [0.63, 0.66] | 3 / 3 |
+| 0 / speed128 / b1 | distilled | none | 1.55 [1.53, 1.58] | 1.56 [1.53, 1.58] | 3 / 3 |
+| 0 / speed128 / b1 | distilled | reuse | 1.16 [1.13, 1.19] | 1.16 [1.13, 1.20] | 3 / 3 |
+| 0 / speed128 / b1 | distilled | full | 0.84 [0.80, 0.88] | 0.84 [0.80, 0.88] | 3 / 3 |
+| 0 / speed128 / b1 | full | none | 1.85 [1.76, 1.94] | 1.85 [1.75, 1.94] | 3 / 3 |
+| 0 / speed128 / b1 | full | reuse | 1.38 [1.35, 1.42] | 1.38 [1.34, 1.42] | 3 / 3 |
+| 0 / speed128 / b1 | reuse | none | 1.34 [1.30, 1.38] | 1.34 [1.29, 1.38] | 3 / 3 |
+| 0 / speed128 / b1 | reuse | full | 0.72 [0.70, 0.74] | 0.72 [0.70, 0.74] | 3 / 3 |
 | 0 / speed128 / b8 | distilled | none | 1.38 [1.33, 1.42] | 1.38 [1.34, 1.42] | 3 / 3 |
 | 0 / speed128 / b8 | distilled | reuse | 1.28 [1.19, 1.38] | 1.29 [1.20, 1.39] | 3 / 3 |
 | 0 / speed128 / b8 | distilled | full | 1.07 [0.93, 1.22] | 1.08 [0.93, 1.22] | 3 / 3 |
@@ -501,14 +522,6 @@ Recipe: exact full-vocabulary forward KL,15744train/256heldout repair prompts pe
 | 0 / speed128 / b8 | offtheshelf | full | 0.95 [0.82, 1.09] | 0.95 [0.82, 1.09] | 3 / 3 |
 | 0 / speed128 / b8 | reuse | none | 1.07 [0.99, 1.17] | 1.07 [0.98, 1.16] | 3 / 3 |
 | 0 / speed128 / b8 | reuse | full | 0.84 [0.78, 0.89] | 0.83 [0.77, 0.89] | 3 / 3 |
-| 0 / math128 / b1 | full | none | 2.31 [2.28, 2.34] | 2.31 [2.28, 2.34] | 3 / 3 |
-| 0 / math128 / b1 | full | reuse | 1.55 [1.54, 1.57] | 1.55 [1.53, 1.57] | 3 / 3 |
-| 0 / math128 / b1 | reuse | none | 1.49 [1.47, 1.50] | 1.49 [1.47, 1.51] | 3 / 3 |
-| 0 / math128 / b1 | reuse | full | 0.64 [0.64, 0.65] | 0.64 [0.64, 0.65] | 3 / 3 |
-| 0 / speed128 / b1 | full | none | 1.85 [1.76, 1.94] | 1.85 [1.75, 1.94] | 3 / 3 |
-| 0 / speed128 / b1 | full | reuse | 1.38 [1.35, 1.42] | 1.38 [1.34, 1.42] | 3 / 3 |
-| 0 / speed128 / b1 | reuse | none | 1.34 [1.30, 1.38] | 1.34 [1.29, 1.38] | 3 / 3 |
-| 0 / speed128 / b1 | reuse | full | 0.72 [0.70, 0.74] | 0.72 [0.70, 0.74] | 3 / 3 |
 | 1 / math128 / b1 | distilled | none | 1.74 [1.72, 1.77] | 1.74 [1.72, 1.77] | 3 / 3 |
 | 1 / math128 / b1 | distilled | reuse | 1.33 [1.31, 1.35] | 1.33 [1.31, 1.35] | 3 / 3 |
 | 1 / math128 / b1 | distilled | full | 0.79 [0.78, 0.80] | 0.79 [0.78, 0.80] | 3 / 3 |
@@ -561,9 +574,9 @@ R1 dedicated-gap recovery at matched K4; the ratio is recomputed in each paired 
 | offtheshelf_k4 | speed128 | 128 / 1 | 62.6 [56.5, 70.1] |
 
 Result status: 40 completed non-reference cells in this snapshot; no unfinished outcome inferred.
-GPU-hours: 119.8 completed, including failures; active runtime additional.
-Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261125_024027_708211/results.json
-Failed runs retained: [{"run": "E5_t0_timing_distilled_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2", "status": "failed"}]
+GPU-hours: 134.4 completed, including failures; active runtime additional.
+Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261126_025328_278105/results.json
+Failed runs retained: [{"run": "E5_t0_timing_distilled_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2_retry1", "status": "failed"}]
 
 ## E6 — Tree drafting
 Status: not run (preflight and reproduction in progress)

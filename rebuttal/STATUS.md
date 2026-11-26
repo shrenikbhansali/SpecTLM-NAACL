@@ -1,5 +1,10 @@
 # Rebuttal status
 
+### 2026-11-26T15:35:06-05:00 — codex-1 — trained comparisons landed;3startup retries running
+Finished: EDA seed1 both widths and evaluations; all trained1B timing including R1b1. Independent raw reduction exactly matches automatic results:76acceptance records,77timing contrasts. R1 ReFit/distilled throughput b1:1.19[1.14,1.24]SPEED,1.29[1.28,1.30]MATH, n128 each. EDA2seed matched-data ReFit delta tau+.260[.228,.290]SPEED,+.282[.256,.309]MATH. Allpilot; output-divergence qualification retained. [Evidence](LANDED-20261126.md).
+Running: canonical queue1202986; scratch srv4:1, last off-the-shelf timing retry2 srv4:0, E3a generation512/2048 retries srv4:2/3, launched15:33. Three prior attempts failed startup free-memory check; same settings/input hashes, newdirs, oldfailures/costs retained. E5cost134.382/150GPUh before retry, E4=16.519/18.75, E3a~.05/37.5.
+Remaining: scratch next exportepoch5 expected Friday morning at currentpace, mandatoryNov28noon stop; E3a response/mask audits and200step throughput trainings; output divergence diagnostic; E6/E8/P2 integration. Same8kinterface-vs-EDA control is proposed only. No paper edits.
+
 ### 2026-11-25T20:24:35-05:00 — codex-1 — quick audit delivered; remaining jobs advancing
 Audit: [reviewer strategy](REBUTTAL-STRATEGY-20261125.md). Independently derived interface/whole-LoRA improvement ratio92.5–94.6% across4panels/3seeds; absolute LoRA advantage retained. All findings pilot.
 Running: scratch plus3R1 b1 timing retries on4A40s. Queued:9remaining timing retries, both EDA widths seed1,2E3a generation caps. Canonical queue1202986; E5guard150GPUh, E4guard18.75, E3aguard37.5. E3a2000prompt mixture prepared and five prompts inspected; response/mask audit and throughput training still pending. Timing output divergence diagnostic remains open. Paper untouched.
