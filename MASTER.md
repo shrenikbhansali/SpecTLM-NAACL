@@ -326,7 +326,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
 | REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | review | codex-1 / 2026-10-12T16:13:06.386247-04:00 | [report](reports/REV5-EDA-comparison-20261012.md); full paper + pinned code audit, CPU algebra check; paper untouched |
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
-| REBUTTAL | Owner Nov24 plan E1–E10: reproduce, build and run prioritized rebuttal experiments | P0 | codex | owner handoff | Nov28 EOD ET | in progress | codex-1 / 2026-11-26T16:07:09-05:00 | [Planner handoff ready](rebuttal/HANDOFF-TO-PLANNER-20261126.md); verified results, full E1–E10 status and remaining work; execution continues. |
+| REBUTTAL | Owner Nov26 update: E4c, timing divergence, E3 and E8-lite | P0 | codex | D-61 | Nov28 EOD ET | in progress | codex-1 / 2026-11-26T16:56:32-05:00 | [updated scope](rebuttal/PLANNER-UPDATE-20261126.md); claiming6E4cruns,CPUtiming characterization andE3; E6/E7/E9dropped. |
 
 ---
 
@@ -1099,6 +1099,7 @@ citing where it was stated.*
 | D-59 | 2026-11-24 | **Owner direct, approved17:04ET: raise rebuttal E5 to120 A40 GPU-hours to finish the distilled1B training/selection/acceptance/timing comparison.** Supersedes the handoff12GPUh budget plus25% allowance for E5 only. Same fixed held-out selection, frozen acceptance and three-process timing protocol; all outcomes reported. Live guard updated without interrupting workers. [receipt](rebuttal/E5_budget_20261124/approval-120.json); [journal](rebuttal/JOURNAL.md). | Decided |
 
 | D-60 | 2026-11-25 | **Owner direct, after the budget-stop/results update: "Go ahead and finish whatever else needs to run".** Authorizes completing the remaining rebuttal work, including the12E5 R1b1 timing retries identified as budget-blocked. Operator sets a bounded E5 guard of150A40GPUh (estimated18–22additional, not an owner-specified numeric cap); unchanged recipes/selection, new immutable retry dirs, all prior costs counted. Continue remaining E3a/P1 work under their existing limits. [journal](rebuttal/JOURNAL.md). | Decided |
+| D-61 | 2026-11-26 | **Owner-approved planner update:** E4c matched-capacity2x2(15GPUh), timing-divergence audit before E5use(dueNov27noon), finishE3 andCPUreport additions; E8-liteR1only12GPUh afterP0running/idleGPU. DropE6/E7/E9,EDAnative20ep,EDAseed2; noSGLang. Nov28EODdeadline, no paper/posting. [exact scope](rebuttal/PLANNER-UPDATE-20261126.md). | Decided |
 
 ---
 
