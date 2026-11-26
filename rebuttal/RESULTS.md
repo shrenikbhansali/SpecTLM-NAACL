@@ -97,15 +97,16 @@ Sources: E2/reduction_20261125_2010/results.json and CSV; independent raw-counte
 
 Derived capacity-control summary (all three paired seeds, n128 per panel): dense-interface repair retains93.4%[90.7,96.0] of whole-LoRA's improvement over reuse on R1SPEED,92.5%[90.7,94.5] on R1MATH,93.0%[89.9,96.5] on NemotronSPEED,94.6%[93.1,96.1] on NemotronMATH. Definition=(tau_interface−tau_reuse)/(tau_whole_LoRA−tau_reuse), recomputed in every paired seed/query bootstrap sample. This is a descriptive secondary ratio, not noninferiority or a claim that interface beats whole-LoRA. Absolute differences remain above. Source:review_audit_20261125/derived.json and reduce.py.
 
-## E3b — scratch curve in progress
-Status: partial; continuous scratch training running. Fixed20epoch cosine schedule, intermediate checkpoints are not separately annealed runs. n128,seed0,greedyK4,frozen0.31/A40.
+## E3b — continuous scratch curve
 
-| Epoch | SPEED tau [95%CI] | MATH tau [95%CI] |
-|---|---|---|
-| 1 | 1.75 [1.70,1.79] | 1.98 [1.94,2.02] |
-| 2 | 1.93 [1.87,1.98] | 2.31 [2.26,2.35] |
+Pilot; fixed20epoch cosine schedule, one uninterrupted seed0 run. Intermediate exports are not independently annealed short runs. Stop no later than Nov28 noon ET. Frozen K4 acceptance, n=128 per panel; query bootstrap95%CIs.
 
-Current warm-full references are2.52SPEED/2.99MATH on the same panels; both scratch points remain lower. Cumulative checkpointGPUh and later checkpoints pending. Source:landed_audit_20261125/results.json.
+| Epoch | Cumulative train GPU-h | SPEED tau | MATH tau |
+|---|---:|---:|---:|
+| 1 | 14.107 | 1.745 [1.702, 1.787] | 1.981 [1.943, 2.017] |
+| 2 | 27.331 | 1.926 [1.875, 1.976] | 2.306 [2.265, 2.347] |
+
+Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/analysis/results.json. Raw p1, counters and hashes retained in JSON. Existing watcher evaluates every scheduled completed export; unexported epochs have no inferred acceptance.
 
 ## E4 — EDA baseline
 Status: partial; automatic raw-counter reduction, pending operator completion check.
@@ -212,7 +213,7 @@ R1 dedicated-gap recovery at matched K4; the ratio is recomputed in each paired 
 
 Result status: 16 completed non-reference cells in this snapshot; no unfinished outcome inferred.
 GPU-hours: 16.5 completed, including failures; active runtime additional.
-Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261126_170336_932613/results.json
+Sources: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/E45/results.json
 Failed runs retained: [{"run": "E5_t0_timing_distilled_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2_retry1", "status": "failed"}]
 
 ## E3 — Dedicated training cost
@@ -578,7 +579,7 @@ R1 dedicated-gap recovery at matched K4; the ratio is recomputed in each paired 
 
 Result status: 40 completed non-reference cells in this snapshot; no unfinished outcome inferred.
 GPU-hours: 135.9 completed, including failures; active runtime additional.
-Sources: /home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645/20261126_170336_932613/results.json
+Sources: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/E45/results.json
 Failed runs retained: [{"run": "E5_t0_timing_distilled_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_distilled_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_math128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r0", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r1", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2", "status": "failed"}, {"run": "E5_t0_timing_offtheshelf_speed128_b1_r2_retry1", "status": "failed"}]
 
 ## E6 — Tree drafting
@@ -626,7 +627,7 @@ Pilot; n=64 paired contexts per target, 10,000 sequence resamples. Values a–d 
 | deepseek-ai/DeepSeek-R1-0528-Qwen3-8B | 58.105 [55.008, 60.922] | 51.344 [48.400, 54.204] | 52.858 [49.972, 55.525] | 52.403 [49.442, 55.219] | -5.701 [-6.447, -4.954] | -0.186 [-0.288, -0.096] |
 | shufanshen/Qwen3-8B-GRPO-DeepMath-50-steps | 65.916 [63.013, 68.744] | 65.873 [62.957, 68.685] | 65.863 [62.982, 68.677] | 65.875 [62.993, 68.676] | -0.041 [-0.242, 0.163] | -0.053 [-6.855, 8.672] |
 
-The requested ratio is recomputed from macro contrasts in each paired resample; it is not the prior averaged-feature share. A denominator CI crossing zero makes the ratio unstable (see JSON flags); it is not a percentage of an identified causal mechanism. No additional GPU runs. Source: /home/heck2/sbhansali8/ReFit/rebuttal/planner_analysis_20261126_1730/results.json.
+The requested ratio is recomputed from macro contrasts in each paired resample; it is not the prior averaged-feature share. A denominator CI crossing zero makes the ratio unstable (see JSON flags); it is not a percentage of an identified causal mechanism. No additional GPU runs. Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/analysis/results.json.
 
 ## E2-restoration — checkpoint interventions
 
@@ -647,7 +648,7 @@ Pilot; three paired training seeds, n=128 queries per seed and panel. All differ
 | Nemotron | math128 | interface only; restore all other weights | 2.054 [2.026, 2.085] | -0.688 [-0.713, -0.662] |
 | Nemotron | math128 | all except interface; restore interface | 2.546 [2.506, 2.587] | -0.197 [-0.215, -0.177] |
 
-Only audited corrected shard exports are included. Independent raw-counter reduction; source: /home/heck2/sbhansali8/ReFit/rebuttal/planner_analysis_20261126_1730/results.json.
+Only audited corrected shard exports are included. Independent raw-counter reduction; source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/analysis/results.json.
 
 ## E3-cost — measured scratch and data costs
 
@@ -659,7 +660,7 @@ Original generation logs are present for all 64,000 examples: **36.078938 A40 GP
 | 2 | 36886 | 27.330982 | 36.078938 | 63.409920 |
 
 sum of recorded successful generation wall_s on one A40 per shard; training is cumulative trainer elapsed_s on one A40 including initialization/checkpoint exports, excluding outer launch wrapper, acceptance and failed attempts; no inferred missing times.
-existing16k Alpaca +48k Alpaca/Dolly extension; continuous20epoch cosine schedule; mandatory stop Nov28 noon ET. Epoch-5 evaluation is already wired to the existing export watcher. E3a’s separate one-epoch lower-bound extrapolation awaits measured 200-step training runs. Source: /home/heck2/sbhansali8/ReFit/rebuttal/planner_analysis_20261126_1730/results.json.
+existing16k Alpaca +48k Alpaca/Dolly extension; continuous20epoch cosine schedule; mandatory stop Nov28 noon ET. Epoch-5 evaluation is already wired to the existing export watcher. E3a’s separate one-epoch lower-bound extrapolation awaits measured 200-step training runs. Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/analysis/results.json.
 
 ## E4-selected50M — explicit paired comparison with full repair
 
@@ -670,7 +671,7 @@ Pilot; same EDA-selected 8k, same native recipe/steps, paired seeds 0 and 1, n=1
 | math128 | 2.344 [2.310, 2.377] | 2.655 [2.618, 2.691] | 0.311 [0.290, 0.333] |
 | speed128 | 2.144 [2.085, 2.201] | 2.437 [2.363, 2.508] | 0.293 [0.267, 0.317] |
 
-All intervals are paired seed/query bootstrap 95% CIs. Source: /home/heck2/sbhansali8/ReFit/rebuttal/planner_analysis_20261126_1730/results.json.
+All intervals are paired seed/query bootstrap 95% CIs. Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/analysis/results.json.
 
 ## E4c — capacity-matched method × subset comparison
 
@@ -691,7 +692,7 @@ Pilot. ReFit-interface: 50,331,648 parameters; EDA50M: 50,339,840 (routing accou
 | math128 / random | pending | pending |
 
 New E4c completed cost 0.000/15 GPU-h; active time is additional and enforced by the live guard. Historical selected EDA is reused, not charged again. Old automatic E4 rows may include E4c because the exact pipeline retains experiment=E4; this E4c prefix accounting is the separate approved budget.
-Source: /home/heck2/sbhansali8/ReFit/rebuttal/planner_analysis_20261126_1730/results.json.
+Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/analysis/results.json.
 
 ## Timing-divergence — required E5 characterization
 
@@ -729,3 +730,25 @@ The newly requested one-prompt, same-process no-spec three-repeat check is queue
 
 Final numbers: Nov28 EOD ET. E6, E7, E9, EDA native20epoch schedule and EDA seed2: **not run for the response**, per owner-approved Nov26 scope. No SGLang integration. E8-lite is conditional P1, R1 only, 12GPUh; its results remain pending and will be marked not run if not final by the deadline. No paper edits or OpenReview posting.
 
+
+
+## E3a-throughput — measured training and labelled extrapolation
+
+Pilot. Three separate200-step scratch trials with native objective and2048 shifted-token ceiling. Both all200-step and steady180-step rates are retained; lower-bound projection uses steps21–200, including online target capture. Actual trial GPUh includes initialization/export overhead. Native source model revision is not published; exact answer text is pinned by dataset revision.
+
+| Data | n | Actual trial GPU-h | All200 tokens/GPU-h | Steady180 tokens/GPU-h | Truncated / 2000 |
+|---|---:|---:|---:|---:|---:|
+
+| Response cap | Generation532k GPU-h | Regenerated training532k GPU-h | Native training114k GPU-h | One-epoch total GPU-h |
+|---|---:|---:|---:|---:|
+
+All projected cells are **extrapolated from measured throughput; one epoch; lower bound**, under the recorded truncation policy. This is not a measured reproduction of the dedicated checkpoint. Missing trials remain pending. Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/throughput/results.json.
+
+## E8-lite — conditional multilingual repair
+
+R1 only, seed0. Replace4000 uniformly chosen Alpaca instruction indices with4000 Aya instructions, retaining12000 original responses. Six language labels match the12 SPEED multilingual queries: Arabic, English (including translation requests), French, Spanish, Thai, Vietnamese. Counts and fixed held-out128 allocation are in E8_lite_inputs_20261126/manifest.json. All new training/evaluation queries deduplicated against existing evaluation and full English-only training data; disjoint Aya panel. No language chosen from evaluation outcomes.
+
+| Panel | Reference | n | Mixed tau | Paired mixed minus reference tau |
+|---|---|---:|---:|---:|
+
+Pending until audited generation, training and frozen acceptance finish. Budget12GPUh; no completion is inferred. If not final by Nov28 EOD, status for the response is not run. Source: /home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/20261126_172132_927481/E8-lite-results.json.

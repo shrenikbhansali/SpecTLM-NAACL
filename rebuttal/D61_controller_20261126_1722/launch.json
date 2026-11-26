@@ -1,0 +1,34 @@
+[
+  {
+    "name": "budget",
+    "pid": 2891925,
+    "command": [
+      "/home/heck2/sbhansali8/ReFit/.venv-transport/bin/python",
+      "-u",
+      "-m",
+      "rebuttal.budget_guard",
+      "--workspace",
+      "/home/heck2/sbhansali8/ReFit",
+      "--control",
+      "/home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/E8-control.json",
+      "--output",
+      "/home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722/E8-budget"
+    ],
+    "cwd": "/home/heck2/sbhansali8/ReFit/rebuttal/worktrees/d61-watch-20261126"
+  },
+  {
+    "name": "watch",
+    "pid": 2891926,
+    "command": [
+      "/home/heck2/sbhansali8/ReFit/.venv-transport/bin/python",
+      "-u",
+      "-m",
+      "rebuttal.d61_watch",
+      "--output",
+      "/home/heck2/sbhansali8/ReFit/rebuttal/D61_controller_20261126_1722",
+      "--code",
+      "/home/heck2/sbhansali8/ReFit/rebuttal/worktrees/d61-20261126"
+    ],
+    "cwd": "/home/heck2/sbhansali8/ReFit/rebuttal/worktrees/d61-watch-20261126"
+  }
+]

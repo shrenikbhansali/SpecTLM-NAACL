@@ -1,0 +1,11 @@
+{
+  "prefix": "E8lite",
+  "limit_gpu_hours": 12,
+  "cancel_file": "/home/heck2/sbhansali8/ReFit/rebuttal/budget_control_20261124/cancel-pending.json",
+  "modules": [
+    "followspec.repair_data",
+    "followspec.family_repair",
+    "atlas.frozen_baselines",
+    "atlas.run_cell"
+  ]
+}

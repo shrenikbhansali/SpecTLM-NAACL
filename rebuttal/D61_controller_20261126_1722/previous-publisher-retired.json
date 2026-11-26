@@ -1,0 +1,17 @@
+{
+  "pid": 1314126,
+  "command": [
+    "/home/heck2/sbhansali8/ReFit/.venv-transport/bin/python",
+    "-u",
+    "-m",
+    "rebuttal.watch_e45",
+    "--workspace",
+    "/home/heck2/sbhansali8/ReFit",
+    "--output",
+    "/home/heck2/sbhansali8/ReFit/rebuttal/E45_analysis_watch_20261124_1645",
+    "--publish",
+    ""
+  ],
+  "reason": "replace CPU publisher with single D61 publisher covering E4/E5 plus new controls; GPU queue and dependency controller untouched",
+  "time": "2026-11-26T17:21:32.653743-05:00"
+}
