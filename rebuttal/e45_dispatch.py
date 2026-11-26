@@ -42,19 +42,25 @@ def choose_k(records,heldout_ids):
 def read_rows(p):return [json.loads(x) for x in Path(p).read_text().splitlines()]
 
 
-def dispatch_rank(name):
+def dispatch_rank(name,deadline_priority=False):
+ if deadline_priority:
+  if name.startswith('TD_'):return -3
+  if name.startswith('E3a_t0_throughput200_'):return -2
+  if name.startswith('E3b_') and any(p in name for p in ['speed128','math128']):return -1
+  if name.startswith('E4c_') and any(p in name for p in ['speed128','math128']):return 0
  if name in ['E4_t0_reference_cache_s0','E4_t0_selection_s0']:return 0
  if name.startswith('E4') and ('selected8k' in name or 'random8k' in name):return 1
  if name.startswith('E5') and ('_student_' in name or '_validation256' in name):return 2 if name.startswith('E5_t0_') else 3
  return 4
 
 
-def prioritize_ready(stage):
+def prioritize_ready(stage,deadline_priority=False):
  # Only order changes. Every job identity and argument remains byte-for-byte.
  with (CANONICAL.parent/'append.lock').open('a') as lock:
-  fcntl.flock(lock,fcntl.LOCK_EX);jobs=read_rows(CANONICAL);ordered=sorted(jobs,key=lambda j:dispatch_rank(j['name']))
+  fcntl.flock(lock,fcntl.LOCK_EX);jobs=read_rows(CANONICAL);ordered=sorted(jobs,key=lambda j:dispatch_rank(j['name'],deadline_priority))
   if jobs==ordered:return
-  stamp=str(time.time_ns());write_immutable(stage/('order-'+stamp+'.json'),{'before':[j['name'] for j in jobs],'after':[j['name'] for j in ordered],'reason':'ready E4 selection/training and E5 training before acceptance/timing sweeps; no running job interrupted'})
+  reason='deadline priority: short determinism/throughput checks and ready checkpoint evaluations before pending training; no running job interrupted' if deadline_priority else 'ready E4 selection/training and E5 training before acceptance/timing sweeps; no running job interrupted'
+  stamp=str(time.time_ns());write_immutable(stage/('order-'+stamp+'.json'),{'before':[j['name'] for j in jobs],'after':[j['name'] for j in ordered],'reason':reason})
   temp=CANONICAL.with_name('jobs.priority-'+stamp+'.tmp');temp.write_text(''.join(json.dumps(j)+'\n' for j in ordered));os.replace(temp,CANONICAL)
 
 
@@ -222,12 +228,13 @@ def advance_phases(stage,phases):
 
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--code',type=Path,required=True);p.add_argument('--student',type=Path,required=True);p.add_argument('--once',action='store_true');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--code',type=Path,required=True);p.add_argument('--student',type=Path,required=True);p.add_argument('--once',action='store_true');p.add_argument('--deadline-priority',action='store_true');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
  with (a.output/'controller.lock').open('a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   def dispatch(make):
    jobs=make()
-   if jobs:submit(a.output,jobs);prioritize_ready(a.output)
+   if jobs:submit(a.output,jobs)
+   prioritize_ready(a.output,a.deadline_priority)
   while True:
    ok=advance_phases(a.output,[('E4',lambda:dispatch(lambda:advance_eda(a.output,a.code))),('E5',lambda:dispatch(lambda:advance_student(a.output,a.code,a.student))),('offtheshelf',lambda:dispatch(lambda:advance_offtheshelf(a.output,a.code,a.student)))])
    if a.once:

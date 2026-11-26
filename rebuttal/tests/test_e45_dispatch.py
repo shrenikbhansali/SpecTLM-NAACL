@@ -36,3 +36,14 @@ class E45DispatchTests(unittest.TestCase):
   names=['E5_t0_offtheshelf_k2_speed128_s0','E5_t0_student_lr1e-05_ep1_s0','E4_t0_selection_s0']
   self.assertEqual(sorted(names,key=dispatch_rank),list(reversed(names)))
   self.assertLess(dispatch_rank('E5_t0_student_lr1e-05_ep1_s0'),dispatch_rank('E5_t1_student_lr1e-05_ep3_s0'))
+ def test_deadline_priority_is_opt_in_and_preserves_training_rank(self):
+  training='E4c_t0_interface_random8k_s0'
+  checks=['TD_t0_none_sameprocess_threewarm_20261126',
+          'E3a_t0_throughput200_native_s0',
+          'E3b_t0_scratch20ep_s0_gcc13_epoch5_speed128',
+          'E4c_t0_interface_selected8k_s0_math128']
+  self.assertEqual(dispatch_rank(training),dispatch_rank(training,deadline_priority=True))
+  for name in checks:
+   self.assertLess(dispatch_rank(name,deadline_priority=True),dispatch_rank(training,deadline_priority=True))
+  self.assertGreater(dispatch_rank(checks[0]),dispatch_rank(training))
+  self.assertEqual(dispatch_rank('E8lite_t0_full_mixed16k_s0',deadline_priority=True),4)
