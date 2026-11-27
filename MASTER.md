@@ -83,14 +83,14 @@ Deadline: **ARR submission, Monday October 12, 2026, 11:59 pm AoE**
 
 | Field | Value |
 | --- | --- |
-| Last updated | 2026-11-26T15:35:06-05:00 (codex-1 builder/operator) |
+| Last updated | 2026-11-27T16:36:55.614828-05:00 (codex-1 builder/operator) |
 | Sprint day | ARR rebuttal phase; P0 targetNov27, finalNov28 EOD ET |
-| Next gate | E2 complete; E4 two-seed verification complete; trained1B timing complete;119/120total timing processes. Finish1off-the-shelf repeat, E3cost work and output-divergence audit. |
+| Next gate | D61/D62 P0 raw results complete and published10:40ET Nov27; independent operator verification underway. E8 optional multilingual repair pending. |
 | Paper framing | **Official pivot D-45:** family drafters (EAGLE-3/DFlash) on post-trained derivatives. Distillation/off-lineage post-training breaks them (−14…−30% per-token); on-policy RL largely does not; a dedicated drafter recovers ×1.65 τ. Method: cheap training-set-free repair (interface `fc` re-fit) vs oracle; triage; economics. [plan](reports/PAPER-PLAN-v3.md) |
 | Experiment pause marker | **Lifted 17:32 ET** by codex-1 on owner authorization (§13 D-12) |
-| Jobs running | ONE canonical queue1202986: scratch srv4:1,1off-the-shelf timing retry srv4:0, E3a generation512/2048 retries srv4:2/3. CPU controller/publisher active. |
-| Blockers | Previous3attempts failed engine startup free-memory checks; unchanged retries launched15:33. Timing-output diagnostic and E3a training integration unfinished. [Landed](rebuttal/LANDED-20261126.md). |
-| Owner action needed | None for approved work; E5guard150GPUh, E4guard18.75,E3aguard37.5.4A40s active; other historical slots occupied. |
+| Jobs running | ONE canonical queue1202986; scratch continues srv4:1 to original Nov28noon stop. Optional E8 data complete; releasing audited training. |
+| Blockers | No P0 execution blocker. Timing output divergence persists across fresh processes and remains reported. E8 waited for manual response audit after23:27 completion. |
+| Owner action needed | None for approved work. E4c11.343/15GPUh complete; E8 cap12 unchanged. |
 
 ---
 
@@ -326,7 +326,8 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | REV5-COMP | Audit competing-method feasibility and elapsed estimates (EDA prioritized) | P0 | codex | owner query2026-10-12 | immediate | review | codex-1 / 2026-10-12T16:03:24.580288-04:00 | [audit](reports/REV5-competitor-feasibility-20261012.md); primary-source/repository inspection, no new jobs |
 | REV5-EDA | In-depth EDA paper/code comparison and manuscript-ready differentiation memo | P0 | codex | owner request | immediate | review | codex-1 / 2026-10-12T16:13:06.386247-04:00 | [report](reports/REV5-EDA-comparison-20261012.md); full paper + pinned code audit, CPU algebra check; paper untouched |
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
-| REBUTTAL | Owner Nov26 update: E4c, timing divergence, E3 and conditional E8-lite | P0 | codex | D-61 / D-62 | Nov27 noon ET | in progress | codex-1 / 2026-11-26T17:45:52.033897-05:00 | codex-1 / 2026-11-26T17:47:32.224140-05:00
+| REBUTTAL | D61/D62 P0 comparisons, timing diagnostics and scratch/cost checks | P0 | codex | D-61 / D-62 | Nov27 noon ET | in progress | codex-1 / 2026-11-27T16:36:55.614828-05:00 | All required raw results published10:40ET; independent operator verification now. [results](rebuttal/RESULTS.md); [journal](rebuttal/JOURNAL.md). |
+| REBUTTAL-E8 | Conditional multilingual mixed16k repair and paired evaluation | P1 | codex | REBUTTAL / D-61 | Nov28 EOD ET | in progress | codex-1 / 2026-11-27T16:36:55.614828-05:00 | Aya4k generation complete; five decoded responses/masks inspected; audit and training release now. [journal](rebuttal/JOURNAL.md). |
 
 ---
 
