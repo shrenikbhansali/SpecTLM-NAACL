@@ -328,7 +328,7 @@ Status values: `todo` · `in progress` · `blocked` · `review` · `done` ·
 | CLEANUP-1 | Post-submission disk reclamation: manifest deletions and regeneration recipes; preserve paper and raw evidence | P0 | codex | owner 2026-10-23 authorization | now | in progress | codex-1 / 2026-10-23T14:31:32.049673-04:00 | [journal](notes/CLEANUP-1.md); [deletion report](reports/CLEANUP-20261023.md) |
 | REBUTTAL | D61/D62 P0 comparisons, timing diagnostics and scratch/cost checks | P0 | codex | D-61 / D-62 | Nov27 noon ET | review | codex-1 / 2026-11-27T16:41:44.803925-05:00 | Complete10:40ET; operator raw rerun exactmatch,78tests. [results](rebuttal/RESULTS.md); [completion](rebuttal/verify_P0_20261127_1640/completion.json). |
 | REBUTTAL-E8 | Conditional multilingual mixed16k repair and paired evaluation | P1 | codex | REBUTTAL / D-61 | Nov28 EOD ET | in progress | codex-1 / 2026-11-27T16:41:44.803925-05:00 | Aya4k data audited; mixed16k training launched16:38srv4:0; ETA20–21ET. [journal](rebuttal/JOURNAL.md). |
-| REBUTTAL-HANDOFF | Updated self-contained return to rebuttal planning agent | P0 | codex | REBUTTAL | now | in progress | codex-1 / 2026-11-27T17:14:44.656953-05:00 | Supersede Nov26 snapshot with verified P0, timing diagnostic, current E8 and dropped scope. |
+| REBUTTAL-HANDOFF | Updated self-contained return to rebuttal planning agent | P0 | codex | REBUTTAL | now | review | codex-1 / 2026-11-27T17:17:44.516025-05:00 | [Updated Nov27 handoff](rebuttal/HANDOFF-TO-PLANNER-20261127.md);24links and26numericcells validated; P0complete, optionalE8pending. |
 
 ---
 
