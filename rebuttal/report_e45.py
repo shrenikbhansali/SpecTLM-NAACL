@@ -44,7 +44,7 @@ def wide_acceptance(records, experiment):
 def section(data, experiment, source):
     title = 'EDA baseline' if experiment == 'E4' else 'Distilled independent drafter'
     lines = [f'## {experiment} — {title}',
-             'Status: partial; automatic raw-counter reduction, pending operator completion check.',
+             'Status: pilot snapshot; only completed cells are shown. Operator verification is recorded separately.',
              'All acceptance cells use frozen6da2e42/vLLM0.31.0/A40, greedy, batch8, cap512. '
              'MATH is first128. Intervals are paired10,000 query/seed bootstrap95%CIs. '
              'Smoke runs are excluded. Reference rows use the identical rendered prefix of current-campaign gate cells; hashes verified.', '']

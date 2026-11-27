@@ -1,0 +1,142 @@
+{
+  "status": "P0 complete; pilot; operator verified",
+  "at": "2026-11-27T16:40:12.447882-05:00",
+  "last_required_cell_completed_et": "2026-11-27T10:39:45-05:00",
+  "published_et": "2026-11-27T10:40:11-05:00",
+  "required_new_jobs": [
+    {
+      "name": "E3a_t0_throughput200_cap2048_s0",
+      "gpu_h": 0.21126673384783012,
+      "metrics_sha256": "6cdee0f1d2b6e956169c34279f83b262aba734b3656e500fa97afb11abcc2384"
+    },
+    {
+      "name": "E3a_t0_throughput200_cap512_s0",
+      "gpu_h": 0.18956959594836614,
+      "metrics_sha256": "10cc373be097f5a04ad3f868309bf4b34596424efd4ec10d136136c1bebbe2e4"
+    },
+    {
+      "name": "E3a_t0_throughput200_native_s0",
+      "gpu_h": 0.1862140813966592,
+      "metrics_sha256": "2d997f91860413fe0d98d0a005bc42e9028c7b3b64786f2fdb8ac7fa189be17d"
+    },
+    {
+      "name": "E3b_t0_scratch20ep_s0_gcc13_all_step92175_math128",
+      "gpu_h": 0.10181549235609257,
+      "metrics_sha256": "da9c4129bc17cd70c825692f2ddc658644ccbebc318ead2c71103a674d1293a7"
+    },
+    {
+      "name": "E3b_t0_scratch20ep_s0_gcc13_all_step92175_speed128",
+      "gpu_h": 0.12384546652358647,
+      "metrics_sha256": "22195b999b82473dbae7e19bea5c915b214a5e3ffcd21b2513482d7ff88ef2a9"
+    },
+    {
+      "name": "E4c_t0_eda50m_random8k_s0",
+      "gpu_h": 1.7795688518186539,
+      "metrics_sha256": "97bdb804b878c4d7fe80e734b1b9afa4b9ccf735b9cf0f824d3a8b553a51cdaa"
+    },
+    {
+      "name": "E4c_t0_eda50m_random8k_s0_math128",
+      "gpu_h": 0.0834676146197469,
+      "metrics_sha256": "ec38ba439462a652aadf5c6c3b1f99f6b95194e224a6a40296ec237294beffa2"
+    },
+    {
+      "name": "E4c_t0_eda50m_random8k_s0_speed128",
+      "gpu_h": 0.1044691386049898,
+      "metrics_sha256": "e20ffa1a5735e01803c79a0bfc3a3fca347f1b6fb8b719f9b520c3e4ce328e87"
+    },
+    {
+      "name": "E4c_t0_eda50m_random8k_s1",
+      "gpu_h": 1.5011234736769175,
+      "metrics_sha256": "c55a464fb1f2b6a9eb113c2a1bec5288312649520bd85ec4548802cbe6dc6c79"
+    },
+    {
+      "name": "E4c_t0_eda50m_random8k_s1_math128",
+      "gpu_h": 0.07946124522888567,
+      "metrics_sha256": "b1879d38500684fdd9fd97be7d44395a70fb387d7c22f92bb6e21e5a250be5b0"
+    },
+    {
+      "name": "E4c_t0_eda50m_random8k_s1_speed128",
+      "gpu_h": 0.09964994947697657,
+      "metrics_sha256": "33c7c3ef9b237f1cca4aa341f5ff50457f9e7c0ae38a86c2cc4a992469121395"
+    },
+    {
+      "name": "E4c_t0_interface_random8k_s0",
+      "gpu_h": 1.711173874657834,
+      "metrics_sha256": "85e647971235c7a54d9484d97b80e389fa5f11ea95fe87182c4778fbea6b9442"
+    },
+    {
+      "name": "E4c_t0_interface_random8k_s0_math128",
+      "gpu_h": 0.0795912435930869,
+      "metrics_sha256": "7a0428a0e0d219746fc2820b96a37827b557627c016fcd8a88e0b9de7e1c5120"
+    },
+    {
+      "name": "E4c_t0_interface_random8k_s0_speed128",
+      "gpu_h": 0.1018387932163508,
+      "metrics_sha256": "87456c9de2c932cce555f5ac4fc3bf80c4b97c0f7df3fddc7fac6dae1c95be09"
+    },
+    {
+      "name": "E4c_t0_interface_random8k_s1",
+      "gpu_h": 1.8802399422957872,
+      "metrics_sha256": "9f13fce384181acaa59e5dcb0878c36408b880bd53ee0d5d39dc4fff94406df8"
+    },
+    {
+      "name": "E4c_t0_interface_random8k_s1_math128",
+      "gpu_h": 0.08353511293522185,
+      "metrics_sha256": "d5a32b31040739be446ed4dd56513e10c890c00856318ce7dcba601a9e45ed1f"
+    },
+    {
+      "name": "E4c_t0_interface_random8k_s1_speed128",
+      "gpu_h": 0.0989303107788631,
+      "metrics_sha256": "ddae17f71c5d8a5c1fd97735536a040e225dd7cfd366e65ee02ed767787c3ea6"
+    },
+    {
+      "name": "E4c_t0_interface_selected8k_s0",
+      "gpu_h": 1.592462207179439,
+      "metrics_sha256": "d4ef1340d2cdee4c413cb5adca767a74542b0918c705245c037e4f7d54371faa"
+    },
+    {
+      "name": "E4c_t0_interface_selected8k_s0_math128",
+      "gpu_h": 0.07903503114111825,
+      "metrics_sha256": "a0f8ee59443a826738409da4213ad828e753ec40e6ff7f973c71dd86b136b056"
+    },
+    {
+      "name": "E4c_t0_interface_selected8k_s0_speed128",
+      "gpu_h": 0.10006137582247093,
+      "metrics_sha256": "08603278f617ab420eadc2a48053a3c202436ea011e84c22fffd7a7064699f1a"
+    },
+    {
+      "name": "E4c_t0_interface_selected8k_s1",
+      "gpu_h": 1.7943585345410975,
+      "metrics_sha256": "fffc574b98a55fe7c4cb54a008488c2e495fe99eeb4ddf19df6ab8b78c74821b"
+    },
+    {
+      "name": "E4c_t0_interface_selected8k_s1_math128",
+      "gpu_h": 0.07694244882525203,
+      "metrics_sha256": "d281d159c8daa87df639ad8ebda8921b0db9ed5677deb345753ee85fd23d9b31"
+    },
+    {
+      "name": "E4c_t0_interface_selected8k_s1_speed128",
+      "gpu_h": 0.09659539405754508,
+      "metrics_sha256": "a90255e4e89eff9ae10b0be4ff79ff27771a1390aebea3ba326727a307572039"
+    },
+    {
+      "name": "TD_t0_none_sameprocess_threewarm_20261126",
+      "gpu_h": 0.044332170965240544,
+      "metrics_sha256": "56aa7693d0ec07aabfb287e320b98a838e6cdf2908050c0c5c813815298249f1"
+    }
+  ],
+  "independent_reduction_match": {
+    "exact_match_to_1040_publication": true,
+    "E4c_pending": [],
+    "scratch_epochs": [
+      1,
+      2,
+      5
+    ],
+    "throughput_exact_match": true,
+    "sameprocess_threewarm_identical": true
+  },
+  "regression_tests_passed": 78,
+  "E8_optional_excluded": true,
+  "timing_caveat": "cross-process outputs not identical, not equal divergence across arms; matching-output subsets small"
+}

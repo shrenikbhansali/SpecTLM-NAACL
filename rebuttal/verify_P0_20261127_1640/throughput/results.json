@@ -1,0 +1,92 @@
+{
+  "status": "pilot",
+  "measurements": [
+    {
+      "sample": "cap512",
+      "n": 2000,
+      "steps": 200,
+      "profiled_s_200": 631.5319831776433,
+      "tokens_200": 347852,
+      "tokens_per_gpu_h_200": 1982903.8486681846,
+      "warm_steps": 180,
+      "warm_profiled_s": 553.5186058513355,
+      "warm_tokens": 313456,
+      "warm_tokens_per_gpu_h": 2038669.6816892147,
+      "mean_retained_shifted_tokens": 578.6475,
+      "mean_original_input_tokens": 579.6475,
+      "truncated_examples": 0,
+      "measured_total_trial_gpu_h": 0.18956959594836614,
+      "source": "/home/heck2/sbhansali8/ReFit/rebuttal/runs/E3a_t0_throughput200_cap512_s0/cell",
+      "profile_sha256": "23a0372c6a0bd31898faadd1da93b37c059480b9dc532fdf56a186b8b8498997",
+      "data_sha256": "1eba1a07244c68f33df84788e6acfaa48c7bea344baea89f19c4c3d01044f921"
+    },
+    {
+      "sample": "cap2048",
+      "n": 2000,
+      "steps": 200,
+      "profiled_s_200": 701.9277198787313,
+      "tokens_200": 310806,
+      "tokens_per_gpu_h_200": 1594041.050541938,
+      "warm_steps": 180,
+      "warm_profiled_s": 612.9065002826974,
+      "warm_tokens": 279831,
+      "warm_tokens_per_gpu_h": 1643630.1451124274,
+      "mean_retained_shifted_tokens": 1397.561,
+      "mean_original_input_tokens": 1406.636,
+      "truncated_examples": 225,
+      "measured_total_trial_gpu_h": 0.21126673384783012,
+      "source": "/home/heck2/sbhansali8/ReFit/rebuttal/runs/E3a_t0_throughput200_cap2048_s0/cell",
+      "profile_sha256": "79c6cdc02f22b6113af7e5ebfa9d6ae14820a56a4ef243f6180c410b4e09d926",
+      "data_sha256": "fb2611f79ccb21a557461eb2ea3ecdc85dc8f182c24d88039733354f97c60014"
+    },
+    {
+      "sample": "native",
+      "n": 2000,
+      "steps": 200,
+      "profiled_s_200": 615.4801718399394,
+      "tokens_200": 393569,
+      "tokens_per_gpu_h_200": 2302021.193898774,
+      "warm_steps": 180,
+      "warm_profiled_s": 533.7936311403755,
+      "warm_tokens": 353997,
+      "warm_tokens_per_gpu_h": 2387419.267774787,
+      "mean_retained_shifted_tokens": 1986.7505,
+      "mean_original_input_tokens": 6657.0395,
+      "truncated_examples": 1763,
+      "measured_total_trial_gpu_h": 0.1862140813966592,
+      "source": "/home/heck2/sbhansali8/ReFit/rebuttal/runs/E3a_t0_throughput200_native_s0/cell",
+      "profile_sha256": "ab3c60e35a53ca119eaec0d2b58805f60a4c31a972c05b4359c6d0ed2ce95e4f",
+      "data_sha256": "0e32d2f258055830ad05e498cde42cdae397a3a285101bcc08c2e2f1a0e30190"
+    }
+  ],
+  "extrapolations": [
+    {
+      "response_cap": 512,
+      "label": "extrapolated from measured throughput; one epoch; lower bound",
+      "generation_gpu_h_532k": 294.9274665506496,
+      "regenerated_training_gpu_h_532k": 151.00066124735199,
+      "native_training_gpu_h_114k": 94.86794383254744,
+      "one_epoch_total_gpu_h": 540.796071630549,
+      "measured_generation_n": 2000,
+      "measured_generation_gpu_h": 1.1087498742505624,
+      "mean_generated_answer_tokens": 507.479,
+      "generated_tokens_per_gpu_h": 915407.5446331309,
+      "capped": 1923,
+      "scope": "one pass; native answers and regenerated responses explicitly clipped to2049input IDs; throughput from measured180steady steps after20startup steps; excludes full-corpus setup, optimizer persistence and failed attempts; not actual dedicated-checkpoint cost"
+    },
+    {
+      "response_cap": 2048,
+      "label": "extrapolated from measured throughput; one epoch; lower bound",
+      "generation_gpu_h_532k": 1097.463045415728,
+      "regenerated_training_gpu_h_532k": 452.35386696387405,
+      "native_training_gpu_h_114k": 94.86794383254744,
+      "one_epoch_total_gpu_h": 1644.6848562121495,
+      "measured_generation_n": 2000,
+      "measured_generation_gpu_h": 4.125800922615518,
+      "mean_generated_answer_tokens": 1334.4675,
+      "generated_tokens_per_gpu_h": 646888.9435188866,
+      "capped": 185,
+      "scope": "one pass; native answers and regenerated responses explicitly clipped to2049input IDs; throughput from measured180steady steps after20startup steps; excludes full-corpus setup, optimizer persistence and failed attempts; not actual dedicated-checkpoint cost"
+    }
+  ]
+}

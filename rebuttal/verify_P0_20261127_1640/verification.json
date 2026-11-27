@@ -1,0 +1,11 @@
+{
+  "exact_match_to_1040_publication": true,
+  "E4c_pending": [],
+  "scratch_epochs": [
+    1,
+    2,
+    5
+  ],
+  "throughput_exact_match": true,
+  "sameprocess_threewarm_identical": true
+}

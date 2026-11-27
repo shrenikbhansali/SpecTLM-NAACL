@@ -1,0 +1,92 @@
+[
+  {
+    "panel": "speed128",
+    "reference": "E3b_t0_scratch20ep_s0_gcc13_all_step92175_speed128",
+    "candidate": "BASELINE_t0_full_speed128_s0_cachefix1",
+    "raw_sha256": [
+      "53fef745e675f54fe4d61964d0f112ad44be4626fa21025ff0f8c442e7379dc0",
+      "e153b4e2b3567418bee4bfc190af0130bde073f90fa897cfe9786a8bfe22a896"
+    ],
+    "scope": "one training seed; warm16k vs scratch64k five-epoch continuous schedule; not data/compute matched",
+    "n": 128,
+    "seeds": [
+      0
+    ],
+    "excluded_zero_step": 0,
+    "reference_tau": 2.154500852568865,
+    "reference_tau_ci95": [
+      2.090033612779285,
+      2.2179525748711937
+    ],
+    "candidate_tau": 2.523922512880032,
+    "candidate_tau_ci95": [
+      2.4408842078717474,
+      2.6024128769433292
+    ],
+    "delta_tau": 0.36942166031116624,
+    "delta_tau_ci95": [
+      0.32292528894368333,
+      0.41607221099645814
+    ],
+    "reference_p1": 0.5746405205153627,
+    "reference_p1_ci95": [
+      0.5495113440388819,
+      0.597613873025069
+    ],
+    "candidate_p1": 0.6447554543543207,
+    "candidate_p1_ci95": [
+      0.6166912810554008,
+      0.6698777555403288
+    ],
+    "delta_p1": 0.0701149338389577,
+    "delta_p1_ci95": [
+      0.056807095292086766,
+      0.08302990068041871
+    ]
+  },
+  {
+    "panel": "math128",
+    "reference": "E3b_t0_scratch20ep_s0_gcc13_all_step92175_math128",
+    "candidate": "BASELINE_t0_full_math500_s0_cachefix1",
+    "raw_sha256": [
+      "0ddb67a0a8148d709644e5634058d147d1365584b2e8acbf442af2927c43dccb",
+      "2902c591f9717e1febf0fbab447369750d28d0c6a25c4129800a0d612b29adb9"
+    ],
+    "scope": "one training seed; warm16k vs scratch64k five-epoch continuous schedule; not data/compute matched",
+    "n": 128,
+    "seeds": [
+      0
+    ],
+    "excluded_zero_step": 0,
+    "reference_tau": 2.6123284379884266,
+    "reference_tau_ci95": [
+      2.567514044484811,
+      2.655169966057113
+    ],
+    "candidate_tau": 2.9890216009193913,
+    "candidate_tau_ci95": [
+      2.9494683380217923,
+      3.0268983322174776
+    ],
+    "delta_tau": 0.3766931629309641,
+    "delta_tau_ci95": [
+      0.3457251777033698,
+      0.40875356189356266
+    ],
+    "reference_p1": 0.7087132313866987,
+    "reference_p1_ci95": [
+      0.6981381927384499,
+      0.7187684339442146
+    ],
+    "candidate_p1": 0.7599044090624166,
+    "candidate_p1_ci95": [
+      0.7517758882717799,
+      0.7678658598748269
+    ],
+    "delta_p1": 0.05119117767571742,
+    "delta_p1_ci95": [
+      0.04310394848390099,
+      0.05923502714248157
+    ]
+  }
+]
